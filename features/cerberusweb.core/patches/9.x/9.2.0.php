@@ -57,7 +57,6 @@ if(!isset($tables['package_library'])) {
 		'cerb_connected_service_gitlab.json',
 		'cerb_connected_service_google.json',
 		'cerb_connected_service_linkedin.json',
-		'cerb_connected_service_nest.json',
 		'cerb_connected_service_salesforce.json',
 		'cerb_connected_service_slack.json',
 		'cerb_connected_service_smartsheet.json',

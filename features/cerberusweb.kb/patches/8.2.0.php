@@ -1,5 +1,6 @@
 <?php
 $db = DevblocksPlatform::services()->database();
+$logger = DevblocksPlatform::services()->log();
 $tables = $db->metaTables();
 
 // ===========================================================================
@@ -17,7 +18,7 @@ if(!isset($columns['title'])) {
 	return FALSE;
 }
 
-if(0 == strcasecmp('varchar(128)', $columns['title']['type'])) {
+if(0 !== strcasecmp('varchar(255)', $columns['title']['type'])) {
 	$sql = "ALTER TABLE kb_article MODIFY COLUMN title varchar(255) not null default ''";
 	$db->ExecuteMaster($sql);
 }

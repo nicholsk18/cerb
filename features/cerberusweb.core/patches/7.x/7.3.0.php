@@ -483,34 +483,36 @@ function cerb730_extractInternalURLsFromContent($content) {
 // Migrate kb articles and html templates away from guids
 
 // Migrate hash URLs in KB articles
-$sql = "SELECT id, content FROM kb_article WHERE content LIKE '%/files/%'";
-$rs = $db->ExecuteMaster($sql);
-
-while($row = mysqli_fetch_assoc($rs)) {
-	$internal_urls = cerb730_extractInternalURLsFromContent($row['content']);
+if(array_key_exists('kb_article', $tables)) {
+	$sql = "SELECT id, content FROM kb_article WHERE content LIKE '%/files/%'";
+	$rs = $db->ExecuteMaster($sql);
 	
-	if(is_array($internal_urls)) {
-		foreach($internal_urls as $replace_url => $replace_data) {
-			list($attachment_hash, $attachment_name) = array_pad(explode('/', $replace_data['path'], 2), 2, null);
-			$attachment_id = 0;
-			
-			if(strlen($attachment_hash) == 40) {
-				$attachment_id = $db->GetOneMaster(sprintf("SELECT id FROM attachment WHERE storage_sha1hash = %s", $db->qstr($attachment_hash)));
-			} elseif(strlen($attachment_hash) == 36) {
-				$attachment_id = $db->GetOneMaster(sprintf("SELECT attachment_id FROM attachment_link WHERE guid = %s", $db->qstr($attachment_hash)));
-			} elseif(is_numeric($attachment_hash)) {
-				$attachment_id = intval($attachment_hash);
-			} else {
-				continue;
-			}
-			
-			if($attachment_id) {
-				$new_url = sprintf("{{cerb_file_url(%d, '%s')}}", $attachment_id, DevblocksPlatform::strToPermalink($attachment_name));
+	while ($row = mysqli_fetch_assoc($rs)) {
+		$internal_urls = cerb730_extractInternalURLsFromContent($row['content']);
+		
+		if (is_array($internal_urls)) {
+			foreach ($internal_urls as $replace_url => $replace_data) {
+				list($attachment_hash, $attachment_name) = array_pad(explode('/', $replace_data['path'], 2), 2, null);
+				$attachment_id = 0;
 				
-				$db->ExecuteMaster(sprintf("UPDATE kb_article SET content = %s WHERE id = %d",
-					$db->qstr(str_replace($replace_url, $new_url, $row['content'])),
-					$row['id']
-				));
+				if (strlen($attachment_hash) == 40) {
+					$attachment_id = $db->GetOneMaster(sprintf("SELECT id FROM attachment WHERE storage_sha1hash = %s", $db->qstr($attachment_hash)));
+				} elseif (strlen($attachment_hash) == 36) {
+					$attachment_id = $db->GetOneMaster(sprintf("SELECT attachment_id FROM attachment_link WHERE guid = %s", $db->qstr($attachment_hash)));
+				} elseif (is_numeric($attachment_hash)) {
+					$attachment_id = intval($attachment_hash);
+				} else {
+					continue;
+				}
+				
+				if ($attachment_id) {
+					$new_url = sprintf("{{cerb_file_url(%d, '%s')}}", $attachment_id, DevblocksPlatform::strToPermalink($attachment_name));
+					
+					$db->ExecuteMaster(sprintf("UPDATE kb_article SET content = %s WHERE id = %d",
+						$db->qstr(str_replace($replace_url, $new_url, $row['content'])),
+						$row['id']
+					));
+				}
 			}
 		}
 	}
