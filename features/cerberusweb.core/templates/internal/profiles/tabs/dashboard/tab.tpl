@@ -8,7 +8,7 @@
 
 {if 'sidebar_left' == $layout}
 	<div id="profileTab{$model->id}" class="cerb-profile-layout cerb-profile-layout--sidebar-left" style="vertical-align:top;display:flex;flex-flow:row wrap;">
-		<div data-layout-zone="sidebar" class="cerb-profile-layout-zone" style="flex:1 1 33%;min-width:345px;overflow-x:hidden;">
+		<div data-layout-zone="sidebar" class="cerb-profile-layout-zone" style="flex:1 1 33%;min-width:345px;overflow-x:hidden; {if $sitebar_sticky}height:100%;position:-webkit-sticky;position:sticky;top:5%;{/if}">
 			<div class="cerb-profile-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 			{foreach from=$zones.sidebar item=widget name=widgets}
 				{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
@@ -34,7 +34,7 @@
 			</div>
 		</div>
 		
-		<div data-layout-zone="sidebar" class="cerb-profile-layout-zone cerb-profile-layout-zone--sidebar" style="flex:1 1 33%;min-width:345px;overflow-x:hidden;">
+		<div data-layout-zone="sidebar" class="cerb-profile-layout-zone cerb-profile-layout-zone--sidebar" style="flex:1 1 33%;min-width:345px;overflow-x:hidden; {if $sitebar_sticky}height:100%;position:-webkit-sticky;position:sticky;top:5%;{/if}">
 			<div class="cerb-profile-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
 			{foreach from=$zones.sidebar item=widget name=widgets}
 				{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}

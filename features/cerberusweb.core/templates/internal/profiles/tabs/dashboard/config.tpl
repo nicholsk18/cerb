@@ -46,6 +46,12 @@
 			</label>
 		</div>
 		
+		<div style="margin:5px;display:block;">
+			<label>
+				<input type='checkbox' name="params[sitebar_sticky]" value='true' {if $tab->extension_params.sitebar_sticky}checked="checked"{/if} />
+				Sticky Sidebar
+			</label>
+		</div>
 	</fieldset>
 </div>
 

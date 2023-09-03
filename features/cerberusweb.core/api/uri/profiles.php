@@ -625,6 +625,7 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 		]); 
 		
 		$layout = ($model->extension_params['layout'] ?? null) ?: '';
+		$sitebar_sticky = ($model->extension_params['sitebar_sticky'] ?? null) ?: false;
 		
 		$zones = [
 			'content' => [],
@@ -658,6 +659,7 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 		}
 		
 		$tpl->assign('layout', $layout);
+		$tpl->assign('sitebar_sticky', $sitebar_sticky);
 		$tpl->assign('zones', $zones);
 		$tpl->assign('model', $model);
 		$tpl->assign('profile_tab_dict', $profile_tab_dict);
