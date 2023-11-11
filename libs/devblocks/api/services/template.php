@@ -67,6 +67,7 @@ class _DevblocksTemplateManager {
 					'Context_ProjectBoard',
 					'Context_ProjectBoardColumn',
 					'Context_Ticket',
+					'Context_ToolbarSection',
 					'Context_TriggerEvent',
 					'Context_Worker',
 					'Context_WorkspacePage',
