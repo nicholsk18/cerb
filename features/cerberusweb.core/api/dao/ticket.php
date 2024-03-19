@@ -357,7 +357,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$db->qstr(sha1($raw_message_id))
 		);
 		
-		if(false == ($row = $db->GetRowReader($sql)) || empty($row))
+		if(!($row = $db->GetRowReader($sql)) || empty($row))
 			return false;
 		
 		$ticket_id = intval($row['ticket_id']);
@@ -1821,7 +1821,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 			$ticket_id,
 			implode(',', array_keys($participants))
 		);
-		if(false == ($db->ExecuteMaster($sql)))
+		if(!($db->ExecuteMaster($sql)))
 			return false;
 		
 		foreach($participants as $participant) {
@@ -5580,10 +5580,10 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 				break;
 				
 			case 'bucket_id':
-				if(false !== strstr($value,'{{{'))
+				if(str_contains($value, '{{{'))
 					break;
 				
-				if(false == ($bucket = DAO_Bucket::get($value))) {
+				if(!($bucket = DAO_Bucket::get($value))) {
 					$error = sprintf("Failed to look up bucket_id: %d", $value);
 					return false;
 				}
@@ -5753,10 +5753,10 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 				break;
 				
 			case 'signature':
-				if(false == ($active_worker = CerberusApplication::getActiveWorker()))
+				if(!($active_worker = CerberusApplication::getActiveWorker()))
 					break;
 				
-				if(!isset($dictionary['group_id']) || false == ($group = DAO_Group::get($dictionary['group_id'])))
+				if(!isset($dictionary['group_id']) || !($group = DAO_Group::get($dictionary['group_id'])))
 					break;
 				
 				$values['signature'] = $group->getReplySignature(intval($dictionary['bucket_id']), $active_worker, false);
@@ -6345,7 +6345,8 @@ EOD;
 			$custom_fields = DAO_CustomField::getByContext($context, false);
 			$tpl->assign('custom_fields', $custom_fields);
 			
-			$custom_field_values = @DAO_CustomFieldValue::getValuesByContextIds($context, $model->id)[$model->id] ?: [];
+			$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds($context, $model->id) ?: [];
+			$custom_field_values = $custom_field_values[$model->id] ?? [];
 			$tpl->assign('custom_field_values', $custom_field_values);
 			
 			$tpl->assign('ticket', $model);

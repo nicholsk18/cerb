@@ -1367,7 +1367,7 @@ class CerberusParser {
 					
 					$not = false;
 					
-					if(substr($filter['oper'],0,1)=='!') {
+					if(str_starts_with($filter['oper'], '!')) {
 						$not = true;
 						$filter['oper'] = substr($filter['oper'],1);
 					}
