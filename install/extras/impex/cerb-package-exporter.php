@@ -1289,7 +1289,7 @@ SQL;
 				die(sprintf("The 'storage_path' (%s) doesn't exist.\n", $storage_path));
 			
 			$sql = <<< SQL
-SELECT t.id, t.mask, t.subject, t.status_id, t.importance, t.created_date, t.updated_date, t.owner_id, t.group_id, t.bucket_id, o.name AS org_name,
+SELECT t.id, t.mask, t.subject, t.status_id, t.importance, t.created_date, t.updated_date, t.owner_id, t.group_id, t.bucket_id, t.reopen_at, o.name AS org_name,
 (SELECT group_concat(address.email) FROM requester INNER JOIN address ON (address.id=requester.address_id) where requester.ticket_id=t.id) AS participants,
 GROUP_CONCAT(cfields.field_id) AS cfield_ids,
 (SELECT group_concat(comment.id) FROM comment WHERE context = 'cerberusweb.contexts.ticket' AND context_id = t.id AND owner_context = 'cerberusweb.contexts.worker') AS comment_ids
@@ -1333,6 +1333,7 @@ SQL;
 					$owner_id,
 					$group_id,
 					$bucket_id,
+					$reopen_at,
 					$org_name,
 					$participants,
 					$cfield_ids,
@@ -1375,6 +1376,9 @@ SQL;
 					
 					if($org_name)
 						$ticket_json['org'] = $org_name;
+					
+					if($reopen_at)
+						$ticket_json['reopen_date'] = intval($reopen_at);
 					
 					// Ticket custom fields
 					
