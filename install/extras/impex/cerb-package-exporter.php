@@ -1545,6 +1545,30 @@ SQL;
 								];
 								$json_out[] = $comment_json;
 							}
+						
+						// Threaded comments
+						$sql_comments = sprintf("SELECT id, created, comment, context_id, is_markdown, is_pinned, owner_context_id AS worker_id FROM comment WHERE context = 'cerberusweb.contexts.comment' and context_id IN (%s) AND owner_context = 'cerberusweb.contexts.worker'", $comment_ids);
+						$res = $db->query($sql_comments);
+						
+						if($res && $res instanceof \mysqli_result && $res->num_rows)
+							while($row = $res->fetch_assoc()) {
+								if(false == ($new_worker_id = $this->mapWorkerId($row['worker_id'])))
+									continue;
+								
+								$comment_json = [
+									'uid' => sprintf('comment_%d', $row['id']),
+									'_context' => 'comment',
+									'created' => $row['created'],
+									'target__context' => 'comment',
+									'target_id' => '{{{uid.comment_' . $row['context_id'] . '}}}',
+									'author__context' => 'worker',
+									'author_id' => $new_worker_id,
+									'comment' => $row['comment'],
+									'is_markdown' => $row['is_markdown'],
+									'is_pinned' => $row['is_pinned'],
+								];
+								$json_out[] = $comment_json;
+							}
 					}
 					
 					// Time Tracking
