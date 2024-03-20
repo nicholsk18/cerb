@@ -1523,7 +1523,7 @@ SQL;
 					// Comments
 					
 					if(!empty($comment_ids)) {
-						$sql_comments = sprintf("SELECT id, created, comment, owner_context_id AS worker_id FROM comment WHERE id IN (%s) AND owner_context = 'cerberusweb.contexts.worker'", $comment_ids);
+						$sql_comments = sprintf("SELECT id, created, comment, is_pinned, is_markdown, owner_context_id AS worker_id FROM comment WHERE id IN (%s) AND owner_context = 'cerberusweb.contexts.worker'", $comment_ids);
 						$res = $db->query($sql_comments);
 						
 						if($res && $res instanceof \mysqli_result && $res->num_rows)
@@ -1540,6 +1540,8 @@ SQL;
 									'author__context' => 'worker',
 									'author_id' => $new_worker_id,
 									'comment' => $row['comment'],
+									'is_markdown' => $row['is_markdown'],
+									'is_pinned' => $row['is_pinned'],
 								];
 								$json_out[] = $comment_json;
 							}
