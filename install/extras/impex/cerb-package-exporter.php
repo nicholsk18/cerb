@@ -1531,6 +1531,10 @@ SQL;
 								if(false == ($new_worker_id = $this->mapWorkerId($row['worker_id'])))
 									continue;
 								
+								// No empty comments
+								if(empty($row['comment'] ?? ''))
+									continue;
+								
 								$comment_json = [
 									'uid' => sprintf('comment_%d', $row['id']),
 									'_context' => 'comment',
@@ -1553,6 +1557,10 @@ SQL;
 						if($res && $res instanceof \mysqli_result && $res->num_rows)
 							while($row = $res->fetch_assoc()) {
 								if(false == ($new_worker_id = $this->mapWorkerId($row['worker_id'])))
+									continue;
+								
+								// No empty comments
+								if(empty($row['comment'] ?? ''))
 									continue;
 								
 								$comment_json = [
