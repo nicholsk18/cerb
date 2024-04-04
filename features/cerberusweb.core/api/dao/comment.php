@@ -155,11 +155,17 @@ class DAO_Comment extends Cerb_ORMHelper {
 		
 		$also_notify_worker_ids = array_keys(CerberusApplication::getWorkersByAtMentionsText($comment));
 		
+		$events_enabled = DevblocksPlatform::services()->event()->isEnabled();
+		
 		/*
 		 * Log the activity of a new comment being created
 		 */
 		
-		if(array_key_exists(self::CONTEXT, $fields) && array_key_exists(self::CONTEXT_ID, $fields)) {
+		if(
+			$events_enabled
+			&& array_key_exists(self::CONTEXT, $fields)
+			&& array_key_exists(self::CONTEXT_ID, $fields)
+		) {
 			$context = Extension_DevblocksContext::get($fields[self::CONTEXT]);
 			
 			$meta = $context->getMeta($fields[self::CONTEXT_ID]);
