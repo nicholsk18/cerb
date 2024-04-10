@@ -2691,6 +2691,10 @@ class CerberusContexts {
 			return false;
 		}
 		
+		// Ignore these record types
+		if($context_mft->id == Context_Draft::ID)
+			return true;
+		
 		if(is_numeric($record_ids) && !is_array($record_ids))
 			$record_ids = [$record_ids];
 		
