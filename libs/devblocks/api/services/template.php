@@ -119,6 +119,7 @@ class _DevblocksTemplateManager {
 					'Extension_WorkspaceWidget',
 					'Extension_WorkspaceWidgetDatasource',
 					'Extension_WorkspaceTab',
+					'Model_ContextActivityLogEntry',
 					'Model_CustomField',
 					'Model_Ticket',
 					'Page_Login',
