@@ -2265,8 +2265,8 @@ class CerberusContexts {
 
 		return $activity_entry_id;
 	}
-
-	static function getModels($context, array $ids) {
+	
+	static function getModels($context, array $ids, bool $no_cache=false) {
 		$context = trim($context);
 		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 
@@ -2282,7 +2282,8 @@ class CerberusContexts {
 			return $models;
 		
 		if(
-			method_exists($dao_class, 'clearCache')
+			$no_cache
+			&& method_exists($dao_class, 'clearCache')
 			&& is_callable($dao_class, 'clearCache')
 		) {
 			$dao_class::clearCache();
@@ -2376,7 +2377,7 @@ class CerberusContexts {
 		$unseen_ids = array_diff($ids, array_keys(self::$_context_initial_checkpoints[$context]));
 
 		if(!empty($unseen_ids)) {
-			$models = CerberusContexts::getModels($context, $unseen_ids);
+			$models = CerberusContexts::getModels($context, $unseen_ids, no_cache: true);
 			$values = DAO_CustomFieldValue::getValuesByContextIds($context, $unseen_ids);
 
 			foreach($models as $model_id => $model) {
