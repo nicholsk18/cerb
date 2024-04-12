@@ -6189,6 +6189,9 @@ class _CerbApplication_KataSchemas {
                                 color:
                                   types:
                                     string:
+                                selectable:
+                                  types:
+                                    string:
                                 text_color:
                                   types:
                                     string:
