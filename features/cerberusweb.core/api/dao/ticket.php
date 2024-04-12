@@ -5096,6 +5096,13 @@ class Context_Ticket extends Extension_DevblocksContext implements IDevblocksCon
 			$entry = new stdClass();
 			$entry->label = $dict->get('_label');
 			$entry->value = intval($ticket_id);
+			$entry->meta = [
+				'byline' => sprintf("%s by %s in %s",
+					DevblocksPlatform::strPrettyTime($dict->get('created')),
+					$dict->get('initial_message_sender__label'),
+					$dict->get('group__label')
+				),
+			];
 			$list[] = $entry;
 		}
 		
