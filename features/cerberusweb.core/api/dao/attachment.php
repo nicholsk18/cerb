@@ -2102,6 +2102,17 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 	
 	function lazyLoadGetKeys() {
 		$lazy_keys = parent::lazyLoadGetKeys();
+		
+		$lazy_keys['on'] = [
+			'label' => '[Records](/docs/records/) attached to (max 100)',
+			'type' => 'records',
+		];
+		
+		$lazy_keys['on.<type>'] = [
+			'label' => '[Records](/docs/records/) attached to by [record type](/docs/records/types/)',
+			'type' => 'records',
+		];
+		
 		return $lazy_keys;
 	}
 	
