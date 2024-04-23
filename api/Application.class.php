@@ -3768,8 +3768,8 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 
 	static protected function _getRandom($table, $pkey='id') {
 		$db = DevblocksPlatform::services()->database();
-		$offset = $db->GetOneReader(sprintf("SELECT ROUND(RAND()*(SELECT COUNT(*)-1 FROM %s))", $table));
-		return $db->GetOneReader(sprintf("SELECT %s FROM %s LIMIT %d,1", $pkey, $table, $offset));
+		$offset = $db->GetOneReader(sprintf("SELECT ROUND(RAND()*(SELECT COUNT(*)-1 FROM %s))", $db->escape($table)));
+		return $db->GetOneReader(sprintf("SELECT %s FROM %s LIMIT %d,1",$db->escape($pkey), $db->escape($table), $offset));
 	}
 
 	static function _searchComponentsVirtualOwner(&$param, &$join_sql, &$where_sql) {
