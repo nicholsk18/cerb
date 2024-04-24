@@ -175,7 +175,7 @@ class GenericOpenIDConnectProvider extends GenericProvider {
 		if(!$validation->validate(
 			$token,
 			new Lcobucci\JWT\Validation\Constraint\SignedWith(new Sha256(), InMemory::plainText($public_key)),
-			new Lcobucci\JWT\Validation\Constraint\StrictValidAt(new SystemClock(new DateTimeZone(\date_default_timezone_get()))),
+			new Lcobucci\JWT\Validation\Constraint\LooseValidAt(new SystemClock(new DateTimeZone(\date_default_timezone_get()))),
 			new Lcobucci\JWT\Validation\Constraint\IssuedBy($this->getIdTokenIssuer()),
 			new Lcobucci\JWT\Validation\Constraint\PermittedFor($this->clientId)
 			)) {
