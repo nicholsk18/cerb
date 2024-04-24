@@ -358,6 +358,7 @@ class ServiceProvider_OpenIdConnect extends Extension_ConnectedServiceProvider {
 			'clientSecret' => $service_params['client_secret'],
 			'idTokenIssuer' => $service_params['issuer'],
 			'redirectUri' => $url_writer->write(sprintf('c=sso&provider=%s', $service->uri), true),
+			'scopes' => $service_params['scope'] ?? '',
 			'urlAuthorize' => $service_params['authorization_url'],
 			'urlAccessToken' => $service_params['access_token_url'],
 			'urlResourceOwnerDetails' => $service_params['userinfo_url'],
