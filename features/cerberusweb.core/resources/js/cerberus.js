@@ -1609,6 +1609,7 @@ let twigAutocompleteSuggestions = {
 		{ value: "filter(func)", snippet: "filter((v,k) => false)", meta: "filter" },
 		{ value: "first", meta: "filter" },
 		{ value: "format", meta: "filter" },
+		{ value: "hash()", snippet: "hash(algo=\"${1:sha256}\", raw=true)", meta: "filter" },
 		{ value: "hash_hmac()", snippet: "hash_hmac(\"${1:secret key}\",\"${2:sha256}\")", meta: "filter" },
 		{ value: "html_to_text(truncate=50000)", meta: "filter" },
 		{ value: "indent(marker, fromLine)", meta: "filter" },

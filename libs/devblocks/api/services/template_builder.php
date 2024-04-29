@@ -175,6 +175,7 @@ class _DevblocksTemplateBuilder {
 				'context_name',
 				'csv',
 				'date_pretty',
+				'hash',
 				'hash_hmac',
 				'html_to_text',
 				'image_info',
@@ -1758,6 +1759,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFilter('context_name', [$this, 'filter_context_name']),
 			new \Twig\TwigFilter('csv', [$this, 'filter_csv']),
 			new \Twig\TwigFilter('date_pretty', [$this, 'filter_date_pretty']),
+			new \Twig\TwigFilter('hash', [$this, 'filter_hash']),
 			new \Twig\TwigFilter('hash_hmac', [$this, 'filter_hash_hmac']),
 			new \Twig\TwigFilter('html_to_text', [$this, 'filter_html_to_text']),
 			new \Twig\TwigFilter('image_info', [$this, 'filter_image_info']),
@@ -1955,18 +1957,57 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		return DevblocksPlatform::strPrettyTime($string, $is_delta);
 	}
 	
-	function filter_hash_hmac($string, $key='', $algo='sha256', $raw=false) {
+	function filter_hash($string, $algo='sha256', $raw=false) {
 		if($string instanceof Twig\Markup)
 			$string = strval($string);
 		
 		if(!is_string($string) 
-			|| !is_string($key) 
-			|| !is_string($algo) 
+			|| !is_string($algo)
 			|| empty($string)
 			)
 			return '';
 			
-		if(false == ($hash = hash_hmac($algo, $string, $key, $raw)))
+		if(!in_array($algo, [
+			'crc32',
+			'md5',
+			'murmur3a',
+			'murmur3c',
+			'murmur3f',
+			'sha1',
+			'sha256',
+			'sha512/224',
+			'sha512/256',
+			'sha512',
+			'sha3-224',
+			'sha3-256',
+			'sha3-384',
+			'sha3-512',
+			'whirlpool',
+			'xxh32',
+			'xxh64',
+			'xxh3',
+			'xxh128',
+		]))
+			return '';
+		
+		if(!($hash = hash($algo, $string, $raw)))
+			return '';
+		
+		return $hash;
+	}
+	
+	function filter_hash_hmac($string, $key='', $algo='sha256', $raw=false) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
+		if(!is_string($string)
+			|| !is_string($key)
+			|| !is_string($algo)
+			|| empty($string)
+			)
+			return '';
+			
+		if(!($hash = hash_hmac($algo, $string, $key, $raw)))
 			return '';
 		
 		return $hash;
