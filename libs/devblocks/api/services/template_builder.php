@@ -261,6 +261,7 @@ class _DevblocksTemplateBuilder {
 				'cerb_avatar_image',
 				'cerb_avatar_url',
 				'cerb_calendar_time_elapsed',
+				'cerb_extract_mentions',
 				'cerb_extract_uris',
 				'cerb_file_url',
 				'cerb_has_priv',
@@ -1176,6 +1177,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFunction('cerb_avatar_url', [$this, 'function_cerb_avatar_url']),
 			new \Twig\TwigFunction('cerb_calendar_time_elapsed', [$this, 'function_cerb_calendar_time_elapsed']),
 			new \Twig\TwigFunction('cerb_extract_uris', [$this, 'function_cerb_extract_uris']),
+			new \Twig\TwigFunction('cerb_extract_mentions', [$this, 'function_cerb_extract_mentions']),
 			new \Twig\TwigFunction('cerb_file_url', [$this, 'function_cerb_file_url']),
 			new \Twig\TwigFunction('cerb_has_priv', [$this, 'function_cerb_has_priv']),
 			new \Twig\TwigFunction('cerb_placeholders_list', [$this, 'function_cerb_placeholders_list'], ['needs_environment' => true]),
@@ -1431,6 +1433,17 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			$url .= '?v=' . intval($updated);
 		
 		return $url;
+	}
+	
+	function function_cerb_extract_mentions($text) {
+		$workers = CerberusApplication::getWorkersByAtMentionsText($text);
+		
+		$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels(
+			$workers ?: [],
+			CerberusContexts::CONTEXT_WORKER
+		);
+		
+		return array_values($dicts);
 	}
 	
 	function function_cerb_extract_uris($html) {
