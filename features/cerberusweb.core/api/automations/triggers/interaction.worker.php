@@ -263,7 +263,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 	public function getAutocompleteSuggestions() : array {
 		$toolbar_keyprefix = '(.*):await:form:elements:(.*):(.*):?toolbar:';
 		
-		return [
+		$suggestions = [
 			'*' => [
 				'(.*):await:' => [
 					[
@@ -1406,15 +1406,17 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 				'(.*):await:record:uri:' => [
 					'type' => 'cerb-uri',
 				],
-				
-				'(.*):return:' => [
-					'alert:',
-					'clipboard:',
-					'open_link:',
-					'open_url:',
-					'snippet:',
-				],
 			]
 		];
+		
+		$suggestions['(.*):return:'] = [
+			'alert:',
+			'clipboard:',
+			'open_link:',
+			'open_url:',
+			'snippet:',
+		];
+		
+		return $suggestions;
 	}
 }
