@@ -339,6 +339,15 @@ class ServiceProvider_OAuth2 extends Extension_ConnectedServiceProvider implemen
 				return false;
 			}
 			
+			if(array_key_exists('error', $oauth_params)) {
+				$error = $oauth_params['error_description'] ?? $oauth_params['error'];
+				return false;
+				
+			} else {
+				unset($params['error']);
+				unset($params['error_description']);
+			}
+			
 			if(is_array($oauth_params))
 			foreach($oauth_params as $k => $v)
 				$params[$k] = $v;
