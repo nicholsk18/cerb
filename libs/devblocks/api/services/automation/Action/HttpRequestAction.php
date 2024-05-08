@@ -238,6 +238,21 @@ class HttpRequestAction extends AbstractAction {
 						$error_dict = [];
 						
 						if ($error_response instanceof ResponseInterface) {
+							if(
+								401 == $error_response->getStatusCode()
+								&& 1 == $num_attempts
+								&& isset($connected_account)
+								&& ($service_ext = $connected_account->getServiceExtension())
+								&& $service_ext->id == \ServiceProvider_OAuth2::ID
+							) {
+								// If the connected account supports refreshing auth, try once
+								/* @var $service_ext \ServiceProvider_OAuth2 */
+								if(($service_ext->oauthRefresh($connected_account))) {
+									$should_retry = true;
+									continue;
+								}
+							}
+							
 							if (false === ($error_dict = $this->_buildResults($error_response, $inputs, $error)))
 								return false;
 						}
@@ -256,6 +271,22 @@ class HttpRequestAction extends AbstractAction {
 					}
 					
 				} else {
+					// If we received an unauthenticated response, try refreshing the token once
+					if(
+						401 == $response->getStatusCode()
+						&& 1 == $num_attempts
+						&& isset($connected_account)
+						&& ($service_ext = $connected_account->getServiceExtension())
+						&& $service_ext->id == \ServiceProvider_OAuth2::ID
+					) {
+						// If the connected account supports refreshing auth, try once
+						/* @var $service_ext \ServiceProvider_OAuth2 */
+						if(($service_ext->oauthRefresh($connected_account))) {
+							$should_retry = true;
+							continue;
+						}
+					}
+					
 					if ($output) {
 						if (false === ($results = $this->_buildResults($response, $inputs, $error)))
 							return false;

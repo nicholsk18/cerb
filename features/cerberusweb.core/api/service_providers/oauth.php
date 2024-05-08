@@ -432,6 +432,19 @@ class ServiceProvider_OAuth2 extends Extension_ConnectedServiceProvider implemen
 		}
 	}
 	
+	function oauthRefresh(Model_ConnectedAccount $account) {
+		if(!($params = $account->decryptParams()))
+			return false;
+		
+		if(!($access_token = new AccessToken($params)))
+			return false;
+		
+		if(!($this->_refreshToken($access_token, $params, $account)))
+			return false;
+		
+		return true;
+	}
+	
 	/**
 	 * @param Model_ConnectedAccount $account
 	 * @return AccessToken|false
