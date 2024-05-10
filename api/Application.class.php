@@ -2675,6 +2675,49 @@ class CerberusContexts {
 		self::$_context_initial_checkpoints = [];
 	}
 	
+	public static function logActivityRecordCreate($context, $record_ids, $record_labels=null) {
+		// Polymorph
+		if($context instanceof DevblocksExtensionManifest) {
+			$context_mft = $context;
+			
+		} else if ($context instanceof Extension_DevblocksContext) {
+			$context_mft = $context->manifest;
+			
+		} else if (is_string($context)) {
+			if(!($context_mft = Extension_DevblocksContext::get($context, false)))
+				return false; /** @var $context_mft DevblocksExtensionManifest */
+			
+		} else {
+			return false;
+		}
+		
+		if(is_numeric($record_ids) && !is_array($record_ids))
+			$record_ids = [$record_ids];
+		
+		if(is_string($record_labels)) {
+			$record_labels = [$record_labels];
+		}
+		
+		// Lazy load the record labels, if needed
+		if($record_ids && !$record_labels) {
+			$models = CerberusContexts::getModels($context_mft->id, $record_ids);
+			$dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context_mft->id);
+			$record_labels = array_column($dicts, '_label', 'id');
+		}
+		
+		if(count($record_ids) === count($record_labels))
+		foreach(array_combine($record_ids, $record_labels) as $record_id => $record_label) {
+			$entry = [
+				// {{actor}} created {{record_type}} `{{target}}`
+				'variables' => [
+					'record_type' => DevblocksPlatform::strLower($context_mft->name),
+				],
+				'urls' => [],
+			];
+			CerberusContexts::logActivity('record.created', $context_mft->id, $record_id, $entry);
+		}
+	}
+	
 	public static function logActivityRecordDelete($context, $record_ids, $record_labels=null) {
 		// Polymorph
 		if($context instanceof DevblocksExtensionManifest) {
