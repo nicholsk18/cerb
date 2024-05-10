@@ -2709,10 +2709,14 @@ class CerberusContexts {
 		foreach(array_combine($record_ids, $record_labels) as $record_id => $record_label) {
 			$entry = [
 				// {{actor}} created {{record_type}} `{{target}}`
+				'message' => 'activities.record.create',
 				'variables' => [
 					'record_type' => DevblocksPlatform::strLower($context_mft->name),
+					'target' => $record_label
 				],
-				'urls' => [],
+				'urls' => [
+					'target' => sprintf('ctx://cerberusweb.contexts.worker:%d', $record_id)
+				],
 			];
 			CerberusContexts::logActivity('record.created', $context_mft->id, $record_id, $entry);
 		}

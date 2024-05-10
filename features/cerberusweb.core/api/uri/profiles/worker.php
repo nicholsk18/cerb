@@ -189,6 +189,8 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					
 					DAO_Worker::onUpdateByActor($active_worker, $fields, $id);
 					
+					CerberusContexts::logActivityRecordCreate(CerberusContexts::CONTEXT_WORKER, [$id]);
+					
 					// View marquee
 					if(!empty($id) && !empty($view_id)) {
 						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_WORKER, $id);
