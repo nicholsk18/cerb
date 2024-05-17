@@ -99,7 +99,14 @@ class RecordSearchAction extends AbstractAction {
 				// [TODO] Boundary query
 				
 				$view = $context_ext->getTempView();
-				$view->addParamsWithQuickSearch($record_query, true, $record_query_params);
+
+				if(!$view->addParamsWithQuickSearch($record_query, true, $record_query_params, $error)) {
+					throw new Exception_DevblocksAutomationError(sprintf(
+						"inputs:record_query: %s",
+						$error
+					));
+				}
+
 				$models = $view->getDataAsObjects();
 
 				$record_dicts = DevblocksDictionaryDelegate::getDictionariesFromModels($models, $context_ext->id, $record_expand_keys);
