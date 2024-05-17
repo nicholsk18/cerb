@@ -95,7 +95,10 @@ class RecordCreateAction extends AbstractAction {
 				'output' => $output,
 			]);
 			
-			if(!$policy->isCommandAllowed(self::ID, $action_dict)) {
+			if(
+				!$policy->isCommandAllowed(self::ID, $action_dict)
+				&& !$policy->isCommandAllowed(RecordUpsertAction::ID, $action_dict)
+			) {
 				$error = sprintf(
 					"The automation policy does not allow this command (%s).",
 					self::ID
