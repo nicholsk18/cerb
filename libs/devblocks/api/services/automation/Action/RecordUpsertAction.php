@@ -107,7 +107,14 @@ class RecordUpsertAction extends AbstractAction {
 				throw new Exception_DevblocksAutomationError("Upsert not implemented.");
 			
 			$view->setAutoPersist(false);
-			$view->addParamsWithQuickSearch($query, true, $query_params);
+			
+			if(!($view->addParamsWithQuickSearch($query, true, $query_params, $error))) {
+				throw new Exception_DevblocksAutomationError(sprintf(
+					"inputs:record_query: %s",
+					$error
+				));
+			}
+			
 			list($results, $total) = $view->getData();
 			
 			// If the results were limited to a single result, treat that as the entire set
