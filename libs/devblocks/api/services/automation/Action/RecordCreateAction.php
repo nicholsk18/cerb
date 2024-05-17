@@ -163,7 +163,7 @@ class RecordCreateAction extends AbstractAction {
 			$dict->set($output, $record_dict);
 			
 		} catch (Exception_DevblocksAutomationError $e) {
-			$error = $e->getMessage();
+			$error = sprintf("[%s] %s", $this->node->getId(), $e->getMessage());
 			
 			if(null != ($event_error = $this->node->getChildBySuffix(':on_error'))) {
 				$dict->set($output, [
