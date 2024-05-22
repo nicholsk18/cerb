@@ -150,7 +150,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 			
 			if($field->key == 'type') {
 				// Do nothing
-				true;
+				DevblocksPlatform::noop();
 				
 			} else if($field->key == 'function') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
@@ -225,7 +225,7 @@ class _DevblocksDataProviderWorklistSubtotals extends _DevblocksDataProvider {
 				
 			} else if($field->key == 'timeout') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
-				$chart_model['timeout'] = DevblocksPlatform::intClamp($value, 0, 60000);
+				$chart_model['timeout'] = DevblocksPlatform::intClamp($value ?? 0, 0, 60000);
 				
 			} else {
 				$error = sprintf("The parameter '%s' is unknown.", $field->key);
