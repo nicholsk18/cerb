@@ -60,6 +60,9 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 					'avg',
 					'count',
 					'distinct',
+					'faceted_average',
+					'faceted_max',
+					'faceted_min',
 					'max',
 					'min',
 					'samples',
@@ -174,6 +177,10 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 							'avg' => 'average',
 							'count' => 'count',
 							'distinct' => 'distinct',
+							'faceted_avg' => 'faceted_average',
+							'faceted_average' => 'faceted_average',
+							'faceted_max' => 'faceted_max',
+							'faceted_min' => 'faceted_min',
 							'max' => 'max',
 							'min' => 'min',
 							'samples' => 'count',
@@ -661,52 +668,21 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 		);
 		
 		// Metric types
-		if('gauge' == $metric->type) {
-			if($func == 'average') {
-				$sql_select_func = 'SUM(sum/samples)';				
-				
-			} else if($func == 'sum') {
-				$sql_select_func = 'SUM(sum)';
-				
-			} else if($func == 'min') {
-				$sql_select_func = 'SUM(min)';
-				
-			} else if($func == 'max') {
-				$sql_select_func = 'SUM(max)';
-				
-			} else if($func == 'count') {
-				$sql_select_func = 'SUM(samples)';
-				
-			} else if($func == 'distinct') {
-				$sql_select_func = 'SUM(1)';
-				
-			} else {
-				return [];
-			}
-			
-		} else { // Counter
-			if($func == 'average') {
-				$sql_select_func = 'AVG(sum/samples)';
-				
-			} else if($func == 'sum') {
-				$sql_select_func = 'SUM(sum)';
-				
-			} else if($func == 'min') {
-				$sql_select_func = 'MIN(min)';
-				
-			} else if($func == 'max') {
-				$sql_select_func = 'MAX(max)';
-				
-			} else if($func == 'count') {
-				$sql_select_func = 'SUM(samples)';
-				
-			} else if($func == 'distinct') {
-				$sql_select_func = 'SUM(1)';
-				
-			} else {
-				return [];
-			}
-		}
+		$sql_select_func = match($func) {
+			'average' => 'AVG(sum/samples)',
+			'count' => 'SUM(samples)',
+			'distinct' => 'SUM(1)',
+			'faceted_average' => 'SUM(sum/samples)',
+			'faceted_max' => 'SUM(max)',
+			'faceted_min' => 'SUM(min)',
+			'max' => 'MAX(max)',
+			'min' => 'MIN(min)',
+			'sum' => 'SUM(sum)',
+			default => null,
+		};
+		
+		if(is_null($sql_select_func))
+			return [];
 		
 		if(array_key_exists('by', $series_model) && $series_model['by']) {
 			foreach ($series_model['by'] as $by_idx => $by_meta) {
