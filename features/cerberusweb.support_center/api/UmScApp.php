@@ -508,6 +508,7 @@ class UmScApp extends Extension_CommunityPortal {
 				}
 				
 				$tpl->assign('view', $view);
+				$tpl->assign('templates_enabled', APP_OPT_DEPRECATED_PORTAL_CUSTOM_TEMPLATES);
 				
 				$tpl->display("devblocks:cerberusweb.support_center::portal/sc/profile/tabs/configuration/templates.tpl");
 				break;
