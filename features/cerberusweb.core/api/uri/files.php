@@ -80,7 +80,7 @@ class ChFilesController extends DevblocksControllerExtension {
 		header('Accept-Ranges: bytes');
 		
 		if($is_download) {
-			$file_name = DevblocksPlatform::strAlphaNum($file->name, '.-!@#$%^() ');
+			$file_name = DevblocksPlatform::services()->string()->strFilename($file->name);
 			header(sprintf("Content-Disposition: attachment; filename=\"%s\"", $file_name));
 			
 		} else {
