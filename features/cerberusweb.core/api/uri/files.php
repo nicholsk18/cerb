@@ -161,15 +161,16 @@ class ChFilesController extends DevblocksControllerExtension {
 			
 			case 'application/xhtml+xml':
 			case 'text/html':
-				header("Content-Type: text/html; charset=" . LANG_CHARSET_CODE);
-				
 				// If we're downloading the HTML, just pass the raw bytes
 				if($is_download) {
+					header("Content-Type: text/plain; charset=" . LANG_CHARSET_CODE);
 					header("Content-Length: " . $file_stats['size']);
 					fpassthru($fp);
 					
-					// If we're displaying the HTML inline, tidy and purify it first
+				// If we're displaying the HTML inline, tidy and purify it first
 				} else {
+					header("Content-Type: text/html; charset=" . LANG_CHARSET_CODE);
+					
 					// If the 'tidy' extension exists, and the file size is less than 5MB
 					if(extension_loaded('tidy') && $file_stats['size'] < 5120000) {
 						$tidy = new tidy();
