@@ -313,7 +313,7 @@ class ServiceProvider_OpenIdConnect extends Extension_ConnectedServiceProvider {
 		
 		$issuer = DevblocksPlatform::importGPC($_POST['issuer'] ?? null, 'string', '');
 		
-		header('Content-Type: application/json; charset=utf-8');
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
 		try {
 			if(empty($issuer)) {

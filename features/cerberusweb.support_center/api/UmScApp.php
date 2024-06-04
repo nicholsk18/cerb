@@ -261,9 +261,11 @@ class UmScApp extends Extension_CommunityPortal {
 			case 'captcha':
 				$bgcolor = array_fill(0, 3, mt_rand(120,240));
 				
-				header('Pragma: no-cache');
-				header('Cache-Control: no-cache, must-revalidate');
-				header('Content-type: image/jpeg');
+				DevblocksPlatform::services()->http()
+					->setHeader('Cache-Control', 'no-cache, must-revalidate')
+					->setHeader('Content-Type', 'image/jpeg')
+					->setHeader('Pragma', 'no-cache')
+				;
 
 				// Get CAPTCHA secret passphrase
 				$phrase = CerberusApplication::generatePassword(4);

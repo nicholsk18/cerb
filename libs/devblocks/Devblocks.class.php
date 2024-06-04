@@ -3716,12 +3716,12 @@ class DevblocksPlatform extends DevblocksEngine {
 				break;
 				
 			case 'deny':
-				header("X-Frame-Options: DENY");
+				DevblocksPlatform::services()->http()->setHeader('X-Frame-Options', 'DENY');
 				break;
 				
 			default:
 			case 'self':
-				header("X-Frame-Options: SAMEORIGIN");
+				DevblocksPlatform::services()->http()->setHeader('X-Frame-Options', 'SAMEORIGIN');
 				break;
 		}
 		

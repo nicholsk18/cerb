@@ -126,14 +126,17 @@ class UmScAjaxController extends Extension_UmScController {
 		if(!$pass)
 			DevblocksPlatform::dieWithHttpError(null, 403);
 
+		$mime_type = $file->mime_type;
 		$contents = $file->getFileContents();
 			
 		// Set headers
-		header("Expires: Mon, 26 Nov 1962 00:00:00 GMT");
-		header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-		header("Accept-Ranges: bytes");
-		header("Content-Type: " . $file->mime_type);
-		header("Content-Length: " . strlen($contents));
+		DevblocksPlatform::services()->http()
+			->setHeader('Accept-Ranges', 'bytes')
+			->setHeader('Content-Length', strlen($contents))
+			->setHeader('Content-Type', $mime_type)
+			->setHeader('Expires', 'Mon, 26 Nov 1962 00:00:00 GMT')
+			->setHeader('Last-Modified', gmdate("D, d M Y H:i:s") . ' GMT')
+		;
 		
 		// Dump contents
 		echo $contents;
