@@ -3708,21 +3708,19 @@ class DevblocksPlatform extends DevblocksEngine {
 		set_error_handler(['DevblocksPlatform','errorHandler']);	
 
 		// Security
-		$app_security_frameoptions = @strtolower(APP_SECURITY_FRAMEOPTIONS);
 		
-		if(php_sapi_name() != 'cli' && !headers_sent())
-		switch($app_security_frameoptions) {
-			case 'none':
-				break;
-				
-			case 'deny':
+		if(php_sapi_name() != 'cli' && !headers_sent()) {
+			// Counter MIME-based attacks
+			DevblocksPlatform::services()->http()->setHeader('X-Content-Type-Options', 'nosniff');
+			
+			// X-Frame-Options
+			if (strtolower(APP_SECURITY_FRAMEOPTIONS ?? '') == 'none') {
+				DevblocksPlatform::noop();
+			} else if (strtolower(APP_SECURITY_FRAMEOPTIONS ?? '') == 'deny') {
 				DevblocksPlatform::services()->http()->setHeader('X-Frame-Options', 'DENY');
-				break;
-				
-			default:
-			case 'self':
+			} else {
 				DevblocksPlatform::services()->http()->setHeader('X-Frame-Options', 'SAMEORIGIN');
-				break;
+			}
 		}
 		
 		// Encoding (mbstring)
