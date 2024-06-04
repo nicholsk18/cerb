@@ -385,8 +385,7 @@ class ServiceProvider_OpenIdConnect extends Extension_ConnectedServiceProvider {
 		if(!array_key_exists('code', $_GET)) {
 			// Send to the authentication URL
 			$redirectUrl = $provider->getAuthorizationUrl();
-			header(sprintf("Location: %s", $redirectUrl), true, 302);
-			return;
+			DevblocksPlatform::redirectURL($redirectUrl);
 		}
 		
 		try {

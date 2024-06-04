@@ -784,8 +784,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 		try {
 			// We need the basics in place
 			if(empty($email)) {
-				header("Location: " . $url_writer->write('c=login', true));
-				exit;
+				DevblocksPlatform::redirectURL($url_writer->write('c=login', true));
 			}
 			
 			// Lookup code
@@ -849,9 +848,8 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			// Redirect
 			
 			$address_uri = urlencode(str_replace(array('@','.'),array('_at_','_dot_'),$address->email));
-			header("Location: " . $url_writer->write('c=account&a=email&address='.$address_uri, true));
-			exit;
-				
+			DevblocksPlatform::redirectURL($url_writer->write('c=account&a=email&address='.$address_uri, true));
+			
 		} catch(Exception_DevblocksValidationError $e) {
 			$tpl->assign('error', $e->getMessage());
 			
@@ -1001,8 +999,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 			
 			// Log in the session
 			$umsession->login($contact);
-			header("Location: " . $url_writer->write('c=account&a=password', true));
-			exit;
+			DevblocksPlatform::redirectURL($url_writer->write('c=account&a=password', true));
 			
 		} catch (Exception_DevblocksValidationError $e) {
 			$tpl->assign('error', $e->getMessage());
