@@ -42,8 +42,6 @@
 </fieldset>
 {/if}
 
-{include file="devblocks:cerberusweb.core::internal/macros/behavior/bulk.tpl" macros=$macros}
-
 {if $active_worker->hasPriv("contexts.{$bulk_context}.broadcast")}
 {include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast.tpl" context=$bulk_context}
 {/if}

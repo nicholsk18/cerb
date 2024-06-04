@@ -846,14 +846,13 @@ class View_ContextActivityLog extends C4_AbstractView implements IAbstractView_S
 		$this->renderSortBy = SearchFields_ContextActivityLog::CREATED;
 		$this->renderSortAsc = false;
 
-		$this->view_columns = array(
+		$this->view_columns = [
 			SearchFields_ContextActivityLog::CREATED,
-			SearchFields_ContextActivityLog::ID,
-		);
-		$this->addColumnsHidden(array(
+		];
+		$this->addColumnsHidden([
 			SearchFields_ContextActivityLog::ACTOR_CONTEXT_ID,
 			SearchFields_ContextActivityLog::TARGET_CONTEXT_ID,
-		));
+		]);
 		
 		$this->doResetCriteria();
 	}

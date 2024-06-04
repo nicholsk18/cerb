@@ -602,8 +602,8 @@ $(function() {
 	$actions
 		.find('ul.cerb-popupmenu')
 		.hover(
-			function(e) { }, 
-			function(e) { $(this).hide(); }
+			function() { },
+			function() { $(this).hide(); }
 		)
 		.find('> li')
 		.click(function(e) {

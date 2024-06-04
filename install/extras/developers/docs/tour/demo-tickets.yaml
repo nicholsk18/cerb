@@ -555,7 +555,7 @@ messages:
       
       We refer to this as deep searching because you can chain these searches to any depth.
       
-      See: https://cerb.ai/docs/search/deep-search/
+      See: https://cerb.ai/docs/search/#deep-search
 ---
 subject: Adding a new record for orders
 group: group_support

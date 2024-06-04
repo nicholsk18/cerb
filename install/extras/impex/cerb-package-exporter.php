@@ -1486,6 +1486,8 @@ SQL;
 											
 											$json_out[] = $attachment_json;
 											unset($attachment_json);
+										} else {
+											die('Attachment `' . $file_path . '` does not exist' . PHP_EOL);
 										}
 									}
 								

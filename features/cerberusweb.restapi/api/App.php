@@ -310,7 +310,7 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		
 		@$this->_payload = DevblocksPlatform::getHttpBody();
 		
-		if(false == ($worker = $this->_getAuthorizedWorker($request, $error))) {
+		if(!($worker = $this->_getAuthorizedWorker($request, $error))) {
 			if(empty($error)) {
 				http_response_code(401);
 				$error = 'Unauthorized request';

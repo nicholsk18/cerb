@@ -237,7 +237,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 					return;
 				}
 				
-			} catch(Exception $e) {
+			} catch(Exception) {
 				// [TODO] Logger
 				return;
 			}

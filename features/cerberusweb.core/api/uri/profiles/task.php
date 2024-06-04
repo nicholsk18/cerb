@@ -63,7 +63,7 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_TASK)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
-				if(false == ($model = DAO_Task::get($id)))
+				if(!($model = DAO_Task::get($id)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
 				
 				if(!Context_Task::isDeletableByActor($model, $active_worker))
@@ -96,7 +96,7 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 						if(empty($package_uri))
 							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
 						
-						if(false == ($package = DAO_PackageLibrary::getByUri($package_uri)))
+						if(!($package = DAO_PackageLibrary::getByUri($package_uri)))
 							throw new Exception_DevblocksAjaxValidationError("You selected an invalid package.");
 						
 						if($package->point != 'task')
@@ -110,10 +110,10 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 						try {
 							CerberusApplication::packages()->import($package_json, $prompts, $records_created);
 							
-						} catch(Exception_DevblocksValidationError $e) {
+						} catch(Exception_DevblocksValidationError) {
 							throw new Exception_DevblocksAjaxValidationError($e->getMessage());
 							
-						} catch (Exception $e) {
+						} catch (Exception) {
 							throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred.");
 						}
 						

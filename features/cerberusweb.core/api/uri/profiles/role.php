@@ -58,7 +58,7 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 				if(!$active_worker->is_superuser || !$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_ROLE)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
-				if(false == ($model = DAO_WorkerRole::get($id)))
+				if(!($model = DAO_WorkerRole::get($id)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
 				
 				if(!Context_WorkerRole::isDeletableByActor($model, $active_worker))
@@ -82,11 +82,11 @@ class PageSection_ProfilesWorkerRole extends Extension_PageSection {
 				
 				DAO_WorkerRole::delete($id);
 				
-				echo json_encode(array(
+				echo json_encode([
 					'status' => true,
 					'id' => $id,
 					'view_id' => $view_id,
-				));
+				]);
 				return;
 				
 			} else {

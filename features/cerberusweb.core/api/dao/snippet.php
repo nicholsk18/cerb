@@ -482,7 +482,6 @@ class DAO_Snippet extends Cerb_ORMHelper {
 			$withCounts
 		);
 	}
-
 };
 
 class SearchFields_Snippet extends DevblocksSearchFields {

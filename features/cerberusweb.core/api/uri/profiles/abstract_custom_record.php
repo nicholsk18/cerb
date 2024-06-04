@@ -67,7 +67,7 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
 		try {
-			if(!$record_id || false == ($custom_record = DAO_CustomRecord::get($record_id)))
+			if(!$record_id || !($custom_record = DAO_CustomRecord::get($record_id)))
 				throw new Exception_DevblocksAjaxValidationError("Invalid record type.", '_record_id');
 			
 			$dao_class = $custom_record->getDaoClass();
@@ -224,7 +224,7 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		}
 		
 		// Custom record
-		if(false == ($custom_record = DAO_CustomRecord::get(static::_ID)))
+		if(!($custom_record = DAO_CustomRecord::get(static::_ID)))
 			return;
 		
 		$tpl->assign('custom_record', $custom_record);
@@ -244,7 +244,7 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		$tpl->assign('html_templates', $html_templates);
 		
 		// Broadcast
-		if(false == ($context_ext = Extension_DevblocksContext::get($context)))
+		if(!($context_ext = Extension_DevblocksContext::get($context)))
 			return;
 		
 		/* @var $context_ext IDevblocksContextBroadcast */
@@ -289,11 +289,11 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		
 		// Do: Scheduled Behavior
 		if(0 != strlen($behavior_id)) {
-			$do['behavior'] = array(
+			$do['behavior'] = [
 				'id' => $behavior_id,
 				'when' => $behavior_when,
 				'params' => $behavior_params,
-			);
+			];
 		}
 		
 		// Delete
@@ -343,7 +343,7 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 				$ids = DevblocksPlatform::parseCsvString($ids_str);
 				break;
 			case 'sample':
-				@$sample_size = min(DevblocksPlatform::importGPC($_POST['filter_sample_size'],'integer',0),9999);
+				$sample_size = min(DevblocksPlatform::importGPC($_POST['filter_sample_size'] ?? 0,'integer',0),9999);
 				$filter = 'checks';
 				$ids = $view->getDataSample($sample_size);
 				break;
@@ -366,7 +366,6 @@ class PageSection_ProfilesAbstractCustomRecord extends Extension_PageSection {
 		echo json_encode(array(
 			'cursor' => $batch_key,
 		));
-		return;
 	}
 	
 	private function _profileAction_viewExplore() {

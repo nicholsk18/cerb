@@ -1813,7 +1813,7 @@ var cAjaxCalls = function() {
 		var $ul = $button.siblings('ul.chooser-container');
 		
 		// Add the container if it doesn't exist
-		if(0==$ul.length) {
+		if(0 === $ul.length) {
 			var $ul = $('<ul class="bubbles chooser-container"></ul>');
 			$ul.insertAfter($button);
 		}
@@ -4284,23 +4284,25 @@ var ajax = new cAjaxCalls();
 		var doCerbLiveAutocomplete = function(e) {
 			e.stopPropagation();
 
-			if(!e.editor.completer) {
-				var Autocomplete = require('ace/autocomplete').Autocomplete;
-				e.editor.completer = new Autocomplete();
-			}
+			try {
+				if(!e.editor.completer) {
+					var Autocomplete = require('ace/autocomplete').Autocomplete;
+					e.editor.completer = new Autocomplete();
+				}
 
-			if('Submit' === e.command.name) {
-				e.editor.completer.getPopup().hide();
-				return;
-			}
+				if('Submit' === e.command.name) {
+					e.editor.completer.getPopup().hide();
+					return;
+				}
 
-			if('insertstring' === e.command.name) {
-				if(!e.editor.completer.activated || e.editor.completer.isDynamic) {
-					if(1 === e.args.length) {
-						e.editor.completer.showPopup(e.editor);
+				if('insertstring' === e.command.name) {
+					if(!e.editor.completer.activated || e.editor.completer.isDynamic) {
+						if(1 === e.args.length) {
+							e.editor.completer.showPopup(e.editor);
+						}
 					}
 				}
-			}
+			} catch(ex) {}
 		};
 		
 		return this.each(function() {
@@ -4672,14 +4674,16 @@ var ajax = new cAjaxCalls();
 				}
 			}
 
-			if ('Submit' === e.command.name) {
-				e.editor.completer.getPopup().hide();
-
-			} else if((!e.editor.completer.activated || e.editor.completer.isDynamic)) {
-				if(e.args && 1 === e.args.length) {
-					e.editor.completer.showPopup(e.editor);
+			try {
+				if ('Submit' === e.command.name) {
+					e.editor.completer.getPopup().hide();
+	
+				} else if((!e.editor.completer.activated || e.editor.completer.isDynamic)) {
+					if(e.args && 1 === e.args.length) {
+						e.editor.completer.showPopup(e.editor);
+					}
 				}
-			}
+			} catch(ex) {}
 		};
 		
 		return this.each(function() {

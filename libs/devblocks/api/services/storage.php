@@ -119,7 +119,7 @@ class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 			}
 		}
 		
-		if(false == ($path = realpath($path)))
+		if(!($path = realpath($path)))
 			return false;
 		
 		if(!DevblocksPlatform::strStartsWith($path, $basepath))
@@ -159,7 +159,7 @@ class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 			$key
 		);
 		
-		if(false == ($path = realpath($path)))
+		if(!($path = realpath($path)))
 			return false;
 		
 		if(!DevblocksPlatform::strStartsWith($path, $basepath))
@@ -211,7 +211,7 @@ class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 	const ID = 'devblocks.storage.engine.database';
 	
-	private $_connections = array();
+	private $_connections = [];
 	
 	// Lazy connections
 	public function __get($name) {
@@ -220,7 +220,7 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 				if(isset($this->_connections['master_db']))
 					return $this->_connections['master_db'];
 				
-				if(false != ($conn = $this->_getConnection(true))) {
+				if(($conn = $this->_getConnection(true))) {
 					$this->_connections['master_db'] = $conn;
 					return $conn;
 				}
@@ -230,7 +230,7 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 				if(isset($this->_connections['reader_db']))
 					return $this->_connections['reader_db'];
 					
-				if(false != ($conn = $this->_getConnection(false))) {
+				if(($conn = $this->_getConnection(false))) {
 					$this->_connections['reader_db'] = $conn;
 					return $conn;
 				}
@@ -362,7 +362,7 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 		
 		DevblocksPlatform::clearCache(DevblocksPlatform::CACHE_TABLES);
 		
-		return (false !== $result) ? true : false;
+		return false !== $result;
 	}
 	
 	public function exists($namespace, $key) {
@@ -507,7 +507,7 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 			$key
 		));
 		
-		return $result ? true : false;
+		return (bool)$result;
 	}
 };
 

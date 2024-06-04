@@ -145,9 +145,9 @@ $(function() {
 	
 	{if $pref_keyboard_shortcuts}
 	$frm.bind('keyboard_shortcut',function(event) {
-		$view_actions = $('#{$view->id}_actions');
+		let $view_actions = $('#{$view->id}_actions');
 		
-		hotkey_activated = true;
+		let hotkey_activated = true;
 	
 		switch(event.keypress_event.which) {
 			case 101: // (e) explore

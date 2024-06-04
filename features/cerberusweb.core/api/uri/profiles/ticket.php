@@ -600,7 +600,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		$tpl->assign('custom_fields', $custom_fields);
 		
 		$custom_field_values = DAO_CustomFieldValue::getValuesByContextIds(CerberusContexts::CONTEXT_TICKET, $ticket->id);
-		$custom_field_values = @$custom_field_values[$ticket->id] ?: [];
+		$custom_field_values = ($custom_field_values[$ticket->id] ?? null) ?: [];
 		
 		// Fields
 		
@@ -1740,7 +1740,7 @@ EOD;
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
-		if(false == ($ticket = DAO_Ticket::get($ticket_id)))
+		if(!($ticket = DAO_Ticket::get($ticket_id)))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		if(!Context_Ticket::isWriteableByActor($ticket, $active_worker))

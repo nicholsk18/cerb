@@ -22,8 +22,6 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 	public function handleActionForPage(string $action, string $scope=null) {
 		if('internalAction' == $scope) {
 			switch ($action) {
-				case 'showCalendarTab':
-					return $this->_internalAction_showCalendarTab();
 				case 'getCalendarDatasourceParams':
 					return $this->_internalAction_getCalendarDatasourceParams();
 				case 'getDateInputAutoCompleteOptionsJson':
@@ -33,39 +31,6 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 			}
 		}
 		return false;
-	}
-	
-	/** @noinspection DuplicatedCode */
-	private function _internalAction_showCalendarTab() {
-		$tpl = DevblocksPlatform::services()->template();
-		$active_worker = CerberusApplication::getActiveWorker();
-		
-		$calendar_id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'integer');
-		$month = DevblocksPlatform::importGPC($_REQUEST['month'] ?? null, 'integer', 0);
-		$year = DevblocksPlatform::importGPC($_REQUEST['year'] ?? null, 'integer', 0);
-		
-		if(false == ($calendar = DAO_Calendar::get($calendar_id)))
-			DevblocksPlatform::dieWithHttpError(null, 404);
-		
-		if(!Context_Calendar::isReadableByActor($calendar, $active_worker))
-			DevblocksPlatform::dieWithHttpError(null, 403);
-		
-		$start_on_mon = (bool)($calendar->params['start_on_mon'] ?? false);
-		
-		$calendar_properties = DevblocksCalendarHelper::getCalendar($month, $year, $start_on_mon);
-		
-		$calendar_events = $calendar->getEvents($calendar_properties['date_range_from'], $calendar_properties['date_range_to']);
-
-		// Occlusion
-		$availability = $calendar->computeAvailability($calendar_properties['date_range_from'], $calendar_properties['date_range_to'], $calendar_events);
-		$availability->occludeCalendarEvents($calendar_events);
-		
-		// Template scope
-		$tpl->assign('calendar', $calendar);
-		$tpl->assign('calendar_events', $calendar_events);
-		$tpl->assign('calendar_properties', $calendar_properties);
-		
-		$tpl->display('devblocks:cerberusweb.core::internal/calendar/tab.tpl');
 	}
 	
 	private function _internalAction_getCalendarDatasourceParams() {

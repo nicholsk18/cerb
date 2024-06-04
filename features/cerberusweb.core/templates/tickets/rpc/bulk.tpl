@@ -194,8 +194,6 @@
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_TICKET bulk=true}
 
-{include file="devblocks:cerberusweb.core::internal/macros/behavior/bulk.tpl" macros=$macros}
-
 {if $active_worker->hasPriv('contexts.cerberusweb.contexts.ticket.broadcast')}
 {include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast.tpl" context=CerberusContexts::CONTEXT_TICKET is_reply=true}
 {/if}

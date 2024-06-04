@@ -119,6 +119,7 @@ $db->ExecuteWriter("DELETE FROM translation WHERE string_id IN ('acl.reports.gro
 
 $packages = [
 	'cerb_connected_service_anthropic.json',
+	'cerb_profile_tab_ticket_overview.json',
 	'cerb_profile_widget_ticket_participants.json',
 ];
 

@@ -57,8 +57,6 @@
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_DOMAIN bulk=true}
 
-{include file="devblocks:cerberusweb.core::internal/macros/behavior/bulk.tpl" macros=$macros}
-
 {if $active_worker->hasPriv("contexts.{$peek_context}.broadcast")}
 {include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast.tpl" context=CerberusContexts::CONTEXT_DOMAIN}
 {/if}

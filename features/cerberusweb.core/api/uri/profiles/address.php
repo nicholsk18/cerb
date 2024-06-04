@@ -333,7 +333,7 @@ class PageSection_ProfilesAddress extends Extension_PageSection {
 				$ids = DevblocksPlatform::parseCsvString($address_id_str);
 				break;
 			case 'sample':
-				@$sample_size = min(DevblocksPlatform::importGPC($_POST['filter_sample_size'],'integer',0),9999);
+				$sample_size = min(DevblocksPlatform::importGPC($_POST['filter_sample_size'] ?? 0,'integer',0),9999);
 				$filter = 'checks';
 				$ids = $view->getDataSample($sample_size);
 				break;

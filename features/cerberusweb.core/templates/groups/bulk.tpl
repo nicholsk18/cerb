@@ -76,8 +76,6 @@
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_GROUP bulk=true}
 
-{include file="devblocks:cerberusweb.core::internal/macros/behavior/bulk.tpl" macros=$macros}
-
 {if $active_worker->hasPriv('contexts.cerberusweb.contexts.group.update')}
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
 {/if}

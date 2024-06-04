@@ -361,7 +361,7 @@ class PageSection_ProfilesOrganization extends Extension_PageSection {
 				$ids = DevblocksPlatform::parseCsvString($org_ids_str);
 				break;
 			case 'sample':
-				@$sample_size = min(DevblocksPlatform::importGPC($_POST['filter_sample_size'],'integer',0),9999);
+				$sample_size = min(DevblocksPlatform::importGPC($_POST['filter_sample_size'] ?? 0,'integer',0),9999);
 				$ids = $view->getDataSample($sample_size);
 				break;
 			default:

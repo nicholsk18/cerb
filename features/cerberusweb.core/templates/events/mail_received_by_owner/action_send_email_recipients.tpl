@@ -70,8 +70,8 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $action = $('#{$namePrefix}_{$nonce}');
-	var $content = $action.find('textarea.editor');
+	let $action = $('#{$namePrefix}_{$nonce}');
+	let $content = $action.find('textarea.editor');
 	
 	$action.find('.cerb-peek-trigger').cerbPeekTrigger();
 	$action.find('.chooser-abstract').cerbChooserTrigger();

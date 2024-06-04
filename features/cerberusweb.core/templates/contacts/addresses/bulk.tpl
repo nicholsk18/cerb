@@ -74,8 +74,6 @@
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=CerberusContexts::CONTEXT_ADDRESS bulk=true}
 
-{include file="devblocks:cerberusweb.core::internal/macros/behavior/bulk.tpl" macros=$macros}
-
 {if $active_worker->hasPriv('contexts.cerberusweb.contexts.address.broadcast')}
 {include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast.tpl" context=CerberusContexts::CONTEXT_ADDRESS}
 {/if}

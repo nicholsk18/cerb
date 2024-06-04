@@ -812,23 +812,23 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		if(!$active_worker || !$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		@$file = basename(DevblocksPlatform::importGPC($_REQUEST['file'],'string',''));
-		@$view_id = basename(DevblocksPlatform::importGPC($_REQUEST['view_id'],'string',''));
+		$file = basename(DevblocksPlatform::importGPC($_REQUEST['file'] ?? null,'string',''));
+		$view_id = basename(DevblocksPlatform::importGPC($_REQUEST['view_id'] ?? null,'string',''));
 		
 		$tpl->assign('view_id', $view_id);
 		
 		// Resolve any symbolic links
 		
-		if(false == ($full_path = realpath(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $file)))
+		if(!($full_path = realpath(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $file)))
 			return false;
 
 		// Make sure our requested file is in the same directory
 		
-		if(false == (dirname(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . 'test.msg') == dirname($full_path)))
+		if(!(dirname(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . 'test.msg') == dirname($full_path)))
 			return false;
 		
 		// If the extension isn't .msg, abort.
-		if(false == ($pathinfo = pathinfo($file)) || !isset($pathinfo['extension']) && $pathinfo['extension'] != 'msg')
+		if(!($pathinfo = pathinfo($file)) || !isset($pathinfo['extension']) && $pathinfo['extension'] != 'msg')
 			return false;
 		
 		// Template
@@ -849,16 +849,16 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		// Resolve any symbolic links
 		
 		try {
-			if(false == ($full_path = realpath(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $file)))
+			if(!($full_path = realpath(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $file)))
 				throw new Exception("Path not found.");
 			
 			// Make sure our requested file is in the same directory
 			
-			if(false == (dirname(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . 'test.msg') == dirname($full_path)))
+			if(!(dirname(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . 'test.msg') == dirname($full_path)))
 				throw new Exception("File not found.");
 			
 			// If the extension isn't .msg, abort.
-			if(false == ($pathinfo = pathinfo($file)) || !isset($pathinfo['extension']) && $pathinfo['extension'] != 'msg')
+			if(!($pathinfo = pathinfo($file)) || !isset($pathinfo['extension']) && $pathinfo['extension'] != 'msg')
 				throw new Exception("File not valid.");
 			
 			// Display the raw message using the envelope encoding

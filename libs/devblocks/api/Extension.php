@@ -2090,9 +2090,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 						break;
 						
 					// Control infinite recursion
-					if(count($context_stack) > 2 && $field->type == Model_CustomField::TYPE_LINK) {
-						
-					} else {
+					if(count($context_stack) <= 2) {
 						$merge_labels = $merge_values = [];
 						CerberusContexts::getContext($field->params['context'], null, $merge_labels, $merge_values, null, true, true);
 						
@@ -2449,7 +2447,6 @@ abstract class Extension_DevblocksEvent extends DevblocksExtension {
 
 		$cfields = [];
 		$custom_fields = DAO_CustomField::getAll();
-		$vars = [];
 
 		// cfields
 		$labels = $this->getLabels($trigger);

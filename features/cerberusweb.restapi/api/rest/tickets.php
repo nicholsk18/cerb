@@ -404,10 +404,10 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		return NULL;
 	}
 	
-	function search($filters=array(), $sortToken='updated', $sortAsc=0, $page=1, $limit=10, $options=array()) {
-		@$query = DevblocksPlatform::importVar($options['query'], 'string', null);
-		@$show_results = DevblocksPlatform::importVar($options['show_results'], 'boolean', true);
-		@$subtotals = DevblocksPlatform::importVar($options['subtotals'], 'array', array());
+	function search($filters=[], $sortToken='updated', $sortAsc=0, $page=1, $limit=10, $options=[]) {
+		$query = DevblocksPlatform::importVar($options['query'] ?? null, 'string', null);
+		$show_results = DevblocksPlatform::importVar($options['show_results'] ?? null, 'boolean', true);
+		$subtotals = DevblocksPlatform::importVar($options['subtotals'] ?? null, 'array', []);
 		
 		$worker = CerberusApplication::getActiveWorker();
 

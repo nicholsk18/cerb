@@ -1253,21 +1253,21 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 				continue;
 			
 			switch($fields[$field_id]->type) {
+				case Model_CustomField::TYPE_DROPDOWN:
 				case Model_CustomField::TYPE_MULTI_LINE:
 				case Model_CustomField::TYPE_SINGLE_LINE:
 				case Model_CustomField::TYPE_URL:
-					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
+					$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id] ?? null,'string','');
 					$do['cf_'.$field_id] = array('value' => $field_value);
 					break;
 					
 				case Model_CustomField::TYPE_LIST:
-					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',[]);
+					$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id] ?? null,'array',[]);
 					$do['cf_'.$field_id] = array('value' => $field_value);
 					break;
 					
 				case Model_CustomField::TYPE_CURRENCY:
 				case Model_CustomField::TYPE_DECIMAL:
-				case Model_CustomField::TYPE_DROPDOWN:
 				case Model_CustomField::TYPE_FILE:
 				case Model_CustomField::TYPE_LINK:
 				case Model_CustomField::TYPE_NUMBER:
@@ -1282,22 +1282,22 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					break;
 
 				case Model_CustomField::TYPE_FILES:
-					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',[]);
+					$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id] ?? null,'array',[]);
 					$do['cf_'.$field_id] = array('value' => DevblocksPlatform::sanitizeArray($field_value,'integer',array('nonzero','unique')));
 					break;
 					
 				case Model_CustomField::TYPE_MULTI_CHECKBOX:
-					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',[]);
+					$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id] ?? null,'array',[]);
 					$do['cf_'.$field_id] = array('value' => $field_value);
 					break;
 					
 				case Model_CustomField::TYPE_DATE:
-					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
+					$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id] ?? null,'string','');
 					$do['cf_'.$field_id] = array('value' => $field_value);
 					break;
 					
 				case Model_CustomField::TYPE_WORKER:
-					@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
+					$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id] ?? null,'string','');
 					$do['cf_'.$field_id] = array('value' => $field_value);
 					break;
 					
@@ -1305,10 +1305,10 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 					if(false !== ($field_extension = $fields[$field_id]->getTypeExtension())) {
 						// [TODO] handleBulkPost / parseFormPost
 						if($field_extension->hasMultipleValues()) {
-							@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'array',[]);
+							$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id] ?? null,'array',[]);
 							$do['cf_'.$field_id] = ['value' => $field_value];
 						} else {
-							@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
+							$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id] ?? null,'string','');
 							$do['cf_'.$field_id] = ['value' => $field_value];
 						}
 					}
@@ -1357,7 +1357,7 @@ class DAO_CustomFieldValue extends Cerb_ORMHelper {
 						$field_value = $field_ext->parseFormPost($fields[$field_id]);
 						
 					} else {
-						@$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id],'string','');
+						$field_value = DevblocksPlatform::importGPC($_POST['field_'.$field_id] ?? null,'string','');
 					}
 					break;
 			}
