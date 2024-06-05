@@ -76,7 +76,8 @@ $(function() {
 						$hidden.attr('value', $value);
 						$hidden.appendTo($li);
 
-						var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>');
+						let $a = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>');
+						$a.on('click', Devblocks.onClickRemoveParent);
 						$a.appendTo($li);
 
 						$buffer.append($li);
@@ -115,7 +116,8 @@ $(function() {
 						$hidden.attr('value', $value);
 						$hidden.appendTo($li);
 
-						var $a = $('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>');
+						let $a = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>');
+						$a.on('click', Devblocks.onClickRemoveParent);
 						$a.appendTo($li);
 
 						$buffer.append($li);
