@@ -21,13 +21,13 @@
 	
 	<div>
 		<button type="button" class="red delete"> {'common.yes'|devblocks_translate|capitalize}</button>
-		<button type="button" onclick="$(this).closest('fieldset').hide().next('div.toolbar').show();"> {'common.no'|devblocks_translate|capitalize}</button>
+		<button type="button" data-cerb-button-delete-cancel> {'common.no'|devblocks_translate|capitalize}</button>
 	</div>
 </fieldset>
 
 <div style="margin:10px 0px;" class="toolbar">
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.retry'|devblocks_translate|capitalize}</button>
-	<button type="button" onclick="$(this).closest('div.toolbar').hide().prev('fieldset.delete').show();"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>
+	<button type="button" class="cancel"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>
 </div>
 
 </form>
@@ -40,7 +40,7 @@ $(function() {
 	Devblocks.formDisableSubmit($frm);
 	
 	$popup.one('popup_open', function() {
-		var $this = $(this);
+		let $this = $(this);
 		
 		$this.dialog('option','title','Failed Message');
 
@@ -49,39 +49,47 @@ $(function() {
 		$this.find('textarea:first').focus();
 		
 		$this.find('button.submit').click(function(e) {
-			var $frm = $(this).closest('form');
-			
+			e.stopPropagation();
+
 			$frm.find('input:hidden[name=section]').val('mail_incoming');
 			$frm.find('input:hidden[name=action]').val('parseFailedMessageJson');
-			
+
 			genericAjaxPost($frm, '', '', function(json) {
-				var $frm = $('#frmSetupMailFailed');
-				var $output = $frm.find('div.output');
-				
+				let $output = $frm.find('div.output');
+
 				// If successful, reload worklist
 				if(undefined != json.status && true == json.status) {
 					genericAjaxGet('view{$view_id}', 'c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
 					genericAjaxPopupClose('peek');
-					
+
 				// If an error, display it
 				} else if(undefined != json.status && false == json.status) {
-					var message = (undefined != json.log && json.log.length > 0) ? json.log : json.message;
+					let message = (undefined != json.log && json.log.length > 0) ? json.log : json.message;
 					Devblocks.showError($output, message, false, true);
-					
+
 				}
 			});
 		});
+
+		$this.find('button.cancel').on('click', function(e) {
+			e.stopPropagation();
+			$(this).closest('div.toolbar').hide().prev('fieldset.delete').show();
+		});
 		
+		$this.find('[data-cerb-button-delete-cancel]').on('click', function(e) {
+			e.stopPropagation();
+			$(this).closest('fieldset').hide().next('div.toolbar').show();
+		});
+
 		$this.find('button.delete').click(function(e) {
-			var $frm = $(this).closest('form');
+			e.stopPropagation();
 
 			$frm.find('input:hidden[name=section]').val('mail_incoming');
 			$frm.find('input:hidden[name=action]').val('deleteMessageJson');
 			$frm.find('textarea[name=message_content]').val('');
 
 			genericAjaxPost($frm, '', '', function(json) {
-				var $frm = $('#frmSetupMailFailed');
-				var $output = $frm.find('div.output');
+				let $output = $frm.find('div.output');
 				
 				// If successful, reload worklist
 				if(undefined != json.status && true == json.status) {
@@ -90,7 +98,7 @@ $(function() {
 					
 				// If an error, display it
 				} else if(undefined != json.status && false == json.status) {
-					var message = (undefined != json.log && json.log.length > 0) ? json.log : json.message;
+					let message = (undefined != json.log && json.log.length > 0) ? json.log : json.message;
 					Devblocks.showError($output, message, false, true);
 					
 				}

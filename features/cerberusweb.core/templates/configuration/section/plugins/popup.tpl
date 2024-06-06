@@ -10,8 +10,8 @@
 
 <div>
 	<b>{'common.status'|devblocks_translate|capitalize}:</b> 
-	<label><input type="radio" name="enabled" value="1" onclick="$('#pluginConfigTabs').fadeIn();$('#divCerbPluginOutput').show();" {if $plugin->enabled}checked="checked"{/if}> {'common.enabled'|devblocks_translate|capitalize}</label> 
-	<label><input type="radio" name="enabled" value="0" onclick="$('#pluginConfigTabs').fadeOut();$('#divCerbPluginOutput').hide();" {if !$plugin->enabled}checked="checked"{/if}> {'common.disabled'|devblocks_translate|capitalize}</label> 
+	<label><input type="radio" name="enabled" value="1" {if $plugin->enabled}checked="checked"{/if}> {'common.enabled'|devblocks_translate|capitalize}</label>
+	<label><input type="radio" name="enabled" value="0" {if !$plugin->enabled}checked="checked"{/if}> {'common.disabled'|devblocks_translate|capitalize}</label>
 </div>
 
 {if !empty($config_exts)}
@@ -49,31 +49,45 @@
 <fieldset class="delete" style="display:none;padding:10px;" id="fsCerb6PluginUninstall">
 	<legend>Are you sure you want to uninstall this plugin?</legend>
 	
-	<button type="button" class="red" onclick="$(this).closest('form').find('input:hidden[name=uninstall]').val('1');$('#btnPluginSave').click();">Yes, uninstall it</button>
-	<button type="button" onclick="$(this).closest('fieldset').hide();$('#divCerbPluginPopupToolbar').fadeIn();">{'common.cancel'|devblocks_translate|capitalize}</button>
+	<button type="button" class="red" data-cerb-button-uninstall-confirm>Yes, uninstall it</button>
+	<button type="button" data-cerb-button-uninstall-cancel>{'common.cancel'|devblocks_translate|capitalize}</button>
 </fieldset>
 
 <div style="margin-top:10px;" id="divCerbPluginPopupToolbar">
 	<button type="button" id="btnPluginSave"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{if $is_uninstallable}<button type="button" onclick="$('#divCerbPluginPopupToolbar').fadeOut();$(this).closest('form').find('#fsCerb6PluginUninstall').fadeIn();"><span class="glyphicons glyphicons-circle-remove"></span> Uninstall</button>{/if}
+	{if $is_uninstallable}<button type="button" data-cerb-button-uninstall><span class="glyphicons glyphicons-circle-remove"></span> Uninstall</button>{/if}
 </div>
 </form>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('peek');
-	
-	$popup.one('popup_open',function(event,ui) {
+	let $frm = $('#frmCerbPluginPeek');
+	let $popup = genericAjaxPopupFind($frm);
+
+	Devblocks.formDisableSubmit($frm);
+
+	$popup.one('popup_open',function() {
 		$(this).dialog('option','title','Plugin: {$plugin->name|escape:'javascript' nofilter}');
-		
+
 		{if !empty($config_exts)}
 			$('#pluginConfigTabs').tabs();
 		{/if}
-		
-		$frm = $('#frmCerbPluginPeek');
-		
+
+		$frm.find('input[name=enabled]').on('click', function(e) {
+			e.stopPropagation();
+			let val = $(this).val();
+
+			if('1' === val) {
+				$('#pluginConfigTabs').fadeIn();
+				$('#divCerbPluginOutput').show();
+			} else {
+				$('#pluginConfigTabs').fadeOut();
+				$('#divCerbPluginOutput').hide();
+			}
+		});
+
 		$('#btnPluginSave').click(function() {
-			$out = $('#divCerbPluginOutput');
+			let $out = $('#divCerbPluginOutput');
 			$out.find('ul').html('');
 			$out.hide();
 			
@@ -82,7 +96,7 @@ $(function() {
 				// Errors? or success
 				if(false == json.status) {
 					if(null != json.errors)
-					for(idx in json.errors) {
+					for(let idx in json.errors) {
 						$out.find('ul').append($('<li/>').text(json.errors[idx]));
 					}
 					
@@ -98,6 +112,24 @@ $(function() {
 					
 				}
 			});
+		});
+
+		$frm.find('[data-cerb-button-uninstall').on('click', function(e) {
+			e.stopPropagation();
+			$('#divCerbPluginPopupToolbar').fadeOut();
+			$(this).closest('form').find('#fsCerb6PluginUninstall').fadeIn();
+		});
+
+		$frm.find('[data-cerb-button-uninstall-confirm').on('click', function(e) {
+			e.stopPropagation();
+			$(this).closest('form').find('input:hidden[name=uninstall]').val('1');
+			$('#btnPluginSave').click();
+		});
+
+		$frm.find('[data-cerb-button-uninstall-cancel').on('click', function(e) {
+			e.stopPropagation();
+			$(this).closest('fieldset').hide();
+			$('#divCerbPluginPopupToolbar').fadeIn();
 		});
 	});
 });

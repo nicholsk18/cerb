@@ -56,11 +56,6 @@
 		{$tableRowClass = "odd"}
 	{/if}
 	<tbody style="cursor:pointer;">
-		{*
-		<tr class="{$tableRowClass}">
-			<td data-column="*_watchers" align="center" rowspan="2" nowrap="nowrap" style="padding:5px;"></td>
-		</tr>
-		*}
 		<tr class="{$tableRowClass}">
 		{foreach from=$view->view_columns item=column name=columns}
 			{if $column=="d_id"}
@@ -68,7 +63,7 @@
 			{elseif $column=="d_name"}
 			<td data-column="{$column}" style="padding:5px;">
 				<input type="checkbox" name="row_id[]" value="{$result.d_id}" style="display:none;">
-				<a onclick="genericAjaxPopup('peek','c=config&a=invoke&module=storage_profiles&action=showStorageProfilePeek&id={$result.d_id}&view_id={$view->id|escape:'url'}',null,false,'50%');" class="subject">{$result.d_name}</a>
+				<a data-cerb-peek-id="{$result.d_id}" class="subject">{$result.d_name}</a>
 			</td>
 			{else}
 			<td data-column="{$column}">{$result.$column}</td>
@@ -95,20 +90,13 @@
 {include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
-$frm = $('#viewForm{$view->id}');
+$(function() {
+	let $frm = $('#viewForm{$view->id}');
 
-{if $pref_keyboard_shortcuts}
-$frm.bind('keyboard_shortcut',function(event) {
-	let hotkey_activated = true;
-
-	switch(event.keypress_event.which) {
-		default:
-			hotkey_activated = false;
-			break;
-	}
-
-	if(hotkey_activated)
-		event.preventDefault();
+	$frm.find('[data-cerb-peek-id]').on('click', function(e) {
+		e.stopPropagation();
+		let peek_id = $(this).attr('data-cerb-peek-id');
+		genericAjaxPopup('peek','c=config&a=invoke&module=storage_profiles&action=showStorageProfilePeek&id=' + encodeURIComponent(peek_id) + '&view_id={$view->id|escape:'url'}',null,false,'50%');
+	});
 });
-{/if}
 </script>

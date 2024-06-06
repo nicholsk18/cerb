@@ -144,8 +144,8 @@
 	{include file="devblocks:cerberusweb.core::internal/views/view_paging.tpl" view=$view}
 
 	<div style="float:left;" id="{$view->id}_actions">
-		<button type="button" class="action-always-show" onclick="$frm=$(this.form);$frm.find('input:hidden[name=action]').val('saveView');$frm.submit();"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-		<button type="button" class="action-always-show" onclick="document.location.href = '{$smarty.const.DEVBLOCKS_WEBPATH}ajax.php?c=config&a=invoke&module=translations&action=exportTmx';"><span class="glyphicons glyphicons-file-export"></span> {'common.export'|devblocks_translate|capitalize}</button>
+		<button type="button" data-cerb-button-save class="action-always-show"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+		<button type="button" data-cerb-button-export class="action-always-show"><span class="glyphicons glyphicons-file-export"></span> {'common.export'|devblocks_translate|capitalize}</button>
 	</div>
 </div>
 {/if}
@@ -157,20 +157,19 @@
 {include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
-$frm = $('#viewForm{$view->id}');
+$(function() {
+	let $frm = $('#viewForm{$view->id}');
+	let $view_actions = $('#{$view->id}_actions');
 
-{if $pref_keyboard_shortcuts}
-$frm.bind('keyboard_shortcut',function(event) {
-	let hotkey_activated = true;
+	$view_actions.find('[data-cerb-button-save]').on('click', function(e) {
+		e.stopPropagation();
+		$frm.find('input:hidden[name=action]').val('saveView');
+		$frm.submit();
+	});
 
-	switch(event.keypress_event.which) {
-		default:
-			hotkey_activated = false;
-			break;
-	}
-
-	if(hotkey_activated)
-		event.preventDefault();
+	$view_actions.find('[data-cerb-button-export]').on('click', function(e) {
+		e.stopPropagation();
+		document.location.href = DevblocksAppPath + 'ajax.php?c=config&a=invoke&module=translations&action=exportTmx';
+	});
 });
-{/if}
 </script>

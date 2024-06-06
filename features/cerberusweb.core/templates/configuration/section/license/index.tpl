@@ -17,7 +17,7 @@
 		<b>Software Updates Expire:</b> {$we_trust_you->upgrades|devblocks_date:'F d, Y':true}<br>
 		
 		<div style="margin-top:5px;">
-			<button type="button" onclick="$(this).parent().fadeOut();$('#frmLicense').fadeIn().find('input:text:first').focus();"><span class="glyphicons glyphicons-cogwheel"></span> Update License</button>
+			<button type="button" data-cerb-button-update-license><span class="glyphicons glyphicons-cogwheel"></span> Update License</button>
 		</div>
 	{/if}
 </fieldset>
@@ -47,8 +47,8 @@
 	<fieldset class="delete delete_confirm" style="display:none;">
 		<legend>Are you sure you want to remove your license?</legend>
 		
-		<button type="button" class="red" onclick="$frm=$(this.form);$frm.find('input:hidden[name=do_delete]').val('1');$frm.find('BUTTON.submit').click();">{'common.yes'|devblocks_translate|capitalize}</button>
-		<button type="button" onclick="$(this).closest('.delete_confirm').hide();">{'common.no'|devblocks_translate|capitalize}</button>
+		<button type="button" class="red" data-cerb-button-remove-yes>{'common.yes'|devblocks_translate|capitalize}</button>
+		<button type="button" data-cerb-button-remove-no>{'common.no'|devblocks_translate|capitalize}</button>
 	</fieldset>
 	
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
@@ -59,14 +59,16 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#frmLicense');
+	let $frm = $('#frmLicense');
+	let $fieldset = $frm.prev('fieldset');
 
 	Devblocks.formDisableSubmit($frm);
 	
 	$frm.find('BUTTON.submit')
 		.click(function(e) {
+			e.stopPropagation();
 			Devblocks.saveAjaxForm($frm, {
-				success: function(json) {
+				success: function() {
 					document.location.href = '{devblocks_url}c=config&a=license{/devblocks_url}';
 				}
 			});
@@ -74,8 +76,27 @@ $(function() {
 	;
 	$frm.find('BUTTON.delete')
 		.click(function(e) {
+			e.stopPropagation();
 			$frm.find('.delete_confirm').fadeIn();
 		})
 	;
+
+	$frm.find('[data-cerb-button-remove-yes]').on('click', function(e) {
+		e.stopPropagation();
+		let $frm = $(this.form);
+		$frm.find('input:hidden[name=do_delete]').val('1');
+		$frm.find('BUTTON.submit').click();
+	});
+
+	$frm.find('[data-cerb-button-remove-no]').on('click', function(e) {
+		e.stopPropagation();
+		$(this).closest('.delete_confirm').hide();
+	});
+
+	$fieldset.find('[data-cerb-button-update-license]').on('click', function(e) {
+		e.stopPropagation();
+		$(this).parent().fadeOut();
+		$('#frmLicense').fadeIn().find('input:text:first').focus();
+	});
 });
 </script>

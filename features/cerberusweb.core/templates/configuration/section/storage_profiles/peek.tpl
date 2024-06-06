@@ -30,7 +30,7 @@
 	<legend>Create a new storage profile</legend>
 	
 	<b>Storage Engine:</b> 
-	<select name="extension_id" onchange="genericAjaxGet('divStorageEngineSettings','c=config&a=invoke&module=storage_profiles&action=showStorageProfileConfig&ext_id='+escape(selectValue(this))+'&id='+escape(this.form.id.value));">
+	<select name="extension_id">
 		{foreach from=$engines item=engine_mft key=engine_id}
 		<option value="{$engine_id}" {if $profile->extension_id==$engine_id}selected="selected"{/if}>{$engine_mft->name}</option>
 		{/foreach}
@@ -62,8 +62,8 @@ Used by:<br>
 {/if}
 
 {if $active_worker->is_superuser}
-	<button type="button" value="saveStorageProfilePeek" onclick="$(this.form).find('input:hidden[name=action]').val($(this).val());genericAjaxPopupPostCloseReloadView(null,'formStorageProfilePeek', '{$view_id}');"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button> 
-	{if !empty($profile->id) && empty($storage_schema_stats)}<button type="button" onclick="if(confirm('Are you sure you want to delete this storage profile?')) { this.form.do_delete.value='1';genericAjaxPopupPostCloseReloadView(null,'formStorageProfilePeek', '{$view_id}'); } "><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if} 
+	<button type="button" value="saveStorageProfilePeek" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
+	{if !empty($profile->id) && empty($storage_schema_stats)}<button type="button" class="delete"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 {else}
 	<div class="error">{'error.core.no_acl.edit'|devblocks_translate}</div>	
 {/if}
@@ -73,7 +73,7 @@ Used by:<br>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#formStorageProfilePeek');
+	let $frm = $('#formStorageProfilePeek');
 	let $popup = genericAjaxPopupFind($frm);
 
 	Devblocks.formDisableSubmit($frm);
@@ -81,12 +81,37 @@ $(function() {
 	$popup.one('popup_open', function() {
 		$(this).dialog('option','title',"Storage Profile");
 
+		$frm.find('select[name=extension_id]').on('change', function(e) {
+			e.stopPropagation();
+			genericAjaxGet('divStorageEngineSettings','c=config&a=invoke&module=storage_profiles&action=showStorageProfileConfig&ext_id='+encodeURIComponent(selectValue(this))+'&id='+encodeURIComponent(this.form.id.value));
+		});
+
+		$frm.find('BUTTON.submit').on('click', function(e) {
+			e.stopPropagation();
+			$(this.form).find('input:hidden[name=action]').val($(this).val());
+			genericAjaxPopupPostCloseReloadView(null,'formStorageProfilePeek', '{$view_id}');
+		});
+
+		$frm.find('BUTTON.delete').on('click', function(e) {
+			e.stopPropagation();
+
+			confirmPopup(
+				'Delete',
+				'Are you sure you want to permanently delete this storage profile?',
+				function () {
+					$frm.find('input[name=do_delete]').val('1');
+					genericAjaxPopupPostCloseReloadView(null,'formStorageProfilePeek', '{$view_id}');
+				}
+			);
+		});
+
 		$frm.find('BUTTON.tester')
-		.click(function() {
-			var $btn = $(this);
-			var $frm = $btn.closest('form');
+		.click(function(e) {
+			e.stopPropagation();
 			Devblocks.clearAlerts();
-			
+
+			let $btn = $(this);
+
 			$frm.find('input:hidden[name=action]').val($btn.val());
 			
 			genericAjaxPost('formStorageProfilePeek',null,null,function(json) {

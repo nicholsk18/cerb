@@ -133,7 +133,7 @@
 				</div>
 				<div style="margin:5px;">
 					{if !empty($plugin)}
-						<div class="badge badge-lightgray" style="padding:3px;"><a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=invoke&module=plugins&action=showPopup&plugin_id={$result.c_id}&view_id={$view->id}',null,true,'550');" style="color:var(--cerb-color-text);text-decoration:none;font-weight:bold;">Configure &#x25be;</a></div>
+						<div class="badge badge-lightgray" style="padding:3px;"><a data-cerb-button-plugin-config="{$result.c_id}" style="color:var(--cerb-color-text);text-decoration:none;font-weight:bold;">Configure &#x25be;</a></div>
 					{/if}
 					
 					{if !$meets_requirements && !empty($plugin)}
@@ -172,24 +172,28 @@
 {include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
-$frm = $('#viewForm{$view->id}');
+$(function() {
+	let $frm = $('#viewForm{$view->id}');
 
-{if $pref_keyboard_shortcuts}
-$frm.bind('keyboard_shortcut',function(event) {
-	//console.log("{$view->id} received " + (indirect ? 'indirect' : 'direct') + " keyboard event for: " + event.keypress_event.which);
-	
-	$view_actions = $('#{$view->id}_actions');
-	
-	hotkey_activated = true;
+	$frm.find('[data-cerb-button-plugin-config]').on('click', function(e) {
+		e.stopPropagation();
+		let plugin_id = $(this).attr('data-cerb-button-plugin-config');
+		genericAjaxPopup('peek','c=config&a=invoke&module=plugins&action=showPopup&plugin_id=' + encodeURIComponent(plugin_id) + '&view_id={$view->id}',null,true,'550');
+	});
 
-	switch(event.keypress_event.which) {
-		default:
-			hotkey_activated = false;
-			break;
-	}
+	{if $pref_keyboard_shortcuts}
+	$frm.bind('keyboard_shortcut',function(event) {
+		let hotkey_activated = true;
 
-	if(hotkey_activated)
-		event.preventDefault();
+		switch(event.keypress_event.which) {
+			default:
+				hotkey_activated = false;
+				break;
+		}
+
+		if(hotkey_activated)
+			event.preventDefault();
+	});
+	{/if}
 });
-{/if}
 </script>

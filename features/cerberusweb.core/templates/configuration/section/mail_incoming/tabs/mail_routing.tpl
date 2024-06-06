@@ -1,4 +1,5 @@
 {$form_id = "frmSetupMailRoutingKata{uniqid()}"}
+{$form_legacy_id = "frmSetupMailRoutingLegacy{uniqid()}"}
 
 <fieldset id="frmSetupMailRouting" class="peek" style="margin-bottom:20px;">
 	<legend>{'common.automations'|devblocks_translate|capitalize}</legend>
@@ -26,17 +27,17 @@
 <fieldset class="peek">
 	<legend>Legacy Rules (Deprecated)</legend>
 
-	<form action="{devblocks_url}{/devblocks_url}" style="margin-bottom:10px;">
-		<button type="button" onclick="genericAjaxPopup('peek','c=config&a=invoke&module=mail_incoming&action=showMailRoutingRulePanel&id=0',null,false,'50%');"><span class="glyphicons glyphicons-circle-plus"></span> {'common.add'|devblocks_translate|capitalize}</button>
-	</form>
-
-	<form action="{devblocks_url}{/devblocks_url}" method="post">
+	<form id="{$form_legacy_id}" action="{devblocks_url}{/devblocks_url}" method="post">
 	<input type="hidden" name="c" value="config">
 	<input type="hidden" name="a" value="invoke">
 	<input type="hidden" name="module" value="mail_incoming">
 	<input type="hidden" name="action" value="saveRouting">
 	<input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
-	
+
+	<div style="margin-bottom:10px;">
+		<button type="button" data-cerb-button-legacy-add><span class="glyphicons glyphicons-circle-plus"></span> {'common.add'|devblocks_translate|capitalize}</button>
+	</div>
+
 	{if !empty($rules)}
 	<table cellspacing="2" cellpadding="2" style="margin-bottom:10px;">
 		<tr>
@@ -56,7 +57,7 @@
 					{/if}
 				</td>
 				<td style="{if $rule->is_sticky}border:1px solid rgb(255,215,0);{else}{/if}padding:5px;">
-					<a href="javascript:;" onclick="genericAjaxPopup('peek','c=config&a=invoke&module=mail_incoming&action=showMailRoutingRulePanel&id={$rule_id}',null,false,'50%');"><b>{$rule->name}</b></a>
+					<a data-cerb-rule-id="{$rule_id}"><b>{$rule->name}</b></a>
 					<br>
 					
 					{foreach from=$rule->criteria item=crit key=crit_key}
@@ -122,9 +123,23 @@
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	let $frm = $('#frmSetupMailRouting');
+	let $frm_legacy = $('#{$form_legacy_id}');
 	let $routing = $('#{$form_id}');
 
 	$frm.find('.cerb-peek-trigger').cerbPeekTrigger();
+
+	// Legacy
+
+	$frm_legacy.find('[data-cerb-button-legacy-add]').on('click', function(e) {
+		e.stopPropagation();
+		genericAjaxPopup('peek','c=config&a=invoke&module=mail_incoming&action=showMailRoutingRulePanel&id=0',null,false,'50%');
+	});
+
+	$frm_legacy.find('[data-cerb-rule-id]').on('click', function(e) {
+		e.stopPropagation();
+		let rule_id = $(this).attr('data-cerb-rule-id');
+		genericAjaxPopup('peek','c=config&a=invoke&module=mail_incoming&action=showMailRoutingRulePanel&id=' + encodeURIComponent(rule_id),null,false,'50%');
+	});
 
 	// Editor
 	let autocomplete_suggestions = {if $autocomplete_json}{$autocomplete_json nofilter}{else}[]{/if};

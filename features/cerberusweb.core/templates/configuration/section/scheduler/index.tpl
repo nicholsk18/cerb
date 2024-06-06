@@ -4,7 +4,7 @@
 <li>Advanced: open <a href="{devblocks_url full=true}c=cron{/devblocks_url}?loglevel=3" target="_blank" rel="noopener"><b>{devblocks_url full=true}c=cron{/devblocks_url}?loglevel=3</b></a> with cURL/wget in an external cron/scheduled task</li>
 </ul>
 
-<div style="margin:10px;">
+<div style="margin:10px;" id="cerbSetupSchedulerJobs">
 {foreach from=$jobs item=job key=job_id name=jobs}
 {if $job instanceof CerberusCronPageExtension}
 <div id="job_{$job_id|replace:'.':'_'}" style="margin-bottom:10px;">
@@ -13,3 +13,18 @@
 {/if}
 {/foreach}
 </div>
+
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
+$(function() {
+    let $jobs_container = $('#cerbSetupSchedulerJobs');
+
+    $jobs_container.on('click', function(e) {
+        e.stopPropagation();
+        let $target = $(e.target);
+
+        if($target.is('[data-cerb-link-jobedit]')) {
+            toggleDiv($target.attr('data-cerb-link-jobedit'));
+        }
+    });
+});
+</script>

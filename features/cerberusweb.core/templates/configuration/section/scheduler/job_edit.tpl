@@ -46,7 +46,7 @@
 	<div class="status"></div>
 	
 	<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	<button type="button" onclick="javascript:toggleDiv('jobedit_{$extid}');"><span class="glyphicons glyphicons-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+	<button type="button" class="cancel" data-cerb-job-id="jobedit_{$extid}"><span class="glyphicons glyphicons-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 	</form>
 </fieldset>
 
@@ -57,7 +57,8 @@ $(function() {
 	Devblocks.formDisableSubmit($frm);
 	 
 	$frm.find('BUTTON.submit')
-		.click(function(e) {
+		.on('click', function(e) {
+			e.stopPropagation();
 			genericAjaxPost('frmJob{$extid}','',null,function(json) {
 				if('object' != typeof json || false == json.status) {
 					Devblocks.showError('#frmJob{$extid} div.status',json.error);
@@ -67,5 +68,11 @@ $(function() {
 			});
 		})
 	;
+
+	$frm.find('[data-cerb-job-id]').on('click', function(e) {
+		e.stopPropagation();
+		let job_id = $(this).attr('data-cerb-job-id');
+		toggleDiv(job_id);
+	});
 });
 </script>

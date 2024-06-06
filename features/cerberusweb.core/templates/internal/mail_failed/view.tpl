@@ -67,7 +67,7 @@
 			<td data-column="{$column}">
 				<input type="checkbox" name="row_id[]" value="{$result.mf_name}" style="display:none;">
 				<b class="subject">{$result.mf_name}</b>
-				<button type="button" class="peek" onclick="genericAjaxPopup('peek','c=config&a=invoke&module=mail_incoming&action=showMailFailedPeekPopup&file={$result.mf_name}&view_id={$view->id}',null,false,'50%');"><span class="glyphicons glyphicons-new-window-alt"></span></button>
+				<button type="button" class="peek" data-cerb-peek-id="{$result.mf_name}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>
 			{elseif $column == SearchFields_MailParseFail::CTIME || $column == SearchFields_MailParseFail::MTIME}
 				<td data-column="{$column}" title="{$result.$column|devblocks_date}">
@@ -98,3 +98,17 @@
 {/if}
 
 {include file="devblocks:cerberusweb.core::internal/views/view_common_jquery_ui.tpl"}
+
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
+$(function() {
+	let $frm = $('#viewForm{$view->id}');
+
+	Devblocks.formDisableSubmit($frm);
+
+	$frm.find('[data-cerb-peek-id]').on('click', function(e) {
+		e.stopPropagation();
+		let peek_id = $(this).attr('data-cerb-peek-id');
+		genericAjaxPopup('peek','c=config&a=invoke&module=mail_incoming&action=showMailFailedPeekPopup&file=' + encodeURIComponent(peek_id) + '&view_id={$view->id}',null,false,'50%');
+	});
+});
+</script>

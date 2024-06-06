@@ -56,7 +56,7 @@
 		<tr class="{$tableRowClass}">
 			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
 				<input type="checkbox" name="row_id[]" value="{$result.d_id}" style="display:none;">
-				<a onclick="genericAjaxPopup('peek','c=internal&a=invoke&module=portals&action=renderTemplatePeek&view_id={$view->id}&id={$result.d_id}',null,false,'80%');" class="subject">{$result.d_path}</a>
+				<a data-cerb-peek-id="{$result.d_id}" class="subject">{$result.d_path}</a>
 			</td>
 		</tr>
 		<tr class="{$tableRowClass}">
@@ -96,7 +96,16 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
+	let $frm = $('#viewForm{$view->id}');
 	let $view_actions = $('#{$view->id}_actions');
+
+	Devblocks.formDisableSubmit($frm);
+
+	$frm.find('[data-cerb-peek-id]').on('click', function(e) {
+		e.stopPropagation();
+		let peek_id = $(this).attr('data-cerb-peek-id')
+		genericAjaxPopup('peek','c=internal&a=invoke&module=portals&action=renderTemplatePeek&view_id={$view->id}&id=' + encodeURIComponent(peek_id),null,false,'80%');
+	});
 
 	$view_actions.find('[data-cerb-button-export]').on('click', function(e) {
 		e.stopPropagation();
