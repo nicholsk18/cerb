@@ -24,10 +24,10 @@
 	</legend>
 	
 	<div style="padding-bottom:5px;">
-	<a href="javascript:;" onclick="genericAjaxGet('divKbWidget{$widget->id}','c=pages&a=invokeWidget&widget_id={$widget->id}&action=changeCategory&category_id=0');">Top</a> ::
+	<a data-cerb-link-kb-category="0">Top</a> ::
 	{if !empty($breadcrumb)}
 		{foreach from=$breadcrumb item=bread_id}
-			<a href="javascript:;" onclick="genericAjaxGet('divKbWidget{$widget->id}','c=pages&a=invokeWidget&widget_id={$widget->id}&action=changeCategory&category_id={$bread_id}');">{$categories.$bread_id->name}</a> :
+			<a data-cerb-link-kb-category="{$bread_id}">{$categories.$bread_id->name}</a> :
 		{/foreach} 
 	{/if}
 	</div>
@@ -39,12 +39,12 @@
 		<td width="50%" valign="top">
 		{foreach from=$tree.$root_id item=count key=cat_id name=kbcats}
 			<span class="glyphicons glyphicons-folder-closed" style="color:rgb(80,80,80);"></span> 
-			<a href="javascript:;" onclick="genericAjaxGet('divKbWidget{$widget->id}','c=pages&a=invokeWidget&widget_id={$widget->id}&action=changeCategory&category_id={$cat_id}');" style="font-weight:bold;">{$categories.$cat_id->name}</a> ({$count|string_format:"%d"})<br>
+			<a data-cerb-link-kb-category="{$cat_id}" style="font-weight:bold;">{$categories.$cat_id->name}</a> ({$count|string_format:"%d"})<br>
 		
 			{if !empty($tree.$cat_id)}
 				&nbsp; &nbsp; 
 				{foreach from=$tree.$cat_id item=count key=child_id name=subcats}
-					<a href="javascript:;" onclick="genericAjaxGet('divKbWidget{$widget->id}','c=pages&a=invokeWidget&widget_id={$widget->id}&action=changeCategory&category_id={$child_id}');">{$categories.$child_id->name}</a>{if !$smarty.foreach.subcats.last}, {/if}
+					<a data-cerb-link-kb-category="{$child_id}">{$categories.$child_id->name}</a>{if !$smarty.foreach.subcats.last}, {/if}
 				{/foreach}
 				<br>
 			{/if}
@@ -68,7 +68,13 @@
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	var $frm = $('#frmKbBrowseWidget{$widget->id}');
-	
+
+	$frm.next('fieldset').find('[data-cerb-link-kb-category]').on('click', function(e) {
+		e.stopPropagation();
+		let category_id = $(this).attr('data-cerb-link-kb-category');
+		genericAjaxGet('divKbWidget{$widget->id}','c=pages&a=invokeWidget&widget_id={$widget->id}&action=changeCategory&category_id=' + encodeURIComponent(category_id));
+	});
+
 	$frm.find('button.article-add')
 		.cerbPeekTrigger()
 		.on('cerb-peek-saved', function(e) {
