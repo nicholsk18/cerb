@@ -17,7 +17,7 @@
 			{if $params.html_template_id}
 				{$html_template = $html_templates.{$params.html_template_id}}
 				{if $html_template}
-				<li><input type="hidden" name="{$namePrefix}[html_template_id]" value="{$html_template->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-context-id="{$html_template->id}">{$html_template->name}</a></li>
+				<li><input type="hidden" name="{$namePrefix}[html_template_id]" value="{$html_template->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-context-id="{$html_template->id}">{$html_template->name}</a></li>
 				{/if}
 			{/if}
 		</ul>
@@ -57,8 +57,8 @@
 	{foreach from=$params.bundle_ids item=bundle_id}
 		{$bundle = DAO_FileBundle::get($bundle_id)}
 		{if !empty($bundle)}
-		<li><input type="hidden" name="{$namePrefix}[bundle_ids][]" value="{$bundle_id}">{$bundle->name} <a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
-		{/if} 
+		<li><input type="hidden" name="{$namePrefix}[bundle_ids][]" value="{$bundle_id}">{$bundle->name} <a data-cerb-link="bundle_remove"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+		{/if}
 	{/foreach}
 	</ul>
 </div>
@@ -79,14 +79,16 @@ $(function() {
 	// Attachments
 	
 	$action.find('button.chooser-file-bundle').each(function() {
+		$(this).parent().find('[data-cerb-link=bundle_remove]').on('click', Devblocks.onClickRemoveParent);
 		ajax.chooser(this,'{CerberusContexts::CONTEXT_FILE_BUNDLE}','{$namePrefix}[bundle_ids]', { autocomplete:false });
 	});
-	
+
 	// Format toggle
-	$format = $action.find('input:radio[name="{$namePrefix}[format]"]');
+	let $format = $action.find('input:radio[name="{$namePrefix}[format]"]');
 	
 	$format.on('change', function(e) {
-		var $this = $(this);
+		e.stopPropagation();
+		let $this = $(this);
 		if($this.val() == 'parsedown') {
 			$action.find('.options-parsedown').hide().fadeIn();
 		} else {
@@ -95,8 +97,9 @@ $(function() {
 	});
 	
 	// Text editor
-	var $button_upload = $action.find('button.editor-upload-image')
+	$action.find('button.editor-upload-image')
 		.on('click', function(e) {
+			e.stopPropagation();
 			var $chooser = genericAjaxPopup('chooser','c=internal&a=invoke&module=records&action=chooserOpenFile&single=1',null,true,'75%');
 			
 			$chooser.one('chooser_save', function(event) {
@@ -112,8 +115,9 @@ $(function() {
 		})
 	;
 	
-	var $button_preview = $action.find('button.editor-preview')
+	$action.find('button.editor-preview')
 		.on('click', function(e) {
+			e.stopPropagation();
 			var $frm = $action.closest('form');
 
 			var formData = new FormData($frm[0]);

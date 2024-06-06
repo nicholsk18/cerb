@@ -27,7 +27,7 @@
 				<ul class="bubbles">
 					<li>
 						<img src="{devblocks_url}c=avatars&context=bot&context_id={$va->id}{/devblocks_url}?v={$va->updated_at}" style="height:16px;width:16px;vertical-align:middle;border-radius:16px;">
-						<a href="javascript:;" class="cerb-behavior-trigger" data-context="{CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED}" data-context-id="{$k}">{$behavior->title}</a>
+						<a class="cerb-behavior-trigger" data-context="{CerberusContexts::CONTEXT_BEHAVIOR_SCHEDULED}" data-context-id="{$k}">{$behavior->title}</a>
 					</li>
 				</ul>
 			</td>
@@ -40,7 +40,7 @@
 		<tr>
 			<td></td>
 			<td>
-				<a href="javascript:;" style="font-weight:bold;" onclick="$(this).closest('fieldset').find('table tr:hidden').show();$(this).remove();">show all {$smarty.foreach.behaviors.total}</a>
+				<a data-cerb-link="remove" style="font-weight:bold;">show all {$smarty.foreach.behaviors.total}</a>
 			</td>
 		</tr>
 	{/if}
@@ -50,8 +50,8 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $fieldset = $('#{$fieldset_id}');
-	var $container = $fieldset.parent();
+	let $fieldset = $('#{$fieldset_id}');
+	let $container = $fieldset.parent();
 	
 	$fieldset.find('.cerb-behavior-trigger')
 		.cerbPeekTrigger()
@@ -59,6 +59,12 @@ $(function() {
 				genericAjaxGet($container, 'c=profiles&a=invoke&module=scheduled_behavior&action=renderContextScheduledBehavior&context={$context}&context_id={$context_id}');
 			})
 		;
+
+	$fieldset.find('[data-cerb-link=remove]').on('click', function(e) {
+		e.stopPropagation();
+		$(this).closest('fieldset').find('table tr:hidden').show();
+		$(this).remove();
+	});
 });
 </script>
 {/if}

@@ -4,7 +4,7 @@
 <select name="{$namePrefix}[on]">
 	<option value="" {if empty($params.on)}selected="selected"{/if}> - a specific URL - </option>
 	{foreach from=$values_to_contexts item=context_data key=val_key}
-	<option value="{$val_key}" context="{$context_data.context}" {if $params.on == $val_key}selected="selected"{/if}>{$context_data.label}</option>
+	{if $context_data.label}<option value="{$val_key}" context="{$context_data.context}" {if $params.on == $val_key}selected="selected"{/if}>{$context_data.label}</option>{/if}
 	{/foreach}
 </select>
 <div style="{if !empty($params.on)}display:none;{/if}">

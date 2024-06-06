@@ -1,7 +1,6 @@
 {$var_type_label = $variable_types.{$var.type}}
-	
 <fieldset class="block-cell" style="margin-bottom:5px;">
-	<legend style="cursor:move;">{$var_type_label} <span data-cerb-onhover class="glyphicons glyphicons-circle-minus" style="display:none;cursor:pointer;" onclick="$(this).closest('fieldset').remove();"></span></legend>
+	<legend style="cursor:move;">{$var_type_label} <span data-cerb-onhover data-cerb-link="remove_parent" class="glyphicons glyphicons-circle-minus" style="display:none;cursor:pointer;"></span></legend>
 	<input type="hidden" name="var[]" value="{$seq}">
 	<input type="hidden" name="var_key[]" value="{$var.key}">
 	<input type="hidden" name="var_type[]" value="{$var.type}">
@@ -58,3 +57,15 @@
 		</tr>
 	</table>
 </fieldset>
+
+{$script_uid = uniqid('script')}
+<script nonce="{DevblocksPlatform::getRequestNonce()}" id="{$script_uid}" type="text/javascript">
+$(function() {
+	let $script = $('#{$script_uid}');
+	let $fieldset = $script.prev('fieldset');
+	$fieldset.find('[data-cerb-link=remove_parent]').on('click', function(e) {
+		e.stopPropagation();
+		$(this).closest('fieldset').remove();
+	});
+});
+</script>

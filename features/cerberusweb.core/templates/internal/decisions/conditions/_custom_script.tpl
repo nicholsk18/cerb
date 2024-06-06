@@ -13,9 +13,3 @@
 <br>
 
 <input type="text" name="{$namePrefix}[value]" value="{$params.value}" size="45">
-
-<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
-$(function() {
-	var $condition = $('#{$namePrefix}_{$nonce}');
-})
-</script>

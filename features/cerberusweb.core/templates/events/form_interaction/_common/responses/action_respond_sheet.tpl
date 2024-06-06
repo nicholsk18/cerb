@@ -15,7 +15,7 @@
 		</fieldset>
 		
 		<fieldset class="peek black" style="display:none;position:relative;">
-			<span class="glyphicons glyphicons-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:rgb(80,80,80);zoom:1.5;" onclick="$(this).closest('fieldset').hide();"></span>
+			<span class="glyphicons glyphicons-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:rgb(80,80,80);zoom:1.5;background-color:var(--cerb-color-background);"></span>
 			<legend>{'common.results'|devblocks_translate|capitalize}:</legend>
 			<textarea class="cerb-json-results-editor" data-editor-mode="ace/mode/json"></textarea>
 		</fieldset>
@@ -51,7 +51,7 @@
 	<textarea name="{$namePrefix}[sheet_kata]" class="cerb-sheet-yaml-editor" data-editor-mode="ace/mode/cerb_kata" style="width:95%;height:50px;">{$params.sheet_kata}</textarea>
 
 	<fieldset class="peek black" style="display:none;position:relative;margin-top:10px;">
-		<span class="glyphicons glyphicons-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:rgb(80,80,80);zoom:1.5;" onclick="$(this).closest('fieldset').hide();"></span>
+		<span class="glyphicons glyphicons-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:rgb(80,80,80);zoom:1.5;background-color:var(--cerb-color-background);"></span>
 		<legend>{'common.preview'|devblocks_translate|capitalize}</legend>
 		<div class="cerb-sheet-preview"></div>
 	</fieldset>
@@ -59,9 +59,9 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $action = $('#{$namePrefix}_{$nonce}');
-	var $frm = $action.closest('form');
-	var $query_button = $action.find('button.cerb-button-sample-query');
+	let $action = $('#{$namePrefix}_{$nonce}');
+	let $frm = $action.closest('form');
+	let $query_button = $action.find('button.cerb-button-sample-query');
 	
 	$action.find('textarea.cerb-data-query-editor')
 		.cerbCodeEditor()
@@ -74,17 +74,22 @@ $(function() {
 		.nextAll('pre.ace_editor')
 		;
 	
-	var $json_results = $action.find('textarea.cerb-json-results-editor')
+	let $json_results = $action.find('textarea.cerb-json-results-editor')
 		.cerbCodeEditor()
 		.nextAll('pre.ace_editor')
 		;
+
+	$json_results.closest('fieldset').find('> .glyphicons-circle-remove').on('click', function(e) {
+		e.stopPropagation();
+		$(this).closest('fieldset').hide();
+	});
 	
 	$query_button.on('click', function(e) {
 		e.stopPropagation();
 		
 		// If alt+click, clear the results
 		if(e.altKey) {
-			var json_results = ace.edit($json_results.attr('id'));
+			let json_results = ace.edit($json_results.attr('id'));
 			$json_results.closest('fieldset').hide();
 			json_results.setValue('');
 			return;
@@ -92,7 +97,7 @@ $(function() {
 		
 		// Substitute placeholders
 		
-		var formData = new FormData($frm.get(0));
+		let formData = new FormData($frm.get(0));
 		formData.set('c', 'profiles');
 		formData.set('a', 'invoke');
 		formData.set('module', 'behavior');
@@ -103,7 +108,7 @@ $(function() {
 		
 		genericAjaxPost(formData, null, null, function(json) {
 			if(false == json.status) {
-				var editor = ace.edit($json_results.attr('id'));
+				let editor = ace.edit($json_results.attr('id'));
 				
 				editor.session.setMode('ace/mode/text');
 				editor.setReadOnly(true);
@@ -114,13 +119,13 @@ $(function() {
 				return;
 			}
 			
-			var formData = new FormData();
+			let formData = new FormData();
 			formData.set('c', 'ui');
 			formData.set('a', 'dataQuery');
 			formData.set('q', json.response);
 			
 			genericAjaxPost(formData, null, null, function(json) {
-				var editor = ace.edit($json_results.attr('id'));
+				let editor = ace.edit($json_results.attr('id'));
 				
 				editor.session.setMode('ace/mode/json');
 				editor.setReadOnly(true);
@@ -132,7 +137,7 @@ $(function() {
 		});
 	});
 	
-	var $yaml_editor = $action.find('textarea.cerb-sheet-yaml-editor')
+	let $yaml_editor = $action.find('textarea.cerb-sheet-yaml-editor')
 		.cerbCodeEditor()
 		.cerbCodeEditorAutocompleteKata({
 			autocomplete_suggestions: cerbAutocompleteSuggestions.kataSchemaSheet
@@ -140,9 +145,14 @@ $(function() {
 		.nextAll('pre.ace_editor')
 		;
 
-	var $sheet_button_preview = $action.find('.cerb-button-preview-sheet');
-	var $sheet_button_add = $action.find('.cerb-button-sheet-column-add');
-	var $sheet_preview = $action.find('.cerb-sheet-preview');
+	let $sheet_button_preview = $action.find('.cerb-button-preview-sheet');
+	let $sheet_button_add = $action.find('.cerb-button-sheet-column-add');
+	let $sheet_preview = $action.find('.cerb-sheet-preview');
+
+	$sheet_preview.closest('fieldset').find('> .glyphicons-circle-remove').on('click', function(e) {
+		e.stopPropagation();
+		$(this).closest('fieldset').hide();
+	});
 
 	$sheet_button_preview.on('click', function(e) {
 		e.stopPropagation();
@@ -154,7 +164,7 @@ $(function() {
 			return;
 		}
 		
-		var formData = new FormData($frm.get(0));
+		let formData = new FormData($frm.get(0));
 		formData.set('c', 'profiles');
 		formData.set('a', 'invoke');
 		formData.set('module', 'behavior');
@@ -169,9 +179,9 @@ $(function() {
 				return;
 			}
 			
-			var editor = ace.edit($yaml_editor.attr('id'));
+			let editor = ace.edit($yaml_editor.attr('id'));
 			
-			var formData = new FormData();
+			let formData = new FormData();
 			formData.set('c', 'ui');
 			formData.set('a', 'sheet');
 			formData.set('data_query', json.response);
@@ -194,17 +204,17 @@ $(function() {
 		});
 	});
 
-	var $sheet_button_add_menu = $sheet_button_add.next('ul').menu({
+	let $sheet_button_add_menu = $sheet_button_add.next('ul').menu({
 		"select": function(e, $ui) {
 			e.stopPropagation();
 			$sheet_button_add_menu.hide();
 
-			var column_type = $ui.item.attr('data-type');
+			let column_type = $ui.item.attr('data-type');
 
 			if(null == column_type)
 				return;
 
-			var snippet = '';
+			let snippet = '';
 
 			{literal}
 			if('card' === column_type) {

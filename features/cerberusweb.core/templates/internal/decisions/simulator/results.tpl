@@ -8,7 +8,7 @@
 
 <div>
 	<div class="badge badge-lightgray" style="margin:2px;">
-		<a href="javascript:;" style="text-decoration:none;font-weight:bold;color:var(--cerb-color-background-contrast-50);">
+		<a style="text-decoration:none;font-weight:bold;color:var(--cerb-color-background-contrast-50);">
 			{$event->manifest->name}
 		</a>
 	</div>
@@ -25,7 +25,7 @@
 		{$last_action = $output.action}
 	{/if}
 	<fieldset class="block"><!--
-		-->{if $output.title}<legend><a href="javascript:;" onclick="$(this).parent().next('pre').toggle();" style="text-decoration:none;cursor:pointer;">{$output.title}</a></legend>{/if}<!--
+		-->{if $output.title}<legend><a data-cerb-link="toggle" style="text-decoration:none;cursor:pointer;">{$output.title}</a></legend>{/if}<!--
 		--><pre class="emailbody" dir="auto" style="margin:0;">{$output.content}</pre><!--
 	--></fieldset>
 	{/if}
@@ -39,3 +39,14 @@
 <pre class="emailbody" dir="auto">{$conditions_output}</pre>
 </fieldset>
 {/if}
+
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
+$(function() {
+	let $div = $('#divBehaviorSimulatorResults{intval($trigger_id)}');
+
+	$div.find('[data-cerb-link=toggle]').on('click', function(e) {
+		e.stopPropagation();
+		$(this).parent().next('pre').toggle();
+	});
+})
+</script>

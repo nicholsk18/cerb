@@ -10,8 +10,15 @@
 {foreach from=$params.worker_id item=worker_id}
 	{$context_worker = $workers.$worker_id}
 	{if !empty($context_worker)}
-	<li>{$context_worker->getName()}<input type="hidden" name="{$namePrefix}[worker_id][]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+	<li>{$context_worker->getName()}<input type="hidden" name="{$namePrefix}[worker_id][]" value="{$context_worker->id}"><a data-cerb-link="remove_parent"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 	{/if}
 {/foreach}
 {/if}
 </ul>
+
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
+$(function() {
+	let $condition = $('#{$namePrefix}_{$nonce}');
+	$condition.find('.chooser-container [data-cerb-link=remove_parent]').on('click', Devblocks.onClickRemoveParent);
+})
+</script>

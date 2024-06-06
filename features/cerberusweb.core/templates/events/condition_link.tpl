@@ -29,7 +29,7 @@
 			{$meta.name} ({$context_ext->manifest->name})
 		{/if}<!--
 		--><input type="hidden" name="{$namePrefix}[context_objects][]" value="{$context}:{$context_id}"><!--
-		--><span class="glyphicons glyphicons-circle-remove" onclick="$(this).closest('li').remove();"></span>
+		--><span class="glyphicons glyphicons-circle-remove"></span>
 	</li>
 	{/if}
 {/foreach}
@@ -39,15 +39,18 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
+	let $container = $('#container_{$random}');
+
+	$container.find('.chooser-container .glyphicons-circle-remove').on('click', Devblocks.onClickRemoveParent);
+
 	$('#container_{$random}').find('select.chooser').change(function(e) {
 		var $this = $(this);
 		var $val = $this.val();
-		
+
 		if($val.length > 0) {
 			var $popup = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=invoke&module=records&action=chooserOpen&context='+encodeURIComponent($val),null,true,'750');
 			$popup.one('popup_close',function(event) {
 				event.stopPropagation();
-				var $container = $('#container_{$random}');
 				var $chooser = $container.find('select.chooser');
 				$chooser.val('');
 			});
@@ -62,11 +65,11 @@ $(function() {
 				
 				for(i in event.labels) {
 					// Look for dupes
-					if(0 == $ul.find('input:hidden[value="' + $context + ':' + event.values[i] + '"]').length) {
+					if(0 === $ul.find('input:hidden[value="' + $context + ':' + event.values[i] + '"]').length) {
 						var $li = $('<li/>').text(event.labels[i] + ' (' + $context_name + ')');
 						$li.append($('<input type="hidden" name="{$namePrefix}[context_objects][]">').attr('value',$context + ':' + event.values[i]));
-						$li.append($('<span class="glyphicons glyphicons-circle-remove" onclick="$(this).closest(\'li\').remove();"></span>'));
-						
+						let $remove = $('<span class="glyphicons glyphicons-circle-remove"></span>').on('click', Devblocks.onClickRemoveParent);
+						$li.append($remove);
 						$ul.append($li);
 					}
 				}

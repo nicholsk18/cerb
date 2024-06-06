@@ -28,7 +28,7 @@
 			<li>
 				{$values_to_contexts.$context_data.label}<!--
 				--><input type="hidden" name="{$namePrefix}[context_objects][]" value="{$context_data}"><!--
-				--><span class="glyphicons glyphicons-circle-remove" onclick="$(this).closest('li').remove();"></span>
+				--><span class="glyphicons glyphicons-circle-remove"></span>
 			</li>
 		{else}
 			{$context_pair = explode(':',$context_data)}
@@ -42,14 +42,14 @@
 					{$meta.name} ({$context_ext->manifest->name})
 				{/if}<!--
 				--><input type="hidden" name="{$namePrefix}[context_objects][]" value="{$context}:{$context_id}"><!--
-				--><span class="glyphicons glyphicons-circle-remove" onclick="$(this).closest('li').remove();"></span>
+				--><span class="glyphicons glyphicons-circle-remove"></span>
 			</li>
 			{/if}
 		{/if}
 	{/foreach}
 	</ul>
 
-	<div id="{$menu_button}" class="badge badge-lightgray" style="cursor:pointer;"><a href="javascript:;" style="text-decoration:none;color:var(--cerb-color-background-contrast-50);">{'common.add'|devblocks_translate|capitalize} &#x25be;</a></div>
+	<div id="{$menu_button}" class="badge badge-lightgray" style="cursor:pointer;"><a style="text-decoration:none;color:var(--cerb-color-background-contrast-50);">{'common.add'|devblocks_translate|capitalize} &#x25be;</a></div>
 	
 	<ul class="cerb-popupmenu" style="max-height:200px;overflow-y:auto;">
 		<li class="filter"><input type="text" class="input_search" size="45"></li>
@@ -59,7 +59,7 @@
 		{foreach from=$values_to_contexts item=var_data key=var_key}
 			{if $var_data.context && $var_data.label}
 			<li class="item" key="{$var_key}" style="padding-left:20px;">
-				<a href="javascript:;">{$var_data.label}</a>
+				<a>{$var_data.label}</a>
 			</li>
 			{/if}
 		{/foreach}
@@ -69,7 +69,7 @@
 		{foreach from=$contexts item=context key=context_id}
 			{if $context->hasOption('links')}
 				<li class="chooser" key="{$context_id}" style="padding-left:20px;">
-					<a href="javascript:;">{$context->name}</a>
+					<a>{$context->name}</a>
 				</li>
 			{/if}
 		{/foreach}
@@ -80,14 +80,17 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	$('#container_{$random}').find('ul.cerb-popupmenu > li.chooser').click(function(e) {
+	let $container = $('#container_{$random}');
+
+	$container.find('.chooser-container .glyphicons-circle-remove').on('click', Devblocks.onClickRemoveParent);
+
+	$container.find('ul.cerb-popupmenu > li.chooser').click(function(e) {
 		var $this = $(this);
 		var $val = $this.attr('key');
-		
-		var $container = $('#container_{$random}');
+
 		$container.data('context', $val);
 		$container.data('context_name', $this.find('a').text());
-		
+
 		if($val.length > 0) {
 			var $popup = genericAjaxPopup("chooser{uniqid()}",'c=internal&a=invoke&module=records&action=chooserOpen&context='+encodeURIComponent($val),null,true,'750');
 			$popup.one('chooser_save',function(event) {
@@ -98,13 +101,13 @@ $(function() {
 				var $context = $container.data('context');
 				var $context_name = $container.data('context_name');
 				
-				for(i in event.labels) {
+				for(let i in event.labels) {
 					// Look for dupes
 					if(0 === $ul.find('input:hidden[value="' + $context + ':' + event.values[i] + '"]').length) {
 						var $li = $('<li/>').text(event.labels[i] + ' (' + $context_name + ')');
 						$li.append($('<input type="hidden" name="{$namePrefix}[context_objects][]">').attr('value',$context + ':' + event.values[i]));
-						$li.append($('<span class="glyphicons glyphicons-circle-remove" onclick="$(this).closest(\'li\').remove();"></span>'));
-						
+						$li.append($('<span class="glyphicons glyphicons-circle-remove"></span>'));
+						$li.find('.glyphicons-circle-remove').on('click', Devblocks.onClickRemoveParent);
 						$ul.append($li);
 					}
 				}
@@ -120,6 +123,7 @@ $(function() {
 	$menu_trigger
 		.click(
 			function(e) {
+				e.stopPropagation();
 				var $menu = $(this).data('menu');
 	
 				if($menu.is(':visible')) {
@@ -184,8 +188,9 @@ $(function() {
 		var $bubble = $('<li></li>');
 		$bubble.append($li.find('a').text());
 		$bubble.append($('<input type="hidden" name="{$namePrefix}[{$param_name}][]">').attr('value',$key));
-		$bubble.append($('<a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>'));
-		
+		let $a = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($bubble);
+		$a.on('click', Devblocks.onClickRemoveParent);
+
 		$bubbles.append($bubble);
 	});
 });

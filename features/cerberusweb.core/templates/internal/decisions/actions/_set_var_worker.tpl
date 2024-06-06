@@ -6,7 +6,7 @@
 	{foreach from=$params.worker_id item=worker_id}
 		{$context_worker = $workers.$worker_id}
 		{if !empty($context_worker)}
-		<li>{$context_worker->getName()}<input type="hidden" name="{$namePrefix}[worker_id][]" value="{$context_worker->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+		<li>{$context_worker->getName()}<input type="hidden" name="{$namePrefix}[worker_id][]" value="{$context_worker->id}"><a data-cerb-link="remove_parent"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 		{/if}
 	{/foreach}
 	{/if}
@@ -21,7 +21,7 @@
 	{foreach from=$params.group_id item=group_id}
 		{$context_group = $groups.$group_id}
 		{if !empty($context_group)}
-		<li>{$context_group->name}<input type="hidden" name="{$namePrefix}[group_id][]" value="{$context_group->id}"><a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+		<li>{$context_group->name}<input type="hidden" name="{$namePrefix}[group_id][]" value="{$context_group->id}"><a data-cerb-link="remove_parent"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 		{/if}
 	{/foreach}
 	{/if}
@@ -52,3 +52,10 @@
 		<option value="load_balance" {if $params.mode=='load_balance'}selected='selected'{/if}>The worker with the fewest open assignments (i.e. load balance)</option>
 	</select>
 </div>
+
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
+$(function() {
+	let $action = $('#{$namePrefix}_{$nonce}');
+	$action.find('[data-cerb-link=remove_parent]').on('click', Devblocks.onClickRemoveParent);
+});
+</script>

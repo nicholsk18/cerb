@@ -4,7 +4,7 @@
 	{if !empty($values_to_contexts)}
 	{foreach from=$values_to_contexts item=context_data key=val_key}
 	{if !$context_data.is_multiple}
-	<option value="{$val_key}" context="{$context_data.context}" {if $params.on == $val_key}selected="selected"{/if}>{$context_data.label}</option>
+	{if $context_data.label}<option value="{$val_key}" context="{$context_data.context}" {if $params.on == $val_key}selected="selected"{/if}>{$context_data.label}</option>{/if}
 	{/if}
 	{/foreach}
 	{/if}

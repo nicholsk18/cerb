@@ -39,7 +39,7 @@
 			<legend class="cerb-bot-action--title" style="font-size:135%;">
 				{if $actions[$params.action]}{$actions[$params.action].label}{else}(missing action: {$params.action}){/if}<!--
 				--><span data-cerb-onhover style="display:none;cursor:pointer;"><span class="glyphicons glyphicons-move"></span></span><!--
-				--><span data-cerb-onhover style="display:none;cursor:pointer;" onclick="$(this).closest('fieldset').find('#divDecisionActionToolbar{$id}').hide().appendTo($('#frmDecisionAction{$id}Action'));$(this).closest('fieldset').trigger('cerb.remove');"><span class="glyphicons glyphicons-circle-remove"></span></span>
+				--><span data-cerb-onhover style="display:none;cursor:pointer;"><span class="glyphicons glyphicons-circle-remove"></span></span>
 			</legend>
 
 			<div style="margin-left:10px;">
@@ -93,7 +93,7 @@
 
 		</form>
 
-		<form id="frmDecisionActionAdd{$id}" action="javascript:;" method="post">
+		<form id="frmDecisionActionAdd{$id}" action="#" method="post">
 		<input type="hidden" name="c" value="profiles">
 		<input type="hidden" name="a" value="invoke">
 		<input type="hidden" name="module" value="behavior">
@@ -250,6 +250,17 @@ $(function() {
 			$toolbar.detach();
 			$target.remove();
 		});
+
+		// Build
+
+		let funcBehaviorActionRemove = function(e) {
+			e.stopPropagation();
+			let id = $(this).attr('data-cerb-node-id');
+			$(this).closest('fieldset').find('#divDecisionActionToolbar' + id).hide().appendTo($('#frmDecisionAction' + id + 'Action'));
+			$(this).closest('fieldset').trigger('cerb.remove');
+		}
+
+		$frm_build.find('fieldset.cerb-bot-action legend .glyphicons-circle-remove').on('click', funcBehaviorActionRemove);
 
 		// Package Library
 
@@ -455,7 +466,10 @@ $(function() {
 		$actions_menu.menu({
 			select: function(event, ui) {
 				var token = ui.item.attr('data-token');
-				var label = ui.item.attr('data-label').replace('(Common) ','');
+				var label = ui.item.attr('data-label');
+
+				if(label)
+					label = label.replace('(Common) ','');
 
 				if(undefined == token || undefined == label)
 					return;
@@ -473,8 +487,9 @@ $(function() {
 					$container.prepend('<legend class="cerb-bot-action--title" style="font-size:135%;">'
 						+ label
 						+ '<span data-cerb-onhover style="display:none;cursor:pointer;"><span class="glyphicons glyphicons-move"></span></span>'
-						+ '<span data-cerb-onhover style="display:none;cursor:pointer;" onclick="$(this).closest(\'fieldset\').find(\'#divDecisionActionToolbar{$id}\').hide().appendTo($(\'#frmDecisionAction{$id}Action\'));$(this).closest(\'fieldset\').trigger(\'cerb.remove\');"><span class="glyphicons glyphicons-circle-remove"></span></span>'
+						+ '<span data-cerb-onhover style="display:none;cursor:pointer;"><span class="glyphicons glyphicons-circle-remove"></span></span>'
 					);
+					$container.find('legend .glyphicons-circle-remove').on('click', funcBehaviorActionRemove);
 					var $div = $('<div style="margin-left:10px;" />').appendTo($container);
 					$ul.append($container);
 					
