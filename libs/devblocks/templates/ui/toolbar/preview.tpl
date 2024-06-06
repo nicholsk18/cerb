@@ -1,5 +1,5 @@
 <fieldset style="margin-top:10px;position:relative;">
-	<span class="glyphicons glyphicons-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:rgb(80,80,80);zoom:1.5;" onclick="$(this).closest('fieldset').remove();"></span>
+	<span class="glyphicons glyphicons-circle-remove"></span>
 	<legend>{'common.preview'|devblocks_translate|capitalize}</legend>
 
 	<div>
@@ -14,8 +14,22 @@
 {$script_uid = uniqid('script')}
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript" id="{$script_uid}">
 $(function() {
-	var $script = $('#{$script_uid}');
-	var $fieldset = $script.prev('fieldset');
+	let $script = $('#{$script_uid}');
+	let $fieldset = $script.prev('fieldset');
+
+	// Remove
+	$fieldset.find('.glyphicons-circle-remove')
+		.css('position','absolute')
+		.css('right','-5px')
+		.css('top','-10px')
+		.css('cursor','pointer')
+		.css('color','rgb(80,80,80)')
+		.css('zoom','1.5')
+		.on('click', function(e) {
+			e.stopPropagation();
+			$(this).closest('fieldset').remove();
+		})
+	;
 
 	// Menus
 	$fieldset
