@@ -30,9 +30,8 @@
 		<li>
 			<a href="https://cerb.ai/docs/" target="_blank" rel="noopener">Read the documentation</a>
 		</li>
+		<li>
+			<a href="{devblocks_url}c=profiles&what=worker&who=me&tab=settings{/devblocks_url}">Configure your account</a>
+		</li>
 	</ul>
 </fieldset>
-
-<form>
-	<button type="button" onclick="document.location.href='{devblocks_url}c=profiles&what=worker&who=me&tab=settings{/devblocks_url}';"><span class="glyphicons glyphicons-circle-ok"></span> Configure your account</button>
-</form>
