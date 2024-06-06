@@ -42,7 +42,7 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $parent = $('#{$parent_div}');
+	let $parent = $('#{$parent_div}');
 	
 	$parent.find('TBODY.summary > TR > TD:first > div.filters').on('click', function(e) {
 		e.stopPropagation();
@@ -72,7 +72,13 @@ $(function() {
 			$container.css('text-decoration', 'line-through');
 		}
 	});
-	
+
+	$parent.find('[data-cerb-worklist-remove-filter]').on('click', function(e) {
+		e.stopPropagation();
+		let param_key = $(this).attr('data-cerb-worklist-remove-filter');
+		ajax.viewRemoveFilter('{$view->id}', [ param_key ]);
+	});
+
 	$parent.find('button.cerb-save').on('click', function(e) {
 		e.stopPropagation();
 

@@ -2,7 +2,7 @@
 {if !isset($focus)}{$focus = null}{/if}
 {if isset($view) && is_a($view, 'IAbstractView_QuickSearch')}
 
-<form action="javascript:;" method="post" id="{$uniqid}" class="quick-search" style="background-color:var(--cerb-editor-background);">
+<form action="#" method="post" id="{$uniqid}" class="quick-search" style="background-color:var(--cerb-editor-background);">
 	<input type="hidden" name="c" value="search">
 	<input type="hidden" name="a" value="ajaxQuickSearch">
 	<input type="hidden" name="view_id" value="{$view->id}">
@@ -15,7 +15,7 @@
 					<textarea name="query" class="cerb-code-editor cerb-input-quicksearch" data-editor-mode="ace/mode/cerb_query" style="width:100%;height:30px;border:0;visibility:hidden;">{$view->getParamsQuery()}</textarea>
 				</td>
 				<td width="0%" nowrap="nowrap" valign="top">
-					<a href="javascript:;" class="cerb-quick-search-menu-trigger" style="position:relative;top:5px;padding:0px 10px;"><span class="glyphicons glyphicons-circle-question-mark" style="margin:0;color:gray;"></span></a>
+					<a class="cerb-quick-search-menu-trigger" style="position:relative;top:5px;padding:0px 10px;"><span class="glyphicons glyphicons-circle-question-mark" style="margin:0;color:gray;"></span></a>
 				</td>
 			</tr>
 		</table>
@@ -24,9 +24,11 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#{$uniqid}');
+	let $frm = $('#{$uniqid}');
 
-	var $editor = $frm.find('textarea.cerb-code-editor')
+	Devblocks.formDisableSubmit($frm);
+
+	let $editor = $frm.find('textarea.cerb-code-editor')
 		.cerbCodeEditor()
 		.cerbCodeEditorAutocompleteSearchQueries({
 			context: '{$view->getContext()}'
@@ -34,7 +36,7 @@ $(function() {
 		.nextAll('pre.ace_editor')
 		;
 	
-	var editor = ace.edit($editor.attr('id'));
+	let editor = ace.edit($editor.attr('id'));
 	editor.setOption('highlightActiveLine', false);
 	editor.renderer.setOption('showGutter', false);
 	editor.commands.addCommand({
@@ -55,7 +57,7 @@ $(function() {
 	});
 	
 	$frm.on('submit', function() {
-	    var $view = $('#view{$view->id}');
+	    let $view = $('#view{$view->id}');
 	    
 	    // If a search is already in progress, abort
 	    if($view.siblings('.cerb-search-progress').length > 0)
@@ -66,7 +68,7 @@ $(function() {
 				{if !empty($return_url)}
 					window.location.href = '{$return_url}';
 				{else}
-					var $view_filters = $('#viewCustomFilters{$view->id}');
+					let $view_filters = $('#viewCustomFilters{$view->id}');
 					
 					if(0 !== $view_filters.length) {
 						$view_filters.html(json.html);

@@ -29,9 +29,6 @@
 				<option value="deleted">{'status.deleted'|devblocks_translate|capitalize}</option>
 				{/if}
 			</select>
-			{if $active_worker->is_superuser}
-			<button type="button" onclick="this.form.status.selectedIndex = 1;">{'status.deleted'|devblocks_translate|lower}</button>
-			{/if}
 			</td>
 		</tr>
 	</table>

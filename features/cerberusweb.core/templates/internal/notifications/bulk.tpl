@@ -28,8 +28,6 @@
 					<option value="0">{'common.no'|devblocks_translate}</option>
 					<option value="1">{'common.yes'|devblocks_translate}</option>
 				</select>
-				<button type="button" onclick="this.form.is_read.selectedIndex = 2;">{'common.yes'|devblocks_translate|lower}</button>
-				<button type="button" onclick="this.form.is_read.selectedIndex = 1;">{'common.no'|devblocks_translate|lower}</button>
 			</td>
 		</tr>
 	</table>

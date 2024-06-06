@@ -22,22 +22,16 @@
 	<table cellspacing="0" cellpadding="2" width="100%">
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.status'|devblocks_translate|capitalize}:</td>
-			<td width="100%"><select name="status">
-				<option value=""></option>
-				<option value="open">{'crm.opp.status.open'|devblocks_translate}</option>
-				<option value="won">{'crm.opp.status.closed.won'|devblocks_translate}</option>
-				<option value="lost">{'crm.opp.status.closed.lost'|devblocks_translate}</option>
-				{if $active_worker->hasPriv('contexts.cerberusweb.contexts.opportunity.delete')}
-				<option value="deleted">{'status.deleted'|devblocks_translate|capitalize}</option>
-				{/if}
-			</select>
-			<br>
-			<button type="button" onclick="this.form.status.selectedIndex = 1;">{'crm.opp.status.open'|devblocks_translate|lower}</button>
-			<button type="button" onclick="this.form.status.selectedIndex = 2;">{'crm.opp.status.closed.won'|devblocks_translate|lower}</button>
-			<button type="button" onclick="this.form.status.selectedIndex = 3;">{'crm.opp.status.closed.lost'|devblocks_translate|lower}</button>
-			{if $active_worker->hasPriv('contexts.cerberusweb.contexts.opportunity.delete')}
-			<button type="button" onclick="this.form.status.selectedIndex = 4;">{'status.deleted'|devblocks_translate|lower}</button>
-			{/if}
+			<td width="100%">
+				<select name="status">
+					<option value=""></option>
+					<option value="open">{'crm.opp.status.open'|devblocks_translate}</option>
+					<option value="won">{'crm.opp.status.closed.won'|devblocks_translate}</option>
+					<option value="lost">{'crm.opp.status.closed.lost'|devblocks_translate}</option>
+					{if $active_worker->hasPriv('contexts.cerberusweb.contexts.opportunity.delete')}
+					<option value="deleted">{'status.deleted'|devblocks_translate|capitalize}</option>
+					{/if}
+				</select>
 			</td>
 		</tr>
 		
@@ -64,8 +58,7 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right">{'crm.opportunity.closed_date'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
-				<input type="text" name="closed_date" size=35 value=""><button type="button" onclick="devblocksAjaxDateChooser(this.form.closed_date,'#dateOppBulkClosed');"><span class="glyphicons glyphicons-calendar"></span></button>
-				<div id="dateOppBulkClosed"></div>
+				<input type="text" name="closed_date" size=35 value="">
 			</td>
 		</tr>
 	</table>
@@ -91,7 +84,7 @@
 $(function() {
 	var $popup = genericAjaxPopupFetch('peek');
 	
-	$popup.one('popup_open', function(event,ui) {
+	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		$popup.css('overflow', 'inherit');
 	
@@ -118,7 +111,14 @@ $(function() {
 				genericAjaxPopupClose($popup);
 			});
 		});
-		
+
+		$popup.find('input[name=closed_date]')
+			.cerbDateInputHelper()
+			.next('button').on('click', function(e) {
+				e.stopPropagation();
+			}
+		);
+
 		{include file="devblocks:cerberusweb.core::internal/views/bulk_broadcast_jquery.tpl"}
 	});
 });

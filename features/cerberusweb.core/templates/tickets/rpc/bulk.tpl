@@ -56,7 +56,7 @@
 			</td>
 			<td width="100%" valign="top">
 				<div style="display:none;">
-					<select name="params[status][status_id]" onchange="$val=$(this).val();$waiting=$('#bulk{$view_id}_waiting');if($val=={Model_Ticket::STATUS_WAITING} || $val=={Model_Ticket::STATUS_CLOSED}){ $waiting.show(); } else { $waiting.hide(); }">
+					<select name="params[status][status_id]">
 						<option value="{Model_Ticket::STATUS_OPEN}">{'status.open'|devblocks_translate|capitalize}</option>
 						<option value="{Model_Ticket::STATUS_WAITING}">{'status.waiting.abbr'|devblocks_translate|capitalize}</option>
 						{if $active_worker->hasPriv('core.ticket.actions.close')}
@@ -220,7 +220,19 @@ $(function() {
 		$popup.css('overflow', 'inherit');
 		
 		$popup.find('button.chooser-abstract').cerbChooserTrigger();
-		
+
+		$popup.find('select[name="params[status][status_id]"]').on('change', function(e) {
+			e.stopPropagation();
+			let $val = $(this).val();
+			let $waiting = $('#bulk{$view_id}_waiting');
+
+			if($val == {Model_Ticket::STATUS_WAITING} || $val == {Model_Ticket::STATUS_CLOSED}) {
+				$waiting.show();
+			} else {
+				$waiting.hide();
+			}
+		});
+
 		$popup.find('button.submit').click(function() {
 			genericAjaxPost('formBatchUpdate', '', null, function(json) {
 				if(json.cursor) {

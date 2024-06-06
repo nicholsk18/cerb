@@ -24,8 +24,8 @@ class PageSection_InternalNotifications extends Extension_PageSection {
 			switch ($action) {
 				case 'redirectRead':
 					return $this->_internalAction_redirectRead();
-				case 'showBulkUpdatePanel':
-					return $this->_internalAction_showBulkUpdatePanel();
+				case 'showBulkPopup':
+					return $this->_internalAction_showBulkPopup();
 				case 'startBulkUpdateJson':
 					return $this->_internalAction_startBulkUpdateJson();
 				case 'viewMarkRead':
@@ -83,7 +83,7 @@ class PageSection_InternalNotifications extends Extension_PageSection {
 		DevblocksPlatform::redirectURL($notification->getURL());
 	}
 	
-	private function _internalAction_showBulkUpdatePanel() {
+	private function _internalAction_showBulkPopup() {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		

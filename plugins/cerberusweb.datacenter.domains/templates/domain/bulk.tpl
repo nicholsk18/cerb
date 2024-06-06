@@ -27,7 +27,6 @@
 				<option value=""></option>
 				<option value="deleted">{'status.deleted'|devblocks_translate|capitalize}</option>
 			</select>
-			<button type="button" onclick="this.form.status.selectedIndex = 1;">{'status.deleted'|devblocks_translate|lower}</button>
 			</td>
 		</tr>
 		{/if}

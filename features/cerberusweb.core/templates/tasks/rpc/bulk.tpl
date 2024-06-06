@@ -30,8 +30,7 @@
 			</td>
 			<td width="100%">
 				<div style="display:none;">
-					<input type="text" name="params[due]" size="35" value=""><button type="button" onclick="devblocksAjaxDateChooser(this.form.due,'#dateBulkTaskDue');"><span class="glyphicons glyphicons-calendar"></span></button>
-					<div id="dateBulkTaskDue"></div>
+					<input type="text" name="params[due]" size="35" value="">
 				</div>
 			</td>
 		</tr>
@@ -145,7 +144,7 @@ $(function() {
 
 	Devblocks.formDisableSubmit($frm);
 	
-	$popup.one('popup_open', function(event,ui) {
+	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		
 		$popup.find('button.chooser-abstract').cerbChooserTrigger();
@@ -171,13 +170,22 @@ $(function() {
 				genericAjaxPopupClose($popup);
 			});
 		});
-		
+
+		// Calendar
+
+		$popup.find('input[name="params[due]"]')
+			.cerbDateInputHelper()
+			.next('button').on('click', function(e) {
+				e.stopPropagation();
+			}
+		);
+
 		// Checkboxes
 		
 		$popup.find('input:checkbox[name="actions[]"]').change(function() {
 			$(this).closest('td').next('td').find('> div').toggle();
 		});
-		
+
 		// Slider
 		
 		$popup.find('div.cerb-delta-slider').each(function() {

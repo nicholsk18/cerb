@@ -40,8 +40,6 @@
 					<option value="F">{'common.gender.female'|devblocks_translate|capitalize}</option>
 					<option value="U">({'common.clear'|devblocks_translate|lower})</option>
 				</select>
-				<button type="button" onclick="this.form.gender.selectedIndex = 1;">{'common.gender.male'|devblocks_translate|lower}</button>
-				<button type="button" onclick="this.form.gender.selectedIndex = 2;">{'common.gender.female'|devblocks_translate|lower}</button>
 			</td>
 		</tr>
 		
@@ -77,9 +75,6 @@
 					<option value="0">{'common.no'|devblocks_translate}</option>
 					<option value="1">{'common.yes'|devblocks_translate}</option>
 				</select>
-				
-				<button type="button" onclick="this.form.is_disabled.selectedIndex=1;">{'common.no'|devblocks_translate}</button>
-				<button type="button" onclick="this.form.is_disabled.selectedIndex=2;">{'common.yes'|devblocks_translate}</button>
 			</td>
 		</tr>
 		
@@ -94,9 +89,6 @@
 					<option value="0">{'common.no'|devblocks_translate}</option>
 					<option value="1">{'common.yes'|devblocks_translate}</option>
 				</select>
-				
-				<button type="button" onclick="this.form.is_password_disabled.selectedIndex=1;">{'common.no'|devblocks_translate}</button>
-				<button type="button" onclick="this.form.is_password_disabled.selectedIndex=2;">{'common.yes'|devblocks_translate}</button>
 			</td>
 		</tr>
 		
@@ -111,9 +103,6 @@
 					<option value="0">{'common.no'|devblocks_translate}</option>
 					<option value="1">{'common.yes'|devblocks_translate}</option>
 				</select>
-				
-				<button type="button" onclick="this.form.is_mfa_required.selectedIndex=1;">{'common.no'|devblocks_translate}</button>
-				<button type="button" onclick="this.form.is_mfa_required.selectedIndex=2;">{'common.yes'|devblocks_translate}</button>
 			</td>
 		</tr>
 		

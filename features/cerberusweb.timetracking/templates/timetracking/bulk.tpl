@@ -38,8 +38,6 @@
 					<option value="0">{'status.open'|devblocks_translate}</option>
 					<option value="1">{'status.closed'|devblocks_translate}</option>
 				</select>
-				<button type="button" onclick="$(this).siblings('select').val('0');">{'status.open'|devblocks_translate|lower}</button>
-				<button type="button" onclick="$(this).siblings('select').val('1');">{'status.closed'|devblocks_translate|lower}</button>
 			</td>
 		</tr>
 		

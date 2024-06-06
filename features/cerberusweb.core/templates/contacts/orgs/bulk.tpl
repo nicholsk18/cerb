@@ -24,11 +24,11 @@
 		{if $active_worker->hasPriv('contexts.cerberusweb.contexts.org.delete')}
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="middle" align="right">{'common.status'|devblocks_translate|capitalize}:</td>
-			<td width="100%"><select name="status">
-				<option value=""></option>
-				<option value="deleted">{'status.deleted'|devblocks_translate|capitalize}</option>
-			</select>
-			<button type="button" onclick="this.form.status.selectedIndex = 1;">{'status.deleted'|devblocks_translate|lower}</button>
+			<td width="100%">
+				<select name="status">
+					<option value=""></option>
+					<option value="deleted">{'status.deleted'|devblocks_translate|capitalize}</option>
+				</select>
 			</td>
 		</tr>
 		{/if}

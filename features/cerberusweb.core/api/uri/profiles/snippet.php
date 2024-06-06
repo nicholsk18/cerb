@@ -45,8 +45,8 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 					return $this->_profileAction_renderPrompts();
 				case 'renderToolbar':
 					return $this->_profileAction_renderToolbar();
-				case 'showBulkPanel':
-					return $this->_profileAction_showBulkPanel();
+				case 'showBulkPopup':
+					return $this->_profileAction_showBulkPopup();
 				case 'startBulkUpdateJson':
 					return $this->_profileAction_startBulkUpdateJson();
 				case 'savePeekJson':
@@ -316,7 +316,7 @@ class PageSection_ProfilesSnippet extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::internal/renderers/test_results.tpl');
 	}
 	
-	private function _profileAction_showBulkPanel() {
+	private function _profileAction_showBulkPopup() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$ids = DevblocksPlatform::importGPC($_REQUEST['ids'] ?? null);

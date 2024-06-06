@@ -1,5 +1,5 @@
 <fieldset class="peek">
-	<legend><label><input type="checkbox" name="do_broadcast" id="chkMassReply" onclick="$('#bulkBroadcastContainer').toggle();"> Send Broadcast</label></legend>
+	<legend><label><input type="checkbox" name="do_broadcast" id="chkMassReply"> Send Broadcast</label></legend>
 	<input type="hidden" name="broadcast_format" value="">
 
 	<blockquote id="bulkBroadcastContainer" style="display:none;margin:0px 10px 10px 10px;">
@@ -132,3 +132,15 @@
 		</div>
 	</blockquote>
 </fieldset>
+
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
+$(function() {
+	let $checkbox = $('#chkMassReply');
+
+	// Checkbox toggle
+	$checkbox.on('click', function(e) {
+		$('#bulkBroadcastContainer').toggle();
+		e.stopPropagation();
+	});
+});
+</script>

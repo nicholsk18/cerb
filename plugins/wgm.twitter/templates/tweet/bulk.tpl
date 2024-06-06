@@ -28,8 +28,6 @@
 					<option value="1">{'common.yes'|devblocks_translate|lower}</option>
 					<option value="0">{'common.no'|devblocks_translate|lower}</option>
 				</select>
-				<button type="button" onclick="$(this).siblings('select').val('1');">{'common.yes'|devblocks_translate|lower}</button>
-				<button type="button" onclick="$(this).siblings('select').val('0');">{'common.no'|devblocks_translate|lower}</button>
 			</td>
 		</tr>
 	</table>

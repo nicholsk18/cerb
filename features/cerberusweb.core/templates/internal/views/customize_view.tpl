@@ -40,7 +40,7 @@
 
 <fieldset class="peek peek-noborder black">
 	<legend>
-		{'dashboard.columns'|devblocks_translate|capitalize} (<a href="javascript:;" onclick="$(this).closest('fieldset').find('input:checkbox').removeAttr('checked');">{'common.clear'|devblocks_translate|lower}</a>)</b>
+		{'dashboard.columns'|devblocks_translate|capitalize} (<a data-cerb-link-clear>{'common.clear'|devblocks_translate|lower}</a>)</b>
 	</legend>
 
 	<div style="{if count($columns) > 15}column-width:300px;column-count:3;{/if}">
@@ -91,13 +91,14 @@
 {/if}
 
 <button type="button" class="save"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-<button type="button" class="cancel" onclick="toggleDiv('customize{$view->id}','none');"><span class="glyphicons glyphicons-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+<button type="button" class="cancel"><span class="glyphicons glyphicons-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 
 </div>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $container = $('#customize{$view->id}');
+	let $container = $('#customize{$view->id}');
+
 	Devblocks.formDisableSubmit($container);
 	
 	$container.sortable({ items: 'DIV.column', placeholder:'ui-state-highlight' });
@@ -112,9 +113,15 @@ $(function() {
 		.cerbCodeEditorAutocompleteSearchQueries({ context: "{$workspace_list->context|default:''}" })
 	;
 	{/if}
+
+	$container.find('[data-cerb-link-clear]').on('click', function(e) {
+		e.stopPropagation();
+		$(this).closest('fieldset').find('input:checkbox').removeAttr('checked');
+	});
 	
 	$container.find('button.save').on('click', function(e) {
-		var formData = new FormData($container[0]);
+		e.stopPropagation();
+		let formData = new FormData($container[0]);
 		formData.set('c', 'internal');
 		formData.set('a', 'invoke');
 		formData.set('module', 'worklists');
@@ -123,6 +130,11 @@ $(function() {
 		genericAjaxPost(formData, null, null, function() {
 			genericAjaxGet('view{$view->id}','c=internal&a=invoke&module=worklists&action=refresh&id={$view->id}');
 		});
-	})
+	});
+
+	$container.find('button.cancel').on('click', function(e) {
+		e.stopPropagation();
+		toggleDiv('customize{$view->id}','none');
+	});
 });
 </script>

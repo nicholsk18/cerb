@@ -55,7 +55,7 @@
 
 					<ul class="bubbles sortable" style="display:block;padding:0;">
 						{foreach from=$tokens item=token}
-							<li style="display: block; cursor: move; margin: 5px;"><input type="hidden" name="tokens[]" value="{$token}">{$token}<a href="javascript:;" style="position: absolute; visibility: hidden; top: -7px; right: -6px; display: block;"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+							<li style="display: block; cursor: move; margin: 5px;"><input type="hidden" name="tokens[]" value="{$token}">{$token}<a style="position: absolute; visibility: hidden; top: -7px; right: -6px; display: block;"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 						{/foreach}
 					</ul>
 				</td>
@@ -79,7 +79,7 @@
 		</div>
 
 		<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.export'|devblocks_translate|capitalize}</button>
-		<button type="button" onclick="$('#{$view_id}_tips').html('').hide();" style="cancel"><span class="glyphicons glyphicons-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+		<button type="button" class="cancel"><span class="glyphicons glyphicons-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 	</div>
 	
 	<div id="export{$view_id}_tabBuild">
@@ -93,7 +93,7 @@
 		
 		<div style="margin-top:10px;">
 			<button type="button" class="submit-build"><span class="glyphicons glyphicons-circle-ok"></span> {'common.export'|devblocks_translate|capitalize}</button>
-			<button type="button" onclick="$('#{$view_id}_tips').html('').hide();" style="cancel"><span class="glyphicons glyphicons-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
+			<button type="button" class="cancel"><span class="glyphicons glyphicons-circle-remove"></span> {'common.cancel'|devblocks_translate|capitalize}</button>
 		</div>
 	</div>
 </div>
@@ -156,7 +156,7 @@ $(function() {
 			$hidden.attr('name', 'tokens[]');
 			$hidden.attr('value', token);
 			
-			var $a = $('<a href="javascript:;" style="position: absolute; visibility: hidden; top: -7px; right: -6px; display: block;"><span class="glyphicons glyphicons-circle-remove"></span></a>');
+			var $a = $('<a style="position: absolute; visibility: hidden; top: -7px; right: -6px; display: block;"><span class="glyphicons glyphicons-circle-remove"></span></a>');
 			
 			$bubble.append($hidden);
 			$bubble.append(token);
@@ -203,7 +203,7 @@ $(function() {
 			if(json.hasOwnProperty('completed') && json.completed) {
 				$frm.find('input:hidden[name=cursor_key]').val('');
 				
-				var $html = $('<div><a href="javascript:;" class="close"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);font-size:16px;position:relative;float:right;"></span></a></div>')
+				var $html = $('<div><a class="close"><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);font-size:16px;position:relative;float:right;"></span></a></div>')
 					.append(
 						$('<div style="font-size:18px;font-weight:bold;text-align:center;"/>')
 							.append($('<a target="_blank" rel="noopener"/>').attr('href',json.attachment_url).text(json.attachment_name).prepend('Download: '))
@@ -232,7 +232,7 @@ $(function() {
 			}
 		});
 	})
-	
+
 	$frm.find('button.submit').click(function(e) {
 		e.stopPropagation();
 		
@@ -269,6 +269,11 @@ $(function() {
 		$status.html($html).fadeIn();
 
 		$frm.trigger('export_increment');
+	});
+
+	$frm.find('button.cancel').on('click', function(e) {
+		e.stopPropagation();
+		$('#{$view_id}_tips').html('').hide();
 	});
 	
 	$tabs.show();

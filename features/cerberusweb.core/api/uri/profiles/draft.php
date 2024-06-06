@@ -43,8 +43,8 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 					return $this->_profileAction_saveDraftCompose();
 				case 'saveDraftReply':
 					return $this->_profileAction_saveDraftReply();
-				case 'showDraftsBulkPanel':
-					return $this->_profileAction_showDraftsBulkPanel();
+				case 'showBulkPopup':
+					return $this->_profileAction_showBulkPopup();
 				case 'startBulkUpdateJson':
 					return $this->_profileAction_startBulkUpdateJson();
 				case 'saveComposePeek':
@@ -733,7 +733,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		DAO_MailQueue::delete($draft_id);
 	}
 	
-	private function _profileAction_showDraftsBulkPanel() {
+	private function _profileAction_showBulkPopup() {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		

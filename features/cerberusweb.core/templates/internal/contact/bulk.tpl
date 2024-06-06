@@ -70,14 +70,12 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right">{'common.gender'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
-				<select name="gender">
+				<select name="gender" data-cerb-bulk-shortcuts="1,2">
 					<option value=""></option>
 					<option value="M">{'common.gender.male'|devblocks_translate|capitalize}</option>
 					<option value="F">{'common.gender.female'|devblocks_translate|capitalize}</option>
 					<option value="U">({'common.clear'|devblocks_translate|lower})</option>
 				</select>
-				<button type="button" onclick="this.form.gender.selectedIndex = 1;">{'common.gender.male'|devblocks_translate|lower}</button>
-				<button type="button" onclick="this.form.gender.selectedIndex = 2;">{'common.gender.female'|devblocks_translate|lower}</button>
 			</td>
 		</tr>
 		
@@ -104,11 +102,10 @@
 		{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_CONTACT}.delete")}
 		<tr>
 			<td width="0%" nowrap="nowrap" valign="top" align="right">{'common.status'|devblocks_translate|capitalize}:</td>
-			<td width="100%"><select name="status">
+			<td width="100%"><select name="status" data-cerb-bulk-shortcuts="1">
 				<option value=""></option>
 				<option value="deleted">{'status.deleted'|devblocks_translate|capitalize}</option>
 			</select>
-			<button type="button" onclick="this.form.status.selectedIndex = 1;">{'status.deleted'|devblocks_translate|lower}</button>
 			</td>
 		</tr>
 		{/if}
@@ -140,7 +137,7 @@ $(function() {
 	
 	$popup.css('overflow', 'inherit');
 	
-	$popup.one('popup_open', function(event,ui) {
+	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		
 		$popup.find('button.submit').click(function() {
@@ -164,7 +161,10 @@ $(function() {
 				genericAjaxPopupClose($popup);
 			});
 		});
-		
+
+		// Select shortcuts
+		$popup.find('select[data-cerb-bulk-shortcuts]').cerbSelectShortcuts({ "attr": "data-cerb-bulk-shortcuts" });
+
 		// Abstract choosers
 		$popup.find('button.chooser-abstract').cerbChooserTrigger();
 		

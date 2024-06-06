@@ -24,16 +24,12 @@
 		<tr>
 			<td width="0%" nowrap="nowrap" align="right">{'common.status'|devblocks_translate|capitalize}:</td>
 			<td width="100%">
-				<select name="status">
+				<select name="status" data-cerb-bulk-shortcuts="1,2{if $active_worker->hasPriv("contexts.{$peek_context}.delete")},3{/if}">
 					<option value="">&nbsp;</option>
-					<option value="queue">Queue</option>
+					<option value="queue">Send</option>
 					<option value="draft">Draft</option>
 					{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<option value="delete">{'common.delete'|devblocks_translate|capitalize}</option>{/if}
 				</select>
-				
-				<button type="button" onclick="this.form.status.selectedIndex=1;">send</button>
-				<button type="button" onclick="this.form.status.selectedIndex=2;">draft</button>
-				{if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" onclick="this.form.status.selectedIndex=3;">{'common.delete'|devblocks_translate|lower}</button>{/if}
 			</td>
 		</tr>
 	</table>
@@ -48,9 +44,12 @@ $(function() {
 	let $popup = genericAjaxPopupFind('#formBatchUpdate');
 	Devblocks.formDisableSubmit($popup);
 
-	$popup.one('popup_open', function(event,ui) {
+	$popup.one('popup_open', function() {
 		$(this).dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
-		
+
+		// Select shortcuts
+		$popup.find('select[data-cerb-bulk-shortcuts]').cerbSelectShortcuts({ "attr": "data-cerb-bulk-shortcuts" });
+
 		$popup.find('button.submit').click(function() {
 			genericAjaxPost('formBatchUpdate', '', null, function(json) {
 				if(json.cursor) {

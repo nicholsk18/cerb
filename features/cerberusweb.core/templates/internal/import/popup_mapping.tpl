@@ -27,7 +27,7 @@
 			<input type="hidden" name="field[]" value="{$token}">
 		</td>
 		<td style="padding-left:10px;" valign="top">
-			<select name="column[]" onchange="$(this).nextAll('div.custom').css('display', ($(this).val() == 'custom') ? 'block' : 'none');" class="{if $key.required}required{/if}">
+			<select name="column[]" class="{if $key.required}required{/if}">
 				<option value=""></option>
 				{foreach from=$columns item=column key=pos name=columns}
 					<option value="{$pos}">Column {$smarty.foreach.columns.iteration}: {$column|capitalize}</option>
@@ -63,75 +63,83 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFind('#frmImport');
-	var $frm = $popup.find('FORM#frmImport');
-	
- 	$frm.find('button.submit').click(function() {
-		Devblocks.clearAlerts();
-		
- 		$('#divImportPreview').show().text('Importing... please wait');
-		
- 		var $div = $(this).closest('div');
- 		$div.fadeOut();
- 		
- 		// [TODO] This should allow error reporting via JSON
- 		genericAjaxPost('frmImport', '', null, function(json) {
-			$('#divImportPreview').hide().text('');
-			$div.fadeIn();
-			
-			 if('object' != typeof json)
-				 return;
-			 
-			 if(json.error) {
-				 Devblocks.createAlertError(json.error);
-				 return;
-			 }
-			 
- 			genericAjaxGet('view{$view_id}','c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
- 			genericAjaxPopupDestroy('{$layer}');
- 		});
- 	});
- 	
- 	$frm.find('button.preview').click(function() {
-		Devblocks.clearAlerts();
-		
- 		var $frm = $(this).closest('form');
- 		
- 		$('#divImportPreview').show().text('Loading...');
+	let $popup = genericAjaxPopupFind('#frmImport');
+	let $frm = $popup.find('FORM#frmImport');
 
- 		var formData = new FormData($frm[0]);
- 		formData.set('c', 'internal');
- 		formData.set('a', 'invoke');
- 		formData.set('module', 'worklists');
- 		formData.set('action', 'saveImport');
- 		formData.set('context', '{$context}');
- 		formData.set('is_preview', '1');
-
- 		genericAjaxPost(formData, '', '', function(json) {
-			$('#divImportPreview').hide().text('');
-			
-			if('object' != typeof json)
-				return;
-			
-			if(json.hasOwnProperty('error')) {
-				Devblocks.createAlertError(json.error);
-				return;
-			}
-			 
-			if(json.hasOwnProperty('preview_output')) {
-				$('#divImportPreview').html(json.preview_output).fadeIn();
-			}
- 		});
- 	});
- 	
- 	$frm.find('button.cancel').click(function(event) {
-		event.stopPropagation();
-		genericAjaxPopupDestroy('{$layer}');
- 	});
- 	
 	$popup.one('popup_open',function(event) {
 		event.stopPropagation();
 		$(this).dialog('option','title',"{'common.import'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+
+		// Columns
+		$frm.find('select[name="column[]"]').on('change', function(e) {
+			e.stopPropagation();
+			$(this).nextAll('div.custom').css('display', ($(this).val() === 'custom') ? 'block' : 'none');
+		});
+
+		$frm.find('button.submit').click(function(e) {
+			e.stopPropagation();
+			Devblocks.clearAlerts();
+
+			$('#divImportPreview').show().text('Importing... please wait');
+
+			var $div = $(this).closest('div');
+			$div.fadeOut();
+
+			// [TODO] This should allow error reporting via JSON
+			genericAjaxPost('frmImport', '', null, function(json) {
+				$('#divImportPreview').hide().text('');
+				$div.fadeIn();
+
+				if('object' != typeof json)
+					return;
+
+				if(json.error) {
+					Devblocks.createAlertError(json.error);
+					return;
+				}
+
+				genericAjaxGet('view{$view_id}','c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
+				genericAjaxPopupDestroy('{$layer}');
+			});
+		});
+
+		$frm.find('button.preview').click(function(e) {
+			e.stopPropagation();
+			Devblocks.clearAlerts();
+
+			var $frm = $(this).closest('form');
+
+			$('#divImportPreview').show().text('Loading...');
+
+			var formData = new FormData($frm[0]);
+			formData.set('c', 'internal');
+			formData.set('a', 'invoke');
+			formData.set('module', 'worklists');
+			formData.set('action', 'saveImport');
+			formData.set('context', '{$context}');
+			formData.set('is_preview', '1');
+
+			genericAjaxPost(formData, '', '', function(json) {
+				$('#divImportPreview').hide().text('');
+
+				if('object' != typeof json)
+					return;
+
+				if(json.hasOwnProperty('error')) {
+					Devblocks.createAlertError(json.error);
+					return;
+				}
+
+				if(json.hasOwnProperty('preview_output')) {
+					$('#divImportPreview').html(json.preview_output).fadeIn();
+				}
+			});
+		});
+
+		$frm.find('button.cancel').click(function(event) {
+			event.stopPropagation();
+			genericAjaxPopupDestroy('{$layer}');
+		});
 	});
 	
 	$popup.one('dialogclose', function(event) {

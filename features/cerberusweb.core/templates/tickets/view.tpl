@@ -14,15 +14,15 @@
 	<tr>
 		<td nowrap="nowrap"><span class="title">{$view->name}</span></td>
 		<td nowrap="nowrap" align="right" class="title-toolbar">
-			{if $active_worker->hasPriv("contexts.{$view_context}.create")}<a href="javascript:;" title="{'common.add'|devblocks_translate|capitalize}" class="minimal" data-cerb-worklist-action="add"><span class="glyphicons glyphicons-circle-plus"></span></a>{/if}
-			<a href="javascript:;" title="{'common.search'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxPopup('search','c=internal&a=invoke&module=worklists&action=showQuickSearchPopup&view_id={$view->id}',null,false,'50%');"><span class="glyphicons glyphicons-search"></span></a>
-			<a href="javascript:;" title="{'common.customize'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('customize{$view->id}','c=internal&a=invoke&module=worklists&action=customize&id={$view->id}');toggleDiv('customize{$view->id}','block');"><span class="glyphicons glyphicons-cogwheel"></span></a>
-			<a href="javascript:;" title="{'common.subtotals'|devblocks_translate|capitalize}" class="subtotals minimal"><span class="glyphicons glyphicons-signal"></span></a>
-			{if $active_worker->hasPriv("contexts.{$view_context}.import")}<a href="javascript:;" title="{'common.import'|devblocks_translate|capitalize}" onclick="genericAjaxPopup('import','c=internal&a=invoke&module=worklists&action=renderImportPopup&context={$view_context}&view_id={$view->id}',null,false,'50%');"><span class="glyphicons glyphicons-file-import"></span></a>{/if}
-			{if $active_worker->hasPriv("contexts.{$view_context}.export")}<a href="javascript:;" title="{'common.export'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=invoke&module=worklists&action=renderExport&id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="glyphicons glyphicons-file-export"></span></a>{/if}
-			<a href="javascript:;" title="{'common.copy'|devblocks_translate|capitalize}" onclick="genericAjaxGet('{$view->id}_tips','c=internal&a=invoke&module=worklists&action=renderCopy&view_id={$view->id}');toggleDiv('{$view->id}_tips','block');"><span class="glyphicons glyphicons-duplicate"></span></a>
-			<a href="javascript:;" title="{'common.actions'|devblocks_translate|capitalize}" onclick="$('#{$view->id}_actions button').first().focus();"><span class="glyphicons glyphicons-share"></span></a>
-			<a href="javascript:;" title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal" onclick="genericAjaxGet('view{$view->id}','c=internal&a=invoke&module=worklists&action=refresh&id={$view->id}');"><span class="glyphicons glyphicons-refresh"></span></a>
+			{if $active_worker->hasPriv("contexts.{$view_context}.create")}<a title="{'common.add'|devblocks_translate|capitalize}" class="minimal" data-cerb-worklist-action="add"><span class="glyphicons glyphicons-circle-plus"></span></a>{/if}
+			<a data-cerb-worklist-icon-search title="{'common.search'|devblocks_translate|capitalize}" class="minimal"><span class="glyphicons glyphicons-search"></span></a>
+			<a data-cerb-worklist-icon-customize title="{'common.customize'|devblocks_translate|capitalize}" class="minimal"><span class="glyphicons glyphicons-cogwheel"></span></a>
+			<a data-cerb-worklist-icon-subtotals title="{'common.subtotals'|devblocks_translate|capitalize}" class="minimal"><span class="glyphicons glyphicons-signal"></span></a>
+			{if $active_worker->hasPriv("contexts.{$view_context}.import")}<a data-cerb-worklist-icon-import title="{'common.import'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-file-import"></span></a>{/if}
+			{if $active_worker->hasPriv("contexts.{$view_context}.export")}<a data-cerb-worklist-icon-export title="{'common.export'|devblocks_translate|capitalize}" class="minimal"><span class="glyphicons glyphicons-file-export"></span></a>{/if}
+			<a data-cerb-worklist-icon-copy title="{'common.copy'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-duplicate"></span></a>
+			<a data-cerb-worklist-icon-actions title="{'common.actions'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-down-arrow"></span></a>
+			<a data-cerb-worklist-icon-refresh title="{'common.refresh'|devblocks_translate|capitalize}" class="minimal"><span class="glyphicons glyphicons-refresh"></span></a>
 			<input type="checkbox" class="select-all">
 		</td>
 	</tr>
@@ -55,9 +55,9 @@
 			{* start table header, insert column title and link *}
 			<th class="{if array_key_exists('disable_sorting', $view->options) && $view->options.disable_sorting}no-sort{/if}">
 			{if (!array_key_exists('disable_sorting', $view->options) || !$view->options.disable_sorting) && !empty($view_fields.$header->db_column)}
-				<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=invoke&module=worklists&action=sort&id={$view->id}&sortBy={$header}');">{$view_fields.$header->db_label|capitalize}</a>
+				<a data-cerb-worklist-sort="{$header}">{$view_fields.$header->db_label|capitalize}</a>
 			{else}
-				<a href="javascript:;" style="text-decoration:none;">{$view_fields.$header->db_label|capitalize}</a>
+				<a style="text-decoration:none;">{$view_fields.$header->db_label|capitalize}</a>
 			{/if}
 			
 			{* add arrow if sorting by this column, finish table header tag *}
@@ -181,7 +181,7 @@
 						{/if}
 					{/if}
 				{/if}
-				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.$column}" data-is-local="{if isset($sender_addresses.{$result.$column})}true{/if}" title="{$wrote_label}">
+				<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.$column}" data-is-local="{if isset($sender_addresses.{$result.$column})}true{/if}" title="{$wrote_label}">
 					{$wrote_label|truncate:45:'...':true:true}
 				</a>
 			</td>
@@ -197,7 +197,7 @@
 				{$owner = $workers.{$result.t_owner_id}}
 				{if $owner instanceof Model_Worker}
 				<img src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}" style="height:1.2em;width:1.2em;border-radius:0.75em;vertical-align:middle;"> 
-				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$owner->id}">{$owner->getName()}</a>
+				<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$owner->id}">{$owner->getName()}</a>
 				{/if}
 			{/if}
 		</td>
@@ -206,13 +206,13 @@
 			{$org_id = $result.t_org_id}
 			{if $org_id && isset($object_orgs.$org_id)}
 				{$org = $object_orgs.$org_id}
-				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$org->id}">{$org->name|truncate:30:'...':true}</a>
+				<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ORG}" data-context-id="{$org->id}">{$org->name|truncate:30:'...':true}</a>
 			{/if}
 		</td>
 		{elseif $column=="t_group_id"}
 		<td data-column="{$column}">
 			{if $ticket_group instanceof Model_Group}
-				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$ticket_group->id}">{$ticket_group->name}</a>
+				<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$ticket_group->id}">{$ticket_group->name}</a>
 			{/if}
 		</td>
 		{elseif $column=="t_bucket_id"}
@@ -220,14 +220,14 @@
 			{$ticket_bucket = $buckets.$ticket_bucket_id}
 			<td data-column="{$column}">
 				{if $ticket_bucket instanceof Model_Bucket}
-				<a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$ticket_bucket->id}">{$ticket_bucket->name}</a>
+				<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$ticket_bucket->id}">{$ticket_bucket->name}</a>
 				{/if}
 			</td>
 		{elseif $column=="t_spam_score" || $column=="t_spam_training"}
 		<td data-column="{$column}">
 			{math assign=score equation="x*100" format="%0.2f%%" x=$result.t_spam_score}
 			{if empty($result.t_spam_training)}
-			{if $active_worker->hasPriv('core.ticket.actions.spam')}<a href="javascript:;" class="cerb-view-shortcut-spam" data-ticket-id="{$result.t_id}">{/if}
+			{if $active_worker->hasPriv('core.ticket.actions.spam')}<a class="cerb-view-shortcut-spam" data-ticket-id="{$result.t_id}">{/if}
 			{if $result.t_spam_score >= 0.90}
 			<span class="glyphicons glyphicons-ban" style="color:var(--cerb-color-error-text);" title="Report Spam ({$score})"></span>
 			{else}
@@ -267,11 +267,11 @@
 				{$participant_count_hidden = $participant_count - 3}
 
 				{foreach name=participants from=array_slice($participants.{$result.t_id},0,3) item=participant}
-					<a href="javascript:;" class="cerb-peek-trigger" data-context="{$participant->_context}" data-context-id="{$participant->id}" title="{$participant->email}">{$participant->email|truncate:45:'...':true:true}</a>{if !$smarty.foreach.participants.last}, {/if}
+					<a class="cerb-peek-trigger" data-context="{$participant->_context}" data-context-id="{$participant->id}" title="{$participant->email}">{$participant->email|truncate:45:'...':true:true}</a>{if !$smarty.foreach.participants.last}, {/if}
 				{/foreach}
 
 				{if $participant_count > 3}
-					and <a href="javascript:;" class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="ticket.id:{$result.t_id}">{$participant_count_hidden} {if 1 == $participant_count_hidden}other{else}others{/if}</a>
+					and <a class="cerb-search-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="ticket.id:{$result.t_id}">{$participant_count_hidden} {if 1 == $participant_count_hidden}other{else}others{/if}</a>
 				{/if}
 			{/if}
 		</td>
@@ -286,37 +286,17 @@
 
 {if $total >= 0}
 <div style="padding-top:5px;">
-	<div style="float:right;">
-		{math assign=fromRow equation="(x*y)+1" x=$view->renderPage y=$view->renderLimit}
-		{math assign=toRow equation="(x-1)+y" x=$fromRow y=$view->renderLimit}
-		{math assign=nextPage equation="x+1" x=$view->renderPage}
-		{math assign=prevPage equation="x-1" x=$view->renderPage}
-		{math assign=lastPage equation="ceil(x/y)-1" x=$total y=$view->renderLimit}
-		
-		{* Sanity checks *}
-		{if $toRow > $total}{assign var=toRow value=$total}{/if}
-		{if $fromRow > $toRow}{assign var=fromRow value=$toRow}{/if}
-		
-		{if $view->renderPage > 0}
-			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=invoke&module=worklists&action=page&id={$view->id}&page=0');">&lt;&lt;</a>
-			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=invoke&module=worklists&action=page&id={$view->id}&page={$prevPage}');">&lt;{'common.previous_short'|devblocks_translate|capitalize}</a>
-		{/if}
-		({'views.showing_from_to'|devblocks_translate:$fromRow:$toRow:$total})
-		{if $toRow < $total}
-			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=invoke&module=worklists&action=page&id={$view->id}&page={$nextPage}');">{'common.next'|devblocks_translate|capitalize}&gt;</a>
-			<a href="javascript:;" onclick="genericAjaxGet('view{$view->id}','c=internal&a=invoke&module=worklists&action=page&id={$view->id}&page={$lastPage}');">&gt;&gt;</a>
-		{/if}
-	</div>
+	{include file="devblocks:cerberusweb.core::internal/views/view_paging.tpl" view=$view}
 
 	<div style="float:left;" id="{$view->id}_actions">
 		{$view_toolbar = $view->getToolbar()}
 		{include file="devblocks:cerberusweb.core::internal/views/view_toolbar.tpl" view_toolbar=$view_toolbar}
 
-		{if !$view_toolbar['explore']}<button type="button" class="action-always-show action-explore" onclick="this.form.explore_from.value=$(this).closest('form').find('tbody input:checkbox:checked:first').val();this.form.action.value='viewExplore';this.form.submit();"><span class="glyphicons glyphicons-compass"></span> {'common.explore'|devblocks_translate|lower}</button>{/if}
-		{if $active_worker->hasPriv("contexts.{$view_context}.update.bulk")}<button type="button" class="action-always-show action-bulkupdate" onclick="genericAjaxPopup('peek','c=profiles&a=invoke&module=ticket&action=showBulkPopup&view_id={$view->id}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','ticket_id[]'),null,false,'50%');"><span class="glyphicons glyphicons-folder-closed"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
-		{if $active_worker->hasPriv('core.ticket.actions.close')}<button type="button" class="action-close" onclick="ajax.viewCloseTickets('{$view->id}',0);" style="display:none;"><span class="glyphicons glyphicons-ok"></span> {'common.close'|devblocks_translate|lower}</button>{/if}
-		{if $active_worker->hasPriv('core.ticket.actions.spam')}<button type="button" class="action-spam" onclick="ajax.viewCloseTickets('{$view->id}',1);" style="display:none;"><span class="glyphicons glyphicons-ban"></span> {'common.spam'|devblocks_translate|lower}</button>{/if}
-		{if $active_worker->hasPriv("contexts.{$view_context}.delete")}<button type="button" class="action-delete" onclick="ajax.viewCloseTickets('{$view->id}',2);" style="display:none;"><span class="glyphicons glyphicons-remove"></span> {'common.delete'|devblocks_translate|lower}</button>{/if}
+		{if !$view_toolbar['explore']}<button type="button" class="action-always-show action-explore"><span class="glyphicons glyphicons-compass"></span> {'common.explore'|devblocks_translate|lower}</button>{/if}
+		{if $active_worker->hasPriv("contexts.{$view_context}.update.bulk")}<button data-cerb-worklist-action-bulk="ticket" data-cerb-worklist-action-bulk-field-key="ticket_id[]" type="button" class="action-always-show action-bulkupdate"><span class="glyphicons glyphicons-folder-closed"></span> {'common.bulk_update'|devblocks_translate|lower}</button>{/if}
+		{if $active_worker->hasPriv('core.ticket.actions.close')}<button type="button" class="action-close" style="display:none;"><span class="glyphicons glyphicons-ok"></span> {'common.close'|devblocks_translate|lower}</button>{/if}
+		{if $active_worker->hasPriv('core.ticket.actions.spam')}<button type="button" class="action-spam" style="display:none;"><span class="glyphicons glyphicons-ban"></span> {'common.spam'|devblocks_translate|lower}</button>{/if}
+		{if $active_worker->hasPriv("contexts.{$view_context}.delete")}<button type="button" class="action-delete" style="display:none;"><span class="glyphicons glyphicons-remove"></span> {'common.delete'|devblocks_translate|lower}</button>{/if}
 
 		<button type="button" class="action-move" style="display:none;">{'common.move'|devblocks_translate|lower} <span class="glyphicons glyphicons-chevron-down"></span></button>
 		<div class="cerb-popupmenu cerb-float">
@@ -335,7 +315,7 @@
 			</select>
 		</div>
 		
-		{if $active_worker->hasPriv("contexts.{$view_context}.merge")}<button type="button" onclick="genericAjaxPopup('peek','c=internal&a=invoke&module=records&action=renderMergePopup&view_id={$view->id}&context={$view_context}&ids=' + Devblocks.getFormEnabledCheckboxValues('viewForm{$view->id}','ticket_id[]'),null,false,'50%');" style="display:none;"><span class="glyphicons glyphicons-git-merge"></span> {'common.merge'|devblocks_translate|lower}</button>{/if}
+		{if $active_worker->hasPriv("contexts.{$view_context}.merge")}<button type="button" data-cerb-worklist-action-merge="ticket_id[]" style="display:none;"><span class="glyphicons glyphicons-git-merge"></span> {'common.merge'|devblocks_translate|lower}</button>{/if}
 	
 		{if $pref_keyboard_shortcuts}
 		{if $view->isCustom() || substr($view->id,0,6)=='search'}
@@ -366,7 +346,9 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $view = $('#view{$view->id}');
+	let $view = $('#view{$view->id}');
+	let $view_actions = $('#{$view->id}_actions');
+
 	$view.data('total', {$total|default:0});
 
 	$view.find('[data-cerb-worklist-action=add]').on('click', function() {
@@ -382,15 +364,27 @@ $(function() {
 			genericAjaxGet('view{$view->id}','c=internal&a=invoke&module=worklists&action=refresh&id={$view->id}');
 		});
 	});
-	
-	var $frm = $('#viewForm{$view->id}');
-	
+
+	$view_actions.find('.action-close').on('click', function(e) {
+		e.stopPropagation();
+		ajax.viewCloseTickets('{$view->id}',0);
+	});
+
+	$view_actions.find('.action-spam').on('click', function(e) {
+		e.stopPropagation();
+		ajax.viewCloseTickets('{$view->id}',1);
+	});
+
+	$view_actions.find('.action-delete').on('click', function(e) {
+		e.stopPropagation();
+		ajax.viewCloseTickets('{$view->id}',2);
+	});
+
+	let $frm = $('#viewForm{$view->id}');
+	let $btn = undefined;
+
 	{if $pref_keyboard_shortcuts}
 	$frm.bind('keyboard_shortcut',function(event) {
-		//console.log("{$view->id} received " + (indirect ? 'indirect' : 'direct') + " keyboard event for: " + event.keypress_event.which);
-		
-		var $view_actions = $('#{$view->id}_actions');
-		
 		var hotkey_activated = true;
 	
 		switch(event.keypress_event.which) {
@@ -444,14 +438,8 @@ $(function() {
 				}
 				break;
 				
-	// 		case 116: // (t) take
-	// 			break;
-				
-	// 		case 117: // (u) surrender
-	// 			break;
-			
 			case 120: // (x) delete
-				var $btn = $view_actions.find('button.action-delete');
+				$btn = $view_actions.find('button.action-delete');
 			
 				if(!event.indirect) {
 					$btn.click();
@@ -469,7 +457,6 @@ $(function() {
 	{/if}
 	
 	// Quick move menu
-	var $view_actions = $('#{$view->id}_actions');
 	var $menu_trigger = $view_actions.find('button.action-move');
 	var $menu = $menu_trigger.next('div.cerb-popupmenu');
 	$menu_trigger.data('menu', $menu);

@@ -35,8 +35,8 @@ You can copy this worklist to other pages in order to build your ideal workspace
 <br>
 <br>
 
-<button type="button" onclick="genericAjaxPost('frmCopy{$view->id}','view{$view->id}','');"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
-<button type="button" onclick="$('#{$view_id}_tips').hide().html('');" style=""><span class="glyphicons glyphicons-circle-remove" style="color:rgb(200,0,0);"></span> Do nothing</button><br>
+<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate}</button>
+<button type="button" class="cancel"><span class="glyphicons glyphicons-circle-remove"></span> Do nothing</button><br>
 </form>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
@@ -44,6 +44,16 @@ $(function() {
 	let $frm = $('#frmCopy{$view->id}');
 
 	Devblocks.formDisableSubmit($frm);
+
+	$frm.find('button.submit').on('click', function(e) {
+		e.stopPropagation();
+		genericAjaxPost('frmCopy{$view->id}','view{$view->id}','');
+	});
+
+	$frm.find('button.cancel').on('click', function(e) {
+		e.stopPropagation();
+		$('#{$view_id}_tips').hide().html('');
+	});
 
 	$frm.find('SELECT[name=workspace_page_id]').change(function() {
 		let $options = $frm.find('select[name=_workspace_tabs]');

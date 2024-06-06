@@ -2,7 +2,7 @@
 <div id="{$view->id}_output">
 	<div class="cerb-alert cerb-alert-rounded">
 		<div class="cerb-alert-close">
-			<span class="glyphicons glyphicons-circle-remove" onclick="$('#{$view->id}_output').html('');ajax.viewUndo('{$view->id}', true);"></span>
+			<span data-cerb-link="worklist_dismiss" class="glyphicons glyphicons-circle-remove"></span>
 		</div>
 	
 		<span class="glyphicons glyphicons-circle-info" style="vertical-align:baseline;"></span>
@@ -33,8 +33,24 @@
 				'{$groups.$moved_to_group_id->name}: {$moved_group_bucket.$moved_to_bucket_id->name}'.
 			{/if}
 		{/if}
-	
-		(<a href="javascript:;" onclick="ajax.viewUndo('{$view->id}', false);" style="font-weight:bold;">undo</a>)
+
+		(<a data-cerb-link="worklist_undo"><b>undo</b></a>)
 	</div>
 </div>
+<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
+$(function() {
+	let $output = $('#{$view->id}_output');
+
+	$output.find('[data-cerb-link=worklist_dismiss]').on('click', function(e) {
+		e.stopPropagation();
+		$('#{$view->id}_output').html('');
+		ajax.viewUndo('{$view->id}', true);
+	});
+
+	$output.find('[data-cerb-link=worklist_undo]').on('click', function(e) {
+		e.stopPropagation();
+		ajax.viewUndo('{$view->id}', false);
+	});
+});
+</script>
 {/if}
