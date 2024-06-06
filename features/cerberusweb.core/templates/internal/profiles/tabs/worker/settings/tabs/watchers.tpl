@@ -11,8 +11,8 @@
 <fieldset class="peek">
 <legend>If I'm watching something, send me a notification when these events happen:</legend>
 Select: 
-<a href="javascript:;" onclick="checkAll('{$form_id}',true);">{'common.all'|devblocks_translate|lower}</a>
-| <a href="javascript:;" onclick="checkAll('{$form_id}',false);">{'common.none'|devblocks_translate|lower}</a>
+<a data-cerb-link="check_all">{'common.all'|devblocks_translate|lower}</a>
+| <a data-cerb-link="check_none">{'common.none'|devblocks_translate|lower}</a>
 <br>
 
 <ul style="padding:0;margin:10px 0px 10px 0px;margin-top:10px;list-style:none;line-height:150%;">
@@ -49,7 +49,17 @@ $(function() {
 			}
 		)
 		;
-	
+
+	$frm.find('[data-cerb-link=check_all]').on('click', function(e) {
+		e.stopPropagation();
+		checkAll('{$form_id}', true);
+	});
+
+	$frm.find('[data-cerb-link=check_none]').on('click', function(e) {
+		e.stopPropagation();
+		checkAll('{$form_id}', false);
+	});
+
 	$frm.find('button.submit').on('click', function(e) {
 		e.stopPropagation();
 		Devblocks.saveAjaxTabForm($frm);

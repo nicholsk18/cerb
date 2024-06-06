@@ -20,7 +20,7 @@
 		<tr>
 			<td></td>
 			<td>
-				<a href="javascript:;" style="font-weight:bold;" onclick="$(this).closest('fieldset').find('table tr:hidden').show();$(this).remove();">show all {$smarty.foreach.notifications.total}</a>
+				<a data-cerb-link="show_all" style="font-weight:bold;">show all {$smarty.foreach.notifications.total}</a>
 			</td>
 		</tr>
 	{/if}
@@ -28,16 +28,25 @@
 	
 </fieldset>
 
-{if !empty($view_id)}
-<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
+{$script_uid = uniqid('script')}
+<script nonce="{DevblocksPlatform::getRequestNonce()}" id="{$script_uid}" type="text/javascript">
 $(function() {
-	var $view = $('#view{$view_id}');
-	
-	if($view.attr('data-context') != '{CerberusContexts::CONTEXT_NOTIFICATION}')
+	let $script = $('#{$script_uid}');
+
+	$script.prev('fieldset').find('[data-cerb-link=show_all]').on('click', function(e) {
+		e.stopPropagation();
+		$(this).closest('fieldset').find('table tr:hidden').show();
+		$(this).remove();
+	});
+
+	{if !empty($view_id)}
+	let $view = $('#view{$view_id}');
+
+	if($view.attr('data-context') !== '{CerberusContexts::CONTEXT_NOTIFICATION}')
 		return;
-	
+
 	genericAjaxGet($view,'c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
+	{/if}
 });
 </script>
-{/if}
 {/if}

@@ -10,7 +10,7 @@
 
 <fieldset class="peek">
 	<legend>
-		Always show these record types in the search menu: (<a href="javascript:;" onclick="checkAll('prefsSearchFavorites');">{'common.all'|devblocks_translate|lower}</a>)
+		Always show these record types in the search menu: (<a data-cerb-link="check_all">{'common.all'|devblocks_translate|lower}</a>)
 	</legend>
 	
 	<div id="prefsSearchFavorites" style="column-width:225px;column-count:auto;">
@@ -31,7 +31,12 @@
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	let $frm = $('#{$form_id}');
-	
+
+	$frm.find('[data-cerb-link=check_all]').on('click', function(e) {
+		e.stopPropagation();
+		checkAll('prefsSearchFavorites');
+	});
+
 	$frm.find('button.submit').on('click', function(e) {
 		e.stopPropagation();
 		Devblocks.saveAjaxTabForm($frm);
