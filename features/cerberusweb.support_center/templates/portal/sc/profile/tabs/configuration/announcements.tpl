@@ -31,7 +31,7 @@
 			<input type="text" name="news_rss_url[]" value="{$news_rss_url}" size="45">
 		</td>
 		<td>
-			<button type="button" class="remove" onclick="$(this).closest('tbody').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></button>			
+			<button type="button" class="remove" data-cerb-button="tbody_remove"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></button>
 		</td>
 	</tr>
 	</tbody>
@@ -47,7 +47,7 @@
 			<input type="text" name="news_rss_url[]" value="{$news_rss_url}" size="45">
 		</td>
 		<td>
-			<button type="button" class="remove" onclick="$(this).closest('tbody').remove();"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></button>			
+			<button type="button" class="remove" data-cerb-button="tbody_remove"><span class="glyphicons glyphicons-circle-minus" style="color:rgb(200,0,0);"></span></button>
 		</td>
 	</tr>
 	</tbody>
@@ -62,8 +62,22 @@
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
 	let $frm = $('#{$form_id}');
-		
+	let $table = $('#setupScAnnouncements');
+
+	$table.on('click', function(e) {
+		e.stopPropagation();
+
+		let $target = $(e.target);
+
+		if($target.is('.glyphicons-circle-minus'))
+			$target = $target.closest('button');
+
+		if($target.is('[data-cerb-button=tbody_remove]'))
+			$target.closest('tbody').remove();
+	});
+
 	$frm.find('button.submit').on('click', function(e) {
+		e.stopPropagation();
 		genericAjaxPost($frm, '', null, function(json) {
 			Devblocks.clearAlerts();
 			if(json && typeof json == 'object') {

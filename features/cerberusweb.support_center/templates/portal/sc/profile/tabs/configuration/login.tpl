@@ -13,7 +13,7 @@
 
 {foreach from=$login_extensions item=ext}
 <fieldset class="black peek" style="background:none;">
-	<legend><label><input type="checkbox" name="login_extensions[]" value="{$ext->id}" {if isset($login_extensions_enabled.{$ext->id})}checked="checked"{/if} onclick="$(this).closest('fieldset').find('> div').toggle();"> {$ext->manifest->name}</label></legend>
+	<legend><label><input type="checkbox" name="login_extensions[]" value="{$ext->id}" {if isset($login_extensions_enabled.{$ext->id})}checked="checked"{/if}> {$ext->manifest->name}</label></legend>
 	
 	<div style="margin-left:25px;{if isset($login_extensions_enabled.{$ext->id})}display:block;{else}display:none;{/if}">
 		{$ext->renderConfigForm($portal)}
@@ -29,7 +29,12 @@ $(function() {
 	let $frm = $('#{$form_id}');
 
 	Devblocks.formDisableSubmit($frm);
-		
+
+	$frm.find('input[name="login_extensions[]"]').on('click', function(e) {
+		e.stopPropagation();
+		$(this).closest('fieldset').find('> div').toggle();
+	});
+
 	$frm.find('.cerb-peek-trigger')
 		.cerbPeekTrigger()
 	;

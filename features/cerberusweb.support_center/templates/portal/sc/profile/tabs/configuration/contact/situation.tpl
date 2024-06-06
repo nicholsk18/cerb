@@ -1,4 +1,4 @@
-{$uniq_id = uniqid()}
+{$uniq_id = uniqid('fieldset')}
 <fieldset style="cursor:move;" id="{$uniq_id}" class="drag">
 {if !empty($reason)}
 	<legend style="{if $params.is_hidden}color:var(--cerb-color-background-contrast-125);{/if}cursor:pointer;">{$reason}{if !empty($params.is_hidden)} ({'portal.sc.cfg.situation.hidden'|devblocks_translate|lower}){/if}</legend>
@@ -38,15 +38,31 @@
 </fieldset>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
-$('FIELDSET#{$uniq_id} DIV.container')
-	.sortable({ items: 'DIV.drag', placeholder:'ui-state-highlight' })
+$(function() {
+	let $fieldset = $('#{$uniq_id}');
+
+	$fieldset.find('DIV.container')
+		.sortable({ items: 'DIV.drag', placeholder:'ui-state-highlight' })
+		.on('click', function(e) {
+			e.stopPropagation();
+			let $target = $(e.target);
+
+			if(!$target.is('button'))
+				$target = $target.closest('button');
+
+			if($target.is('[data-cerb-button-remove]')) {
+				$target.closest('div.drag').remove();
+			}
+		})
 	;
 
-$('FIELDSET#{$uniq_id} BUTTON.add')
-	.click(function() {
-		var $fieldset = $('FIELDSET#{$uniq_id}');
-		var $clone = $fieldset.find('DIV.template DIV.drag').clone();
-		$fieldset.find('DIV.container').append($clone);
-	})
+	$fieldset.find('BUTTON.add')
+		.on('click', function(e) {
+			e.stopPropagation();
+			let $fieldset = $('FIELDSET#{$uniq_id}');
+			let $clone = $fieldset.find('DIV.template DIV.drag').clone();
+			$fieldset.find('DIV.container').append($clone);
+		})
 	;
+});
 </script>

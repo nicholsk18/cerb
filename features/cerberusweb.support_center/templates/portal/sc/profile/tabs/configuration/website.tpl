@@ -48,7 +48,7 @@
 			{else}
 			<div class="drag" style="margin:5px;">
 				<span class="ui-icon ui-icon-arrowthick-2-n-s" style="display:inline-block;vertical-align:middle;cursor:move;" title="Click and drag to rearrange"></span>
-				<select name="visible_modules[]" onchange="toggleDiv('module{$module->manifest->id}','2'!=selectValue(this)?'block':'none');" style="margin-right:5px;min-width:150px;max-width:150px;">
+				<select name="visible_modules[]" data-module-id="{$module->manifest->id}" style="margin-right:5px;min-width:150px;max-width:150px;">
 					{if 'sc.controller.history' != $module->manifest->id && 'sc.controller.account' != $module->manifest->id}
 					<option value="0" {if isset($visible_modules.$module_id) && '0'==$visible_modules.$module_id}selected="selected"{/if}>Everyone</option>
 					{/if}
@@ -73,7 +73,7 @@
 $(function() {
 	let $frm = $('#{$form_id}');
 	let $modules = $frm.find('FIELDSET[data-id="cerb-modules"]');
-		
+
 	$modules.find('DIV.container')
 		.sortable({ items: 'DIV.drag', placeholder:'ui-state-highlight' })
 	;
