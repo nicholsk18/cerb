@@ -2,7 +2,7 @@
 <div id="{$uniqid}">
 	<div class="tester"></div>
 	
-	<button type="button" class="cerb-popupmenu-trigger" onclick="">Insert placeholder &#x25be;</button>
+	<button type="button" class="cerb-popupmenu-trigger">Insert placeholder &#x25be;</button>
 	<button type="button" class="tester">{'common.test'|devblocks_translate|capitalize}</button>
 	<button type="button" data-cerb-link="help">Help</button>
 	

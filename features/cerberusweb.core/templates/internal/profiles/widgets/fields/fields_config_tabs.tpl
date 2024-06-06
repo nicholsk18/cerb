@@ -8,7 +8,7 @@
 	
 	<div id="widget{$widget->id}TabFields">
 		<fieldset class="peek black">
-			<legend style="cursor:pointer;" onclick="$(this).closest('fieldset').find('input:checkbox').trigger('click');">{$context_ext->manifest->name}</legend>
+			<legend style="cursor:pointer;" data-cerb-link="legend_click">{$context_ext->manifest->name}</legend>
 			
 			<div style="display:flex;flex-flow:row wrap;color:var(--cerb-color-background-contrast-100);">
 				{foreach from=$properties item=property key=property_key}
@@ -21,7 +21,7 @@
 		
 		{foreach from=$properties_custom_fieldsets item=$custom_fieldset key=custom_fieldset_id}
 		<fieldset class="peek black">
-			<legend style="cursor:pointer;" onclick="$(this).closest('fieldset').find('input:checkbox').trigger('click');">{$custom_fieldset.model->name}</legend>
+			<legend style="cursor:pointer;" data-cerb-link="legend_click">{$custom_fieldset.model->name}</legend>
 			
 			<div style="display:flex;flex-flow:row wrap;color:var(--cerb-color-background-contrast-100);">
 				{foreach from=$custom_fieldset.properties item=property key=property_key}
@@ -101,7 +101,7 @@
 			<tbody>
 				<tr>
 					<td width="1%" nowrap="nowrap" valign="top">
-						<button type="button" onclick="$(this).closest('tbody').remove();"><span class="glyphicons glyphicons-circle-minus"></span></button>
+						<button type="button" data-cerb-link="search_remove"><span class="glyphicons glyphicons-circle-minus"></span></button>
 					</td>
 					<td width="1%" nowrap="nowrap" valign="top">
 						<select class="cerb-search-context" name="params[search][context][]">
@@ -124,7 +124,7 @@
 			<tbody class="cerb-placeholder" style="display:none;">
 				<tr>
 					<td width="1%" nowrap="nowrap" valign="top">
-						<button type="button" onclick="$(this).closest('tbody').remove();"><span class="glyphicons glyphicons-circle-minus"></span></button>
+						<button type="button" data-cerb-link="search_remove"><span class="glyphicons glyphicons-circle-minus"></span></button>
 					</td>
 					<td width="1%" nowrap="nowrap" valign="top">
 						<select class="cerb-search-context" name="params[search][context][]">
@@ -163,17 +163,36 @@ $(function() {
 		helper: 'clone',
 		opacity: 0.7
 	});
-	
+
+	$tab_fields.find('[data-cerb-link=legend_click]').on('click', function(e) {
+		e.stopPropagation();
+		$(this).closest('fieldset').find('input:checkbox').trigger('click');
+	});
+
 	// Search
 	
 	var $tab_search = $('#widget{$widget->id}TabSearchButtons');
 	
 	var $tab_search_template = $tab_search.find('tbody.cerb-placeholder').detach();
 	var $tab_search_table = $tab_search.find('> table:first');
-	
+
+	$tab_search.on('click', function(e) {
+		e.stopPropagation();
+
+		let $target = $(e.target);
+
+		if($target.is('.glyphicons-circle-minus'))
+			$target = $target.closest('button');
+
+		if($target.is('[data-cerb-link=search_remove]')) {
+			$target.closest('tbody').remove();
+		}
+	});
+
 	$tab_search.find('button.cerb-placeholder-add').on('click', function(e) {
-		var $this = $(this);
-		var $clone = $tab_search_template.clone();
+		e.stopPropagation();
+
+		let $clone = $tab_search_template.clone();
 		
 		$clone
 			.show()

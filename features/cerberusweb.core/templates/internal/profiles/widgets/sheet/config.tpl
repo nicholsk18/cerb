@@ -25,7 +25,7 @@
 			</div>
 
 			<fieldset style="display:none;position:relative;">
-				<span class="glyphicons glyphicons-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:rgb(80,80,80);zoom:1.5;background-color:var(--cerb-color-background);" onclick="$(this).closest('fieldset').hide();"></span>
+				<span data-cerb-link="fieldset_hide" class="glyphicons glyphicons-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:rgb(80,80,80);zoom:1.5;background-color:var(--cerb-color-background);"></span>
 				<legend>{'common.results'|devblocks_translate|capitalize}</legend>
 				<textarea class="cerb-json-results-editor" data-editor-mode="ace/mode/json"></textarea>
 			</fieldset>
@@ -66,7 +66,7 @@
 
 		<div style="margin:5px 0 0 20px;">
 			<fieldset style="display:none;position:relative;">
-				<span class="glyphicons glyphicons-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:rgb(80,80,80);zoom:1.5;background-color:var(--cerb-color-background);" onclick="$(this).closest('fieldset').hide();"></span>
+				<span data-cerb-link="fieldset_hide" class="glyphicons glyphicons-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:rgb(80,80,80);zoom:1.5;background-color:var(--cerb-color-background);"></span>
 				<legend>{'common.preview'|devblocks_translate|capitalize}</legend>
 				<div class="cerb-sheet-preview"></div>
 			</fieldset>
@@ -139,7 +139,12 @@ $(function() {
 	var $config = $('#widget{$widget->id}Config');
 	var $frm = $config.closest('form');
 	var $query_button = $config.find('button.cerb-button-sample-query');
-	
+
+	$config.find('[data-cerb-link=fieldset_hide]').on('click', function(e) {
+		e.stopPropagation();
+		$(this).closest('fieldset').hide();
+	});
+
 	$config.find('textarea.cerb-data-query-editor')
 		.cerbCodeEditor()
 		.cerbCodeEditorAutocompleteDataQueries()

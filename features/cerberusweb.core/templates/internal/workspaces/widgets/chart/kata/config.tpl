@@ -24,7 +24,7 @@
 			</div>
 
 			<fieldset style="display:none;position:relative;">
-				<span class="glyphicons glyphicons-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:var(--cerb-color-background-contrast-75);zoom:1.5;background-color:var(--cerb-color-background);" onclick="$(this).closest('fieldset').hide();"></span>
+				<span data-cerb-link="fieldset_hide" class="glyphicons glyphicons-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:var(--cerb-color-background-contrast-75);zoom:1.5;background-color:var(--cerb-color-background);"></span>
 				<legend>{'common.results'|devblocks_translate|capitalize}</legend>
 				<textarea class="cerb-json-results-editor" data-editor-mode="ace/mode/json"></textarea>
 			</fieldset>
@@ -49,7 +49,7 @@
 
 		<div style="margin:5px 0 0 20px;">
 			<fieldset style="display:none;position:relative;">
-				<span class="glyphicons glyphicons-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:var(--cerb-color-background-contrast-75);zoom:1.5;background-color:var(--cerb-color-background);" onclick="$(this).closest('fieldset').hide();"></span>
+				<span data-cerb-link="fieldset_hide" class="glyphicons glyphicons-circle-remove" style="position:absolute;right:-5px;top:-10px;cursor:pointer;color:var(--cerb-color-background-contrast-75);zoom:1.5;background-color:var(--cerb-color-background);"></span>
 				<legend>{'common.preview'|devblocks_translate|capitalize}</legend>
 				<div data-cerb-results-chart></div>
 			</fieldset>
@@ -61,7 +61,13 @@
 $(function() {
 	var $config = $('#widget{$widget->id}Config');
 	var $frm = $config.closest('form');
-	
+
+	// Previews
+
+	$config.find('[data-cerb-link=fieldset_hide]').on('click', function(e) {
+		$(this).closest('fieldset').hide();
+	});
+
 	// Datasets
 
 	var $editor_datasets = $config.find('textarea[name="params[datasets_kata]"]')

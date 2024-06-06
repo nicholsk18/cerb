@@ -1,10 +1,10 @@
-{$uniqid = uniqid()}
+{$uniqid = uniqid('toolbar')}
 <div id="{$uniqid}">
 	<div class="tester"></div>
 	
-	<button type="button" class="cerb-popupmenu-trigger" onclick="">Insert placeholder &#x25be;</button>
+	<button type="button" class="cerb-popupmenu-trigger">Insert placeholder &#x25be;</button>
 	<button type="button" class="tester">{'common.test'|devblocks_translate|capitalize}</button>
-	<button type="button" onclick="genericAjaxPopup('help', 'c=profiles&a=invoke&module=snippet&action=helpPopup', { my:'left top' , at:'left+20 top+20'}, false, '600');">Help</button>
+	<button type="button" data-cerb-button="help">Help</button>
 	
 	{function tree level=0}
 		{foreach from=$keys item=data key=idx}
@@ -39,7 +39,12 @@ $(function() {
 	
 	var $placeholder_menu_trigger = $toolbar.find('button.cerb-popupmenu-trigger');
 	var $placeholder_menu = $toolbar.find('ul.menu').hide();
-	
+
+	$div.find('[data-cerb-button=help]').on('click', function(e) {
+		e.stopPropagation();
+		genericAjaxPopup('help', 'c=profiles&a=invoke&module=snippet&action=helpPopup', { my:'left top' , at:'left+20 top+20'}, false, '600');
+	});
+
 	// Quick insert token menu
 	
 	$placeholder_menu.menu({
