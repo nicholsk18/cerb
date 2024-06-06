@@ -12,11 +12,22 @@
 
 	{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_PAGE}.create")}
 	<p>
-		New pages can be added by clicking on the <span class="help callout-worklist" style="cursor:pointer;" onclick="$('#viewpages a[title=Add]').click();"><span class="glyphicons glyphicons-circle-plus"></span></span> icon in the <b>Pages</b> list below.
+		New pages can be added by clicking on the <span class="help callout-worklist" style="cursor:pointer;"><span class="glyphicons glyphicons-circle-plus"></span></span> icon in the <b>Pages</b> list below.
 	</p>
 	{/if}
 </div>
 </form>
+
+{$script_uid = uniqid('script')}
+<script nonce="{DevblocksPlatform::getRequestNonce()}" id="{$script_uid}" type="text/javascript">
+$(function() {
+	let $script = $('#{$script_uid}');
+	$script.prev('form').find('.callout-worklist').on('click', function(e) {
+		e.stopPropagation();
+		$('#viewpages a[title=Add]').click();
+	});
+});
+</script>
 
 <div>
 	<h2>Pages</h2>
