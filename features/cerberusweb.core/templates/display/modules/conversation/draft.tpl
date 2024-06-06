@@ -14,8 +14,7 @@
 		{$ticket = $draft->getTicket()}
 
 		{if $ticket}
-			{$permalink_url = "{devblocks_url full=true}c=profiles&type=ticket&mask={$ticket->mask}{/devblocks_url}/#draft{$draft->id}"}
-			<button type="button" onclick="genericAjaxPopup('permalink', 'c=internal&a=invoke&module=records&action=showPermalinkPopup&url={$permalink_url|escape:'url'}');" title="{'common.permalink'|devblocks_translate|lower}"><span class="glyphicons glyphicons-link"></span></button>
+			<button type="button" data-cerb-button-permalink="{$permalink_url}" title="{'common.permalink'|devblocks_translate|lower}"><span class="glyphicons glyphicons-link"></span></button>
 		{/if}
 	</div>
 	{/if}
@@ -32,7 +31,7 @@
 
 	<div style="display:inline-block;">
 		{if $draft_worker}
-			<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$draft_worker->id}" style="font-weight:bold;font-size:1.2em;">{$draft_worker->getName()}</a>
+			<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$draft_worker->id}" style="font-weight:bold;font-size:1.2em;">{$draft_worker->getName()}</a>
 			{if $draft_worker->title}
 				{$draft_worker->title}
 			{/if}
@@ -152,6 +151,12 @@ $(function() {
 	var $notes = $('#draft{$draft->id}_notes');
 	
 	$draft.find('.cerb-peek-trigger').cerbPeekTrigger();
+
+	$draft.find('[data-cerb-button-permalink').on('click', function(e) {
+		e.stopPropagation();
+		{$permalink_url = "{devblocks_url full=true}c=profiles&type=ticket&mask={$ticket->mask}{/devblocks_url}/#draft{$draft->id}"}
+		genericAjaxPopup('permalink', 'c=internal&a=invoke&module=records&action=showPermalinkPopup&url={$permalink_url|escape:'url'}');
+	});
 	
 	$draft.find('button.cerb-button-resume').on('click', $.throttle(500, function(e) {
 		e.preventDefault();

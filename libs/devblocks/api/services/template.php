@@ -591,9 +591,27 @@ class _DevblocksTemplateManager {
 			
 			if(false !== $quote_started && false !== $quote_ended) {
 				if($quote_ended - $quote_started >= $length) {
-					$line_count = ($quote_ended - $quote_started + 1) . ' line' . (count($lines) == 1 ? '' : 's');
-					$lines[$quote_started] = "<div class='cerb-code-editor-toolbar' style='display:inline-block;margin:0.5em 0;'><button type='button' class='cerb-code-editor-toolbar-button' onclick=\"$(this).closest('div').next('div').toggle();$(this).parent().hide();\"><span class=\"glyphicons glyphicons-quote\"></span> Expand quoted text (" . $line_count . ")</button></div><div class='cerb-email-quote' style='display:none;'>" . $lines[$quote_started];
-					$lines[$quote_ended] = $lines[$quote_ended]."</div>";
+					$line_count = ($quote_ended - $quote_started + 1);
+					$script_id = uniqid('script');
+					$link_toolbar = sprintf(
+						"<div class=\"cerb-code-editor-toolbar\" style=\"display:inline-block;margin:0.5em 0;\">".
+						"<button type=\"button\" class=\"cerb-code-editor-toolbar-button\">".
+						"<span class=\"glyphicons glyphicons-quote\"></span> Expand quoted text (%d %s)".
+						"</button></div><div class=\"cerb-email-quote\" style=\"display:none;\">",
+						$line_count,
+						(1 == $line_count ? 'line' : 'lines')
+					);
+					$link_script = sprintf(
+						"<script nonce=\"%s\" id=\"%s\" type=\"text/javascript\">".
+						"\$('#%s').prevAll('div.cerb-code-editor-toolbar').find('button').on('click',function(e) {".
+						"e.stopPropagation();\$(this).closest('div').next('div').toggle();\$(this).parent().hide();});".
+						"</script>",
+						DevblocksPlatform::strEscapeHtml(DevblocksPlatform::getRequestNonce()),
+						DevblocksPlatform::strEscapeHtml($script_id),
+						DevblocksPlatform::strEscapeHtml($script_id),
+					);
+					$lines[$quote_started] = $link_toolbar . $lines[$quote_started];
+					$lines[$quote_ended] = $lines[$quote_ended] . "</div>" . $link_script;
 				}
 				$quote_started = false;
 			}

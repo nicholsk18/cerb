@@ -29,11 +29,11 @@
 					<p>
 						{$sender_address = DAO_Address::get($bucket->getReplyFrom())}
 						{if $sender_address}
-							<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$sender_address->id}">{$sender_address->email}</a> 
+							<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$sender_address->id}">{$sender_address->email}</a>
 							is not configured as a sender address. To send live mail, edit the email address and select <b>"We send email from this address"</b>.
 						{else}
 							The sender address for this bucket does not have a mail transport configured. 
-							To send live email, an administrator must assign a mail transport to the <a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$ticket->bucket_id}">bucket</a> or <a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$ticket->group_id}">group</a>.
+							To send live email, an administrator must assign a mail transport to the <a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$ticket->bucket_id}">bucket</a> or <a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$ticket->group_id}">group</a>.
 						{/if}
 					</p>
 				</div>
@@ -42,7 +42,7 @@
 					<h1>Your message will not be delivered.</h1>
 					<p>
 						This bucket is configured to discard outgoing messages. 
-						To send live email, change the mail transport on the <a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$ticket->bucket_id}">bucket</a> or <a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$ticket->group_id}">group</a>.
+						To send live email, change the mail transport on the <a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_BUCKET}" data-context-id="{$ticket->bucket_id}">bucket</a> or <a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$ticket->group_id}">group</a>.
 					</p>
 				</div>
 			{/if}
@@ -52,24 +52,24 @@
 				<tr>
 					<td width="1%" nowrap="nowrap" align="right" valign="middle"><b>{'message.header.from'|devblocks_translate|capitalize}:</b>&nbsp;</td>
 					<td width="99%" align="left">
-						{$reply_as} &lt;<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$reply_from->id}">{$reply_from->email}</a>&gt; via 
-						<a href="javascript:;" class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_MAIL_TRANSPORT}" data-context-id="{$reply_transport->id}">{$reply_transport->name}</a>
+						{$reply_as} &lt;<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$reply_from->id}">{$reply_from->email}</a>&gt; via
+						<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_MAIL_TRANSPORT}" data-context-id="{$reply_transport->id}">{$reply_transport->name}</a>
 					</td>
 				</tr>
 				{/if}
 				
 				<tr>
-					<td width="1%" nowrap="nowrap" align="right" valign="middle"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query=""><b>{'message.header.to'|devblocks_translate|capitalize}</b></a>:&nbsp;</td>
+					<td width="1%" nowrap="nowrap" align="right" valign="middle"><a class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query=""><b>{'message.header.to'|devblocks_translate|capitalize}</b></a>:&nbsp;</td>
 					<td width="99%" align="left">
 						<input type="text" size="45" name="to" value="{$draft->params.to}" placeholder="{if $is_forward}These recipients will receive this forwarded message{else}These recipients will automatically be included in all future correspondence as participants{/if}" class="required" style="width:100%;padding:2px;">
 						{if !$is_forward}
 							{if !empty($suggested_recipients)}
 								<div id="reply{$message->id}_suggested">
-									<a href="javascript:;" onclick="$(this).closest('div').remove();">x</a>
+									<a data-cerb-reply-suggested-remove><span class="glyphicons glyphicons-circle-remove"></span></a>
 									<b>Consider adding these recipients:</b>
 									<ul class="bubbles">
 									{foreach from=$suggested_recipients item=sug name=sugs}
-										<li><a href="javascript:;" class="suggested">{$sug.full_email}</a></li>
+										<li><a class="suggested">{$sug.full_email}</a></li>
 									{/foreach}
 									</ul> 
 								</div>
@@ -79,14 +79,14 @@
 				</tr>
 				
 				<tr>
-					<td width="1%" nowrap="nowrap" align="right" valign="middle"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.cc'|devblocks_translate|capitalize}</a>:&nbsp;</td>
+					<td width="1%" nowrap="nowrap" align="right" valign="middle"><a class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.cc'|devblocks_translate|capitalize}</a>:&nbsp;</td>
 					<td width="99%" align="left">
 						<input type="text" size="45" name="cc" value="{$draft->params.cc}" placeholder="These recipients will publicly receive a one-time copy of this message" style="width:100%;padding:2px;">
 					</td>
 				</tr>
 				
 				<tr>
-					<td width="1%" nowrap="nowrap" align="right" valign="middle"><a href="javascript:;" class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.bcc'|devblocks_translate|capitalize}</a>:&nbsp;</td>
+					<td width="1%" nowrap="nowrap" align="right" valign="middle"><a class="cerb-recipient-chooser" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query="">{'message.header.bcc'|devblocks_translate|capitalize}</a>:&nbsp;</td>
 					<td width="99%" align="left">
 						<input type="text" size="45" name="bcc" value="{$draft->params.bcc}" placeholder="These recipients will secretly receive a one-time copy of this message" style="width:100%;padding:2px;">
 					</td>
@@ -159,12 +159,12 @@
 		{foreach from=$draft->params.file_ids item=file_id}
 			{$file = DAO_Attachment::get($file_id)}
 			{if !empty($file)}
-			<li><input type="hidden" name="file_ids[]" value="{$file_id}">{$file->name} ({$file->storage_size|devblocks_prettybytes}) <a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+			<li><input type="hidden" name="file_ids[]" value="{$file_id}">{$file->name} ({$file->storage_size|devblocks_prettybytes}) <a data-cerb-remove-parent><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 			{/if}
 		{/foreach}
 	{elseif $is_forward && !empty($forward_attachments)}
 		{foreach from=$forward_attachments item=attach}
-			<li><input type="hidden" name="file_ids[]" value="{$attach->id}">{$attach->name} ({$attach->storage_size|devblocks_prettybytes}) <a href="javascript:;" onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+			<li><input type="hidden" name="file_ids[]" value="{$attach->id}">{$attach->name} ({$attach->storage_size|devblocks_prettybytes}) <a data-cerb-remove-parent><span class="glyphicons glyphicons-circle-remove"></span></a></li>
 		{/foreach}
 	{/if}
 	</ul>
@@ -194,9 +194,9 @@
 				<div>
 					<b>{'common.status'|devblocks_translate|capitalize}:</b>
 
-					<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+O)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_OPEN}" class="status_open" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','none');" {if $draft->params.status_id==Model_Ticket::STATUS_OPEN}checked="checked"{/if}> {'status.open'|devblocks_translate|capitalize}</label>
-					<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+W)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_WAITING}" class="status_waiting" onclick="toggleDiv('replyOpen{$message->id}','block');toggleDiv('replyClosed{$message->id}','block');" {if $draft->params.status_id==Model_Ticket::STATUS_WAITING}checked="checked"{/if}> {'status.waiting'|devblocks_translate|capitalize}</label>
-					{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->status_id == Model_Ticket::STATUS_CLOSED)}<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+C)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_CLOSED}" class="status_closed" onclick="toggleDiv('replyOpen{$message->id}','none');toggleDiv('replyClosed{$message->id}','block');" {if $draft->params.status_id==Model_Ticket::STATUS_CLOSED}checked="checked"{/if}> {'status.closed'|devblocks_translate|capitalize}</label>{/if}
+					<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+O)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_OPEN}" class="status_open" {if $draft->params.status_id==Model_Ticket::STATUS_OPEN}checked="checked"{/if}> {'status.open'|devblocks_translate|capitalize}</label>
+					<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+W)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_WAITING}" class="status_waiting" {if $draft->params.status_id==Model_Ticket::STATUS_WAITING}checked="checked"{/if}> {'status.waiting'|devblocks_translate|capitalize}</label>
+					{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->status_id == Model_Ticket::STATUS_CLOSED)}<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+C)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_CLOSED}" class="status_closed" {if $draft->params.status_id==Model_Ticket::STATUS_CLOSED}checked="checked"{/if}> {'status.closed'|devblocks_translate|capitalize}</label>{/if}
 					<br>
 
 					<div id="replyClosed{$message->id}" style="display:{if $draft->params.status_id==Model_Ticket::STATUS_OPEN}none{else}block{/if};margin:5px 0px 10px 20px;">
@@ -242,7 +242,7 @@
 					<ul class="bubbles chooser-container">
 						{$owner = $workers.{$ticket->owner_id}}
 						{if $owner}
-						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}"><input type="hidden" name="owner_id" value="{$owner->id}"><a href="javascript:;" class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$owner->id}">{$owner->getName()}</a></li>
+						<li><img class="cerb-avatar" src="{devblocks_url}c=avatars&context=worker&context_id={$owner->id}{/devblocks_url}?v={$owner->updated}"><input type="hidden" name="owner_id" value="{$owner->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_WORKER}" data-context-id="{$owner->id}">{$owner->getName()}</a></li>
 						{/if}
 					</ul>
 				</div>
@@ -293,10 +293,10 @@
 
 <div id="reply{$message->id}_buttons">
 	<button type="button" class="send split-left" title="{if $pref_keyboard_shortcuts}(Ctrl+Shift+Enter){/if}"><span class="glyphicons glyphicons-send"></span> {if $is_forward}{'display.ui.forward'|devblocks_translate|capitalize}{else}{'display.ui.send_message'|devblocks_translate}{/if}</button><!--
-	--><button type="button" class="split-right" onclick="$(this).next('ul').toggle();"><span class="glyphicons glyphicons-chevron-down"></span></button>
+	--><button type="button" class="split-right"><span class="glyphicons glyphicons-chevron-down"></span></button>
 	<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
-		<li><a href="javascript:;" class="send">{if $is_forward}{'display.ui.forward'|devblocks_translate}{else}{'display.ui.send_message'|devblocks_translate}{/if}</a></li>
-		{if $active_worker->hasPriv('core.mail.save_without_sending')}<li><a href="javascript:;" class="save">{'display.ui.save_nosend'|devblocks_translate}</a></li>{/if}
+		<li><a class="send">{if $is_forward}{'display.ui.forward'|devblocks_translate}{else}{'display.ui.send_message'|devblocks_translate}{/if}</a></li>
+		{if $active_worker->hasPriv('core.mail.save_without_sending')}<li><a class="save">{'display.ui.save_nosend'|devblocks_translate}</a></li>{/if}
 	</ul>
 	<button type="button" class="draft"><span class="glyphicons glyphicons-disk-save"></span> {'display.ui.continue_later'|devblocks_translate}</button>
 	<button type="button" class="discard"><span class="glyphicons glyphicons-circle-remove"></span> {'display.ui.discard'|devblocks_translate|capitalize}</button>
@@ -307,13 +307,32 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var draftAutoSaveInterval = null;
+	let draftAutoSaveInterval = null;
 
-	var $frm = $('#reply{$message->id}_form');
-	var $reply = $frm.closest('div.reply_frame');
+	let $frm = $('#reply{$message->id}_form');
+	let $reply = $frm.closest('div.reply_frame');
+	let $reply_status = $('#replyStatus{$message->id}');
 
 	Devblocks.formDisableSubmit($frm);
-	
+
+	$reply_status.find('.status_open').on('click', function(e) {
+		e.stopPropagation();
+		toggleDiv('replyOpen{$message->id}','block');
+		toggleDiv('replyClosed{$message->id}','none');
+	});
+
+	$reply_status.find('.status_waiting').on('click', function(e) {
+		e.stopPropagation();
+		toggleDiv('replyOpen{$message->id}','block');
+		toggleDiv('replyClosed{$message->id}','block');
+	});
+
+	$reply_status.find('.status_closed').on('click', function(e) {
+		e.stopPropagation();
+		toggleDiv('replyOpen{$message->id}','none');
+		toggleDiv('replyClosed{$message->id}','block');
+	});
+
 	function enableAutoSaveDraft() {
 		if(null == draftAutoSaveInterval) {
 			draftAutoSaveInterval = setInterval(function() {
@@ -434,10 +453,13 @@ $(function() {
 		
 		var $attachments = $frm.find('fieldset.reply-attachments');
 		$attachments.cerbAttachmentsDropZone();
-		
+
+		$attachments.find('[data-cerb-remove-parent]').on('click', Devblocks.onClickRemoveParent);
+
 		// Group and bucket
-		
+
 		$frm.find('select[name=group_id]').on('change', function(e) {
+			e.stopPropagation();
 			var $select = $(this);
 			var group_id = $select.val();
 			var $bucket_options = $select.siblings('select.ticket-reply-bucket-options').find('option')
@@ -730,8 +752,15 @@ $(function() {
 			})
 			
 		// Insert suggested on click
-		
-		$('#reply{$message->id}_suggested').find('a.suggested').click(function(e) {
+
+		let $suggested = $('#reply{$message->id}_suggested');
+
+		$suggested.find('[data-cerb-reply-suggested-remove]').on('click', function(e) {
+			e.stopPropagation();
+			$(this).closest('div').remove();
+		});
+
+		$suggested.find('a.suggested').click(function(e) {
 			var $this = $(this);
 			var $sug = $this.text();
 			
@@ -792,6 +821,11 @@ $(function() {
 		// Reply action buttons
 		
 		var $buttons = $('#reply{$message->id}_buttons');
+
+		$buttons.find('.split-right').on('click', function(e) {
+			e.stopPropagation();
+			$(this).next('ul').toggle();
+		});
 
 		var funcValidationInteractions = function(json) {
 			var validation_interactions = Promise.resolve();
@@ -1201,7 +1235,6 @@ $(function() {
 			$editor.bind('keydown', 'ctrl+shift+c', function(e) {
 				e.preventDefault();
 				try {
-					var $reply_status = $('#replyStatus{$message->id}');
 					var $radio = $reply_status.find('input:radio[name=status_id]');
 					$radio.filter('.status_closed').click();
 					$reply_status
@@ -1216,7 +1249,6 @@ $(function() {
 			$editor.bind('keydown', 'ctrl+shift+o', function(e) {
 				e.preventDefault();
 				try {
-					var $reply_status = $('#replyStatus{$message->id}');
 					var $radio = $reply_status.find('input:radio[name=status_id]');
 					$radio.filter('.status_open').click();
 					$reply_status
@@ -1231,7 +1263,6 @@ $(function() {
 			$editor.bind('keydown', 'ctrl+shift+w', function(e) {
 				e.preventDefault();
 				try {
-					var $reply_status = $('#replyStatus{$message->id}');
 					var $radio = $reply_status.find('input:radio[name=status_id]');
 					$radio.filter('.status_waiting').click();
 					$reply_status

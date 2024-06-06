@@ -41,8 +41,7 @@
 			{/if}
 		{/if}
 
-		{$permalink_url = "{devblocks_url full=true}c=profiles&type={$target_context->params.alias}&id={$comment->context_id}{/devblocks_url}/#comment{$comment->id}"}
-		<button type="button" onclick="genericAjaxPopup('permalink', 'c=internal&a=invoke&module=records&action=showPermalinkPopup&url={$permalink_url|escape:'url'}');" title="{'common.permalink'|devblocks_translate|lower}"><span class="glyphicons glyphicons-link"></span></button>
+		<button data-cerb-button-comment-permalink="{devblocks_url full=true}c=profiles&type={$target_context->params.alias}&id={$comment->context_id}{/devblocks_url}/#comment{$comment->id}" type="button" title="{'common.permalink'|devblocks_translate|lower}"><span class="glyphicons glyphicons-link"></span></button>
 	</div>
 	{/if}
 	
@@ -123,6 +122,12 @@ $(function() {
 			}
 		})
 	;
+
+	$comment.find('[data-cerb-button-comment-permalink]').on('click', function(e) {
+		e.stopPropagation();
+		let permalink_url = $(this).attr('data-cerb-button-comment-permalink');
+		genericAjaxPopup('permalink', 'c=internal&a=invoke&module=records&action=showPermalinkPopup&url=' + encodeURIComponent(permalink_url));
+	});
 
 	$comment
 		.hover(

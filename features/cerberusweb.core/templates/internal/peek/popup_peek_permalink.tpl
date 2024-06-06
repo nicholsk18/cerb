@@ -15,7 +15,7 @@ $(function() {
 	let $div = $('#{$popup_id}');
 	let $popup = genericAjaxPopupFind($div);
 
-	Devblocks.formDisableSubmit($frm);
+	Devblocks.formDisableSubmit($popup.find('form'));
 	
 	$popup.one('popup_open',function() {
 		// Title

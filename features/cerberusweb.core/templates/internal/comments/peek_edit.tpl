@@ -107,7 +107,7 @@
 								{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
 							</a>
 							<input type="hidden" name="file_ids[]" value="{$attachment->id}">
-							<a onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
+							<a><span class="glyphicons glyphicons-circle-remove"></span></a>
 						</li>
 					{/foreach}
 				{/if}
@@ -182,6 +182,12 @@ $(function() {
 		// Drag/drop attachments
 
 		var $attachments = $frm.find('.cerb-comment-attachments');
+
+		$attachments.find('.glyphicons-circle-remove').on('click', function(e) {
+			e.stopPropagation();
+			$(this).closest('li').remove();
+		});
+
 		$attachments.cerbAttachmentsDropZone();
 
 		// Editor
