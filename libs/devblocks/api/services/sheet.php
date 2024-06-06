@@ -739,7 +739,7 @@ class _DevblocksSheetServiceTypes {
 				if(!$uri)
 					return $text;
 				
-				return sprintf('%s<a href="javascript:;" class="cerb-interaction-trigger" data-interaction-uri="%s" data-interaction-params="%s" data-interaction-done="&refresh_widgets=no">%s</a>',
+				return sprintf('%s<a class="cerb-interaction-trigger" data-interaction-uri="%s" data-interaction-params="%s" data-interaction-done="&refresh_widgets=no">%s</a>',
 					$icon,
 					DevblocksPlatform::strEscapeHtml($uri),
 					DevblocksPlatform::services()->url()->arrayToQueryString($inputs),
