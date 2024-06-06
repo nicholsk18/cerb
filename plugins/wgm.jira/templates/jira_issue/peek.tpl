@@ -106,7 +106,7 @@
 {/if}
 
 <div class="buttons">
-	{if (!$model->id && $active_worker->hasPriv("contexts.{$peek_context}.create")) || ($model->id && $active_worker->hasPriv("contexts.{$peek_context}.update"))}<button type="button" class="submit" onclick="genericAjaxPopupPostCloseReloadView(null,'frmJiraIssuePeek','{$view_id}', false, 'jira_issue_save');"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>{/if}
+	{if (!$model->id && $active_worker->hasPriv("contexts.{$peek_context}.create")) || ($model->id && $active_worker->hasPriv("contexts.{$peek_context}.update"))}<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>{/if}
 	{if !empty($model->id) && $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
 </div>
 
@@ -119,22 +119,28 @@
 </form>
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
+$(function() {
 	let $frm = $('#frmJiraIssuePeek');
 	let $popup = genericAjaxPopupFind($frm);
 
 	Devblocks.formDisableSubmit($frm);
-	
-	$popup.one('popup_open', function(event,ui) {
+
+	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'Jira Issue'|escape:'javascript' nofilter}");
 
 		// Buttons
+		$popup.find('button.submit').on('click',function(e) {
+			e.stopPropagation();
+			genericAjaxPopupPostCloseReloadView(null,'frmJiraIssuePeek','{$view_id}', false, 'jira_issue_save');
+		});
 		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
 		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
 
 		$popup.find('button.chooser_watcher').each(function() {
 			ajax.chooser(this,'cerberusweb.contexts.worker','add_watcher_ids', { autocomplete:true });
 		});
-		
+
 		$popup.find('input:text:first').focus();
 	});
+});
 </script>
