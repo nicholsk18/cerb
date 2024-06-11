@@ -14,7 +14,7 @@
 		<h3>Log in with your identity</h3>
 
 		{foreach from=$sso_services item=sso_service}
-		<button type="button" onclick="window.location.href='{devblocks_url}c=sso&uri={$sso_service->uri}{/devblocks_url}';" style="display:block;margin-bottom:5px;width:100%;">{$sso_service->name}</button>
+		<button type="button" data-cerb-button-sso="{devblocks_url}c=sso&uri={$sso_service->uri}{/devblocks_url}" style="display:block;margin-bottom:5px;width:100%;">{$sso_service->name}</button>
 		{/foreach}
 	</div>
 	
@@ -72,6 +72,13 @@ $(function() {
 		$frm[0].onsubmit = null;
 		$submit.attr('disabled', 'disabled');
 		$frm.submit();
+	});
+
+	// SSO
+	$frm.find('[data-cerb-button-sso]').on('click', function(e) {
+		e.stopPropagation();
+		let url = $(this).attr('data-cerb-button-sso');
+		if(url) document.location.href = url;
 	});
 });
 </script>
