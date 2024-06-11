@@ -31,9 +31,9 @@
 </style>
 <div id="divTimeTrackingBox" style="display:{if isset($session.timetracking)}block{else}none{/if};">
 	<div style="float:right;">
-		<button id="btnTimeTrackingPlay" type="button" onclick="timeTrackingTimer.play();" style="display:none;"><span class="glyphicons glyphicons-play" style="color:rgb(0,180,0);"></span></button>
-		<button id="btnTimeTrackingPause" type="button" onclick="timeTrackingTimer.pause();" style="display:none;"><span class="glyphicons glyphicons-pause"></span></button>
-		<button id="btnTimeTrackingStop" type="button" onclick="timeTrackingTimer.stop();" style="display:none;"><span class="glyphicons glyphicons-stop" style="color:rgb(200,0,0);"></span></button>
+		<button id="btnTimeTrackingPlay" type="button" class="cerb-hidden"><span class="glyphicons glyphicons-play"></span></button>
+		<button id="btnTimeTrackingPause" type="button" class="cerb-hidden"><span class="glyphicons glyphicons-pause"></span></button>
+		<button id="btnTimeTrackingStop" type="button" class="cerb-hidden"><span class="glyphicons glyphicons-stop"></span></button>
 	</div>
 	<div style="float:left;">
 		Time Spent: 
@@ -77,15 +77,29 @@ var timeTrackingTimerClass = function() {
 	}
 
 	this.show = function() {
-		var $timerDiv = $('#divTimeTrackingBox').show();
+		let $timerDiv = $('#divTimeTrackingBox').show();
 
 		if(0 === $timerDiv.length)
 			return;
 		
-		var $playBtn = $('#btnTimeTrackingPlay');
-		var $pauseBtn = $('#btnTimeTrackingPause');
-		$('#btnTimeTrackingStop').show();
-		
+		let $playBtn = $('#btnTimeTrackingPlay').on('click', function(e) {
+			e.stopPropagation();
+			timeTrackingTimer.play();
+		});
+
+		let $pauseBtn = $('#btnTimeTrackingPause').on('click', function(e) {
+			e.stopPropagation();
+			timeTrackingTimer.pause();
+		});
+
+		$('#btnTimeTrackingStop')
+			.on('click', function(e) {
+				e.stopPropagation();
+				timeTrackingTimer.stop();
+			})
+			.show()
+		;
+
 		if(this.enabled) {
 			$playBtn.hide();
 			$pauseBtn.show();
