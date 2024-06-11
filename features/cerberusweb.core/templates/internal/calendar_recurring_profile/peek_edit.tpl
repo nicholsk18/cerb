@@ -39,7 +39,7 @@
 		<td width="0%" nowrap="nowrap" valign="top">On: </td>
 		<td width="100%">
 			<textarea name="patterns" style="width:100%;height:5.5em;" placeholder="Enter any number of patterns to match">{$model->patterns}</textarea>
-			<select class="placeholders" onchange="var $select=$(this); $select.siblings('textarea').insertAtCursor($select.val() + '\n').trigger('change'); $select.val('');">
+			<select data-cerb-select-examples class="placeholders">
 				<option value="">-- {'common.examples'|devblocks_translate|lower} --</option>
 				<optgroup label="Days of the week">
 					<option value="Weekdays">Weekdays</option>
@@ -174,7 +174,15 @@ $(function() {
 		// Triggers
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
 		$popup.find('.chooser-abstract').cerbChooserTrigger();
-		
+
+		// Select
+		$popup.find('[data-cerb-select-examples]').on('change', function(e) {
+			e.stopPropagation();
+			let $select = $(this);
+			$select.siblings('textarea').insertAtCursor($select.val() + '\n').trigger('change');
+			$select.val('');
+		});
+
 		// Focus
 		$popup.find('input:text[name=event_name]').focus();
 		

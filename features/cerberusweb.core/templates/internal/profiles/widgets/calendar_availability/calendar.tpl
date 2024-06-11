@@ -1,5 +1,4 @@
 {$guid = uniqid()}
-
 <form id="frm{$guid}" action="#" style="margin-bottom:5px;width:98%;">
 	<div style="float:left;">
 		<span style="font-weight:bold;font-size:150%;">{$calendar_properties.calendar_date|devblocks_date:'F Y'}</span>
@@ -23,9 +22,9 @@
 	</div>
 
 	<div style="float:right;">
-		<button type="button" onclick="genericAjaxGet($(this).closest('div.cerb-profile-widget--content'), 'c=profiles&a=invokeWidget&widget_id={$widget->id}&action=showCalendarAvailabilityTab&context={$context}&context_id={$context_id}&id={$calendar->id}&month={$calendar_properties.prev_month}&year={$calendar_properties.prev_year}');"><span class="glyphicons glyphicons-chevron-left"></span></button>
-		<button type="button" onclick="genericAjaxGet($(this).closest('div.cerb-profile-widget--content'), 'c=profiles&a=invokeWidget&widget_id={$widget->id}&action=showCalendarAvailabilityTab&context={$context}&context_id={$context_id}&id={$calendar->id}&month=&year=');">{'common.today'|devblocks_translate|capitalize}</button>
-		<button type="button" onclick="genericAjaxGet($(this).closest('div.cerb-profile-widget--content'), 'c=profiles&a=invokeWidget&widget_id={$widget->id}&action=showCalendarAvailabilityTab&context={$context}&context_id={$context_id}&id={$calendar->id}&month={$calendar_properties.next_month}&year={$calendar_properties.next_year}');"><span class="glyphicons glyphicons-chevron-right"></span></button>
+		<button type="button" data-cerb-link="calendar_prev" data-cerb-calendar-year="{$calendar_properties.prev_year}" data-cerb-calendar-month="{$calendar_properties.prev_month}"><span class="glyphicons glyphicons-chevron-left"></span></button>
+		<button type="button" data-cerb-link="calendar_today" >{'common.today'|devblocks_translate|capitalize}</button>
+		<button type="button" data-cerb-link="calendar_next" data-cerb-calendar-year="{$calendar_properties.next_year}" data-cerb-calendar-month="{$calendar_properties.next_month}"><span class="glyphicons glyphicons-chevron-right"></span></button>
 	</div>
 	
 	<br clear="all">
@@ -59,9 +58,9 @@
 		<td class="{if $is_today}today{/if}{if $day.is_padding} inactive{/if}{if $smarty.foreach.days.last} cellborder_r{/if}{if $smarty.foreach.weeks.last} cellborder_b{/if}">
 			<div class="day_header">
 				{if $is_today}
-				<a onclick="">Today, {$calendar_properties.today|devblocks_date:"M d"}</a>
+				<a>Today, {$calendar_properties.today|devblocks_date:"M d"}</a>
 				{else}
-				<a onclick="">{$day.dom}</a>
+				<a>{$day.dom}</a>
 				{/if}
 			</div>
 			<div class="day_contents">
@@ -82,11 +81,27 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#frm{$guid}');
-	var $tab = $frm.closest('div.cerb-profile-widget--content');
-	
-	$frm.find('.cerb-peek-trigger')
-		.cerbPeekTrigger()
-		;
+	let $frm = $('#frm{$guid}');
+
+	$frm.find('.cerb-peek-trigger').cerbPeekTrigger();
+
+	$frm.find('[data-cerb-link=calendar_prev]').on('click', function(e) {
+		e.stopPropagation();
+		let year = $(this).attr('data-cerb-calendar-year');
+		let month = $(this).attr('data-cerb-calendar-month');
+		genericAjaxGet($(this).closest('div.cerb-profile-widget--content'), 'c=profiles&a=invokeWidget&widget_id={$widget->id}&action=showCalendarAvailabilityTab&context={$context}&context_id={$context_id}&id={$calendar->id}&month=' + encodeURIComponent(month) + '&year=' + encodeURIComponent(year));
+	});
+
+	$frm.find('[data-cerb-link=calendar_today]').on('click', function(e) {
+		e.stopPropagation();
+		genericAjaxGet($(this).closest('div.cerb-profile-widget--content'), 'c=profiles&a=invokeWidget&widget_id={$widget->id}&action=showCalendarAvailabilityTab&context={$context}&context_id={$context_id}&id={$calendar->id}&month=&year=');
+	});
+
+	$frm.find('[data-cerb-link=calendar_next]').on('click', function(e) {
+		e.stopPropagation();
+		let year = $(this).attr('data-cerb-calendar-year');
+		let month = $(this).attr('data-cerb-calendar-month');
+		genericAjaxGet($(this).closest('div.cerb-profile-widget--content'), 'c=profiles&a=invokeWidget&widget_id={$widget->id}&action=showCalendarAvailabilityTab&context={$context}&context_id={$context_id}&id={$calendar->id}&month=' + encodeURIComponent(month) + '&year=' + encodeURIComponent(year));
+	});
 });
 </script>

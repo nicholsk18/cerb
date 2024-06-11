@@ -15,9 +15,9 @@
 	</div>
 
 	<div style="float:right;">
-		<button type="button" onclick="genericAjaxGet($(this).closest('div.cerb-profile-widget--content'), 'c=profiles&a=invokeWidget&widget_id={$widget->id}&action=showCalendarTab&id={$calendar->id}&month={$calendar_properties.prev_month}&year={$calendar_properties.prev_year}');"><span class="glyphicons glyphicons-chevron-left"></span></button>
-		<button type="button" onclick="genericAjaxGet($(this).closest('div.cerb-profile-widget--content'), 'c=profiles&a=invokeWidget&widget_id={$widget->id}&action=showCalendarTab&id={$calendar->id}&month=&year=');">Today</button>
-		<button type="button" onclick="genericAjaxGet($(this).closest('div.cerb-profile-widget--content'), 'c=profiles&a=invokeWidget&widget_id={$widget->id}&action=showCalendarTab&id={$calendar->id}&month={$calendar_properties.next_month}&year={$calendar_properties.next_year}');"><span class="glyphicons glyphicons-chevron-right"></span></button>
+		<button data-cerb-calender-nav="prev" type="button"><span class="glyphicons glyphicons-chevron-left"></span></button>
+		<button data-cerb-calender-nav="today" type="button">{{'common.today'|devblocks_translate|capitalize}}</button>
+		<button data-cerb-calender-nav="next" type="button"><span class="glyphicons glyphicons-chevron-right"></span></button>
 	</div>
 	
 	<br clear="all">
@@ -103,9 +103,22 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $frm = $('#frm{$guid}');
-	var $tab = $frm.closest('div.cerb-profile-widget--content');
-	
+	let $frm = $('#frm{$guid}');
+	let $tab = $frm.closest('div.cerb-profile-widget--content');
+
+	$frm.find('[data-cerb-calender-nav]').on('click', function(e) {
+		e.stopPropagation();
+		let action = $(this).attr('data-cerb-calender-nav');
+
+		if('prev' === action) {
+			genericAjaxGet($(this).closest('div.cerb-profile-widget--content'), 'c=profiles&a=invokeWidget&widget_id={$widget->id}&action=showCalendarTab&id={$calendar->id}&month={$calendar_properties.prev_month}&year={$calendar_properties.prev_year}');
+		} else if('next' === action) {
+			genericAjaxGet($(this).closest('div.cerb-profile-widget--content'), 'c=profiles&a=invokeWidget&widget_id={$widget->id}&action=showCalendarTab&id={$calendar->id}&month={$calendar_properties.next_month}&year={$calendar_properties.next_year}');
+		} else {
+			genericAjaxGet($(this).closest('div.cerb-profile-widget--content'), 'c=profiles&a=invokeWidget&widget_id={$widget->id}&action=showCalendarTab&id={$calendar->id}&month=&year=');
+		}
+	});
+
 	$tab.find('.cerb-peek-trigger')
 		.cerbPeekTrigger()
 		.on('cerb-peek-opened', function(e) {
