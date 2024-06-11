@@ -19,10 +19,10 @@
 		{/if}
 
 		<script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
-			var DevblocksAppPath = '{$smarty.const.DEVBLOCKS_WEBPATH}';
-			var DevblocksWebPath = '{devblocks_url}{/devblocks_url}';
+			let DevblocksAppPath = '{$smarty.const.DEVBLOCKS_WEBPATH}';
+			let DevblocksWebPath = '{devblocks_url}{/devblocks_url}';
 			let DevblocksRequestNonce = '{DevblocksPlatform::getRequestNonce()}';
-			var CerbSchemaRecordsVersion = {intval(DevblocksPlatform::services()->cache()->getTagVersion("schema_records"))};
+			let CerbSchemaRecordsVersion = {intval(DevblocksPlatform::services()->cache()->getTagVersion("schema_records"))};
 		</script>
 
 		<!-- Platform -->
@@ -67,10 +67,10 @@
 							<div style="flex:1 1 auto;text-align:right;">
 								{if !empty($count)}
 								<form action="#" method="get">
-								{if $prev}<button id="btnExplorerPrev" type="button" onclick="this.form.action='{devblocks_url}c=explore&hash={$hashset}&p={$prev|round}{/devblocks_url}';this.form.submit();"><span class="glyphicons glyphicons-chevron-left"></span></button>{/if}
+								{if $prev}<button id="btnExplorerPrev" type="button"><span class="glyphicons glyphicons-chevron-left"></span></button>{/if}
 								<b>{$p}</b> of <b>{$count}</b> 
-								{if $next}<button id="btnExplorerNext" type="button" onclick="this.form.action='{devblocks_url}c=explore&hash={$hashset}&p={$next|round}{/devblocks_url}';this.form.submit();"><span class="glyphicons glyphicons-chevron-right"></span></button>{/if}
-								<button type="button" onclick="window.document.location.href='{if !empty($url)}{$url}{else}{$return_url}{/if}';"><span class="glyphicons glyphicons-circle-remove"></span></button>
+								{if $next}<button id="btnExplorerNext" type="button"><span class="glyphicons glyphicons-chevron-right"></span></button>{/if}
+								<button id="btnExplorerExit" type="button"><span class="glyphicons glyphicons-circle-remove"></span></button>
 								</form>
 								{/if}
 							</div>
@@ -90,18 +90,36 @@
 	$(function() {
 		let $explorerBody = $('body');
 		let $explorerFrame = $('#explorerFrame');
+		let $explorerBtnExit = $('#btnExplorerExit');
 		let $explorerBtnPrev = $('#btnExplorerPrev');
 		let $explorerBtnNext = $('#btnExplorerNext');
 
 		let keyPrev = '[';
 		let keyNext = ']';
-		
-		var funcPrev = function(e) {
+
+		$explorerBtnExit.on('click', function(e) {
+			e.stopPropagation();
+			window.document.location.href='{if !empty($url)}{$url}{else}{$return_url}{/if}';
+		});
+
+		$explorerBtnPrev.on('click', function(e) {
+			e.stopPropagation();
+			this.form.action='{devblocks_url}c=explore&hash={$hashset}&p={$prev|round}{/devblocks_url}';
+			this.form.submit();
+		});
+
+		$explorerBtnNext.on('click', function(e) {
+			e.stopPropagation();
+			this.form.action='{devblocks_url}c=explore&hash={$hashset}&p={$next|round}{/devblocks_url}';
+			this.form.submit();
+		});
+
+		let funcPrev = function(e) {
 			e.stopPropagation();
 			$explorerBtnPrev.click();
 		};
 		
-		var funcNext = function(e) {
+		let funcNext = function(e) {
 			e.stopPropagation();
 			$explorerBtnNext.click();
 		};
