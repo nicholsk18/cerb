@@ -6252,6 +6252,36 @@ var ajax = new cAjaxCalls();
 		});
 	}
 	
+	// Select shortcuts
+	
+	$.fn.cerbSelectShortcuts = function(options) {
+		if(undefined === options)
+			options = {};
+		
+		return this.each(function() {
+			let $select = $(this);
+			
+			if(null == options.attr)
+				return;
+			
+			let indices = String($select.attr(options.attr)).split(',').reverse();
+			
+			for(let i in indices) {
+				let $option = $select.find('> option').eq(indices[i]);
+				
+				$('<button/>')
+					.attr('type', 'button')
+					.text($option.text().toLowerCase())
+					.on('click', function(e) {
+						e.stopPropagation();
+						$select.val($option.val());
+					})
+					.insertAfter($select)
+				;
+			}
+		});
+	}
+	
 }(jQuery));
 
 // https://github.com/component/textarea-caret-position
