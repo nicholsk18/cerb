@@ -62,6 +62,11 @@ function DevblocksClass() {
 			.on('submit', function() {
 			return false;
 		});
+	};
+	
+	this.onClickRemoveParent = function(e) {
+		e.stopPropagation();
+		$(this).parent().remove();
 	}
 
 	this.getFormEnabledCheckboxValues = function(form_id,element_name) {
