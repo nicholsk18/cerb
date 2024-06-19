@@ -80,8 +80,8 @@
 				<td data-column="{$column}">
 					{$group = $groups.{$result.$column}}
 					{if $group}
-						<img src="{devblocks_url}c=avatars&context=group&context_id={$group->id}{/devblocks_url}?v={$group->updated}" style="height:24px;width:24px;border-radius:24px;vertical-align:middle;margin-right:3px;">
-						<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group->id}" data-profile-url="{devblocks_url}c=profiles&what=group&id={$group->id}{/devblocks_url}-{$group->name|devblocks_permalink}">{$group->name}</a>
+						<img src="{devblocks_url}c=avatars&context=group&context_id={$group->id}{/devblocks_url}?v={$group->updated}" style="height:16px;width:16px;border-radius:16px;vertical-align:middle;margin-right:3px;">
+						<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_GROUP}" data-context-id="{$group->id}" data-profile-url="{devblocks_url}c=profiles&what=group&id={$group->id}{/devblocks_url}-{$group->name|devblocks_permalink}">{$group->name}</a>
 					{/if}
 				</td>
 			{elseif $column == "b_is_default"}
@@ -93,28 +93,28 @@
 				<td data-column="{$column}">
 					{if $replyto_address}
 					<img src="{devblocks_url}c=avatars&context=address&context_id={$replyto_address->id}{/devblocks_url}?v={$replyto_address->updated_at}" style="height:16px;width:16px;border-radius:16px;vertical-align:middle;margin-right:3px;">
-					<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.$column}">{$replyto_address->email}</a>
+					<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$result.$column}">{$replyto_address->email}</a>
 					{/if}
 				</td>
 			{elseif $column == "b_reply_html_template_id"}
 				{$html_template = $html_templates.{$result.$column}}
 				<td data-column="{$column}">
 					{if $html_template}
-					<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-context-id="{$result.$column}">{$html_template->name}</a>
+					<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_MAIL_HTML_TEMPLATE}" data-context-id="{$result.$column}">{$html_template->name}</a>
 					{/if}
 				</td>
 			{elseif $column == "b_reply_signature_id"}
 				{$signature = $signatures.{$result.$column}}
 				<td data-column="{$column}">
 					{if $signature}
-					<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_EMAIL_SIGNATURE}" data-context-id="{$result.$column}">{$signature->name}</a>
+					<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_EMAIL_SIGNATURE}" data-context-id="{$result.$column}">{$signature->name}</a>
 					{/if}
 				</td>
 			{elseif $column == "b_reply_signing_key_id"}
 				{$signing_key = $signing_keys.{$result.$column}}
 				<td data-column="{$column}">
 					{if $signing_key}
-					<a class="cerb-peek-trigger" data-context="{Context_GpgPrivateKey::ID}" data-context-id="{$result.$column}">{$signing_key->name}</a>
+					<a class="cerb-peek-trigger no-underline" data-context="{Context_GpgPrivateKey::ID}" data-context-id="{$result.$column}">{$signing_key->name}</a>
 					{/if}
 				</td>
 			{elseif $column == "b_updated_at"}
