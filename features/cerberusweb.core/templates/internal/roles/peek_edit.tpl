@@ -84,7 +84,7 @@
 		<h1>{{'common.actions'|devblocks_translate|capitalize}}</h1>
 
 		<div style="margin-bottom:10px;">
-			<a style="font-size:90%;" onclick="checkAll('roleEditorPrivsOther');">check all</a>
+			<a style="font-size:90%;" data-cerb-check-all="roleEditorPrivsOther">check all</a>
 		</div>
 		
 		{foreach from=$core_acl item=section}
@@ -92,7 +92,7 @@
 			{else}
 			{$container_id = uniqid()}
 			<fieldset class="peek black" style="break-inside:avoid-column;page-break-inside:avoid;">
-				<legend onclick="checkAll('privs{$container_id}');">
+				<legend data-cerb-check-all="privs{$container_id}">
 					<label>
 					{$section.label}
 					</label>
@@ -120,7 +120,7 @@
 			{else}
 			<fieldset class="peek black" style="break-inside:avoid-column;page-break-inside:avoid;">
 				<legend>
-					<label onclick="checkAll('privs{$plugin_id}');">
+					<label data-cerb-check-all="privs{$plugin_id}">
 					{$plugin.label}
 					</label>
 				</legend>
@@ -139,7 +139,7 @@
 		<h1>{{'common.records'|devblocks_translate|capitalize}}</h1>
 
 		<div style="margin-bottom:10px;">
-			<a style="font-size:90%;" onclick="checkAll('roleEditorPrivsRecords');">check all</a>
+			<a style="font-size:90%;" data-cerb-check-all="roleEditorPrivsRecords">check all</a>
 		</div>
 
 		{$priv_labels = []}
@@ -163,7 +163,7 @@
 			{if $available_privs}
 			<fieldset class="peek black" style="break-inside:avoid-column;page-break-inside:avoid;">
 				<legend>
-					<label onclick="checkAll('contexts{$context_id}');">
+					<label data-cerb-check-all="contexts{$context_id}">
 					{$record_type.label|capitalize}
 					</label>
 				</legend>
@@ -217,7 +217,14 @@ $(function() {
 		$popup.find('fieldset > legend').on('mousedown', function(e) {
 			e.preventDefault();
 		});
-		
+
+		// Check all
+		$popup.find('[data-cerb-check-all]').on('click', function(e) {
+			e.stopPropagation();
+			let selector = $(this).attr('data-cerb-check-all');
+			checkAll(selector);
+		});
+
 		// This prevents the popup from being stranded downward by the height of the roles popup after submit
 		var hide_tabs_on_submit = function(e) {
 			if(!e.error) {

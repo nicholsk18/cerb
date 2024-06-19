@@ -35,9 +35,9 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" align="right" valign="top">{'common.status'|devblocks_translate|capitalize}: </td>
 		<td width="100%">
-			<label><input type="radio" name="status_id" value="0" onclick="toggleDiv('oppPeekClosedDate','none');" {if !$opp->status_id}checked="checked"{/if}> {'crm.opp.status.open'|devblocks_translate|capitalize}</label>
-			<label><input type="radio" name="status_id" value="1" onclick="toggleDiv('oppPeekClosedDate','');" {if 1 == $opp->status_id}checked="checked"{/if}> {'crm.opp.status.closed.won'|devblocks_translate|capitalize}</label>
-			<label><input type="radio" name="status_id" value="2" onclick="toggleDiv('oppPeekClosedDate','');" {if 2 == $opp->status_id}checked="checked"{/if}> {'crm.opp.status.closed.lost'|devblocks_translate|capitalize}</label>
+			<label><input type="radio" name="status_id" value="0" {if !$opp->status_id}checked="checked"{/if}> {'crm.opp.status.open'|devblocks_translate|capitalize}</label>
+			<label><input type="radio" name="status_id" value="1" {if 1 == $opp->status_id}checked="checked"{/if}> {'crm.opp.status.closed.won'|devblocks_translate|capitalize}</label>
+			<label><input type="radio" name="status_id" value="2" {if 2 == $opp->status_id}checked="checked"{/if}> {'crm.opp.status.closed.lost'|devblocks_translate|capitalize}</label>
 		</td>
 	</tr>
 	
@@ -92,11 +92,23 @@ $(function() {
 
 	Devblocks.formDisableSubmit($frm);
 	
-	$popup.one('popup_open',function(event,ui) {
+	$popup.one('popup_open',function() {
 		var $frm = $('#formOppPeek');
 		
 		$popup.dialog('option','title', '{'Opportunity'|devblocks_translate|escape:'javascript' nofilter}');
-		
+
+		// Status
+		$popup.find('input[name=status_id]').on('click', function(e) {
+			e.stopPropagation();
+			let val = $(this).val();
+
+			if('0' === val) {
+				toggleDiv('oppPeekClosedDate', 'none');
+			} else {
+				toggleDiv('oppPeekClosedDate', '');
+			}
+		});
+
 		// Buttons
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);

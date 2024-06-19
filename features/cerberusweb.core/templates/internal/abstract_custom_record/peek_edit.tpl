@@ -82,7 +82,7 @@
 						{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
 					</a>
 					<input type="hidden" name="file_ids[]" value="{$attachment->id}">
-					<a onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
+					<a data-cerb-link="file_remove"><span class="glyphicons glyphicons-circle-remove"></span></a>
 				</li>
 			{/foreach}
 		{/if}
@@ -202,6 +202,7 @@ $(function() {
 			ajax.chooserFile(this,'file_ids');
 		});
 
+		$popup.find('.chooser-container [data-cerb-link=file_remove]').on('click', Devblocks.onClickRemoveParent);
 	});
 });
 </script>

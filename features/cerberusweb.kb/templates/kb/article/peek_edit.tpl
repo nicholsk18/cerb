@@ -51,7 +51,7 @@
 						{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
 					</a>
 					<input type="hidden" name="file_ids[]" value="{$attachment->id}">
-					<a onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
+					<a data-cerb-link="remove_parent"><span class="glyphicons glyphicons-circle-remove"></span></a>
 				</li>
 			{/foreach}
 		{/if}
@@ -64,7 +64,7 @@
 	<div style="overflow:auto;height:150px;border:solid 1px var(--cerb-color-background-contrast-180);background-color:var(--cerb-color-background);">
 		{foreach from=$levels item=depth key=node_id}
 			<label>
-				<input type="checkbox" name="category_ids[]" value="{$node_id}" onchange="div=document.getElementById('kbTreeCat{$node_id}');div.style.background=(this.checked)?'var(--cerb-color-background-contrast-230)':'';" {if (empty($model) && $root_id==$node_id) || isset($article_categories.$node_id)}checked{/if}>
+				<input type="checkbox" name="category_ids[]" value="{$node_id}" {if (empty($model) && $root_id==$node_id) || isset($article_categories.$node_id)}checked{/if}>
 				<span style="padding-left:{math equation="(x-1)*10" x=$depth}px;{if !$depth}font-weight:bold;{/if}">{if $depth}<span class="glyphicons glyphicons-chevron-right" style="color:rgb(80,80,80);"></span>{else}<span class="glyphicons glyphicons-folder-closed" style="color:rgb(80,80,80);"></span>{/if} <span id="kbTreeCat{$node_id}" {if (empty($model) && $root_id==$node_id) || isset($article_categories.$node_id)}style="background-color:var(--cerb-color-background-contrast-230);"{/if}>{$categories.$node_id->name}</span></span>
 			</label>
 			<br>
@@ -114,6 +114,14 @@ $(function() {
 	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'kb.common.knowledgebase_article'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
 		$popup.css('overflow', 'inherit');
+
+		// Categories
+		$popup.find('input[name="category_ids[]"]').on('change', function(e) {
+			e.stopPropagation();
+			let node_id = this.value;
+			let div = document.getElementById('kbTreeCat' + encodeURIComponent(node_id));
+			div.style.background=(this.checked) ? 'var(--cerb-color-background-contrast-230)' : '';
+		});
 
 		// Buttons
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
@@ -228,7 +236,8 @@ $(function() {
 		$frm.find('button.chooser_file').each(function() {
 			ajax.chooserFile(this,'file_ids');
 		});
-		
+
+		$popup.find('.chooser-container [data-cerb-link=remove_parent]').on('click', Devblocks.onClickRemoveParent);
 	});
 });
 </script>

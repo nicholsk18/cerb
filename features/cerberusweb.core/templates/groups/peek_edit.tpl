@@ -134,7 +134,7 @@
 				Masks: 
 			</td>
 			<td valign="middle">
-				<label><input type="checkbox" name="subject_has_mask" value="1" onclick="toggleDiv('{$option_id}',(this.checked)?'block':'none');" {if $group_settings.subject_has_mask}checked{/if}> Include ticket masks in message subjects:</label><br>
+				<label><input type="checkbox" name="subject_has_mask" value="1" {if $group_settings.subject_has_mask}checked{/if}> Include ticket masks in message subjects:</label><br>
 				<div id="{$option_id}" style="margin:5px 0;display:{if $group_settings.subject_has_mask}block{else}none{/if}">
 					<b>Subject prefix:</b> (optional, e.g. "billing", "tech-support")<br>
 					Re: [ <input type="text" name="subject_prefix" placeholder="prefix" value="{$group_settings.subject_prefix}" size="24"> #MASK-12345-678]: Subject<br>
@@ -251,6 +251,12 @@ $(function() {
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
 		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+
+		// Inputs
+		$popup.find('input[name=subject_has_mask]').on('click', function(e) {
+			e.stopPropagation();
+			toggleDiv('{$option_id}',(this.checked)?'block':'none');
+		});
 
 		// Avatar
 		var $avatar_chooser = $popup.find('button.cerb-avatar-chooser');

@@ -59,7 +59,7 @@
 
 <fieldset class="peek">
 	{$is_mail_configured = $bucket->reply_address_id || $bucket->reply_personal || $bucket->reply_signature_id || $bucket->reply_signing_key_id || $bucket->reply_html_template_id}
-	<legend><label><input type="checkbox" name="enable_mail" value="1" {if $is_mail_configured}checked="checked"{/if} onclick="$(this).closest('fieldset').find('table:first').toggle();"> Bucket-level mail settings: <small>({'common.optional'|devblocks_translate|lower})</small></label></legend>
+	<legend><label><input type="checkbox" name="enable_mail" value="1" {if $is_mail_configured}checked="checked"{/if}> Bucket-level mail settings: <small>({'common.optional'|devblocks_translate|lower})</small></label></legend>
 	<table cellpadding="2" cellspacing="0" border="0" width="98%" style="{if !$is_mail_configured}display:none;{/if}">
 		<tr>
 			<td align="right" valign="middle" width="0%" nowrap="nowrap">
@@ -198,6 +198,13 @@ $(function() {
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
 		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+
+		// Toggle
+
+		$popup.find('input[name=enable_mail]').on('click', function(e) {
+			e.stopPropagation();
+			$(this).closest('fieldset').find('table:first').toggle();
+		});
 
 		// Template builders
 		

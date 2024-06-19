@@ -22,7 +22,7 @@
 	<div style="overflow:auto;max-height:250px;width:98%;">
 		{foreach from=$levels item=depth key=node_id}
 			<input type="hidden" name="category_ids[]" value="{$node_id}">
-			<select name="category_ids_{$node_id}" onchange="div=document.getElementById('kbCat{$node_id}');{literal}if('+'==selectValue(this)){div.style.color='green';div.style.background='rgb(230,230,230)';}else if('-'==selectValue(this)){div.style.color='red';div.style.background='rgb(230,230,230)';}else{div.style.color='';div.style.background='rgb(255,255,255)';}{/literal}">
+			<select name="category_ids_{$node_id}" data-cerb-node-id="{$node_id}">
 				<option value=""></option>
 				<option value="+">+</option>
 				<option value="-">-</option>
@@ -51,9 +51,28 @@ $(function() {
 	var $popup = genericAjaxPopupFind('#formBatchUpdate');
 	Devblocks.formDisableSubmit($popup);
 	
-	$popup.one('popup_open', function(event,ui) {
+	$popup.one('popup_open', function() {
 		$popup.dialog('option','title',"{'common.bulk_update'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
-		
+
+		// Categories
+		$popup.find('select[data-cerb-node-id]').on('change', function(e) {
+			e.stopPropagation();
+			let node_id = this.getAttribute('data-cerb-node-id');
+			let div = document.getElementById('kbCat' + encodeURIComponent(node_id));
+
+			if('+' === selectValue(this)) {
+				div.style.color='green';
+				div.style.background='rgb(230,230,230)';
+			} else if('-' === selectValue(this)) {
+				div.style.color='red';
+				div.style.background='rgb(230,230,230)';
+			} else {
+				div.style.color='';
+				div.style.background='rgb(255,255,255)';
+			}
+		});
+
+		// Buttons
 		$popup.find('button.submit').click(function() {
 			genericAjaxPost('formBatchUpdate', '', null, function(json) {
 				if(json.cursor) {

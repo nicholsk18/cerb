@@ -65,7 +65,7 @@
 </fieldset>
 
 {if !$model->id && $roles}
-<fieldset class="peek">
+<fieldset data-cerb-fieldset="privileges" class="peek">
 	<legend>{'common.privileges'|devblocks_translate|capitalize}:</legend>
 	
 	{$priv_labels = []}
@@ -79,7 +79,7 @@
 	{foreach from=$roles item=role key=role_id}
 		<fieldset class="peek black">
 			<legend>
-				<label onclick="checkAll('role{$role_id}');">
+				<label data-cerb-role-id="{$role_id}">
 				{$role->name}
 				</label>
 			</legend>
@@ -141,6 +141,17 @@ $(function() {
 		$popup.find('button.delete').click({ mode: 'delete' }, Devblocks.callbackPeekEditSave);
 		$popup.find('button.delete-prompt').click(Devblocks.callbackPeekEditDeletePrompt);
 		$popup.find('button.delete-cancel').click(Devblocks.callbackPeekEditDeleteCancel);
+
+		// Fieldsets
+
+		$frm.find('[data-cerb-fieldset=privileges] [data-cerb-role-id]')
+			.css('cursor', 'pointer')
+			.on('click', function(e) {
+				e.stopPropagation();
+				let role_id = $(this).attr('data-cerb-role-id');
+				checkAll('role' + role_id);
+			})
+		;
 	});
 });
 </script>

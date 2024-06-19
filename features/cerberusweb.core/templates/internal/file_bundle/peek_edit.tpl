@@ -48,7 +48,8 @@
 		{foreach from=$attachments item=attachment}
 		<li>
 		{$attachment->name} ({$attachment->storage_size|devblocks_prettybytes:1})
-		<input type="hidden" name="file_ids[]" value="{$attachment->id}"><a onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
+		<input type="hidden" name="file_ids[]" value="{$attachment->id}">
+		<a data-cerb-link="remove_parent"><span class="glyphicons glyphicons-circle-remove"></span></a>
 		</li>
 		{/foreach}
 	</ul>
@@ -92,7 +93,7 @@ $(function() {
 		let $textarea = $popup.find('textarea[name=comment]');
 		
 		$popup.find('.cerb-peek-trigger').cerbPeekTrigger();
-		
+
 		// Buttons
 		
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
@@ -149,7 +150,8 @@ $(function() {
 		});
 		
 		$popup.find('input:text[name=name]').focus();
-		
+
+		$popup.find('.chooser-container [data-cerb-link=remove_parent]').on('click', Devblocks.onClickRemoveParent);
 	});
 });	
 </script>

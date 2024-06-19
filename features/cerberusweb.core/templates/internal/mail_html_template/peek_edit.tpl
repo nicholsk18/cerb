@@ -141,7 +141,7 @@ ul, ol {
 						{if !empty($attachment->mime_type)}{$attachment->mime_type}{else}{'display.convo.unknown_format'|devblocks_translate|capitalize}{/if})
 					</a>
 					<input type="hidden" name="file_ids[]" value="{$attachment->id}">
-					<a onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a>
+					<a data-cerb-link="remove_parent"><span class="glyphicons glyphicons-circle-remove"></span></a>
 				</li>
 			{/foreach}
 		{/if}
@@ -277,6 +277,8 @@ $(function() {
 		$popup.find('button.chooser_file').each(function() {
 			ajax.chooserFile(this,'file_ids');
 		});
+
+		$popup.find('.chooser-container [data-cerb-link=remove_parent]').on('click', Devblocks.onClickRemoveParent);
 		
 		// Placeholders
 

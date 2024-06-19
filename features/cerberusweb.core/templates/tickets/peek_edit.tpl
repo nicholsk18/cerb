@@ -65,10 +65,10 @@
 	<tr>
 		<td width="0%" nowrap="nowrap" valign="top">{'common.status'|devblocks_translate|capitalize}: </td>
 		<td width="100%">
-			<label><input type="radio" name="status_id" value="{Model_Ticket::STATUS_OPEN}" onclick="toggleDiv('ticketClosed','none');" {if $ticket->status_id == Model_Ticket::STATUS_OPEN}checked{/if}> {'status.open'|devblocks_translate|capitalize}</label>
-			<label><input type="radio" name="status_id" value="{Model_Ticket::STATUS_WAITING}" onclick="toggleDiv('ticketClosed','block');" {if $ticket->status_id == Model_Ticket::STATUS_WAITING}checked{/if}> {'status.waiting'|devblocks_translate|capitalize}</label>
-			{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->status_id == Model_Ticket::STATUS_CLOSED)}<label><input type="radio" name="status_id" value="{Model_Ticket::STATUS_CLOSED}" onclick="toggleDiv('ticketClosed','block');" {if $ticket->status_id == Model_Ticket::STATUS_CLOSED}checked{/if}> {'status.closed'|devblocks_translate|capitalize}</label>{/if}
-			{if $active_worker->hasPriv("contexts.{$peek_context}.delete") || ($ticket->status_id == Model_Ticket::STATUS_DELETED)}<label><input type="radio" name="status_id" value="{Model_Ticket::STATUS_DELETED}" onclick="toggleDiv('ticketClosed','none');" {if $ticket->status_id == Model_Ticket::STATUS_DELETED}checked{/if}> {'status.deleted'|devblocks_translate|capitalize}</label>{/if}
+			<label><input type="radio" name="status_id" value="{Model_Ticket::STATUS_OPEN}" {if $ticket->status_id == Model_Ticket::STATUS_OPEN}checked{/if}> {'status.open'|devblocks_translate|capitalize}</label>
+			<label><input type="radio" name="status_id" value="{Model_Ticket::STATUS_WAITING}" {if $ticket->status_id == Model_Ticket::STATUS_WAITING}checked{/if}> {'status.waiting'|devblocks_translate|capitalize}</label>
+			{if $active_worker->hasPriv('core.ticket.actions.close') || ($ticket->status_id == Model_Ticket::STATUS_CLOSED)}<label><input type="radio" name="status_id" value="{Model_Ticket::STATUS_CLOSED}" {if $ticket->status_id == Model_Ticket::STATUS_CLOSED}checked{/if}> {'status.closed'|devblocks_translate|capitalize}</label>{/if}
+			{if $active_worker->hasPriv("contexts.{$peek_context}.delete") || ($ticket->status_id == Model_Ticket::STATUS_DELETED)}<label><input type="radio" name="status_id" value="{Model_Ticket::STATUS_DELETED}" {if $ticket->status_id == Model_Ticket::STATUS_DELETED}checked{/if}> {'status.deleted'|devblocks_translate|capitalize}</label>{/if}
 			
 			<div id="ticketClosed" style="display:{if in_array($ticket->status_id,[Model_Ticket::STATUS_WAITING,Model_Ticket::STATUS_CLOSED])}block{else}none{/if};margin:5px 0px 5px 15px;">
 				<b>{'display.reply.next.resume'|devblocks_translate}:</b><br>
@@ -155,7 +155,18 @@ $(function() {
 
 	$popup.one('popup_open',function() {
 		var $chooser_owner = $popup.find('button[data-field-name="owner_id"]');
-		
+
+		// Status
+		$popup.find('input[name=status_id]').on('click', function(e) {
+			e.stopPropagation();
+			let val = $(this).val();
+			if('1' === val || '2' === val) {
+				toggleDiv('ticketClosed','block');
+			} else {
+				toggleDiv('ticketClosed','none');
+			}
+		});
+
 		// Buttons
 		$popup.find('button.submit').click(Devblocks.callbackPeekEditSave);
 

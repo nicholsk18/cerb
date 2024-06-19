@@ -29,13 +29,29 @@
 	{if $v.value}
 		{if strlen($v.value) > 128 || false != strpos($v.value,"\n")}
 		<span>
-			{$v.value|truncate:128} [<a onclick="$(this).parent().next('div').fadeIn().end().hide();">expand</a>]
+			{$v.value|truncate:128} [<a data-cerb-link="expand">expand</a>]
 		</span>
 		<div style="display:none;">
 			{$v.value|escape|devblocks_hyperlinks|nl2br nofilter}
 			<br>
-			[<a onclick="$(this).parent().hide().prev('span').fadeIn();">collapse</a>]
+			[<a data-cerb-link="collapse">collapse</a>]
 		</div>
+		{$script_id = uniqid('script')}
+		<script nonce="{DevblocksPlatform::getRequestNonce()}" id="{$script_id}" type="text/javascript">
+		$(function() {
+			let $script = $('#{$script_id}');
+
+			$script.parent().find('[data-cerb-link=expand]').on('click', function(e) {
+				e.stopPropagation();
+				$(this).parent().next('div').fadeIn().end().hide();
+			});
+
+			$script.parent().find('[data-cerb-link=collapse]').on('click', function(e) {
+				e.stopPropagation();
+				$(this).parent().hide().prev('span').fadeIn();
+			});
+		});
+		</script>
 		{else}
 			{$v.value}
 		{/if}

@@ -14,7 +14,7 @@
 
 <div class="cerb-uploads"></div>
 
-<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok" style="color:rgb(0,180,0);vertical-align:middle;"></span> {'common.ok'|devblocks_translate|upper}</button>
+<button type="button" class="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.ok'|devblocks_translate|upper}</button>
 </form>
 
 <br>

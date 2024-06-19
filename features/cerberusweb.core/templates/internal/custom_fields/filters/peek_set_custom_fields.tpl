@@ -20,8 +20,8 @@
 			{if Model_CustomField::TYPE_SINGLE_LINE==$field->type || Model_CustomField::TYPE_MULTI_LINE==$field->type || Model_CustomField::TYPE_NUMBER==$field->type || Model_CustomField::TYPE_URL==$field->type}
 				<input type="text" name="do_cf_{$field_id}" size="45" value="{$action_field.value}" data-cerb-ui-change="chkSetField{$field_id}" style="width:95%;">
 			{elseif Model_CustomField::TYPE_CHECKBOX==$field->type}
-				<label><input type="radio" name="do_cf_{$field_id}" value="1" {if !is_null($action_field) && 1==$action_field.value}checked="checked"{/if} onchange="document.getElementById('chkSetField{$field_id}').checked=((0==this.checked)?false:true);"> {'common.yes'|devblocks_translate}</label>
-				<label><input type="radio" name="do_cf_{$field_id}" value="0" {if !is_null($action_field) && 0==$action_field.value}checked="checked"{/if} onchange="document.getElementById('chkSetField{$field_id}').checked=((0==this.checked)?false:true);"> {'common.no'|devblocks_translate}</label>
+				<label><input type="radio" name="do_cf_{$field_id}" value="1" {if !is_null($action_field) && 1==$action_field.value}checked="checked"{/if} data-cerb-ui-change="chkSetField{$field_id}"> {'common.yes'|devblocks_translate}</label>
+				<label><input type="radio" name="do_cf_{$field_id}" value="0" {if !is_null($action_field) && 0==$action_field.value}checked="checked"{/if} data-cerb-ui-change="chkSetField{$field_id}"> {'common.no'|devblocks_translate}</label>
 			{elseif Model_CustomField::TYPE_CURRENCY==$field->type}
 				{$currency = DAO_Currency::get($field->params.currency_id)}
 				{$currency->symbol}
