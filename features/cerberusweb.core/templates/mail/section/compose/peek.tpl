@@ -50,7 +50,7 @@
 			<input type="text" name="to" id="emailinput{$popup_uniqid}" value="{$draft->getParam('to')}" style="padding:2px;width:98%;" placeholder="These recipients will automatically be included in all future correspondence">
 
 			<div id="compose_suggested{$popup_uniqid}" style="display:none;">
-				<a onclick="$(this).closest('div').hide();">x</a>
+				<a data-cerb-link="remove_suggested"><span class="glyphicons glyphicons-circle-remove"></span></a>
 				<b>Consider adding these recipients:</b>
 				<ul class="bubbles"></ul>
 			</div>
@@ -130,8 +130,8 @@
 	{foreach from=$draft->params.file_ids item=file_id}
 		{$file = DAO_Attachment::get($file_id)}
 		{if !empty($file)}
-			<li><input type="hidden" name="file_ids[]" value="{$file_id}">{$file->name} ({$file->storage_size} bytes) <a onclick="$(this).parent().remove();"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
-		{/if} 
+			<li><input type="hidden" name="file_ids[]" value="{$file_id}">{$file->name} ({$file->storage_size} bytes) <a data-cerb-link="remove_file"><span class="glyphicons glyphicons-circle-remove"></span></a></li>
+		{/if}
 	{/foreach}
 	{/if}
 	</ul>
@@ -158,9 +158,9 @@
 	<div>
 		<b>{'common.status'|devblocks_translate|capitalize}:</b>
 
-		<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+O)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_OPEN}" class="status_open" {if $draft->params.status_id==Model_Ticket::STATUS_OPEN}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$popup_uniqid}','none');"> {'status.open'|devblocks_translate}</label>
-		<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+W)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_WAITING}" class="status_waiting" {if $draft->params.status_id==Model_Ticket::STATUS_WAITING}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$popup_uniqid}','block');"> {'status.waiting'|devblocks_translate}</label>
-		{if $active_worker->hasPriv('core.ticket.actions.close')}<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+C)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_CLOSED}" class="status_closed" {if $draft->params.status_id==Model_Ticket::STATUS_CLOSED}checked="checked"{/if} onclick="toggleDiv('divComposeClosed{$popup_uniqid}','block');"> {'status.closed'|devblocks_translate}</label>{/if}
+		<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+O)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_OPEN}" class="status_open" {if $draft->params.status_id==Model_Ticket::STATUS_OPEN}checked="checked"{/if}> {'status.open'|devblocks_translate}</label>
+		<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+W)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_WAITING}" class="status_waiting" {if $draft->params.status_id==Model_Ticket::STATUS_WAITING}checked="checked"{/if}> {'status.waiting'|devblocks_translate}</label>
+		{if $active_worker->hasPriv('core.ticket.actions.close')}<label {if $pref_keyboard_shortcuts}title="(Ctrl+Shift+C)"{/if}><input type="radio" name="status_id" value="{Model_Ticket::STATUS_CLOSED}" class="status_closed" {if $draft->params.status_id==Model_Ticket::STATUS_CLOSED}checked="checked"{/if}> {'status.closed'|devblocks_translate}</label>{/if}
 
 		<div id="divComposeClosed{$popup_uniqid}" style="display:{if $draft->params.status_id==Model_Ticket::STATUS_OPEN}none{else}block{/if};margin:5px 0px 10px 20px;">
 			<b>{'display.reply.next.resume'|devblocks_translate}</b><br>
@@ -258,6 +258,24 @@ $(function() {
 
 	Devblocks.formDisableSubmit($frm);
 
+	$frm.find('[data-cerb-link=remove_suggested]').on('click', function(e) {
+		e.stopPropagation();
+		$(this).closest('div').hide();
+	});
+
+	$frm.find('[data-cerb-link=remove_file]').on('click', Devblocks.onClickRemoveParent);
+
+	$frm.find('input[name=status_id]').on('click', function(e) {
+		e.stopPropagation();
+		let val = $(this).val();
+
+		if('0' === val) {
+			toggleDiv('divComposeClosed{$popup_uniqid}','none');
+		} else {
+			toggleDiv('divComposeClosed{$popup_uniqid}','block');
+		}
+	});
+
 	function enableAutoSaveDraft() {
 		if(null == draftComposeAutoSaveInterval) {
 			draftComposeAutoSaveInterval = setInterval(function () {
@@ -273,7 +291,7 @@ $(function() {
 		}
 	}
 	
-	$popup.one('popup_open',function(event,ui) {
+	$popup.one('popup_open',function() {
 		var $frm = $('#frmComposePeek{$popup_uniqid}');
 		$popup.dialog('option','title','{'mail.send_mail'|devblocks_translate|capitalize|escape:'javascript' nofilter}');
 		
