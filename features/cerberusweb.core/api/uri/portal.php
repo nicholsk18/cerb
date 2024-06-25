@@ -25,6 +25,11 @@ class Controller_Portal extends DevblocksControllerExtension {
 	function handleRequest(DevblocksHttpRequest $request) {
 		$stack = $request->path;
 		
+		DevblocksPlatform::services()->http()->setHeader(
+			'Content-Security-Policy',
+			"default-src 'self'; img-src 'self'; script-src 'self'; style-src 'self'; object-src 'none';"
+		);
+		
 		$tpl = DevblocksPlatform::services()->template();
 		$url_writer = DevblocksPlatform::services()->url();
 		

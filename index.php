@@ -79,6 +79,9 @@ if(DevblocksPlatform::isStateless()) {
 	DevblocksPlatform::services()->session();
 }
 
+// CSP
+DevblocksPlatform::services()->http()->setHeader('Content-Security-Policy', CerberusApplication::getCspPolicy());
+
 // Do we need an update first?
 if(!DevblocksPlatform::versionConsistencyCheck()) {
 	if(0 != strcasecmp($request->path[0] ?? '',"update")) {

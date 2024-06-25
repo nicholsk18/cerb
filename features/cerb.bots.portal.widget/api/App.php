@@ -29,6 +29,10 @@ class Portal_ConvoBotWidget extends Extension_CommunityPortal {
 	public function handleRequest(DevblocksHttpRequest $request) {
 		$config = $this->getConfig();
 		
+		DevblocksPlatform::services()->http()
+			->setHeader('Content-Security-Policy', '')
+		;
+		
 		if(isset($config[self::PARAM_CORS_ALLOW_ORIGIN])) {
 			$origin = $config[self::PARAM_CORS_ALLOW_ORIGIN] ?: '*';
 			

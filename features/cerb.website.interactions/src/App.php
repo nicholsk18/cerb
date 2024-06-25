@@ -113,6 +113,15 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 		
 		$portal = ChPortalHelper::getPortal();
 		$session = ChPortalHelper::getSession();
+		$portal_schema = $this->_getPortalSchema();
+		$csp = $portal_schema->getContentSecurityPolicy();
+		
+		$csp_header = sprintf("default-src 'self'; img-src 'self' %s; script-src 'nonce-%s'; object-src 'none';",
+			implode(' ', $csp['imageHosts'] ?? []),
+			$session->nonce
+		);
+		
+		DevblocksPlatform::services()->http()->setHeader('Content-Security-Policy', $csp_header);
 		
 		switch($stack) {
 			case 'interaction':
@@ -215,18 +224,8 @@ class Portal_WebsiteInteractions extends Extension_CommunityPortal {
 				
 			default:
 				$tpl = DevblocksPlatform::services()->templateSandbox();
-				$portal_schema = $this->_getPortalSchema();
 				
 				DevblocksPlatform::services()->http()->setHeader('Content-Type', 'text/html');
-				
-				$csp = $portal_schema->getContentSecurityPolicy();
-				
-				$csp_header = sprintf("default-src 'self'; img-src 'self' %s; script-src 'nonce-%s'; object-src 'none';",
-					implode(' ', $csp['imageHosts'] ?? []),
-					$session->nonce
-				);
-				
-				DevblocksPlatform::services()->http()->setHeader('Content-Security-Policy', $csp_header);
 				
 				if(null != ($interaction = $stack)) {
 					$interaction_params = DevblocksPlatform::services()->url()->arrayToQueryString($_GET ?? []);

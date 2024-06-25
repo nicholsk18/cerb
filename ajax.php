@@ -67,6 +67,9 @@ if(DevblocksPlatform::isStateless()) {
 	$tpl->assign('visit', $session->getVisit());
 }
 
+// CSP
+DevblocksPlatform::services()->http()->setHeader('Content-Security-Policy', CerberusApplication::getCspPolicy());
+
 $settings = DevblocksPlatform::services()->pluginSettings();
 $worker = CerberusApplication::getActiveWorker();
 

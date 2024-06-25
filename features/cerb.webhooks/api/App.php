@@ -199,6 +199,8 @@ class Portal_Webhook extends Extension_CommunityPortal {
 		$automations_kata = $config[self::PARAM_WEBHOOK_AUTOMATIONS_KATA] ?? '';
 		$error = null;
 		
+		DevblocksPlatform::services()->http()->setHeader('Content-Security-Policy', '');
+		
 		$controller = DevblocksPlatform::getExtension('webhooks.controller', true);
 		
 		/** @var $controller Controller_Webhooks */

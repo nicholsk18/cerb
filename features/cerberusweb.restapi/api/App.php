@@ -308,6 +308,8 @@ class Ch_RestFrontController implements DevblocksHttpRequestHandler {
 		$verb = $_SERVER['REQUEST_METHOD'] ?? null;
 		$error = null;
 		
+		DevblocksPlatform::services()->http()->setHeader('Content-Security-Policy', '');
+		
 		@$this->_payload = DevblocksPlatform::getHttpBody();
 		
 		if(!($worker = $this->_getAuthorizedWorker($request, $error))) {

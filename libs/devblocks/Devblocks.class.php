@@ -2421,7 +2421,7 @@ class DevblocksPlatform extends DevblocksEngine {
 		if(is_array($_SESSION ?? null) && array_key_exists('nonce', $_SESSION))
 			return $_SESSION['nonce'];
 		
-		return '';
+		return base64_encode(random_bytes(24));
 	}
 	
 	public static function getStartTime() {
