@@ -1626,6 +1626,7 @@ class DevblocksPlatform extends DevblocksEngine {
 			// Allow Cerb data-* markup
 			$def->info_global_attr['data-autocomplete'] = new HTMLPurifier_AttrDef_Integer();
 			$def->info_global_attr['data-behavior-id'] = new HTMLPurifier_AttrDef_Integer();
+			$def->info_global_attr['data-cerb-external-link'] = new HTMLPurifier_AttrDef_Text();
 			$def->info_global_attr['data-context'] = new HTMLPurifier_AttrDef_Text();
 			$def->info_global_attr['data-context-id'] = new HTMLPurifier_AttrDef_Integer();
 			$def->info_global_attr['data-interaction'] = new HTMLPurifier_AttrDef_Text();
@@ -1679,15 +1680,45 @@ class DevblocksPlatform extends DevblocksEngine {
 		
 		$config = self::purifyHTMLOptions($inline_css, $is_untrusted, $unstyled);
 		
+		$with_onclick = true;
+		
 		if($filters) {
 			foreach ($filters as $filter) {
 				$config->getURIDefinition()->addFilter($filter, $config);
+				
+				// If sanitizing links, add the `data-cerb-external-link` attrib using a pre-filter
+				if($filter instanceof Cerb_HTMLPurifier_URIFilter_Email) {
+					$config->getHTMLDefinition()->info['a']->attr_transform_pre[] = new Cerb_HTMLPurifier_AttrTransform_ExternalLink();
+					$with_onclick = $filter->hasOnClick();
+				}
 			}
 		}
 		
 		$purifier = new HTMLPurifier($config);
 		
-		return $purifier->purify($dirty_html);
+		$html = $purifier->purify($dirty_html);
+		
+		// Add a script block if we have protected URLs
+		if($with_onclick && str_contains($html, '#cerb-external-link')) {
+			$script_uid = uniqid('script');
+			$html = sprintf(
+				'<div style="display:inline-block;">%s</div>'.
+				'<script nonce="%s" id="%s" type="text/javascript">{'.
+				'$("#%s").prev("div").find("a[href=\"#cerb-external-link\"]").each(function(){let $link=$(this);'.
+				'if($link.text() === $link.attr("data-cerb-external-link")){'.
+				'$link.attr("href", $link.attr("data-cerb-external-link")).attr("target","_blank");'.
+				'}else{'.
+				'$link.attr("href",null).on("click", Devblocks.onClickExternalLink);'.
+				'}});'.
+				'}</script>',
+				$html,
+				DevblocksPlatform::strEscapeHtml(DevblocksPlatform::getRequestNonce()),
+				DevblocksPlatform::strEscapeHtml($script_uid),
+				DevblocksPlatform::strEscapeHtml($script_uid),
+			);
+		}
+		
+		return $html;
 	}
 	
 	/**

@@ -836,16 +836,16 @@ class DevblocksPlatformTest extends TestCase {
 		$this->assertEquals($expected, $actual);
 		
 		// Test proxy redirect links
-		$filter = new Cerb_HTMLPurifier_URIFilter_Email(false);
+		$filter = new Cerb_HTMLPurifier_URIFilter_Email(allow_images: false, with_onclick: false);
 		$dirty_html = '<a href="https://example.com">Example</a>';
-		$expected = '<a href="javascript:void(genericAjaxPopup(\'externalLink\',\'c=security&amp;a=renderLinkPopup&amp;url=' . rawurlencode(rawurlencode('https://example.com/')) . '\',null,true));">Example</a>';
+		$expected = '<a href="#cerb-external-link" data-cerb-external-link="https://example.com">Example</a>';
 		$actual = DevblocksPlatform::purifyHTML($dirty_html, false, true, [$filter]);
 		$this->assertEquals($expected, $actual);
 		
 		// Test filter out bad links
 		$filter = new Cerb_HTMLPurifier_URIFilter_Email(false);
 		$dirty_html = '<a href="/relative/path">Example</a>';
-		$expected = '<a>Example</a>';
+		$expected = '<a data-cerb-external-link="/relative/path">Example</a>';
 		$actual = DevblocksPlatform::purifyHTML($dirty_html, false, true, [$filter]);
 		$this->assertEquals($expected, $actual);
 	}

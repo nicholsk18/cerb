@@ -330,9 +330,15 @@ class Cerb_HTMLPurifier_URIFilter_Email extends HTMLPurifier_URIFilter {
 	];
 	
 	protected $allowImages = false;
+	protected $withOnClick = true;
 	
-	public function __construct($allow_images=false) {
+	public function __construct($allow_images=false, $with_onclick=true) {
 		$this->allowImages = $allow_images;
+		$this->withOnClick = $with_onclick;
+	}
+	
+	public function hasOnClick() : bool {
+		return $this->withOnClick;
 	}
 	
 	/**
@@ -524,11 +530,7 @@ class Cerb_HTMLPurifier_URIFilter_Email extends HTMLPurifier_URIFilter {
 			
 			$this->_logRedirectedLink($uri);
 			
-			$new_uri = sprintf("javascript:void(genericAjaxPopup('externalLink','c=security&a=renderLinkPopup&url=%s',null,true));",
-				rawurlencode(rawurlencode($uri->toString()))
-			);
-			
-			$new_uri = $this->parser->parse($new_uri);
+			$new_uri = $this->parser->parse('#cerb-external-link');
 			
 			$uri = $new_uri;
 		}
@@ -680,5 +682,17 @@ class Cerb_HTMLPurifier_URIFilter_Extract extends HTMLPurifier_URIFilter {
 		$uri = $new_uri;
 		
 		return true;
+	}
+}
+
+class Cerb_HTMLPurifier_AttrTransform_ExternalLink extends HTMLPurifier_AttrTransform {
+	public function transform($attr, $config, $context) {
+		$current_token = $context->get('CurrentToken', true);
+		
+		if('a' == $current_token->name && array_key_exists('href', $current_token->attr)) {
+			$attr['data-cerb-external-link'] = $current_token->attr['href'] ?? '';
+		}
+		
+		return $attr;
 	}
 }

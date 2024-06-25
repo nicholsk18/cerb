@@ -67,6 +67,13 @@ function DevblocksClass() {
 		$(this).parent().remove();
 	}
 
+	this.onClickExternalLink = function(e) {
+		e.stopPropagation();
+		let link = $(this).attr('data-cerb-external-link');
+		genericAjaxPopup('externalLink','c=security&a=renderLinkPopup&url=' + encodeURIComponent(link),null,true);
+		return false;
+	}
+
 	this.getFormEnabledCheckboxValues = function(form_id,element_name) {
 		return $("#" + form_id + " INPUT[name='" + element_name + "']:checked")
 		.map(function() {
