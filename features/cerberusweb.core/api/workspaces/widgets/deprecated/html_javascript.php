@@ -82,6 +82,9 @@ class WorkspaceWidget_CustomHTML extends Extension_WorkspaceWidget {
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_WORKER, $active_worker, $worker_labels, $worker_values, null, true, true);
 		CerberusContexts::merge('current_worker_', null, $worker_labels, $worker_values, $labels, $values);
 		
+		$labels['current_worker_nonce'] = 'Current worker nonce';
+		$values['current_worker_nonce'] = DevblocksPlatform::getRequestNonce();
+		
 		$dict = new DevblocksDictionaryDelegate($values);
 		
 		$html = $tpl_builder->build($content, $dict);
