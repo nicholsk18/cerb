@@ -149,11 +149,13 @@ class CerberusApplication extends DevblocksApplication {
 	}
 	
 	static function getCspPolicy() : string {
-		return sprintf("default-src 'self' %s; img-src 'self' data: blob: %s; script-src 'self' 'unsafe-inline' %s; frame-src 'self' %s; style-src 'self' 'unsafe-inline' %s; media-src 'self' blob: %s; object-src %s;",
+		return sprintf("default-src 'self' %s; img-src 'self' data: blob: %s; script-src 'self' %s %s; frame-src 'self' %s; style-src 'self' %s %s; media-src 'self' blob: %s; object-src %s;",
 			APP_SECURITY_CSP_DEFAULT_SRC,
 			APP_SECURITY_CSP_IMG_SRC,
+			sprintf("'nonce-%s'", DevblocksPlatform::getRequestNonce()), // script-src
 			APP_SECURITY_CSP_SCRIPT_SRC,
 			APP_SECURITY_CSP_FRAME_SRC,
+			"'unsafe-inline'", // style-src
 			APP_SECURITY_CSP_STYLE_SRC,
 			APP_SECURITY_CSP_MEDIA_SRC,
 			APP_SECURITY_CSP_OBJECT_SRC ?: "'none'"
