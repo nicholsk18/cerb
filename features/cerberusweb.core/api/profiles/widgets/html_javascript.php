@@ -1,4 +1,7 @@
 <?php
+/**
+ * @deprecated
+ */
 class ProfileWidget_CustomHtml extends Extension_ProfileWidget {
 	const ID = 'cerb.profile.tab.widget.html';
 

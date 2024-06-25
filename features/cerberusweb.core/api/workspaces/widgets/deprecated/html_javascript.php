@@ -1,4 +1,7 @@
 <?php
+/**
+ * @deprecated
+ */
 class WorkspaceWidget_CustomHTML extends Extension_WorkspaceWidget {
 	public function invoke(string $action, Model_WorkspaceWidget $model) {
 		$active_worker = CerberusApplication::getActiveWorker();

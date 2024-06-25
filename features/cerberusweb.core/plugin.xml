@@ -8380,7 +8380,7 @@
 		
 		<extension point="cerb.profile.tab.widget">
 			<id>cerb.profile.tab.widget.html</id>
-			<name>HTML/Javascript</name>
+			<name>(Deprecated) HTML/Javascript</name>
 			<class>
 				<file>api/profiles/widgets/html_javascript.php</file>
 				<name>ProfileWidget_CustomHtml</name>
