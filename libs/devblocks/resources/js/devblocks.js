@@ -262,6 +262,22 @@ function DevblocksClass() {
 		if(typeof timeTrackingTimer !== 'undefined' && eventData.return.hasOwnProperty('timer')) {
 			timeTrackingTimer.play(eventData.return['timer']);
 		}
+		
+		// Impersonate (admin only)
+		if(eventData.return.hasOwnProperty('impersonate')) {
+			let formData = new FormData();
+			formData.set('c', 'profiles');
+			formData.set('a', 'invoke');
+			formData.set('module', 'worker');
+			formData.set('action', 'su');
+			formData.set('worker_id', eventData.return['impersonate']);
+			
+			let onSuccess = function() {
+				document.location.reload();
+			};
+			
+			genericAjaxPost(formData,null,null, onSuccess);
+		}
 	}
 	
 	this.toolbarAfterActions = function(done_params, options) {

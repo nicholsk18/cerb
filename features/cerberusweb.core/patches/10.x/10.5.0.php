@@ -87,6 +87,38 @@ if(array_key_exists('toolbar_kata', $columns)) {
 }
 
 // ===========================================================================
+// Add new toolbars
+
+if(!$db->GetOneMaster("SELECT 1 FROM toolbar_section WHERE name = 'Impersonate' and toolbar_name = 'record.card'")) {
+	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO toolbar_section (name, toolbar_name, priority, toolbar_kata, created_at, updated_at) VALUES (%s,%s,%s,%s,%d,%d)',
+		$db->qstr('Impersonate'),
+		$db->qstr('record.card'),
+		255,
+		$db->qstr("interaction/impersonate:\n  label: Impersonate\n  icon: user\n  uri: cerb:automation:cerb.interaction.echo\n  hidden@bool:\n    {{\n      not worker_is_superuser \n      or record__type is not record type ('worker') \n      or record_is_superuser\n      or record_id == worker_id\n    }}\n  inputs:\n    outputs:\n      impersonate@int: {{record_id}}\n  after:\n    refresh_toolbar@bool: no\n    refresh_widgets@bool: no"),
+		time(),
+		time()
+	));
+}
+
+if(!$db->GetOneMaster("SELECT 1 FROM toolbar_section WHERE name = 'Impersonate' and toolbar_name = 'record.profile'")) {
+	$db->ExecuteMaster(sprintf('INSERT IGNORE INTO toolbar_section (name, toolbar_name, priority, toolbar_kata, created_at, updated_at) VALUES (%s,%s,%s,%s,%d,%d)',
+		$db->qstr('Impersonate'),
+		$db->qstr('record.profile'),
+		255,
+		$db->qstr("interaction/impersonate:\n  label: Impersonate\n  uri: cerb:automation:cerb.interaction.echo\n  icon: user\n  hidden@bool:\n    {{\n      not worker_is_superuser \n      or record__type is not record type ('worker') \n      or record_is_superuser\n      or record_id == worker_id\n    }}\n  inputs:\n    outputs:\n      impersonate@int: {{record_id}}\n  after:\n    refresh_toolbar@bool: no\n    refresh_widgets@bool: no"),
+		time(),
+		time()
+	));
+}
+
+// ===========================================================================
+// Remove the legacy 'Impersonate' worker profile widget
+
+if(($widget_id = $db->GetOneMaster("SELECT id FROM profile_widget WHERE name = 'Actions' AND extension_id = 'cerb.profile.tab.widget.html' AND profile_tab_id IN (SELECT id FROM profile_tab WHERE context = 'cerberusweb.contexts.worker')"))) {
+	$db->ExecuteMaster(sprintf("DELETE FROM profile_widget WHERE id = %d", $widget_id));
+}
+
+// ===========================================================================
 // Update built-in automations
 
 $automation_files = [
