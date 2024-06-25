@@ -1,5 +1,2 @@
-This engine stores content in a disk-based filesystem.<br>
+This engine stores content in the local filesystem.
 <br>
-
-<b>Path:</b><br>
-<input type="text" name="path" size="64" value="{$profile->params.storage_path}"><br>

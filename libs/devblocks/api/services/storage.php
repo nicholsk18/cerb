@@ -35,23 +35,15 @@ class _DevblocksStorageManager {
 class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 	const ID = 'devblocks.storage.engine.disk';
 	
-	public function setOptions($options=array()) {
+	public function setOptions($options=[]) {
 		parent::setOptions($options);
-		
-		// Default
-		if(!isset($this->_options['storage_path']))
-			$this->_options['storage_path'] = APP_STORAGE_PATH . '/';
-		
 		return true;
 	}
 	
 	function testConfig(Model_DevblocksStorageProfile $profile) {
-		$path = DevblocksPlatform::importGPC($_POST['path'] ?? null, 'string','');
-		
-		if(empty($path))
-			$path = APP_STORAGE_PATH . '/';
-			
-		if(!is_dir($path) || !is_writeable($path))
+		$storage_path = APP_STORAGE_PATH . '/';
+
+		if(!is_dir($storage_path) || !is_writeable($storage_path))
 			return false;
 			
 		return true;
@@ -66,28 +58,14 @@ class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 	}
 	
 	function saveConfig(Model_DevblocksStorageProfile $profile) {
-		$path = DevblocksPlatform::importGPC($_POST['path'] ?? null, 'string','');
-		
-		if(!is_dir($path) || !is_writeable($path))
-			return;
-		
-		// Format path
-		$path = rtrim($path,'\/') . '/';
-			
-		$fields = array(
-			DAO_DevblocksStorageProfile::PARAMS_JSON => json_encode(array(
-				'storage_path' => $path,
-			)),
-		);
-		
-		DAO_DevblocksStorageProfile::update($profile->id, $fields);
 	}
 	
 	public function exists($namespace, $key) {
-		$basepath = realpath($this->_options['storage_path']) . DIRECTORY_SEPARATOR;
-		$filepath = $this->_options['storage_path'] . $this->escapeNamespace($namespace) . '/' . $key;
+		$storage_path = APP_STORAGE_PATH . '/';
+		$basepath = realpath($storage_path) . DIRECTORY_SEPARATOR;
+		$filepath = $storage_path . $this->escapeNamespace($namespace) . '/' . $key;
 		
-		if(false == ($filepath = realpath($filepath)))
+		if(!($filepath = realpath($filepath)))
 			return false;
 		
 		if(!DevblocksPlatform::strStartsWith($filepath, $basepath))
@@ -97,7 +75,8 @@ class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 	}
 	
 	public function put($namespace, $id, $data) {
-		$basepath = realpath($this->_options['storage_path']) . DIRECTORY_SEPARATOR;
+		$storage_path = APP_STORAGE_PATH . '/';
+		$basepath = realpath($storage_path) . DIRECTORY_SEPARATOR;
 		
 		// Get a unique hash path for this namespace+id
 		$hash = base_convert(sha1($this->escapeNamespace($namespace).$id),16,32);
@@ -107,7 +86,7 @@ class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 		);
 		
 		$path = sprintf("%s%s/%s",
-			$this->_options['storage_path'],
+			$storage_path,
 			$this->escapeNamespace($namespace),
 			$key_prefix
 		);
@@ -151,10 +130,11 @@ class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 	}
 
 	public function get($namespace, $key, &$fp=null) {
-		$basepath = realpath($this->_options['storage_path']) . DIRECTORY_SEPARATOR;
+		$storage_path = APP_STORAGE_PATH . '/';
+		$basepath = realpath($storage_path) . DIRECTORY_SEPARATOR;
 		
 		$path = sprintf("%s%s/%s",
-			$this->_options['storage_path'],
+			$storage_path,
 			$this->escapeNamespace($namespace),
 			$key
 		);
@@ -195,8 +175,9 @@ class DevblocksStorageEngineDisk extends Extension_DevblocksStorageEngine {
 	}
 	
 	public function delete($namespace, $key) {
+		$storage_path = APP_STORAGE_PATH . '/';
 		$path = sprintf("%s%s/%s",
-			$this->_options['storage_path'],
+			$storage_path,
 			$this->escapeNamespace($namespace),
 			$key
 		);
