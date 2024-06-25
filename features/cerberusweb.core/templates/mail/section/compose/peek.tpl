@@ -1186,26 +1186,30 @@ $(function() {
 
 			window.onbeforeunload = null;
 
-			if(confirm('Are you sure you want to discard this message?')) {
-				disableAutoSaveDraft();
+			confirmPopup(
+				'Discard draft',
+				'Are you sure you want to permanently delete this message?',
+				function() {
+					disableAutoSaveDraft();
 
-				var draft_id = $frm.find('input:hidden[name=draft_id]').val();
+					var draft_id = $frm.find('input:hidden[name=draft_id]').val();
 
-				var formData = new FormData();
-				formData.set('c', 'profiles');
-				formData.set('a', 'invoke');
-				formData.set('module', 'draft');
-				formData.set('action', 'deleteDraft');
-				formData.set('draft_id', draft_id);
+					var formData = new FormData();
+					formData.set('c', 'profiles');
+					formData.set('a', 'invoke');
+					formData.set('module', 'draft');
+					formData.set('action', 'deleteDraft');
+					formData.set('draft_id', draft_id);
 
-				genericAjaxPost(formData, '', '', function(res) {
-					if(typeof res == 'object' && res.status && 200 !== res.status)
-						return;
+					genericAjaxPost(formData, '', '', function(res) {
+						if(typeof res == 'object' && res.status && 200 !== res.status)
+							return;
 
-					genericAjaxGet('view{$view_id}', 'c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
-					genericAjaxPopupClose($popup, $.Event('cerb-compose-discard'));
-				});
-			}
+						genericAjaxGet('view{$view_id}', 'c=internal&a=invoke&module=worklists&action=refresh&id={$view_id}');
+						genericAjaxPopupClose($popup, $.Event('cerb-compose-discard'));
+					});
+				}
+			);
 		});
 
 		{if $draft->params.org_name}

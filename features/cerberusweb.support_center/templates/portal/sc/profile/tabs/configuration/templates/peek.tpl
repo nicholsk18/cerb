@@ -42,13 +42,17 @@ $(function() {
 		});
 		
 		$popup.find('button.revert').click(function() {
-			if(confirm('Are you sure you want to revert this template to the default?')) { 
-				$frm.find('input[name=do_delete]').val('1');
-				
-				genericAjaxPost('formPortalTemplatePeek', 'view{$view_id}', '', function() {
-					genericAjaxPopupClose('peek');
-				});
-			}
+			confirmPopup(
+				'Revert template',
+				'Are you sure you want to revert this template to the default?',
+				function() {
+					$frm.find('input[name=do_delete]').val('1');
+
+					genericAjaxPost('formPortalTemplatePeek', 'view{$view_id}', '', function() {
+						genericAjaxPopupClose('peek');
+					});
+				}
+			);
 		});
 	});
 });

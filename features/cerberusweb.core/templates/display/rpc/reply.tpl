@@ -909,29 +909,33 @@ $(function() {
 			e.stopPropagation();
 
 			window.onbeforeunload = null;
-			
-			if(confirm('Are you sure you want to discard this reply?')) {
-				disableAutoSaveDraft();
-				
-				var draft_id = $frm.find('input:hidden[name=draft_id]').val();
 
-				var formData = new FormData();
-				formData.set('c', 'profiles');
-				formData.set('a', 'invoke');
-				formData.set('module', 'draft');
-				formData.set('action', 'deleteDraft');
-				formData.set('draft_id', draft_id);
+			confirmPopup(
+				'Discard draft',
+				'Are you sure you want to permanently delete this reply draft?',
+				function() {
+					disableAutoSaveDraft();
 
-				genericAjaxPost(formData, '', '', function(res) {
-					if(typeof res == 'object' && res.status && 200 !== res.status)
-						return;
+					var draft_id = $frm.find('input:hidden[name=draft_id]').val();
 
-					$reply.trigger('cerb-reply-discard');
-					
-					$('#draft'+encodeURIComponent(draft_id)).remove();
-					$reply.triggerHandler('cerb-reply--close');
-				});
-			}
+					var formData = new FormData();
+					formData.set('c', 'profiles');
+					formData.set('a', 'invoke');
+					formData.set('module', 'draft');
+					formData.set('action', 'deleteDraft');
+					formData.set('draft_id', draft_id);
+
+					genericAjaxPost(formData, '', '', function(res) {
+						if(typeof res == 'object' && res.status && 200 !== res.status)
+							return;
+
+						$reply.trigger('cerb-reply-discard');
+
+						$('#draft'+encodeURIComponent(draft_id)).remove();
+						$reply.triggerHandler('cerb-reply--close');
+					});
+				}
+			);
 		});
 		
 		$buttons.find('a.send').on('click', $.throttle(500, function(e) {
