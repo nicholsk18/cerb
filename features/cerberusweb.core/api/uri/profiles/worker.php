@@ -395,6 +395,10 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		if(null != ($switch_worker = DAO_Worker::get($worker_id))) {
+			// Deny impersonating other admins
+			if($switch_worker->is_superuser)
+				DevblocksPlatform::dieWithHttpError(null, 403);
+			
 			/*
 			 * Log activity (worker.impersonated)
 			 */
