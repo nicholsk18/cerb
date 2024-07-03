@@ -13,6 +13,7 @@
 	{include file="devblocks:cerberusweb.core::records/types/mail_routing_rule/rules.tpl"}
 </fieldset>
 
+{if !empty($rules)}
 <fieldset class="peek">
 	<legend>Legacy Rules: (Deprecated)</legend>
 
@@ -27,7 +28,6 @@
 		<button type="button" data-cerb-button-legacy-add><span class="glyphicons glyphicons-circle-plus"></span> {'common.add'|devblocks_translate|capitalize}</button>
 	</div>
 
-	{if !empty($rules)}
 	<table cellspacing="2" cellpadding="2" style="margin-bottom:10px;">
 		<tr>
 			<td align="center" style="padding-right:10px;"><b>{'common.order'|devblocks_translate|capitalize}</b></td>
@@ -105,9 +105,9 @@
 	</table>
 
 	<button type="submit"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-	{/if}
 	</form>
 </fieldset>
+{/if}
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
