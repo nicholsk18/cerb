@@ -956,6 +956,7 @@ class CerberusContexts {
 	const CONTEXT_MAIL_TRANSPORT = 'cerberusweb.contexts.mail.transport';
 	const CONTEXT_MAILBOX = 'cerberusweb.contexts.mailbox';
 	const CONTEXT_MAIL_HTML_TEMPLATE = 'cerberusweb.contexts.mail.html_template';
+	const CONTEXT_MAIL_ROUTING_RULE = 'cerb.contexts.mail.routing.rule';
 	const CONTEXT_MESSAGE = 'cerberusweb.contexts.message';
 	const CONTEXT_METRIC = 'cerb.contexts.metric';
 	const CONTEXT_NOTIFICATION= 'cerberusweb.contexts.notification';
@@ -3097,7 +3098,6 @@ class CerberusSettings {
 	const RELAY_DISABLE = 'relay_disable';
 	const RELAY_DISABLE_AUTH = 'relay_disable_auth';
 	const RELAY_SPOOF_FROM = 'relay_spoof_from';
-	const ROUTING_KATA = 'routing_kata';
 	const SESSION_LIFESPAN = 'session_lifespan';
 	const TIMEZONE = 'timezone';
 	const TIME_FORMAT = 'time_format';
@@ -3132,7 +3132,6 @@ class CerberusSettingsDefaults {
 	const RELAY_DISABLE = 0;
 	const RELAY_DISABLE_AUTH = 0;
 	const RELAY_SPOOF_FROM = 0;
-	const ROUTING_KATA = '';
 	const SESSION_LIFESPAN = 0;
 	const TIME_FORMAT = 'D, d M Y h:i a';
 	const TIMEZONE = '';

@@ -556,7 +556,15 @@
 			<class name="DAO_MailToGroupRule" />
 			<class name="Model_MailToGroupRule" />
 		</file>
-		
+
+		<file path="api/dao/mail_routing_rule.php">
+			<class name="Context_MailRoutingRule" />
+			<class name="DAO_MailRoutingRule" />
+			<class name="Model_MailRoutingRule" />
+			<class name="SearchFields_MailRoutingRule" />
+			<class name="View_MailRoutingRule" />
+		</file>
+
 		<file path="api/dao/mail_transport.php">
 			<class name="Context_MailTransport" />
 			<class name="DAO_MailTransport" />
@@ -3004,7 +3012,47 @@
 				</param>
 			</params>
 		</extension>
-		
+
+		<extension point="devblocks.context">
+			<id>cerb.contexts.mail.routing.rule</id>
+			<name>Mail Routing Rule</name>
+			<class>
+				<file>api/dao/mail_routing_rule.php</file>
+				<name>Context_MailRoutingRule</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="email routing rule" value="singular" />
+						<data key="email routing rules" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="mail_routing_rule" />
+				<param key="dao_class" value="DAO_MailRoutingRule" />
+				<param key="view_class" value="View_MailRoutingRule" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="comments" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="search" />
+						<data key="va_variable" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="update" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
 		<extension point="devblocks.context">
 			<id>cerberusweb.contexts.mail.transport</id>
 			<name>Email Transport</name>
@@ -7859,7 +7907,20 @@
 					<param key="uri" value="mailbox" />
 				</params>
 			</extension>
-			
+
+			<extension point="cerberusweb.ui.page.section">
+				<id>cerb.page.profiles.mail_routing_rule</id>
+				<name>Mail Routing Rule Section</name>
+				<class>
+					<file>api/uri/profiles/mail_routing_rule.php</file>
+					<name>PageSection_ProfilesMailRoutingRule</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="mail_routing_rule" />
+				</params>
+			</extension>
+
 			<extension point="cerberusweb.ui.page.section">
 				<id>core.page.profiles.mail_transport</id>
 				<name>Mail Transport Section</name>

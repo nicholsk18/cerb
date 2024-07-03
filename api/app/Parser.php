@@ -1873,11 +1873,12 @@ class CerberusParser {
 	}
 	
 	static private function _parseMessageRoutingKata(CerberusParserModel $model) : bool {
-		$settings = DevblocksPlatform::services()->pluginSettings();
 		$kata = DevblocksPlatform::services()->kata();
 		$mail = DevblocksPlatform::services()->mail();
 		
-		$routing_kata = $settings->get('cerberusweb.core', CerberusSettings::ROUTING_KATA, CerberusSettingsDefaults::ROUTING_KATA);
+		$error = null;
+		
+		$routing_kata = DAO_MailRoutingRule::getMergedKata() ?? '';
 		
 		$routing_dict = DevblocksDictionaryDelegate::instance([
 			'subject' => $model->getSubject(),
@@ -1889,21 +1890,36 @@ class CerberusParser {
 		
 		$routing_dict->mergeKeys('sender_', DevblocksDictionaryDelegate::getDictionaryFromModel($model->getSenderAddressModel(), CerberusContexts::CONTEXT_ADDRESS));
 		
-		$routing = $kata->parse($routing_kata);
-		$routing = $kata->formatTree($routing, $routing_dict);
+		if(false === ($routing = $kata->parse($routing_kata, $error))) {
+			$routing = [];
+			DevblocksPlatform::logError('[Parser/Group Routing] ' . $error);
+		}
 		
-		if(($route_actions = $mail->runRoutingKata($routing, $routing_dict))) {
+		if(false === ($routing = $kata->formatTree($routing, $routing_dict, $error))) {
+			$routing = [];
+			DevblocksPlatform::logError('[Parser/Group Routing] ' . $error);
+		}
+		
+		if($routing && ($route_actions = $mail->runRoutingKata($routing, $routing_dict))) {
 			$mail->runRoutingKataActions($route_actions, $model);
 		}
 		
 		// If we sent something to a group inbox, also run its routing rules
 		if($model->getRouteGroup() && ($model->getRouteBucket()->is_default ?? false)) {
 			$bucket_routing_kata = $model->getRouteGroup()->routing_kata ?? '';
+			$error = null;
 			
-			$bucket_routing = $kata->parse($bucket_routing_kata);
-			$bucket_routing = $kata->formatTree($bucket_routing, $routing_dict);
+			if(false === ($bucket_routing = $kata->parse($bucket_routing_kata, $error))) {
+				$bucket_routing = [];
+				DevblocksPlatform::logError('[Parser/Bucket Routing] ' . $error);
+			}
 			
-			if(($bucket_route_actions = $mail->runRoutingKata($bucket_routing, $routing_dict))) {
+			if(false === ($bucket_routing = $kata->formatTree($bucket_routing, $routing_dict, $error))) {
+				$bucket_routing = [];
+				DevblocksPlatform::logError('[Parser/Bucket Routing] ' . $error);
+			}
+			
+			if($bucket_routing && ($bucket_route_actions = $mail->runRoutingKata($bucket_routing, $routing_dict))) {
 				$mail->runRoutingKataActions($bucket_route_actions, $model);
 			}
 		}

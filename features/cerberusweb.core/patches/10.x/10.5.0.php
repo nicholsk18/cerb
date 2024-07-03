@@ -112,6 +112,44 @@ if(!$db->GetOneMaster("SELECT 1 FROM toolbar_section WHERE name = 'Impersonate' 
 }
 
 // ===========================================================================
+// Mail Routing Rule
+
+if(!isset($tables['mail_routing_rule'])) {
+	$sql = sprintf("
+		CREATE TABLE `mail_routing_rule` (
+		`id` int unsigned NOT NULL AUTO_INCREMENT,
+		`name` varchar(255) NOT NULL DEFAULT '',
+		`is_disabled` tinyint unsigned NOT NULL DEFAULT 0,
+		`priority` tinyint unsigned NOT NULL DEFAULT 50,
+		`created_at` int unsigned NOT NULL DEFAULT 0,
+		`updated_at` int unsigned NOT NULL DEFAULT 0,
+		`routing_kata` mediumtext,
+		`workflow_id` int unsigned NOT NULL DEFAULT 0,
+		PRIMARY KEY (id),
+		INDEX (updated_at)
+		) ENGINE=%s
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	$tables['mail_routing_rule'] = 'mail_routing_rule';
+}
+
+// ===========================================================================
+// If 10.5 beta rules, migrate format
+
+if($routing_kata = $db->GetOneMaster("SELECT value FROM devblocks_setting WHERE plugin_id = 'cerberusweb.core' and setting = 'routing_kata'")) {
+	$db->ExecuteMaster(sprintf("INSERT INTO mail_routing_rule (name, priority, created_at, updated_at, routing_kata) VALUES(%s,%d,%d,%d,%s)",
+		$db->qstr('Default'),
+		0,
+		time(),
+		time(),
+		$db->qstr($routing_kata)
+	));
+	
+	$db->ExecuteMaster("DELETE FROM devblocks_setting WHERE plugin_id = 'cerberusweb.core' AND setting = 'routing_kata'");
+}
+
+// ===========================================================================
 // Remove the legacy 'Impersonate' worker profile widget
 
 if(($widget_id = $db->GetOneMaster("SELECT id FROM profile_widget WHERE name = 'Actions' AND extension_id = 'cerb.profile.tab.widget.html' AND profile_tab_id IN (SELECT id FROM profile_tab WHERE context = 'cerberusweb.contexts.worker')"))) {
