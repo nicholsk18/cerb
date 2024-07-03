@@ -159,7 +159,7 @@ class _DevblocksKataService {
 							return false;
 						}
 						
-						if(array_intersect($field_attributes, ['base64', 'bit', 'bool', 'csv', 'date', 'float', 'int', 'json', 'list', 'raw', 'text', 'trim'])) {
+						if(array_intersect($field_attributes, $this->_valid_annotations)) {
 							$state = 'text_block';
 							
 							$text_block = '';
@@ -167,6 +167,32 @@ class _DevblocksKataService {
 							
 							while(false !== next($lines)) {
 								$text_line = current($lines);
+								
+								// If we encounter a blank line in a text block, give it the indent of the next non-blank line
+								if(0 == strlen($text_line)) {
+									$next_count = 0;
+									$next_line = '';
+									
+									// How many blank lines do we have in a row?
+									while(0 == strlen($next_line)) {
+										$next_line = next($lines);
+										
+										if(false === $next_line) {
+											$next_line = prev($lines);
+											break;
+										} else {
+											$next_count++;
+										}
+									}
+									
+									$text_line = str_repeat(' ', strlen($next_line)-strlen(ltrim($next_line, ' ')));
+									
+									// Rewrite multiple blank lines
+									for($x = 0; $x < $next_count; $x++) {
+										prev($lines);
+										$lines[key($lines)] = $text_line;
+									}
+								}
 								
 								$trimmed_text = ltrim($text_line, ' ');
 								

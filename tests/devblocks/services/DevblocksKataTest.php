@@ -92,6 +92,76 @@ EOD;
 		$expected = '{{name}} is {{age}}';
 		
 		$this->assertEquals($expected, $actual['object']['template']);
+		
+		// `@raw` block with blank lines
+		
+		$kata_string = <<< EOD
+object:
+  template@raw:
+    start:
+
+      return:
+EOD;
+		
+		$error = null;
+		
+		$kata = DevblocksPlatform::services()->kata()->parse($kata_string, $error);
+		$actual = DevblocksPlatform::services()->kata()->formatTree($kata, $error);
+		
+		$expected = <<< EOD
+start:
+  
+  return:
+EOD;
+		
+		$this->assertEquals($expected, $actual['object']['template']);
+		
+		// `@raw` block with multiple blank lines
+		
+		$kata_string = <<< EOD
+object:
+  template@raw:
+    start:
+
+
+      return:
+EOD;
+		
+		$error = null;
+		
+		$kata = DevblocksPlatform::services()->kata()->parse($kata_string, $error);
+		$actual = DevblocksPlatform::services()->kata()->formatTree($kata, $error);
+		
+		$expected = <<< EOD
+start:
+  
+  
+  return:
+EOD;
+		
+		$this->assertEquals($expected, $actual['object']['template']);
+		
+		// `@raw` block with trailing blank line (regression will infinite loop)
+		
+		$kata_string = <<< EOD
+object:
+  template@raw:
+    start:
+      return:
+
+EOD;
+		
+		$error = null;
+		
+		$kata = DevblocksPlatform::services()->kata()->parse($kata_string, $error);
+		$actual = DevblocksPlatform::services()->kata()->formatTree($kata, $error);
+		
+		$expected = <<< EOD
+start:
+  return:
+EOD;
+		
+		$this->assertEquals($expected, $actual['object']['template']);
 	}
 	
 	function testKataComments() {
