@@ -538,7 +538,7 @@ switch($step) {
 
 	// Initialize the database
 	case STEP_INIT_DB:
-		if(false == ($db = DevblocksPlatform::services()->database()) || !$db || !method_exists($db, 'metaTables')) {
+		if(!($db = DevblocksPlatform::services()->database()) || !$db || !method_exists($db, 'metaTables')) {
 			$tpl->assign('error', "Can't connect to the database.");
 			$tpl->assign('template', 'steps/step_init_db.tpl');
 			break;
