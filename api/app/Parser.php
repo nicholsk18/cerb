@@ -1898,7 +1898,7 @@ class CerberusParser {
 		
 		// If we sent something to a group inbox, also run its routing rules
 		if($model->getRouteGroup() && ($model->getRouteBucket()->is_default ?? false)) {
-			$bucket_routing_kata = $model->getRouteBucket()->routing_kata ?? '';
+			$bucket_routing_kata = $model->getRouteGroup()->routing_kata ?? '';
 			
 			$bucket_routing = $kata->parse($bucket_routing_kata);
 			$bucket_routing = $kata->formatTree($bucket_routing, $routing_dict);

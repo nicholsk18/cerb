@@ -104,7 +104,8 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 				$reply_personal = DevblocksPlatform::importGPC($_POST['reply_personal'] ?? null, 'string','');
 				$reply_signature_id = DevblocksPlatform::importGPC($_POST['reply_signature_id'] ?? null, 'integer',0);
 				$reply_signing_key_id = DevblocksPlatform::importGPC($_POST['reply_signing_key_id'] ?? null, 'integer',0);
-			
+				$routing_kata = DevblocksPlatform::importGPC($_POST['routing_kata'] ?? null, 'string','');
+
 				$profile_image_changed = false;
 	
 				$fields = [
@@ -115,6 +116,7 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 					DAO_Group::REPLY_PERSONAL => $reply_personal,
 					DAO_Group::REPLY_SIGNATURE_ID => $reply_signature_id,
 					DAO_Group::REPLY_SIGNING_KEY_ID => $reply_signing_key_id,
+					DAO_Group::ROUTING_KATA => $routing_kata,
 				];
 				
 				if(empty($group_id)) { // new
@@ -200,6 +202,21 @@ class PageSection_ProfilesGroup extends Extension_PageSection {
 					// Avatar image
 					$avatar_image = DevblocksPlatform::importGPC($_POST['avatar_image'] ?? null, 'string', '');
 					$profile_image_changed = DAO_ContextAvatar::upsertWithImage(CerberusContexts::CONTEXT_GROUP, $group_id, $avatar_image);
+					
+					// Versioning
+					try {
+						DAO_RecordChangeset::create(
+							'group_routing',
+							$group_id,
+							[
+								'routing_kata' => $fields[DAO_Group::ROUTING_KATA] ?? '',
+							],
+							$active_worker->id ?? 0
+						);
+						
+					} catch (Exception $e) {
+						DevblocksPlatform::logError('Error saving changeset: ' . $e->getMessage());
+					}
 				}
 			} // end new/edit
 			

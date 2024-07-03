@@ -25,6 +25,7 @@ class DAO_Group extends Cerb_ORMHelper {
 	const REPLY_PERSONAL = 'reply_personal';
 	const REPLY_SIGNATURE_ID = 'reply_signature_id';
 	const REPLY_SIGNING_KEY_ID = 'reply_signing_key_id';
+	const ROUTING_KATA = 'routing_kata';
 	const NAME = 'name';
 	const UPDATED = 'updated';
 	
@@ -99,6 +100,11 @@ class DAO_Group extends Cerb_ORMHelper {
 			->addValidator($validation->validators()->contextId(Context_GpgPrivateKey::ID, true))
 			;
 		$validation
+			->addField(self::ROUTING_KATA)
+			->string()
+			->setMaxLength(16777216)
+		;
+		$validation
 			->addField(self::UPDATED)
 			->timestamp()
 			;
@@ -158,7 +164,7 @@ class DAO_Group extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, is_default, is_private, reply_address_id, reply_html_template_id, reply_personal, reply_signature_id, reply_signing_key_id, created, updated ".
+		$sql = "SELECT id, name, is_default, is_private, reply_address_id, reply_html_template_id, reply_personal, reply_signature_id, reply_signing_key_id, routing_kata, created, updated ".
 			"FROM worker_group ".
 			$where_sql.
 			$sort_sql.
@@ -314,6 +320,7 @@ class DAO_Group extends Cerb_ORMHelper {
 			$object->reply_personal = $row['reply_personal'];
 			$object->reply_signature_id = intval($row['reply_signature_id']);
 			$object->reply_signing_key_id = intval($row['reply_signing_key_id']);
+			$object->routing_kata = $row['routing_kata'] ?? '';
 			$object->created = intval($row['created']);
 			$object->updated = intval($row['updated']);
 			$objects[$object->id] = $object;
@@ -475,6 +482,14 @@ class DAO_Group extends Cerb_ORMHelper {
 		if(!CerberusContexts::isActorAnAdmin($actor)) {
 			$error = DevblocksPlatform::translate('error.core.no_acl.admin');
 			return false;
+		}
+		
+		if(array_key_exists(DAO_Group::ROUTING_KATA, $fields)) {
+			$kata = DevblocksPlatform::services()->kata();
+			if(false === $kata->validate($fields[DAO_Group::ROUTING_KATA], CerberusApplication::kataSchemas()->bucketRouting(), $error)) {
+				$error = 'Routing KATA: ' . $error;
+				return false;
+			}
 		}
 		
 		return true;
@@ -1116,6 +1131,7 @@ class Model_Group extends DevblocksRecordModel {
 	public $reply_signature_id = 0;
 	public $reply_signing_key_id = 0;
 	public $reply_html_template_id = 0;
+	public $routing_kata = '';
 	public $created;
 	public $updated;
 	
@@ -2069,6 +2085,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			'updated' => $prefix.$translate->_('common.updated'),
 			'reply_personal' => $prefix.$translate->_('common.send.as'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
+			'routing_kata' => $prefix.$translate->_('dao.bucket.routing_kata'),
 		];
 		
 		// Token types
@@ -2086,6 +2103,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			'reply_personal' => Model_CustomField::TYPE_SINGLE_LINE,
 			'reply_signature_id' => Model_CustomField::TYPE_NUMBER,
 			'reply_signing_key_id' => Model_CustomField::TYPE_NUMBER,
+			'routing_kata' => Model_CustomField::TYPE_MULTI_LINE,
 		];
 		
 		// Custom field/fieldset token labels
@@ -2121,6 +2139,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			$token_values['reply_personal'] = $group->reply_personal;
 			$token_values['reply_signature_id'] = $group->reply_signature_id;
 			$token_values['reply_signing_key_id'] = $group->reply_signing_key_id;
+			$token_values['routing_kata'] = $group->routing_kata;
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($group, $token_values);
@@ -2212,6 +2231,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			'reply_personal' => DAO_Group::REPLY_PERSONAL,
 			'reply_signature_id' => DAO_Group::REPLY_SIGNATURE_ID,
 			'reply_signing_key_id' => DAO_Group::REPLY_SIGNING_KEY_ID,
+			'routing_kata' => DAO_Group::ROUTING_KATA,
 			'updated' => DAO_Group::UPDATED,
 		];
 	}
@@ -2234,6 +2254,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 		$keys['reply_personal']['notes'] = "The default personal name in the `From:` of replies";
 		$keys['reply_signature_id']['notes'] = "The ID of the default [signature](/docs/records/types/email_signature/) used when sending replies from this group";
 		$keys['reply_signing_key_id']['notes'] = "The [private key](/docs/records/types/gpg_private_key/) used to cryptographically sign outgoing mail";
+		$keys['routing_kata']['notes'] = "Routing rules in KATA format";
 		
 		unset($keys['replyto_id']);
 		
@@ -2533,6 +2554,10 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 				$tpl->display('devblocks:cerberusweb.core::internal/peek/peek_error.tpl');
 				return;
 			}
+			
+			// Routing KATA
+			$autocomplete_suggestions = CerberusApplication::kataAutocompletions()->bucketRouting($group);
+			$tpl->assign('autocomplete_json', json_encode($autocomplete_suggestions));
 			
 			$tpl->display('devblocks:cerberusweb.core::groups/peek_edit.tpl');
 			

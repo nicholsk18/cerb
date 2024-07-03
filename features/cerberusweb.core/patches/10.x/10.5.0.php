@@ -176,12 +176,25 @@ if(!$db->GetOneMaster("SELECT id FROM automation_event_listener WHERE event_name
 }
 
 // ===========================================================================
-// Add Routing KATA to buckets
+// Add Routing KATA to groups
+
+list($columns,) = $db->metaTable('worker_group');
+
+if(!array_key_exists('routing_kata', $columns)) {
+	$sql = "ALTER TABLE worker_group ADD COLUMN routing_kata mediumtext";
+	$db->ExecuteMaster($sql);
+}
+
+// ===========================================================================
+// Remove routing KATA on buckets (10.5 beta)
 
 list($columns,) = $db->metaTable('bucket');
 
-if(!array_key_exists('routing_kata', $columns)) {
-	$sql = "ALTER TABLE bucket ADD COLUMN routing_kata mediumtext";
+if(array_key_exists('routing_kata', $columns)) {
+	$sql = "UPDATE worker_group AS g INNER JOIN bucket ON (bucket.is_default=1 AND bucket.group_id=g.id) SET g.routing_kata = bucket.routing_kata WHERE bucket.routing_kata != ''";
+	$db->ExecuteMaster($sql);
+	
+	$sql = "ALTER TABLE bucket DROP COLUMN routing_kata";
 	$db->ExecuteMaster($sql);
 }
 
