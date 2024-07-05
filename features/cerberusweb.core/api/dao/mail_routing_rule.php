@@ -519,6 +519,17 @@ class Model_MailRoutingRule extends DevblocksRecordModel {
 		$routing_kata = DevblocksPlatform::services()->kata()->parse($this->routing_kata);
 		return DevblocksPlatform::services()->kata()->formatTree($routing_kata, $dict);
 	}
+	
+	public static function getPlaceholders() : array {
+		return [
+			'body' => 'The message content.',
+			'headers' => 'A dictionary of email headers. Keys are lowercase (e.g. `content-type`).',
+			'recipients' => 'An array of `To:` and `Cc:` recipient email addresses.',
+			'sender_email' => 'The `address` [record](https://cerb.ai/docs/records/types/address/) of the `From:` sender.',
+			'spam_score' => 'The predicted spam probability in decimal (0.0001 to 0.9999).',
+			'subject' => 'The message subject.',
+		];
+	}
 };
 
 class View_MailRoutingRule extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
@@ -1188,6 +1199,7 @@ class Context_MailRoutingRule extends Extension_DevblocksContext implements IDev
 			// Editor toolbar
 			$autocomplete_suggestions = CerberusApplication::kataAutocompletions()->bucketRouting();
 			$tpl->assign('autocomplete_json', json_encode($autocomplete_suggestions));
+			$tpl->assign('routing_placeholders', Model_MailRoutingRule::getPlaceholders());
 			
 			// View
 			$tpl->assign('id', $context_id);

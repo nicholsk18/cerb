@@ -54,6 +54,9 @@
         <legend>Routing: (KATA)</legend>
         <div class="cerb-code-editor-toolbar">
             <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-magic title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl+Space)"><span class="glyphicons glyphicons-magic"></span></button>
+            {if $model->id}
+                <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets title="{'common.change_history'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-history"></span></button>
+            {/if}
 
             {$toolbar_dict = DevblocksDictionaryDelegate::instance([
             'caller_name' => 'cerb.toolbar.editor',
@@ -63,8 +66,9 @@
             ])}
 
             {$toolbar_kata =
-            "menu/insert:
+"menu/insert:
   icon: circle-plus
+  hidden@bool: yes
   items:
     interaction/rule:
       label: Rule
@@ -77,12 +81,42 @@
 
             <div class="cerb-code-editor-toolbar-divider"></div>
 
-            {if $model->id}
-                <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets title="{'common.change_history'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-history"></span></button>
-            {/if}
+            <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-help title="{'common.help'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
+
+            <div class="cerb-code-editor-toolbar-divider"></div>
         </div>
 
         <textarea name="routing_kata" data-editor-mode="ace/mode/cerb_kata" data-editor-lines="30">{$model->routing_kata}</textarea>
+    </fieldset>
+
+    <fieldset data-cerb-fieldset-help class="peek black cerb-hidden">
+        <legend style="font-size:140%;">{'common.help'|devblocks_translate|capitalize}</legend>
+
+        {if $routing_placeholders}
+            <h3 style="padding:0;margin:0 0 5px 0;">{'common.placeholders'|devblocks_translate|capitalize}</h3>
+            <div>
+                <div class="cerb-markdown-content">
+                    <table cellpadding="2" cellspacing="2" width="100%">
+                        <colgroup>
+                            <col style="width:1%;white-space:nowrap;">
+                            <col style="padding-left:10px;">
+                        </colgroup>
+                        <tbody>
+                        {foreach from=$routing_placeholders item=placeholder_notes key=placeholder_key}
+                            <tr>
+                                <td valign="top">
+                                    <strong><code>{$placeholder_key}</code></strong>
+                                </td>
+                                <td>
+                                    {$placeholder_notes|devblocks_markdown_to_html nofilter}
+                                </td>
+                            </tr>
+                        {/foreach}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        {/if}
     </fieldset>
 
     {if !empty($model->id)}
@@ -217,6 +251,18 @@
                 },
                 done: doneFunc,
                 reset: resetFunc,
+            });
+
+            $toolbar.find('[data-cerb-editor-button-help]').on('click', function(e) {
+                e.stopPropagation();
+                let $button = $(this);
+                let $fieldset = $popup.find('[data-cerb-fieldset-help]').toggle();
+
+                if($fieldset.is(':visible')) {
+                    $button.addClass('cerb-code-editor-toolbar-button--enabled');
+                } else {
+                    $button.removeClass('cerb-code-editor-toolbar-button--enabled');
+                }
             });
 
             $toolbar.find('[data-cerb-editor-button-magic]').on('click', function(e) {

@@ -2558,6 +2558,7 @@ class Context_Group extends Extension_DevblocksContext implements IDevblocksCont
 			// Routing KATA
 			$autocomplete_suggestions = CerberusApplication::kataAutocompletions()->bucketRouting($group);
 			$tpl->assign('autocomplete_json', json_encode($autocomplete_suggestions));
+			$tpl->assign('routing_placeholders', Model_MailRoutingRule::getPlaceholders());
 			
 			$tpl->display('devblocks:cerberusweb.core::groups/peek_edit.tpl');
 			
