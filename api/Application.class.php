@@ -6858,6 +6858,23 @@ class _CerbApplication_KataSchemas {
                                 context:
                                   types:
                                     string:
+                                icon:
+                                  types:
+                                    string:
+                                    object:
+                                      attributes:
+                                        image_key:
+                                          types:
+                                            string:
+                                        image_template:
+                                          types:
+                                            string:
+                                        image:
+                                          types:
+                                            string:
+                                        record_uri:
+                                          types:
+                                            string:
                                 label_key:
                                   types:
                                     string:

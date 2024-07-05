@@ -1018,6 +1018,7 @@ var cerbAutocompleteSuggestions = {
 			'label_template@raw:',
 			'bold@bool:',
 			'color@raw:',
+			'icon:',
 			'text_color@raw:',
 			'text_size@raw: 150%',
 			'underline@bool:',
@@ -1026,6 +1027,18 @@ var cerbAutocompleteSuggestions = {
 			'yes',
 			'no'
 		],
+		'columns:search:params:icon:': [
+			'image:',
+			'image_key:',
+			'image_template@raw:',
+			{
+				'caption': 'record_uri:',
+				'snippet': 'record_uri@raw: cerb:${1:record_type}:${2:record_id}'
+			}
+		],
+		'columns:search:params:icon:image:': {
+			'type': 'icon'
+		},
 		
 		// Search button
 		'columns:search_button:': [

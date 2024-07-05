@@ -934,13 +934,22 @@ class _DevblocksSheetServiceTypes {
 			
 			if($search_context && $search_label) {
 				if(!($context_ext = Extension_DevblocksContext::getByAlias($search_context, true)))
-					return;
+					return '';
 				
 				if(false === ($search_query = $tpl_builder->build($search_query, $sheet_dict)))
 					return '';
 				
+				$icon = '';
+				
+				if(array_key_exists('icon', $column_params) && $column_params['icon']) {
+					$icon_column = $column;
+					$icon_column['params'] = $column_params['icon'];
+					$icon = $this->icon()($icon_column, $sheet_dict);
+				}
+				
 				// Search link
-				$value .= sprintf('<div class="cerb-search-trigger" data-context="%s" data-query="%s" style="display:inline-block;text-decoration:%s;cursor:pointer;">%s</div>',
+				$value .= sprintf('%s<div class="cerb-search-trigger" data-context="%s" data-query="%s" style="display:inline-block;text-decoration:%s;cursor:pointer;">%s</div>',
+					$icon,
 					DevblocksPlatform::strEscapeHtml($context_ext->id),
 					DevblocksPlatform::strEscapeHtml($search_query),
 					$is_underlined ? 'underline' : false,
