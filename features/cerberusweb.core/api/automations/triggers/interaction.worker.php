@@ -5,6 +5,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 	public static function getFormComponentMeta() {
 		return [
 			'chart' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\ChartAwait',
+			'chooser' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\ChooserAwait',
 			'editor' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\EditorAwait',
 			'end' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\EndAwait',
 			'fileDownload' => 'Cerb\Automation\Builder\Trigger\InteractionWorker\Awaits\FileDownloadAwait',
@@ -416,6 +417,11 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 						'description' => "Display a chart visualization",
 					],
 					[
+						'caption' => 'chooser:',
+						'snippet' => "chooser/\${1:prompt_chooser}:\n\t\${2:}",
+						'description' => "Open a search popup for selecting records of a given type",
+					],
+					[
 						'caption' => 'editor:',
 						'snippet' => "editor/\${1:prompt_editor}:\n\t\${2:}",
 						'description' => "Prompt with a code editor",
@@ -505,6 +511,28 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'hidden@bool: no',
 					'datasets:',
 					'schema:',
+				],
+				
+				'(.*):await:form:elements:chooser:' => [
+					[
+						'caption' => 'label:',
+						'snippet' => "label: \${1:Label:}",
+						'score' => 2000,
+					],
+					'default:',
+					'hidden@bool: no',
+					'record_type:',
+					'query@text:',
+					'multiple@bool: yes',
+					'required@bool: yes',
+					'autocomplete@bool: no',
+				],
+				'(.*):await:form:elements:chooser:record_type:' => [
+					'type' => 'record-type',
+				],
+				'(.*):await:form:elements:chooser:is_multiple:' => [
+					'yes',
+					'no',
 				],
 				
 				'(.*):await:form:elements:editor:' => [
