@@ -163,6 +163,7 @@ $automation_files = [
 	'ai.cerb.automationBuilder.action.recordGet.json',
 	'ai.cerb.automationBuilder.action.recordUpsert.json',
 	'ai.cerb.chooser.toolbar.json',
+	'ai.cerb.routingRuleBuilder.inputChooser.json',
 	'cerb.reply.isBannedDefunct.json',
 	'cerb.ticket.assign.json',
 	'cerb.ticket.spam.json',

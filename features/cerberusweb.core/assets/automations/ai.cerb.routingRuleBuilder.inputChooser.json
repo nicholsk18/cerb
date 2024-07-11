@@ -1,0 +1,9 @@
+{
+  "name": "ai.cerb.routingRuleBuilder.inputChooser",
+  "extension_id": "cerb.trigger.interaction.internal",
+  "description": "Select a message for simulating mail routing rules",
+  "script": "start:\r\n  await:\r\n    form:\r\n      title: Simulate Mail Routing\r\n      elements:\r\n        chooser/prompt_message_id:\r\n          label: Select a message to simulate routing against:\r\n          required@bool: yes\r\n          record_type: message\r\n          query@text: sort:-id\r\n          multiple@bool: no\r\n          autocomplete@bool: no\r\n  \r\n  set:\r\n    prompt_message__context: message\r\n    prompt_message_id@key: prompt_message_id\r\n    dict:\r\n      subject: {{prompt_message_headers.subject|default(prompt_message_ticket_subject)}}\r\n      sender__context: address\r\n      sender_id: {{prompt_message_sender_id}}\r\n      sender_email: {{prompt_message_sender_email}}\r\n      recipients@csv: {{prompt_message_headers.to|parse_emails|column('email')|join(',')}}\r\n      spam_score@float: {{prompt_message_ticket_spam_score}}\r\n      headers@key: prompt_message_headers\r\n      body: {{prompt_message_content}}\r\n  \r\n  return:\r\n    snippet@text: {{dict|kata_encode}}",
+  "policy_kata": "commands:\r\n  # [TODO] Specify a command policy here (use Ctrl+Space for autocompletion)\r\n  ",
+  "created_at": 1720228594,
+  "updated_at": 1720228594
+}

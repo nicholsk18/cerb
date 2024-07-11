@@ -326,8 +326,8 @@ class _DevblocksEmailManager {
 		return $whitelist_hash;
 	}
 	
-	public function runRoutingKata(array $routing, DevblocksDictionaryDelegate $routing_dict) : array|false {
-		foreach($routing as $rule_data) {
+	public function runRoutingKata(array $routing, DevblocksDictionaryDelegate $routing_dict, &$match=null) : array|false {
+		foreach($routing as $rule_key => $rule_data) {
 			$num_ifs = 0;
 			
 			foreach($rule_data as $node_key => $node_data) {
@@ -413,14 +413,17 @@ class _DevblocksEmailManager {
 					}
 					
 					if($cond_passed == $cond_count) {
+						$match = [$rule_key, $node_key];
 						return $rule_data['then'] ?? [];
 					}
 				}
 			}
 			
 			// If the rule has no `if:` then always use it
-			if(0 == $num_ifs)
+			if(0 == $num_ifs) {
+				 $match = [$rule_key];
 				return $rule_data['then'] ?? [];
+			}
 		}
 		
 		return false;

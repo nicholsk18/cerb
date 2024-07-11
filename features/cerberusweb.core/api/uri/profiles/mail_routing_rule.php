@@ -35,6 +35,8 @@ class PageSection_ProfilesMailRoutingRule extends Extension_PageSection {
 					return $this->_profileAction_refreshRules();
 				case 'savePeekJson':
 					return $this->_profileAction_savePeekJson();
+				case 'testRoutingKataJson':
+					return $this->_profileAction_testRoutingKataJson();
 				case 'viewExplore':
 					return $this->_profileAction_viewExplore();
 			}
@@ -193,6 +195,66 @@ class PageSection_ProfilesMailRoutingRule extends Extension_PageSection {
 			return;
 			
 		}
+	}
+	
+	private function _profileAction_testRoutingKataJson() {
+		$kata = DevblocksPlatform::services()->kata();
+		$mail = DevblocksPlatform::services()->mail();
+		$tpl = DevblocksPlatform::services()->template();
+		
+		if('POST' != DevblocksPlatform::getHttpMethod())
+			DevblocksPlatform::dieWithHttpError(null, 405);
+		
+		$routing_kata = DevblocksPlatform::importGPC($_POST['routing_kata'] ?? null, 'string', '');
+		$placeholder_kata = DevblocksPlatform::importGPC($_POST['tester']['placeholders'] ?? null, 'string', '');
+		
+		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
+		
+		$response = [];
+		
+		try {
+			$placeholders_dict = $kata->parse($placeholder_kata, $error);
+			$placeholders_dict = $kata->formatTree($placeholders_dict, null, $error);
+			
+			$routing_dict = DevblocksDictionaryDelegate::instance($placeholders_dict);
+			$symbol_meta = [];
+			
+			if(false === ($routing = $kata->parse($routing_kata, $error, true, $symbol_meta))) {
+				$routing = [];
+				$response = ['error' => $error];
+			}
+			
+			if(false === ($routing = $kata->formatTree($routing, $routing_dict, $error))) {
+				$routing = [];
+				$response = ['error' => $error];
+			}
+			
+			$match = null;
+			
+			if($routing && ($route_actions = $mail->runRoutingKata($routing, $routing_dict, $match))) {
+				if(is_array($match)) {
+					$key_path = $match[0] . ':';
+					$line = 0;
+					
+					if (array_key_exists(1, $match))
+						$key_path .= $match[1];
+					
+					if(array_key_exists($key_path, $symbol_meta))
+						$line = $symbol_meta[$key_path];
+					
+					$response = [
+						'key' => $key_path,
+						//'actions' => $route_actions,
+						'line' => $line,
+					];
+				}
+			}
+			
+		} catch(Exception) {
+			DevblocksPlatform::dieWithHttpError(500);
+		}
+		
+		echo json_encode($response);
 	}
 	
 	private function _profileAction_viewExplore() {
