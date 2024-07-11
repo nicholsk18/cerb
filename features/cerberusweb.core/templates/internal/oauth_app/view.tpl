@@ -1,4 +1,4 @@
-{$view_context = Context_OAuthApp::ID}
+{$view_context = CerberusContexts::CONTEXT_OAUTH_APP}
 {$view_fields = $view->getColumnsAvailable()}
 {$results = $view->getData()}
 {$total = $results[1]}

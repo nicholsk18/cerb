@@ -77,14 +77,14 @@
 	
 	{* Bulk lazy load contacts for this page *}
 	{$object_addys = []}
-	{if in_array(SearchFields_Contact::PRIMARY_EMAIL_ID, $view->view_columns)}
+	{if in_array('c_primary_email_id', $view->view_columns)}
 		{$addy_ids = DevblocksPlatform::extractArrayValues($results, 'c_primary_email_id')}
 		{$object_addys = DAO_Address::getIds($addy_ids)}
 	{/if}
 	
 	{* Bulk lazy load orgs for this page *}
 	{$object_orgs = []}
-	{if in_array(SearchFields_Contact::ORG_ID, $view->view_columns)}
+	{if in_array('c_org_id', $view->view_columns)}
 		{$org_ids = DevblocksPlatform::extractArrayValues($results, 'c_org_id')}
 		{$object_orgs = DAO_ContactOrg::getIds($org_ids)}
 	{/if}
@@ -119,7 +119,7 @@
 		{foreach from=$view->view_columns item=column name=columns}
 			{if DevblocksPlatform::strStartsWith($column, "cf_")}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
-			{elseif $column == SearchFields_Contact::GENDER}
+			{elseif $column == "c_gender"}
 			<td data-column="{$column}">
 				{if $result.$column == 'M'}
 				<span class="glyphicons glyphicons-male"></span>
@@ -128,14 +128,14 @@
 				{else}
 				{/if}
 			</td>
-			{elseif $column == SearchFields_Contact::PRIMARY_EMAIL_ID}
+			{elseif $column == 'c_primary_email_id'}
 			<td data-column="{$column}">
 				{if isset($object_addys.{$result.$column})}
 				{$addy = $object_addys.{$result.$column}}
 				<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$addy->id}">{$addy->email}</a>
 				{/if}
 			</td>
-			{elseif $column == SearchFields_Contact::ORG_ID}
+			{elseif $column == 'c_org_id'}
 			<td data-column="{$column}">
 				{if isset($object_orgs.{$result.$column})}
 				{$org = $object_orgs.{$result.$column}}

@@ -1,4 +1,4 @@
-{$view_context = Context_GpgPrivateKey::ID}
+{$view_context = CerberusContexts::CONTEXT_GPG_PRIVATE_KEY}
 {$view_fields = $view->getColumnsAvailable()}
 {$results = $view->getData()}
 {$total = $results[1]}

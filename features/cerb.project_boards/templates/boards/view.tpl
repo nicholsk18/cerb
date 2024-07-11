@@ -1,4 +1,4 @@
-{$view_context = Context_ProjectBoard::ID}
+{$view_context = CerberusContexts::CONTEXT_PROJECT_BOARD}
 {$view_fields = $view->getColumnsAvailable()}
 {$results = $view->getData()}
 {$total = $results[1]}

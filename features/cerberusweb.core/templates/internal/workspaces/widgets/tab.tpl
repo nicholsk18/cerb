@@ -1,4 +1,4 @@
-{$is_writeable = Context_WorkspacePage::isWriteableByActor($page, $active_worker)}
+{$is_writeable = CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_WORKSPACE_PAGE, $page, $active_worker)}
 
 <div style="margin-bottom:5px;">
 	{include file="devblocks:cerberusweb.core::internal/dashboards/prompts/render.tpl" prompts=$prompts}

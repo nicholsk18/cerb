@@ -949,6 +949,7 @@ class CerberusContexts {
 	const CONTEXT_FEED = 'cerberusweb.contexts.feed';
 	const CONTEXT_FEED_ITEM = 'cerberusweb.contexts.feed.item';
 	const CONTEXT_FILE_BUNDLE = 'cerberusweb.contexts.file_bundle';
+	const CONTEXT_GPG_PRIVATE_KEY = 'cerb.contexts.gpg.private.key';
 	const CONTEXT_GPG_PUBLIC_KEY = 'cerberusweb.contexts.gpg_public_key';
 	const CONTEXT_GROUP = 'cerberusweb.contexts.group';
 	const CONTEXT_KB_ARTICLE = 'cerberusweb.contexts.kb_article';
@@ -960,12 +961,15 @@ class CerberusContexts {
 	const CONTEXT_MESSAGE = 'cerberusweb.contexts.message';
 	const CONTEXT_METRIC = 'cerb.contexts.metric';
 	const CONTEXT_NOTIFICATION= 'cerberusweb.contexts.notification';
+	const CONTEXT_OAUTH_APP = 'cerberusweb.contexts.oauth.app';
 	const CONTEXT_OPPORTUNITY = 'cerberusweb.contexts.opportunity';
 	const CONTEXT_ORG = 'cerberusweb.contexts.org';
 	const CONTEXT_PACKAGE = 'cerberusweb.contexts.package.library';
 	const CONTEXT_PORTAL = 'cerberusweb.contexts.portal';
 	const CONTEXT_PROFILE_TAB = 'cerberusweb.contexts.profile.tab';
 	const CONTEXT_PROFILE_WIDGET = 'cerberusweb.contexts.profile.widget';
+	const CONTEXT_PROJECT_BOARD = 'cerberusweb.contexts.project.board';
+	const CONTEXT_PROJECT_BOARD_COLUMN = 'cerberusweb.contexts.project.board.column';
 	const CONTEXT_QUEUE = 'cerb.contexts.queue';
 	const CONTEXT_REMINDER = 'cerberusweb.contexts.reminder';
 	const CONTEXT_RESOURCE = 'cerb.contexts.resource';
@@ -978,6 +982,7 @@ class CerberusContexts {
 	const CONTEXT_TIMETRACKING = 'cerberusweb.contexts.timetracking';
 	const CONTEXT_TIMETRACKING_ACTIVITY = 'cerberusweb.contexts.timetracking.activity';
 	const CONTEXT_TOOLBAR = 'cerb.contexts.toolbar';
+	const CONTEXT_TOOLBAR_SECTION = 'cerb.contexts.toolbar.section';
 	const CONTEXT_WEBAPI_CREDENTIAL = 'cerberusweb.contexts.webapi.credential';
 	const CONTEXT_WEBHOOK_LISTENER = 'cerberusweb.contexts.webhook_listener';
 	const CONTEXT_WORKER = 'cerberusweb.contexts.worker';

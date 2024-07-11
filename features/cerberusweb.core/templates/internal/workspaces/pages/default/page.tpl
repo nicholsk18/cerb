@@ -1,4 +1,4 @@
-{$is_writeable = Context_WorkspacePage::isWriteableByActor($page, $active_worker)}
+{$is_writeable = CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_WORKSPACE_PAGE, $page, $active_worker)}
 {if !$is_writeable && empty($page_tabs)}
 	<div class="help-box">
 		<h1 style="margin-bottom:5px;text-align:left;">This workspace is empty</h1>

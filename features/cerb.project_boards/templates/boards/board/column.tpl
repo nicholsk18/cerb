@@ -1,7 +1,7 @@
 {$column_dict = DevblocksDictionaryDelegate::instance([
 	'caller_name' => 'cerb.toolbar.projectBoardColumn',
 	
-	'column__context' => Context_ProjectBoardColumn::ID,
+	'column__context' => CerberusContexts::CONTEXT_PROJECT_BOARD_COLUMN,
 	'column_id' => $column->id,
 
 	'worker__context' => CerberusContexts::CONTEXT_WORKER,
@@ -20,7 +20,7 @@
 	</div>
 	<div style="text-align:left;">
 		<span class="glyphicons glyphicons-menu-hamburger"></span>
-		<a class="cerb-board-column-edit no-underline" data-context="{Context_ProjectBoardColumn::ID}" data-context-id="{$column->id}">
+		<a class="cerb-board-column-edit no-underline" data-context="{CerberusContexts::CONTEXT_PROJECT_BOARD_COLUMN}" data-context-id="{$column->id}">
 			{$column->name}
 		</a>
 	</div>

@@ -1,4 +1,4 @@
-{$is_widget_writeable = Context_WorkspaceWidget::isWriteableByActor($widget, $active_worker)}
+{$is_widget_writeable = CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_WORKSPACE_WIDGET, $widget, $active_worker)}
 {$width_units = $widget->width_units|default:1}
 {$widget_extension = $widget->getExtension()}
 {$widget_is_hidden = $widget->isHidden($workspace_tab_dict)}

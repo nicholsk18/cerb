@@ -73,13 +73,13 @@
 	<tr>
 		<td width="0%" nowrap="nowrap"><b>XOAuth2:</b><br><small>({'common.optional'|devblocks_translate|lower})</small></td>
 		<td width="100%">
-			<button type="button" class="chooser-abstract" data-field-name="connected_account_id" data-context="{Context_ConnectedAccount::ID}" data-single="true" data-query="service:(type:oauth2)"><span class="glyphicons glyphicons-search"></span></button>
+			<button type="button" class="chooser-abstract" data-field-name="connected_account_id" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-single="true" data-query="service:(type:oauth2)"><span class="glyphicons glyphicons-search"></span></button>
 
 			<ul class="bubbles chooser-container">
 				{if $model && $model->connected_account_id}
 					{$account = DAO_ConnectedAccount::get($model->connected_account_id)}
 					{if $account}
-						<li><input type="hidden" name="connected_account_id" value="{$account->id}"><a class="cerb-peek-trigger no-underline" data-context="{Context_ConnectedAccount::ID}" data-context-id="{$account->id}">{$account->name}</a></li>
+						<li><input type="hidden" name="connected_account_id" value="{$account->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-context-id="{$account->id}">{$account->name}</a></li>
 					{/if}
 				{/if}
 			</ul>

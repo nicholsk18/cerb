@@ -1,4 +1,4 @@
-{$peek_context = Context_GpgPrivateKey::ID}
+{$peek_context = CerberusContexts::CONTEXT_GPG_PRIVATE_KEY}
 {$peek_context_id = $model->id}
 {$tabs_id = uniqid('tabs')}
 

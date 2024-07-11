@@ -78,7 +78,7 @@
 	
 	{* Bulk lazy email addresses *}
 	{$object_addys = []}
-	{if in_array(SearchFields_Ticket::TICKET_FIRST_WROTE_ID, $view->view_columns) || in_array(SearchFields_Ticket::TICKET_LAST_WROTE_ID, $view->view_columns)}
+	{if in_array('t_first_wrote_address_id', $view->view_columns) || in_array('t_last_wrote_address_id', $view->view_columns)}
 		{$addy_ids = array_unique(array_merge(DevblocksPlatform::extractArrayValues($results, 't_first_wrote_address_id'), DevblocksPlatform::extractArrayValues($results, 't_last_wrote_address_id')))}
 		{$object_addys = DAO_Address::getIds($addy_ids)}
 		{$addy_contact_ids = DevblocksPlatform::extractArrayValues($object_addys, 'contact_id', true, [0])}
@@ -86,14 +86,14 @@
 	{/if}
 	
 	{* Bulk lazy load participants *}
-	{if in_array(SearchFields_Ticket::VIRTUAL_PARTICIPANT_SEARCH, $view->view_columns)}
+	{if in_array('*_participant_search', $view->view_columns)}
 		{$ticket_ids = DevblocksPlatform::extractArrayValues($results, 't_id')}
 		{$participants = DAO_Ticket::getParticipantsByTickets($ticket_ids, false)}
 	{/if}
 
 	{* Bulk lazy load orgs *}
 	{$object_orgs = []}
-	{if in_array(SearchFields_Ticket::TICKET_ORG_ID, $view->view_columns)}
+	{if in_array('t_org_id', $view->view_columns)}
 		{$org_ids = DevblocksPlatform::extractArrayValues($results, 't_org_id')}
 		{$object_orgs = DAO_ContactOrg::getIds($org_ids)}
 	{/if}

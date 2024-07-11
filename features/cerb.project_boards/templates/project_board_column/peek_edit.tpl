@@ -1,4 +1,4 @@
-{$peek_context = Context_ProjectBoardColumn::ID}
+{$peek_context = CerberusContexts::CONTEXT_PROJECT_BOARD_COLUMN}
 {$peek_context_id = $model->id}
 {$form_id = uniqid()}
 {$board = $model->getProjectBoard()}
@@ -23,12 +23,12 @@
 	<tr>
 		<td width="1%" nowrap="nowrap"><b>{'projects.common.board'|devblocks_translate|capitalize}:</b></td>
 		<td width="99%">
-			<button type="button" class="chooser-abstract" data-field-name="board_id" data-context="{Context_ProjectBoard::ID}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
+			<button type="button" class="chooser-abstract" data-field-name="board_id" data-context="{CerberusContexts::CONTEXT_PROJECT_BOARD}" data-single="true" data-query="" data-autocomplete="" data-autocomplete-if-empty="true"><span class="glyphicons glyphicons-search"></span></button>
 			
 			<ul class="bubbles chooser-container">
 				{if $model}
 					{if $board}
-						<li><input type="hidden" name="board_id" value="{$board->id}"><a class="cerb-peek-trigger no-underline" data-context="{Context_ProjectBoard::ID}" data-context-id="{$board->id}">{$board->name}</a></li>
+						<li><input type="hidden" name="board_id" value="{$board->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_PROJECT_BOARD}" data-context-id="{$board->id}">{$board->name}</a></li>
 					{/if}
 				{/if}
 			</ul>
@@ -47,10 +47,10 @@
 		{$toolbar_dict = DevblocksDictionaryDelegate::instance([
 		'caller_name' => 'cerb.toolbar.eventHandlers.editor',
 		
-		'board__context' => Context_ProjectBoard::ID,
+		'board__context' => CerberusContexts::CONTEXT_PROJECT_BOARD,
 		'board_id' => $board->id,
 		
-		'board_column__context' => Context_ProjectBoardColumn::ID,
+		'board_column__context' => CerberusContexts::CONTEXT_PROJECT_BOARD_COLUMN,
 		'board_column_id' => $peek_context_id,
 		
 		'worker__context' => CerberusContexts::CONTEXT_WORKER,
@@ -87,10 +87,10 @@
 		{$toolbar_dict = DevblocksDictionaryDelegate::instance([
 		'caller_name' => 'cerb.toolbar.eventHandlers.editor',
 		
-		'board__context' => Context_ProjectBoard::ID,
+		'board__context' => CerberusContexts::CONTEXT_PROJECT_BOARD,
 		'board_id' => $board->id,
 		
-		'board_column__context' => Context_ProjectBoardColumn::ID,
+		'board_column__context' => CerberusContexts::CONTEXT_PROJECT_BOARD_COLUMN,
 		'board_column_id' => $peek_context_id,
 		
 		'worker__context' => CerberusContexts::CONTEXT_WORKER,
@@ -127,10 +127,10 @@
 		{$toolbar_dict = DevblocksDictionaryDelegate::instance([
 		'caller_name' => 'cerb.toolbar.editor',
 			
-		'board__context' => Context_ProjectBoard::ID,
+		'board__context' => CerberusContexts::CONTEXT_PROJECT_BOARD,
 		'board_id' => $board->id,
 			
-		'board_column__context' => Context_ProjectBoardColumn::ID,
+		'board_column__context' => CerberusContexts::CONTEXT_PROJECT_BOARD_COLUMN,
 		'board_column_id' => $peek_context_id,
 		
 		'worker__context' => CerberusContexts::CONTEXT_WORKER,

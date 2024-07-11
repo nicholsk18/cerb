@@ -1,6 +1,6 @@
 {$peek_context = CerberusContexts::CONTEXT_CUSTOM_FIELDSET}
 {$peek_context_id = $model->id}
-{$is_writeable = !$model->id || Context_CustomFieldset::isWriteableByActor($model, $active_worker)}
+{$is_writeable = !$model->id || CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_CUSTOM_FIELDSET, $model, $active_worker)}
 {$form_id = uniqid()}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">
 <input type="hidden" name="c" value="profiles">

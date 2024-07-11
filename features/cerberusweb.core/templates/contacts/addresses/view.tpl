@@ -69,21 +69,21 @@
 	
 	{* Bulk lazy load contacts for this page *}
 	{$object_contacts = []}
-	{if in_array(SearchFields_Address::CONTACT_ID, $view->view_columns)}
+	{if in_array('a_contact_id', $view->view_columns)}
 		{$contact_ids = DevblocksPlatform::extractArrayValues($results, 'a_contact_id')}
 		{$object_contacts = DAO_Contact::getIds($contact_ids)}
 	{/if}
 	
 	{* Bulk lazy load orgs *}
 	{$object_orgs = []}
-	{if in_array(SearchFields_Address::ORG_NAME, $view->view_columns)}
+	{if in_array('o_name', $view->view_columns)}
 		{$org_ids = DevblocksPlatform::extractArrayValues($results, 'a_contact_org_id')}
 		{$object_orgs = DAO_ContactOrg::getIds($org_ids)}
 	{/if}
 	
 	{* Bulk lazy load workers *}
 	{$object_workers = []}
-	{if in_array(SearchFields_Address::WORKER_ID, $view->view_columns)}
+	{if in_array('a_worker_id', $view->view_columns)}
 		{$object_workers = DAO_Worker::getAll()}
 	{/if}
 

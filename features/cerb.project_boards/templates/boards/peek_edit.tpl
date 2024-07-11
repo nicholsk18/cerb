@@ -1,4 +1,4 @@
-{$peek_context = Context_ProjectBoard::ID}
+{$peek_context = CerberusContexts::CONTEXT_PROJECT_BOARD}
 {$peek_context_id = $model->id}
 {$form_id = uniqid()}
 

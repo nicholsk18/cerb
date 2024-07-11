@@ -1,4 +1,4 @@
-{$peek_context = Context_ToolbarSection::ID}
+{$peek_context = CerberusContexts::CONTEXT_TOOLBAR_SECTION}
 {$peek_context_id = $model->id}
 {$form_id = uniqid()}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">

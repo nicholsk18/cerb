@@ -55,7 +55,7 @@
 	</tr>
 	</thead>
 
-	{$has_target_req = $view->findParam(SearchFields_ContextActivityLog::VIRTUAL_TARGET, $view->getParamsRequired())}
+	{$has_target_req = $view->findParam('*_target', $view->getParamsRequired())}
 
 	{* Column Data *}
 	{foreach from=$data item=result key=idx name=results}

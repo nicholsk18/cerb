@@ -1,4 +1,4 @@
-{$draft_is_writeable = Context_Draft::isWriteableByActor($draft, $active_worker)}
+{$draft_is_writeable = CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_DRAFT, $draft, $active_worker)}
 
 <div {if !$embed}id="draftContainer{$draft->id}"{/if} class="block" style="position:relative;margin-bottom:10px;">
 	{$draft_worker = $draft->getWorker()}

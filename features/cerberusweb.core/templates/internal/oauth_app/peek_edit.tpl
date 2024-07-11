@@ -1,4 +1,4 @@
-{$peek_context = Context_OAuthApp::ID}
+{$peek_context = CerberusContexts::CONTEXT_OAUTH_APP}
 {$peek_context_id = $model->id}
 {$form_id = uniqid()}
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">

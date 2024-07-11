@@ -91,7 +91,7 @@
 				<td data-column="{$column}">
 					{$calendar = $calendars.{$result.$column}}
 					{if $calendar instanceof Model_Calendar}
-						{if Context_Calendar::isWriteableByActor($calendar, $active_worker)}
+						{if CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_CALENDAR, $calendar, $active_worker)}
 						<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CALENDAR}" data-context-id="{$calendar->id}">{$calendar->name}</a>
 						{else}
 						{$calendar->name}

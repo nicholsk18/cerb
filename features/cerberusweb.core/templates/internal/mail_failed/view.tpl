@@ -63,19 +63,19 @@
 		{foreach from=$view->view_columns item=column name=columns}
 			{if DevblocksPlatform::strStartsWith($column, "cf_")}
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
-			{elseif $column == SearchFields_MailParseFail::NAME}
+			{elseif $column == "mf_name"}
 			<td data-column="{$column}">
 				<input type="checkbox" name="row_id[]" value="{$result.mf_name}" style="display:none;">
 				<b class="subject">{$result.mf_name}</b>
 				<button type="button" class="peek" data-cerb-peek-id="{$result.mf_name}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>
-			{elseif $column == SearchFields_MailParseFail::CTIME || $column == SearchFields_MailParseFail::MTIME}
+			{elseif $column == "mf_ctime" || $column == "mf_mtime"}
 				<td data-column="{$column}" title="{$result.$column|devblocks_date}">
 					{if !empty($result.$column)}
 						{$result.$column|devblocks_prettytime}&nbsp;
 					{/if}
 				</td>
-			{elseif $column == SearchFields_MailParseFail::SIZE}
+			{elseif $column == "mf_size"}
 				<td data-column="{$column}">
 					{$result.$column|devblocks_prettybytes}&nbsp;
 				</td>

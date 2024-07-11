@@ -80,7 +80,7 @@
 				<span style="margin-left:1em;">
 					<span class="glyphicons glyphicons-circle-ok" style="font-size:1.2em;color:rgb(66,131,73);" title="{'common.encrypted.verified'|devblocks_translate|capitalize}"></span>
 					Verified
-					(<a class="cerb-search-trigger" data-context="{Context_GpgPublicKey::ID}" data-query="fingerprint:{$message->signed_key_fingerprint}">{$message->signed_key_fingerprint|substr:-16}</a>)
+					(<a class="cerb-search-trigger" data-context="{{CerberusContexts::CONTEXT_GPG_PUBLIC_KEY}}" data-query="fingerprint:{$message->signed_key_fingerprint}">{$message->signed_key_fingerprint|substr:-16}</a>)
 					{if false && $message->signed_at}
 						(<abbr title="{$message->signed_at|devblocks_date}">{$message->signed_at|devblocks_prettytime}</abbr>)
 					{/if}
@@ -256,11 +256,11 @@
 						{/if}
 
 						{* If not requester *}
-						{if !$message->is_outgoing && !isset($requesters.{$sender_id}) && Context_Ticket::isWriteableByActor($ticket, $active_worker)}
+						{if !$message->is_outgoing && !isset($requesters.{$sender_id}) && CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_TICKET, $ticket, $active_worker)}
 							<button data-cerb-message-button-requester-add><span class="glyphicons glyphicons-circle-plus"></span> {'display.ui.add_to_recipients'|devblocks_translate}</button>
 						{/if}
 
-						{if !array_key_exists('reply', $toolbar) && Context_Ticket::isWriteableByActor($ticket, $active_worker) && $active_worker->hasPriv('core.display.actions.reply')}
+						{if !array_key_exists('reply', $toolbar) && CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_TICKET, $ticket, $active_worker) && $active_worker->hasPriv('core.display.actions.reply')}
 							<button type="button" class="reply split-left" title="{if 2 == $mail_reply_button}{'display.reply.only_these_recipients'|devblocks_translate}{elseif 1 == $mail_reply_button}{'display.reply.no_quote'|devblocks_translate}{else}{'display.reply.quote'|devblocks_translate}{/if}"><span class="glyphicons glyphicons-send"></span> {'common.reply'|devblocks_translate|capitalize}</button><!--
 						--><button data-cerb-message-button-reply-menu type="button" class="split-right"><span class="glyphicons glyphicons-chevron-down"></span></button>
 							<ul class="cerb-popupmenu cerb-float" style="margin-top:-5px;">
@@ -401,7 +401,7 @@
 							<button data-cerb-message-button-split type="button" title="Split message into new ticket"><span class="glyphicons glyphicons-duplicate"></span> {'display.button.split_ticket'|devblocks_translate|capitalize}</button>
 						{/if}
 
-						{if $message->is_outgoing && Context_Ticket::isWriteableByActor($ticket, $active_worker) && $active_worker->hasPriv('core.display.actions.reply')}
+						{if $message->is_outgoing && CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_TICKET, $ticket, $active_worker) && $active_worker->hasPriv('core.display.actions.reply')}
 							<button data-cerb-message-button-resend type="button"><span class="glyphicons glyphicons-share"></span> Send Again</button>
 						{/if}
 						
@@ -614,7 +614,7 @@ $(function() {
 	});
 	{/if}
 
-	{if $message->is_outgoing && Context_Ticket::isWriteableByActor($ticket, $active_worker) && $active_worker->hasPriv('core.display.actions.reply')}
+	{if $message->is_outgoing && CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_TICKET, $ticket, $active_worker) && $active_worker->hasPriv('core.display.actions.reply')}
 	$options.find('[data-cerb-message-button-resend]').on('click', function(e) {
 		e.stopPropagation();
 		genericAjaxPopup('message_resend','c=profiles&a=invoke&module=ticket&action=showResendMessagePopup&id={$message->id}');
@@ -634,7 +634,7 @@ $(function() {
 	});
 	{/if}
 
-	{if Context_Ticket::isWriteableByActor($ticket, $active_worker)}
+	{if CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_TICKET, $ticket, $active_worker)}
 	$actions.find('[data-cerb-message-button-requester-add]').on('click', function(e) {
 		e.stopPropagation();
 		$(this).remove();

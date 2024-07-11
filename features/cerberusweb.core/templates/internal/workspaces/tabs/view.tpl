@@ -60,7 +60,7 @@
 	
 	{* Bulk lazy load page *}
 	{$object_pages = []}
-	{if in_array(SearchFields_WorkspaceTab::WORKSPACE_PAGE_ID, $view->view_columns)}
+	{if in_array('w_workspace_page_id', $view->view_columns)}
 		{$page_ids = DevblocksPlatform::extractArrayValues($results, 'w_workspace_page_id')}
 		{$object_pages = DAO_WorkspacePage::getIds($page_ids)}
 	{/if}

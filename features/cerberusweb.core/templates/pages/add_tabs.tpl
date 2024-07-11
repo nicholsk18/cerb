@@ -1,4 +1,4 @@
-{if Context_WorkspacePage::isWriteableByActor($page, $active_worker)}
+{if CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_WORKSPACE_PAGE, $page, $active_worker)}
 <form action="#">
 <div class="help-box">
 	<h1 style="margin-bottom:5px;text-align:left;">Let's add some tabs to your page</h1>

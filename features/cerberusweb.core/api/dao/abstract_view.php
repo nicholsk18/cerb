@@ -1123,7 +1123,11 @@ abstract class C4_AbstractView {
 		$visit->append($view_id . '_marquee', $string);
 	}
 	
-	static function marqueeFlush($view_id) {
+	public function marqueeFlush() : void {
+		self::_marqueeFlush($this->id);
+	}
+	
+	static function _marqueeFlush($view_id) {
 		if(null == ($visit = CerberusApplication::getVisit()))
 			return false;
 		

@@ -26,6 +26,9 @@ class BotAction_Automation extends Extension_DevblocksEventAction {
 		if(!is_null($seq))
 			$tpl->assign('namePrefix', 'action'.$seq);
 		
+		$trigger_ext = Extension_AutomationTrigger::get(AutomationTrigger_BehaviorAction::ID, true);
+		$tpl->assign('trigger_ext', $trigger_ext);
+		
 		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_action_automation.tpl');
 	}
 	

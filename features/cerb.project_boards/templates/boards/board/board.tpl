@@ -16,9 +16,9 @@
 				</div>
 				{/foreach}
 
-				{if $active_worker->hasPriv("contexts.{Context_ProjectBoardColumn::ID}.create")}
+				{if $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_PROJECT_BOARD_COLUMN}.create")}
 				<div class="cerb-board-column-add">
-					<p><span class="glyphicons glyphicons-circle-plus"></span> <a data-context="{Context_ProjectBoardColumn::ID}" data-context-id="0" data-edit="board.id:{$board->id}">{'common.add'|devblocks_translate|capitalize}</a></p>
+					<p><span class="glyphicons glyphicons-circle-plus"></span> <a data-context="{CerberusContexts::CONTEXT_PROJECT_BOARD_COLUMN}" data-context-id="0" data-edit="board.id:{$board->id}">{'common.add'|devblocks_translate|capitalize}</a></p>
 				</div>
 				{/if}
 			</div>
@@ -45,7 +45,7 @@ $(function() {
 				return;
 			
 			var context = $target.attr('data-context');
-			var from_context = '{Context_ProjectBoardColumn::ID}';
+			var from_context = '{CerberusContexts::CONTEXT_PROJECT_BOARD_COLUMN}';
 			var from_context_id = $menu.attr('data-column-id');
 			var $column = $board.find('div.cerb-board-column[data-column-id=' + from_context_id + ']');
 			

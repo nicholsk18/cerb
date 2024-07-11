@@ -79,8 +79,8 @@
 
 	{* Bulk lazy load contacts for this page *}
 	{$object_addys = []}
-	{if in_array(SearchFields_ContactOrg::EMAIL_ID, $view->view_columns)}
-		{$addy_ids = DevblocksPlatform::extractArrayValues($results, SearchFields_ContactOrg::EMAIL_ID)}
+	{if in_array('c_email_id', $view->view_columns)}
+		{$addy_ids = DevblocksPlatform::extractArrayValues($results, 'c_email_id')}
 		{$object_addys = DAO_Address::getIds($addy_ids)}
 	{/if}
 
@@ -115,7 +115,7 @@
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="c_id"}
 			<td data-column="{$column}">{$result.c_id}&nbsp;</td>
-			{elseif $column == SearchFields_ContactOrg::EMAIL_ID}
+			{elseif $column == "c_email_id"}
 			<td data-column="{$column}">
 				{if isset($object_addys.{$result.$column})}
 				{$addy = $object_addys.{$result.$column}}

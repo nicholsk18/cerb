@@ -1,4 +1,4 @@
-{$view_context = Context_ToolbarSection::ID}
+{$view_context = CerberusContexts::CONTEXT_TOOLBAR_SECTION}
 {$view_fields = $view->getColumnsAvailable()}
 {$results = $view->getData()}
 {$total = $results[1]}

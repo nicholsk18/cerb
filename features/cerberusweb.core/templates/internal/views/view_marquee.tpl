@@ -1,4 +1,4 @@
-{$view_marquees = C4_AbstractView::marqueeFlush($view->id)}
+{$view_marquees = $view->marqueeFlush()}
 {$marquees_id = uniqid('marquee')}
 {if $view_marquees}
 <div id="{$marquees_id}">

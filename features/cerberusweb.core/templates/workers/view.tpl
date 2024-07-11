@@ -67,7 +67,7 @@
 
 	{* Bulk lazy load addresses for this page *}
 	{$object_addys = []}
-	{if in_array(SearchFields_Worker::EMAIL_ADDRESS, $view->view_columns)}
+	{if in_array('a_address_email', $view->view_columns)}
 		{$addy_ids = DevblocksPlatform::extractArrayValues($results, 'w_email_id')}
 		{$object_addys = DAO_Address::getIds($addy_ids)}
 	{/if}
@@ -106,7 +106,7 @@
 			{elseif $column=="a_address_email"}
 				{$addy = $object_addys.{$result.w_email_id}}
 				<td data-column="{$column}"><a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-context-id="{$addy->id}" title="{$addy->email}">{$addy->email|truncate:64:'...':true:true}</a></td>
-			{elseif $column == SearchFields_Worker::GENDER}
+			{elseif $column == 'w_gender'}
 			<td data-column="{$column}">
 				{if $result.$column == 'M'}
 				<span class="glyphicons glyphicons-male"></span>

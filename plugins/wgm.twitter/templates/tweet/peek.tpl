@@ -1,5 +1,5 @@
 {$peek_context = Context_TwitterMessage::ID}
-{$is_writeable = Context_ConnectedAccount::isReadableByActor($message->connected_account_id, $active_worker)}
+{$is_writeable = CerberusContexts::isReadableByActor(CerberusContexts::CONTEXT_CONNECTED_ACCOUNT, $message->connected_account_id, $active_worker)}
 <form action="{devblocks_url}{/devblocks_url}" method="POST" id="frmTwitterMessage">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">

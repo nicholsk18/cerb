@@ -114,7 +114,7 @@
 				{$signing_key = $signing_keys.{$result.$column}}
 				<td data-column="{$column}">
 					{if $signing_key}
-					<a class="cerb-peek-trigger no-underline" data-context="{Context_GpgPrivateKey::ID}" data-context-id="{$result.$column}">{$signing_key->name}</a>
+					<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_GPG_PRIVATE_KEY}" data-context-id="{$result.$column}">{$signing_key->name}</a>
 					{/if}
 				</td>
 			{elseif $column == "b_updated_at"}

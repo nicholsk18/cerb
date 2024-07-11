@@ -1,5 +1,5 @@
 {$tab_uniqid = "{uniqid()}"}
-{$is_writeable = Context_TriggerEvent::isWriteableByActor($behavior, $active_worker)}
+{$is_writeable = CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_BEHAVIOR, $behavior, $active_worker)}
 
 <form id="decisionTree{$behavior->id}" action="#" style="margin-top:10px;">
 	<input type="hidden" name="trigger_id[]" value="{$behavior->id}">

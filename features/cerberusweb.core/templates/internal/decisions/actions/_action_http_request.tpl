@@ -40,7 +40,7 @@
 		<ul class="bubbles chooser-container">
 			{if $params.auth_connected_account_id}
 				{$account = DAO_ConnectedAccount::get($params.auth_connected_account_id)}
-				{if $account && Context_ConnectedAccount::isWriteableByActor($account, $trigger->getBot())}
+				{if $account && CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_CONNECTED_ACCOUNT, $account, $trigger->getBot())}
 					<li><input type="hidden" name="{$namePrefix}[auth_connected_account_id]" value="{$account->id}"><a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_CONNECTED_ACCOUNT}" data-context-id="{$account->id}">{$account->name}</a></li>
 				{/if}
 			{/if}

@@ -61,14 +61,14 @@
 	
 	{* Bulk lazy load tabs *}
 	{$object_tabs = []}
-	{if in_array(SearchFields_WorkspaceList::WORKSPACE_TAB_ID, $view->view_columns)}
+	{if in_array('w_workspace_tab_id', $view->view_columns)}
 		{$tab_ids = DevblocksPlatform::extractArrayValues($results, 'w_workspace_tab_id')}
 		{$object_tabs = DAO_WorkspaceTab::getIds($tab_ids)}
 	{/if}
 	
 	{* Bulk lazy load pages *}
 	{$object_pages = []}
-	{if in_array(SearchFields_WorkspaceList::WORKSPACE_TAB_ID, $view->view_columns)}
+	{if in_array('w_workspace_tab_id', $view->view_columns)}
 		{$page_ids = DevblocksPlatform::extractArrayValues($object_tabs, 'workspace_page_id')}
 		{$object_pages = DAO_WorkspacePage::getIds($page_ids)}
 	{/if}

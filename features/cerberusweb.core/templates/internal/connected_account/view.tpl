@@ -59,7 +59,7 @@
 	
 	{* Bulk lazy load services *}
 	{$object_services = []}
-	{if in_array(SearchFields_ConnectedAccount::SERVICE_ID, $view->view_columns)}
+	{if in_array('c_service_id', $view->view_columns)}
 		{$service_ids = DevblocksPlatform::extractArrayValues($results, 'c_service_id')}
 		{$object_services = DAO_ConnectedService::getIds($service_ids)}
 	{/if}

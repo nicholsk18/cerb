@@ -1067,6 +1067,9 @@ class Context_WebhookListener extends Extension_DevblocksContext implements IDev
 			$types = Model_CustomField::getTypes();
 			$tpl->assign('types', $types);
 			
+			$trigger_ext = Extension_AutomationTrigger::get(AutomationTrigger_WebhookRespond::ID, true);
+			$tpl->assign('trigger_ext', $trigger_ext);
+			
 			// View
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);

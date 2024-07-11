@@ -58,7 +58,7 @@
 
 	{* Bulk lazy load sender address *}
 	{$object_senders = []}
-	{if in_array(SearchFields_Message::ADDRESS_EMAIL, $view->view_columns)}
+	{if in_array('a_email', $view->view_columns)}
 		{$sender_ids = DevblocksPlatform::extractArrayValues($results, 'm_address_id')}
 		{$object_senders = DAO_Address::getIds($sender_ids)}
 

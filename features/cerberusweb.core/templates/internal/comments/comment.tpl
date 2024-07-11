@@ -1,6 +1,6 @@
 {$owner_meta = $comment->getOwnerMeta()}
 {$target_context = $comment->getTargetContext(false)}
-{$is_writeable = Context_Comment::isWriteableByActor($comment, $active_worker)}
+{$is_writeable = CerberusContexts::isWriteableByActor(CerberusContexts::CONTEXT_COMMENT, $comment, $active_worker)}
 
 <div class="block" style="position:relative;margin-bottom:10px;padding-left:10px;">
 	<span class="tag" style="background-color:rgb(71,133,210);color:white;margin-right:5px;">{'common.comment'|devblocks_translate|lower}</span>

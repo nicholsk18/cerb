@@ -1,4 +1,4 @@
-{$view_context = Context_ProjectBoardColumn::ID}
+{$view_context = CerberusContexts::CONTEXT_PROJECT_BOARD_COLUMN}
 {$view_fields = $view->getColumnsAvailable()}
 {$results = $view->getData()}
 {$total = $results[1]}
@@ -96,7 +96,7 @@
 				<td data-column="{$column}">
 					{$board = $boards.{$result.$column}}
 					{if $board}
-					<a class="cerb-peek-trigger no-underline" data-context="{Context_ProjectBoard::ID}" data-context-id="{$board->id}">{$board->name}</a>
+					<a class="cerb-peek-trigger no-underline" data-context="{CerberusContexts::CONTEXT_PROJECT_BOARD}" data-context-id="{$board->id}">{$board->name}</a>
 					{/if}
 				</td>
 			{else}
