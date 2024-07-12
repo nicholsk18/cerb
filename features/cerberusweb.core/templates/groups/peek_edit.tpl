@@ -160,14 +160,18 @@
 
 	<div id="{$form_id}Inbox">
 		<fieldset data-cerb-bucket-routing-toolbar class="peek">
-			<legend>When a new ticket arrives in the group inbox: (KATA)</legend>
+			<legend>When a new ticket arrives in the {if $group && $group->id}{$group->name}{else}group{/if} inbox: (KATA)</legend>
 			<div class="cerb-code-editor-toolbar">
 				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-magic title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl+Space)"><span class="glyphicons glyphicons-magic"></span></button>
-				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-help title="{'common.help'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
 
-				{if $bucket->id}
+				{if $group->id}
 					<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets title="{'common.change_history'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-history"></span></button>
 				{/if}
+
+				<div class="cerb-code-editor-toolbar-divider"></div>
+
+				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-help title="{'common.help'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-circle-question-mark"></span></button>
+				<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-tester title="{'common.test'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-lab"></span></button>
 			</div>
 
 			<textarea name="routing_kata" data-editor-mode="ace/mode/cerb_kata">{$group->routing_kata}</textarea>
@@ -201,6 +205,24 @@
 					</div>
 				</div>
 			{/if}
+		</fieldset>
+
+		<fieldset data-cerb-routing-tester class="peek black cerb-hidden" style="margin:10px 0 0 0;">
+			<legend style="font-size:140%;">{'common.test'|devblocks_translate|capitalize}</legend>
+
+			<div>
+				<div data-cerb-routing-tester-editor-placeholders>
+					<div class="cerb-code-editor-toolbar">
+						<b>{'common.placeholders'|devblocks_translate|capitalize} (KATA)</b>
+						<div class="cerb-code-editor-toolbar-divider"></div>
+						<button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--chooser" title="{'common.choose'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-search"></span></button>
+						<button type="button" class="cerb-code-editor-toolbar-button cerb-code-editor-toolbar-button--run" title="{'common.run'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-play"></span></button>
+					</div>
+					<textarea name="tester[placeholders]" data-editor-mode="ace/mode/cerb_kata" rows="5" cols="45"></textarea>
+				</div>
+
+				<div data-cerb-routing-tester-results style="margin-top:10px;position:relative;"></div>
+			</div>
 		</fieldset>
 	</div>
 
@@ -463,6 +485,75 @@ $(function() {
 
 		$toolbar.cerbCodeEditorToolbarEventHandler({
 			editor: editor
+		});
+
+		let $tab_routing = $('#{$form_id}Inbox');
+		let $fieldset_tester = $tab_routing.find('[data-cerb-routing-tester]');
+		let highlight_marker = null;
+		let $fieldset_tester_results = $fieldset_tester.find('[data-cerb-routing-tester-results]');
+
+		let $editor_tester = $fieldset_tester.find('textarea[name="tester[placeholders]"]')
+			.cerbCodeEditor()
+			.next('pre.ace_editor')
+		;
+
+		let editor_tester = ace.edit($editor_tester.attr('id'));
+
+		$toolbar.find('[data-cerb-editor-button-tester]').on('click', function(e) {
+			e.stopPropagation();
+			let $button = $(this);
+
+			if($fieldset_tester.toggle().is(':visible')) {
+				$button.addClass('cerb-code-editor-toolbar-button--enabled');
+			} else {
+				$button.removeClass('cerb-code-editor-toolbar-button--enabled');
+			}
+		});
+
+		$fieldset_tester.find('.cerb-code-editor-toolbar-button--chooser')
+			.attr('data-interaction-uri', 'cerb:automation:ai.cerb.routingRuleBuilder.inputChooser')
+			.attr('data-interaction-params', '')
+			.cerbBotTrigger({
+				'width': '80%',
+				'done': function(e) {
+					Devblocks.interactionWorkerPostActions(e.eventData, editor_tester);
+				},
+			})
+		;
+
+		$fieldset_tester.find('.cerb-code-editor-toolbar-button--run').on('click', function(e) {
+			e.stopPropagation();
+
+			if(null != highlight_marker) {
+				editor.session.removeMarker(highlight_marker.id);
+				highlight_marker = null;
+			}
+
+			$fieldset_tester_results.html('').hide();
+
+			let formData = new FormData($frm.get(0));
+			formData.set('c', 'profiles');
+			formData.set('a', 'invoke');
+			formData.set('module', 'mail_routing_rule');
+			formData.set('action', 'testRoutingKataJson');
+
+			genericAjaxPost(formData, null, null, function(json) {
+				if('object' !== typeof json)
+					return;
+
+				if(!json.hasOwnProperty('key')) {
+					let $h1 = $('<h1/>').text('(no matching rules)');
+					$fieldset_tester_results.append($h1).fadeIn();
+
+				} else if(json.hasOwnProperty('line')) {
+					let row = json['line'];
+					highlight_marker = editor.session.highlightLines(row, row);
+					editor.scrollToLine(row);
+
+					let $h1 = $('<h1/>').text('Matched ' + json['key']);
+					$fieldset_tester_results.append($h1).fadeIn();
+				}
+			});
 		});
 	});
 });
