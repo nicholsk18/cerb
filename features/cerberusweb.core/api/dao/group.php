@@ -1758,6 +1758,7 @@ class View_Group extends C4_AbstractView implements IAbstractView_Subtotals, IAb
 			case SearchFields_Group::REPLY_HTML_TEMPLATE_ID:
 			case SearchFields_Group::REPLY_SIGNATURE_ID:
 			case SearchFields_Group::REPLY_SIGNING_KEY_ID:
+				$criteria = new DevblocksSearchCriteria($field, $oper, $value);
 				break;
 				
 			case SearchFields_Group::NAME:
