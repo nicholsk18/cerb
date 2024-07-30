@@ -727,10 +727,6 @@ class View_WorkspaceWidget extends C4_AbstractView implements IAbstractView_Subt
 				// Fields
 				case SearchFields_WorkspaceWidget::EXTENSION_ID:
 				case SearchFields_WorkspaceWidget::WORKSPACE_TAB_ID:
-					$pass = true;
-					break;
-					
-				// Virtuals
 				case SearchFields_WorkspaceWidget::VIRTUAL_CONTEXT_LINK:
 				case SearchFields_WorkspaceWidget::VIRTUAL_HAS_FIELDSET:
 					$pass = true;

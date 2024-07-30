@@ -376,6 +376,7 @@ class _DevblocksEmailManager {
 							
 							if(DevblocksPlatform::services()->string()->arrayMatches($routing_dict->get('sender_email', ''), $patterns, only_first_match: true))
 								$cond_passed++;
+						
 						} else if('spam_score' == $cond_type) {
 							if(is_string($cond_data)) {
 								$oper = DevblocksPlatform::strStartsWith($cond_data, ['>=','>','<=','<']);
@@ -421,7 +422,7 @@ class _DevblocksEmailManager {
 			
 			// If the rule has no `if:` then always use it
 			if(0 == $num_ifs) {
-				 $match = [$rule_key];
+				$match = [$rule_key];
 				return $rule_data['then'] ?? [];
 			}
 		}

@@ -1477,8 +1477,8 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 			if(empty($view->renderSubtotals)) {
 				$view->renderSubtotals = key($fields);
 				
-				// hidden->shown ('__' prefix means hidden w/ pref)
-			} elseif('__'==substr($view->renderSubtotals,0,2)) {
+			// hidden->shown ('__' prefix means hidden w/ pref)
+			} elseif(DevblocksPlatform::strStartsWith($view->renderSubtotals,'__')) {
 				$key = ltrim($view->renderSubtotals,'_');
 				// Make sure the desired key still exists
 				$view->renderSubtotals = isset($fields[$key]) ? $key : key($fields);
@@ -1494,7 +1494,7 @@ class PageSection_InternalWorklists extends Extension_PageSection {
 		}
 		
 		// If hidden, no need to draw template
-		if(empty($view->renderSubtotals) || '__'==substr($view->renderSubtotals,0,2))
+		if(empty($view->renderSubtotals) || DevblocksPlatform::strStartsWith($view->renderSubtotals,'__'))
 			return;
 		
 		$view->renderSubtotals();

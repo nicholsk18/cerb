@@ -200,7 +200,6 @@ class PageSection_ProfilesMailRoutingRule extends Extension_PageSection {
 	private function _profileAction_testRoutingKataJson() {
 		$kata = DevblocksPlatform::services()->kata();
 		$mail = DevblocksPlatform::services()->mail();
-		$tpl = DevblocksPlatform::services()->template();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
