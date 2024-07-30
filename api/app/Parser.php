@@ -1935,7 +1935,22 @@ class CerberusParser {
 				DevblocksPlatform::logError('[Parser/Bucket Routing] ' . $error);
 			}
 			
-			if($bucket_routing && ($bucket_route_actions = $mail->runRoutingKata($bucket_routing, $routing_dict))) {
+			$routing_match = null;
+			
+			if($bucket_routing && ($bucket_route_actions = $mail->runRoutingKata($bucket_routing, $routing_dict, $routing_match))) {
+				if($routing_match[0] ?? null) {
+					// Increment group routing rule usage
+					$metrics->increment(
+						'cerb.mail.routing.group.matches',
+						1,
+						[
+							'group_id' => $model->getRouteGroup()->id,
+							'rule_key' => $routing_match[0] ?? '',
+							'node_key' => $routing_match[1] ?? '',
+						]
+					);
+				}
+				
 				$mail->runRoutingKataActions($bucket_route_actions, $model);
 			}
 		}

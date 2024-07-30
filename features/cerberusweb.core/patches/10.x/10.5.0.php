@@ -369,6 +369,16 @@ $db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, 
 	time()
 ));
 
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %s, %d, %d)",
+	$db->qstr('cerb.mail.routing.group.matches'),
+	$db->qstr('Match count for group inbox routing rules'),
+	$db->qstr('counter'),
+	$db->qstr("record/group_id:\n  record_type: group\ntext/rule_key:\ntext/node_key:\n"),
+	time(),
+	time()
+));
+
 // ===========================================================================
 // Finish up
 
