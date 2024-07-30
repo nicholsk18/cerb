@@ -231,7 +231,7 @@ class PageSection_ProfilesMailRoutingRule extends Extension_PageSection {
 			
 			$match = null;
 			
-			if($routing && ($route_actions = $mail->runRoutingKata($routing, $routing_dict, $match))) {
+			if($routing && ($mail->runRoutingKata($routing, $routing_dict, $match))) {
 				if(is_array($match)) {
 					$key_path = $match[0] . ':';
 					$line = 0;

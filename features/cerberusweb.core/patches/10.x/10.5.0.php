@@ -357,6 +357,19 @@ if($revision < 1462) {
 }
 
 // ===========================================================================
+// Add metrics
+
+$db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, dimensions_kata, created_at, updated_at) ".
+	"VALUES (%s, %s, %s, %s, %d, %d)",
+	$db->qstr('cerb.mail.routing.matches'),
+	$db->qstr('Match count for global mail routing rules'),
+	$db->qstr('counter'),
+	$db->qstr("record/rule_id:\n  record_type: mail_routing_rule\ntext/rule_key:\ntext/node_key:\n"),
+	time(),
+	time()
+));
+
+// ===========================================================================
 // Finish up
 
 return TRUE;

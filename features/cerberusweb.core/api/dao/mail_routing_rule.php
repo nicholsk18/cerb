@@ -188,36 +188,38 @@ class DAO_MailRoutingRule extends Cerb_ORMHelper {
 	}
 	
 	// [TODO] Cache
-	public static function getMergedKata(string &$error=null) {
+	public static function getMergedKata(array &$map_keys_to_ids) {
 		$routing_kata = '';
 		$routing_rulesets = self::getAll();
 		
-		// If we only have one ruleset we don't need to merge dupe key names
-		if(1 == count($routing_rulesets)) {
-			if(($routing_ruleset = current($routing_rulesets)))
-				$routing_kata = $routing_ruleset->routing_kata;
+		// If we have more than one listener we need to check for dupe binding keys
+		$routing_kata_keys = [];
+		$map_keys_to_ids = [];
+		
+		foreach($routing_rulesets as $routing_ruleset) {
+			$lines = DevblocksPlatform::parseCrlfString($routing_ruleset->routing_kata, true, false);
 			
-		} else {
-			// If we have more than one listener we need to check for dupe binding keys
-			$routing_kata_keys = [];
-			
-			foreach($routing_rulesets as $routing_ruleset) {
-				$lines = DevblocksPlatform::parseCrlfString($routing_ruleset->routing_kata, true, false);
-				
-				foreach($lines as $line) {
-					if(DevblocksPlatform::strStartsWith($line, ['rule/'])) {
-						// Check for dupe bindings from the rulesets
-						if(array_key_exists($line, $routing_kata_keys)) {
-							$line = sprintf("%s_%s:",
-								rtrim($line,': '),
-								substr(sha1(random_bytes(128)), 0, 8)
-							);
-						}
-						$routing_kata_keys[$line] = true;
+			foreach($lines as $line) {
+				if(DevblocksPlatform::strStartsWith($line, ['rule/'])) {
+					$original_line = $line;
+					
+					// Check for dupe bindings from the rulesets
+					if(array_key_exists($line, $routing_kata_keys)) {
+						$line = sprintf("%s_%s:",
+							rtrim($line,': '),
+							substr(sha1(random_bytes(128)), 0, 8)
+						);
 					}
 					
-					$routing_kata .= $line . "\n";
+					$routing_kata_keys[$line] = true;
+					
+					$map_keys_to_ids[rtrim($line,':')] = [
+						'id' => $routing_ruleset->id,
+						'key' => rtrim($original_line,':')
+					];
 				}
+				
+				$routing_kata .= $line . "\n";
 			}
 		}
 		

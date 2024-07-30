@@ -1875,10 +1875,13 @@ class CerberusParser {
 	static private function _parseMessageRoutingKata(CerberusParserModel $model) : bool {
 		$kata = DevblocksPlatform::services()->kata();
 		$mail = DevblocksPlatform::services()->mail();
+		$metrics = DevblocksPlatform::services()->metrics();
 		
 		$error = null;
+		$routing_keys_to_ids = [];
+		$routing_match = [];
 		
-		$routing_kata = DAO_MailRoutingRule::getMergedKata() ?? '';
+		$routing_kata = DAO_MailRoutingRule::getMergedKata($routing_keys_to_ids) ?? '';
 		
 		$routing_dict = DevblocksDictionaryDelegate::instance([
 			'subject' => $model->getSubject(),
@@ -1900,7 +1903,20 @@ class CerberusParser {
 			DevblocksPlatform::logError('[Parser/Group Routing] ' . $error);
 		}
 		
-		if($routing && ($route_actions = $mail->runRoutingKata($routing, $routing_dict))) {
+		if($routing && ($route_actions = $mail->runRoutingKata($routing, $routing_dict, $routing_match))) {
+			if(array_key_exists($routing_match[0] ?? '', $routing_keys_to_ids)) {
+				// Increment routing rule usage
+				$metrics->increment(
+					'cerb.mail.routing.matches',
+					1,
+					[
+						'rule_id' => $routing_keys_to_ids[$routing_match[0]]['id'],
+						'rule_key' => $routing_keys_to_ids[$routing_match[0]]['key'],
+						'node_key' => $routing_match[1] ?? '',
+					]
+				);
+			}
+			
 			$mail->runRoutingKataActions($route_actions, $model);
 		}
 		
