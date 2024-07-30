@@ -227,22 +227,22 @@ $(function() {
 		$a.html('&nbsp;&nbsp;&nbsp;');
 	});
 	
-	var view_table_width = $view_thead.closest('TABLE').width();
-	var view_table_width_left = 100;
-	var view_table_width_cols = $view_thead.find('TH').length - 1;
+	let view_table_width = $view_thead.closest('TABLE').width();
+	let view_table_width_left = 100;
+	let view_table_width_cols = $view_thead.find('TH').length - 1;
 	
 	$view_thead.find('TH A').each(function(idx) {
-		var $a = $(this);
-		var $th = $a.closest('th');
-		var width = 0;
-		
+		let $a = $(this);
+		let $th = $a.closest('th');
+		let width;
+
 		// On the last column, take all the remaining width (no rounding errors)
-		if(idx == view_table_width_cols) {
+		if(idx === view_table_width_cols) {
 			width = view_table_width_left;
 	
 		// Figure out the proportional width for this column compared to the whole table
 		} else {
-			width = Math.ceil(100 * ($th.outerWidth()) / view_table_width);
+			width = Math.round(100 * ($th.outerWidth() / view_table_width));
 			view_table_width_left -= width;
 		}
 		
