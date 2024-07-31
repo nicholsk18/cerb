@@ -919,6 +919,15 @@ class _DevblocksKataService {
 	}
 	
 	public function treeDiff(mixed $tree1, mixed $tree2, string $parent_key='') : mixed {
+		$diff = $this->_treeDiff($tree1, $tree2, $parent_key);
+		
+		if($diff == '___DIFF-SAME___')
+			return [];
+		
+		return $diff;
+	}
+	
+	private function _treeDiff(mixed $tree1, mixed $tree2, string $parent_key='') : mixed {
 		$differences = [];
 		
 		// Compare the types of the trees
@@ -928,11 +937,18 @@ class _DevblocksKataService {
 		
 		// If both trees are arrays, compare their elements
 		if(is_array($tree1) && is_array($tree2)) {
+			if(
+				(empty($tree1) && !empty($tree2))
+				|| (!empty($tree1) && empty($tree2))
+			) {
+				return $tree2;
+			}
+			
 			// Compare each element recursively
 			foreach ($tree1 as $key => $value) {
-				if(isset($tree2[$key])) {
-					$nestedDifferences = $this->treeDiff($value, $tree2[$key], $parent_key . $key . ':');
-					if($nestedDifferences) {
+				if(array_key_exists($key, $tree2)) {
+					$nestedDifferences = $this->_treeDiff($value, $tree2[$key], $parent_key . $key . ':');
+					if($nestedDifferences != '___DIFF-SAME___') {
 						$differences[$key] = $nestedDifferences;
 					}
 				}
@@ -940,12 +956,12 @@ class _DevblocksKataService {
 			
 			// Check for additional elements in tree2
 			foreach($tree2 as $key => $value) {
-				if(!isset($tree1[$key])) {
+				if(!array_key_exists($key, $tree1)) {
 					$differences[$key] = $value;
 				}
 			}
 			
-			return $differences;
+			return (0 == count($differences) ? '___DIFF-SAME___' : $differences);
 		}
 		
 		// If the trees are of different types and not arrays, they are different
@@ -958,6 +974,6 @@ class _DevblocksKataService {
 		}
 		
 		// If the trees are of the same type and equal, there are no differences
-		return $differences;
-	}	
+		return '___DIFF-SAME___';
+	}
 }

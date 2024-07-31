@@ -653,4 +653,70 @@ EOD;
 		
 		$this->assertEquals($expected_kata, $existing_kata);
 	}
+	
+	function testKataDiffFlatNoChanges() {
+		$tree1 = 'this is a string';
+		$tree2 = 'this is a string';
+		
+		$expected = [];
+		
+		$actual = DevblocksPlatform::services()->kata()->treeDiff($tree1, $tree2);
+		
+		$this->assertEquals($expected, $actual);
+	}
+	
+	function testKataDiffFlatChanges() {
+		$tree1 = 'this is a string';
+		$tree2 = 'this is a new string';
+		
+		$expected = 'this is a new string';
+		
+		$actual = DevblocksPlatform::services()->kata()->treeDiff($tree1, $tree2);
+		
+		$this->assertEquals($expected, $actual);
+	}
+	
+	function testKataDiffNestedNoChanges() {
+		$tree1 = ['fields' => ['params' => ['owners' => ['contexts' => 'worker']]]];
+		$tree2 = ['fields' => ['params' => ['owners' => ['contexts' => 'worker']]]];
+		
+		$expected = [];
+		
+		$actual = DevblocksPlatform::services()->kata()->treeDiff($tree1, $tree2);
+		
+		$this->assertEquals($expected, $actual);
+	}
+	
+	function testKataDiffNestedChanges() {
+		$tree1 = ['fields' => ['params' => ['hidden' => false, 'owners' => ['contexts' => 'worker']]]];
+		$tree2 = ['fields' => ['params' => ['hidden' => false, 'owners' => ['contexts' => 'group']]]];
+		
+		$expected = ['fields' => ['params' => ['owners' => ['contexts' => 'group']]]];
+		
+		$actual = DevblocksPlatform::services()->kata()->treeDiff($tree1, $tree2);
+		
+		$this->assertEquals($expected, $actual);
+	}
+	
+	function testKataDiffTreeZeroValue() {
+		$tree1 = ['fields' => ['title' => 'original title', 'owner_id' => 16]];
+		$tree2 = ['fields' => ['title' => 'original title', 'owner_id' => '0']];
+		
+		$expected = ['fields' => ['owner_id' => '0']];
+		
+		$actual = DevblocksPlatform::services()->kata()->treeDiff($tree1, $tree2);
+		
+		$this->assertEquals($expected, $actual);
+	}
+	
+	function testKataDiffTreeEmptyArray() {
+		$tree1 = ['fields' => ['title' => 'original title', 'owner_ids' => [15,16]]];
+		$tree2 = ['fields' => ['title' => 'original title', 'owner_ids' => []]];
+		
+		$expected = ['fields' => ['owner_ids' => []]];
+		
+		$actual = DevblocksPlatform::services()->kata()->treeDiff($tree1, $tree2);
+		
+		$this->assertEquals($expected, $actual);
+	}
 }

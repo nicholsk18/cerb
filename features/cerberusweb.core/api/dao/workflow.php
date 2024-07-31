@@ -703,7 +703,20 @@ class Model_Workflow extends DevblocksRecordModel {
 		$kata = DevblocksPlatform::services()->kata();
 		$current_values = $kata->parse($this->config_kata);
 		$current_values = $kata->formatTree($current_values);
-		$this->config_kata = $kata->emit(array_merge($current_values ?: [], $config_values));
+		
+		// Remove existing values that are no longer set
+		foreach($current_values as $k => $v) {
+			if(!array_key_exists($k, $config_values)) {
+				unset($current_values[$k]);
+			}
+		}
+		
+		// Set new config values
+		foreach($config_values as $k => $v) {
+			$current_values[$k] = $v;
+		}
+		
+		$this->config_kata = $kata->emit($current_values);
 	}
 	
 	public function getChangesAutomationInitialState(&$error=null) : array|false {
@@ -851,7 +864,7 @@ class Model_Workflow extends DevblocksRecordModel {
 			$record_name = DevblocksPlatform::services()->string()->strAfter($record_key, '/') ?: $record_type;
 			
 			if(array_key_exists($record_key, $was_records)) {
-				$delta = $kata->treeDiff($was_records[$record_key], $new_record, '', true);
+				$delta = $kata->treeDiff($was_records[$record_key], $new_record, '');
 				
 				// Update
 				if($delta) {
@@ -932,7 +945,7 @@ class Model_Workflow extends DevblocksRecordModel {
 		
 		foreach($new_extensions as $extension_key => $new_extension) {
 			if(array_key_exists($extension_key, $was_extensions)) {
-				$delta = $kata->treeDiff($was_extensions[$extension_key], $new_extension, '', true);
+				$delta = $kata->treeDiff($was_extensions[$extension_key], $new_extension, '');
 				
 				// Update
 				if($delta) {
