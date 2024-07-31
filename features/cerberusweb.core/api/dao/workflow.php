@@ -728,9 +728,19 @@ class Model_Workflow extends DevblocksRecordModel {
 			$config_values = [];
 		}
 		
+		$config_options = $this->getConfigOptions($config_values) ?: [];
+		
+		// If we have choosers, add key expandable dictionaries
+		foreach($config_options as $config_key => $config_option) {
+			if('chooser' == ($config_option['type'] ?? null)) {
+				$config_values[$config_key . '__context'] = $config_option['params']['record_type'] ?? '';
+				$config_values[$config_key . '_id'] = intval($config_option['value'] ?? 0);
+			}
+		}
+		
 		$initial_state = [
 			//'__simulate' => 1,
-			'config' => $config_values,
+			'config' => DevblocksDictionaryDelegate::instance($config_values),
 			'records' => [],
 		];
 		
