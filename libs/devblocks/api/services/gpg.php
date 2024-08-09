@@ -109,6 +109,8 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 		$key = $key->withHash($hash_algorithm);
 		$keyid = substr($fingerprint, -16);
 		
+		$key_headers = [];
+		
 		foreach($uids as $uid_data) {
 			$uid_name = $uid_data['name'] ?? null;
 			$uid_email = $uid_data['email'] ?? null;
@@ -118,6 +120,9 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 			
 			$uid = new OpenPGP_UserIDPacket($uid_name, '', $uid_email);
 			$packets[] = $uid;
+			
+			if(!array_key_exists('Comment', $key_headers))
+				$key_headers['Comment'] = (string) $uid;
 			
 			$sig = new OpenPGP_SignaturePacket(new OpenPGP_Message([$nkey, $uid]), 'RSA', $hash_algorithm);
 			$sig->signature_type = 0x13;
@@ -169,10 +174,10 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 		}
 		
 		$privkey_bytes = $m->to_bytes();
-		$privkey_ascii = OpenPGP::enarmor($privkey_bytes, 'PGP PRIVATE KEY BLOCK');
+		$privkey_ascii = OpenPGP::enarmor($privkey_bytes, 'PGP PRIVATE KEY BLOCK', $key_headers);
 		
 		$pubkey_bytes = $pubm->to_bytes();
-		$pubkey_ascii = OpenPGP::enarmor($pubkey_bytes, 'PGP PUBLIC KEY BLOCK');
+		$pubkey_ascii = OpenPGP::enarmor($pubkey_bytes, 'PGP PUBLIC KEY BLOCK', $key_headers);
 		
 		return [
 			'public_key' => $pubkey_ascii,
