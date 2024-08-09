@@ -255,6 +255,8 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 				
 				$keydata['fingerprint'] = $p->fingerprint;
 				$keydata['keyid'] = $p->key_id;
+				$keydata['algorithm'] = $p->algorithm;
+				$keydata['algorithm_name'] = OpenPGP_SecretKeyPacket::$algorithms[$p->algorithm] ?? '';
 				$keydata['timestamp'] = $p->timestamp;
 				$keydata['is_secret'] = true;
 				if(in_array($p->algorithm,[1,2,3]))
@@ -268,6 +270,8 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 				
 				$keydata['fingerprint'] = $p->fingerprint;
 				$keydata['keyid'] = $p->key_id;
+				$keydata['algorithm'] = $p->algorithm;
+				$keydata['algorithm_name'] = OpenPGP_PublicKeyPacket::$algorithms[$p->algorithm] ?? '';
 				$keydata['timestamp'] = $p->timestamp;
 				if(in_array($p->algorithm,[1,2,3]))
 					$keydata['key_bits'] = OpenPGP::bitlength($p->key['n'] ?? '');
