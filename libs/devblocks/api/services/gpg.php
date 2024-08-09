@@ -294,6 +294,9 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 					continue;
 				}
 				
+				$ptr['hash_algorithm'] = $p->hash_algorithm;
+				$ptr['hash_algorithm_name'] = $p->hash_algorithm_name();
+				
 				foreach(array_merge($p->hashed_subpackets, $p->unhashed_subpackets) as $pp) {
 					if ($pp instanceof OpenPGP_SignaturePacket_KeyExpirationTimePacket) {
 						$ptr['expires'] = $ptr['timestamp'] + $pp->data;
