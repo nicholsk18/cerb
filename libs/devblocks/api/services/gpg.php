@@ -222,7 +222,7 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 	}
 	
 	// [TODO] Throw exceptions
-	public function keyinfo($key_text, $passphrase=null) {
+	public function keyinfo($key_text, $passphrase=null, $with_packets=false) {
 		if(false !== strpos($key_text, 'PGP PUBLIC KEY BLOCK')) {
 			$header = 'PGP PUBLIC KEY BLOCK';
 		} else if(false !== strpos($key_text, 'PGP PRIVATE KEY BLOCK')) {
@@ -265,6 +265,9 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 				'expired' => false,
 				'revoked' => false, // [TODO]
 			];
+			
+			if($with_packets)
+				$keydata['packet'] = $p;
 			
 			if ($p instanceof OpenPGP_SecretKeyPacket) {
 				/* @var $p OpenPGP_SecretKeyPacket */
@@ -403,7 +406,25 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 		}
 	}
 	
+	public function isKeyValidFor($key, $purpose) {
+		return !(
+			$key['disabled']
+			|| $key['expired']
+			|| $key['revoked']
+			|| (
+				$purpose == 'sign'
+				&& !$key['can_sign']
+			)
+			|| (
+				$purpose == 'encrypt'
+				&& !$key['can_encrypt']
+			)
+		);
+	}
+	
 	function encrypt($plaintext, $key_fingerprints) {
+		$gpg = DevblocksPlatform::services()->gpg();
+		
 		if(!is_array($key_fingerprints))
 			return false;
 		
@@ -428,13 +449,26 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 					continue;
 			}
 			
-			if(false == ($pub_key = OpenPGP_Message::parse(OpenPGP::unarmor($public_key->key_text, 'PGP PUBLIC KEY BLOCK'))))
-				continue;
+			$keyinfo = $gpg->keyinfo($public_key->key_text, null, true);
 			
-			$pub_keys[] = $pub_key->packets[0];
+			foreach(($keyinfo['subkeys'] ?? []) as $key) {
+				if(
+					($key['packet'] ?? null)
+					&& in_array($key['packet']->algorithm ?? [], [1,2,3])
+					&& $gpg->isKeyValidFor($key, 'encrypt')
+				) {
+					$pub_keys[] = $key['packet'];
+				}
+			}
 		}
 		
-		$msg_encrypted = OpenPGP_Crypt_Symmetric::encrypt($pub_keys, new OpenPGP_Message([$data]));
+		try {
+			$msg_encrypted = OpenPGP_Crypt_Symmetric::encrypt($pub_keys, new OpenPGP_Message([$data]));
+		} catch (Exception $e) {
+			DevblocksPlatform::logException($e);
+			return false;
+		}
+		
 		return OpenPGP::enarmor($msg_encrypted->to_bytes(), 'PGP MESSAGE');
 	}
 	
