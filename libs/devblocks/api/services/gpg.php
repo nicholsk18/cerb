@@ -14,7 +14,7 @@ abstract class Extension_DevblocksGpgEngine {
 	abstract function decrypt($encrypted_content);
 	abstract function sign($plaintext, $key_fingerprint, $is_detached=true);
 	abstract function verify($signed_content, $signature=false);
-	abstract function keygen(array $uids, int $key_length, string $passphrase=null);
+	abstract function keygen(array $uids, int $key_length, string $hash_algorithm='SHA256', string $passphrase=null);
 }
 
 class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
@@ -77,12 +77,16 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 	 * @param string|null $passphrase
 	 * @return array|false
 	 */
-	function keygen(array $uids, int $key_length=2048, string $passphrase=null) {
+	function keygen(array $uids, int $key_length=2048, string $hash_algorithm='SHA256', string $passphrase=null) {
 		// [TODO] Passphrases
 		
-		// [TODO] Exceptions
 		if(!in_array($key_length,[512,1024,2048,3072,4096]))
-			return false;
+			$key_length = 2048;
+		
+		if(!in_array($hash_algorithm, OpenPGP_SignaturePacket::$hash_algorithms))
+			$hash_algorithm = 'SHA256';
+		
+		$hash_algorithm_id = array_search($hash_algorithm, OpenPGP_SignaturePacket::$hash_algorithms);
 		
 		$rsa = $this->_createPrivateKeyCryptRsa($key_length);
 		
@@ -95,11 +99,14 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 			'u' => $rsa['coefficients'],
 		]);
 		
+		$nkey->s2k_useage = 0;
+		
 		$packets = [$nkey];
 		
 		$wkey = new OpenPGP_Crypt_RSA($nkey);
 		$fingerprint = $wkey->key()->fingerprint;
 		$key = $wkey->private_key();
+		$key = $key->withHash($hash_algorithm);
 		$keyid = substr($fingerprint, -16);
 		
 		foreach($uids as $uid_data) {
@@ -112,11 +119,12 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 			$uid = new OpenPGP_UserIDPacket($uid_name, '', $uid_email);
 			$packets[] = $uid;
 			
-			$sig = new OpenPGP_SignaturePacket(new OpenPGP_Message([$nkey, $uid]), 'RSA', 'SHA256');
+			$sig = new OpenPGP_SignaturePacket(new OpenPGP_Message([$nkey, $uid]), 'RSA', $hash_algorithm);
 			$sig->signature_type = 0x13;
+			$sig->hash_algorithm = $hash_algorithm_id;
 			$sig->hashed_subpackets[] = new OpenPGP_SignaturePacket_KeyFlagsPacket(array(0x01 | 0x02)); // Certify + sign
 			$sig->hashed_subpackets[] = new OpenPGP_SignaturePacket_IssuerPacket($keyid);
-			$m = $wkey->sign_key_userid([$nkey, $uid, $sig]);
+			$m = $wkey->sign_key_userid([$nkey, $uid, $sig], $hash_algorithm);
 			
 			$packets[] = $m->packets[2];
 		}
@@ -132,15 +140,18 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 			'u' => $rsa_subkey['coefficients'],
 		]);
 		
+		$subkey->s2k_useage = 0;
+		
 		$packets[] = $subkey;
 		
-		$sub_sig = new OpenPGP_SignaturePacket(null, 'RSA', 'SHA256');
+		$sub_sig = new OpenPGP_SignaturePacket(null, 'RSA', $hash_algorithm);
 		$sub_sig->signature_type = 0x18;
+		$sub_sig->hash_algorithm = $hash_algorithm_id;
 		$sub_sig->hashed_subpackets[] = new OpenPGP_SignaturePacket_SignatureCreationTimePacket(time());
 		$sub_sig->hashed_subpackets[] = new OpenPGP_SignaturePacket_KeyFlagsPacket(array(0x0C)); // Encrypt
 		$sub_sig->hashed_subpackets[] = new OpenPGP_SignaturePacket_IssuerPacket($keyid);
 		$sub_sig->data = implode('', $nkey->fingerprint_material()) . implode('', $subkey->fingerprint_material());
-		$sub_sig->sign_data(array('RSA' => array('SHA256' => function($data) use($key) {return array($key->sign($data));})));
+		$sub_sig->sign_data(['RSA' => [$hash_algorithm => function($data) use($key) {return array($key->sign($data));}]]);
 		
 		$packets[] = $sub_sig;
 		
