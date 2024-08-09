@@ -270,8 +270,6 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 				$keydata['packet'] = $p;
 			
 			if ($p instanceof OpenPGP_SecretKeyPacket) {
-				/* @var $p OpenPGP_SecretKeyPacket */
-				
 				$keydata['fingerprint'] = $p->fingerprint;
 				$keydata['keyid'] = $p->key_id;
 				$keydata['algorithm'] = $p->algorithm;
@@ -285,8 +283,6 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 				$last_key = $id16;
 				
 			} else if ($p instanceof OpenPGP_PublicKeyPacket) {
-				/* @var $p OpenPGP_PublicKeyPacket */
-				
 				$keydata['fingerprint'] = $p->fingerprint;
 				$keydata['keyid'] = $p->key_id;
 				$keydata['algorithm'] = $p->algorithm;
@@ -441,11 +437,11 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 		// [TODO] Get all fingerprints at once
 		foreach($key_fingerprints as $key_fingerprint) {
 			if(is_numeric($key_fingerprint) && strlen($key_fingerprint) < 16) {
-				if(false == ($public_key = DAO_GpgPublicKey::get($key_fingerprint)))
+				if(!($public_key = DAO_GpgPublicKey::get($key_fingerprint)))
 					continue;
 				
 			} else {
-				if(false == ($public_key = DAO_GpgPublicKey::getByFingerprint($key_fingerprint)))
+				if(!($public_key = DAO_GpgPublicKey::getByFingerprint($key_fingerprint)))
 					continue;
 			}
 			

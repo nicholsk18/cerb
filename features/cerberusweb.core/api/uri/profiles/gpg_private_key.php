@@ -238,8 +238,6 @@ class PageSection_ProfilesGpgPrivateKey extends Extension_PageSection {
 			$uid_emails = DevblocksPlatform::importGPC($_POST['uid_emails'] ?? null, 'array', []);
 			$view_id = DevblocksPlatform::importGPC($_POST['view_id'] ?? null, 'string', '');
 			
-			// [TODO] Validate key length
-			
 			$uids = [];
 			
 			foreach(array_keys($uid_emails) as $idx) {
