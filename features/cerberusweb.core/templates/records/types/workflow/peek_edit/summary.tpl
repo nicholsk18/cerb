@@ -31,6 +31,12 @@
                             {/if}
                         {/if}
                     </ul>
+                {elseif 'text' == $config_option.type}
+                    {if $config_option.params.multiple}
+                        {$config_option.value|escape|nl2br nofilter}
+                    {else}
+                        {$config_option.value}
+                    {/if}
                 {else}
                     {$config_option.value}
                 {/if}

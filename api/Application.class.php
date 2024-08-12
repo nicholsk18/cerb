@@ -7217,6 +7217,11 @@ class _CerbApplication_KataSchemas {
                           multiple@bool: no
                           types:
                             string:
+                        multiple:
+                          multiple@bool: no
+                          types:
+                            bit:
+                            bool:
         extensions:
           multiple@bool: no
           types:

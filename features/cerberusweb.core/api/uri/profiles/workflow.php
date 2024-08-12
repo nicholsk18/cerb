@@ -232,6 +232,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 				'config:text:' => [
 					'default:',
 					'label:',
+					'multiple@bool: yes',
 				],
 				'extensions:' => [
 					'activity:',

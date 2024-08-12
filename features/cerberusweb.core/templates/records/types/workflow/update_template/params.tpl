@@ -26,8 +26,12 @@
                     {/if}
                 {/if}
             </ul>
-        {else}
-            <input type="text" name="config_values[{$config_option.key}]" value="{$config_option.value}" style="width:100%;">
+        {elseif 'text' == $config_option.type}
+            {if $config_option.params.multiple}
+                <textarea name="config_values[{$config_option.key}]" style="width:100%;height:5em;">{$config_option.value}</textarea>
+            {else}
+                <input type="text" name="config_values[{$config_option.key}]" value="{$config_option.value}" style="width:100%;">
+            {/if}
         {/if}
     </div>
 {/foreach}
