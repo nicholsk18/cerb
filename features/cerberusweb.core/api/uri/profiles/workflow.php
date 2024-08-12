@@ -517,10 +517,13 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 			$sheets = DevblocksPlatform::services()->sheet()->withDefaultTypes();
 			
 			if(!($sheet = $sheets->parse($sheet_kata, $error)))
-				throw new Exception_DevblocksAjaxValidationError('Error: ' . $error);
+				throw new Exception_DevblocksAjaxValidationError('Sheet Parse Error: ' . $error);
 			
-			$changes_kata = $kata->parse($changes_automation->script);
-			$changes_kata = $kata->formatTree($changes_kata);
+			if(false === ($changes_kata = $kata->parse($changes_automation->script, $error)))
+				throw new Exception_DevblocksAjaxValidationError('KATA Parse Error: ' . $error);
+			
+			if(false === ($changes_kata = $kata->formatTree($changes_kata, null, $error, true)))
+				throw new Exception_DevblocksAjaxValidationError('KATA Format Error: ' . $error);
 			
 			$record_dicts = array_values(array_map(
 				function($rk) use ($resource_keys, $changes_kata, $kata) {

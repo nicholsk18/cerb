@@ -786,7 +786,9 @@ class Model_Workflow extends DevblocksRecordModel {
 			}
 		};
 		
-		if(!($was_template = $this->getParsedTemplate()))
+		// Existing Template
+		
+		if(false === ($was_template = $kata->parse($this->workflow_kata, $error)))
 			$was_template = [];
 		
 		if(false === ($initial_state = $this->getChangesAutomationInitialState($error)))
@@ -794,13 +796,21 @@ class Model_Workflow extends DevblocksRecordModel {
 		
 		array_walk_recursive($was_template, $funcPlaceholders);
 		
-		if(!($new_template = $new->getParsedTemplate()))
+		if(false === ($was_template = $kata->formatTree($was_template, null, $error, true)))
+			$was_template = [];
+		
+		// Modified Template
+		
+		if(false === ($new_template = $kata->parse($new->workflow_kata, $errro)))
 			$new_template = [];
 		
 		if(false === ($initial_state = $new->getChangesAutomationInitialState($error)))
 			return false;
 		
 		array_walk_recursive($new_template, $funcPlaceholders);
+		
+		if(false === ($new_template = $kata->formatTree($new_template, null, $error, true)))
+			$new_template = [];
 		
 		if(false === ($workflow_resources = $this->getResources($error)))
 			return false;
