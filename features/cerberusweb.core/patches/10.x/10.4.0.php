@@ -217,6 +217,7 @@ $packages = [
 	'cerb_profile_tab_ticket_overview.json',
 	'cerb_profile_widget_ticket_owner.json',
 	'cerb_profile_widget_ticket_status.json',
+	'cerb_workspace_widget_worklist.json',
 ];
 
 CerberusApplication::packages()->importToLibraryFromFiles($packages, APP_PATH . '/features/cerberusweb.core/packages/library/');
