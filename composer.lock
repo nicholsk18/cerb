@@ -4890,7 +4890,6 @@
     "minimum-stability": "stable",
     "stability-flags": {
         "twig/twig": 20,
-        "singpolyma/openpgp-php": 20,
         "horde/imap-client": 20
     },
     "prefer-stable": false,
