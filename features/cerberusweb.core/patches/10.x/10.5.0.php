@@ -382,6 +382,55 @@ $db->ExecuteWriter(sprintf("INSERT IGNORE INTO metric (name, description, type, 
 ));
 
 // ===========================================================================
+// Update default card widgets
+
+// Public key subkeys
+if(($id = $db->GetOneMaster("SELECT id FROM card_widget WHERE name = 'Subkeys' AND record_type = 'cerberusweb.contexts.gpg_public_key'"))) {
+	$db->ExecuteMaster(sprintf("UPDATE card_widget SET extension_params_json=%s, updated_at=%d WHERE id=%d",
+		$db->qstr(json_encode([
+			"data_query" => "type:gpg.keyinfo\nfilter:subkeys\nfingerprint:{{record_fingerprint}}\nformat:dictionaries",
+			"cache_secs" => "",
+			"placeholder_simulator_yaml" => "",
+			"sheet_kata" => "layout:\n  style: table\n  headings@bool: yes\n  paging@bool: yes\n  #title_column: _label\n\ncolumns:\n  text/fingerprint:\n    label: Fingerprint\n\n  text/key_bits:\n    label: Bits\n\n  text/algorithm_name:\n    label: Algo\n\n  text/hash_algorithm_name:\n    label: Hash\n\n  date/expires:\n    label: Expires\n    params:\n      #image@bool: yes\n      #bold@bool: yes\n\n  icon/can_sign:\n    label: Sign\n    params:\n      image_template@raw:\n        {% if can_sign %}\n        circle-ok\n        {% endif %}\n\n  icon/can_encrypt:\n    label: Encrypt\n    params:\n      image_template@raw:\n        {% if can_encrypt %}\n        circle-ok\n        {% endif %}\n\n"
+		])),
+		time(),
+		$id
+	));
+}
+
+// Public key ascii
+if(($id = $db->GetOneMaster("SELECT id FROM card_widget WHERE name = 'Public Key' AND record_type = 'cerberusweb.contexts.gpg_public_key'"))) {
+	$db->ExecuteMaster(sprintf("UPDATE card_widget SET extension_params_json=%s, updated_at=%d WHERE id=%d",
+		$db->qstr(json_encode([
+			"data_query" => "type:worklist.records\nof:gpg_public_key\nquery:(\n  id:{{record_id}}\n  limit:1\n  sort:[id]\n)\nformat:dictionaries",
+			"cache_secs" => "",
+			"placeholder_simulator_yaml" => "",
+			"sheet_kata" => "layout:\n  style: fieldset\n  headings@bool: no\n  paging@bool: no\n\ncolumns:\n  text/_label:\n    label: Label\n    params:\n      value_template@raw:\n        <pre>\n        {{key_text}}\n        </pre>"
+		])),
+		time(),
+		$id
+	));
+} else {
+	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('Public Key'),
+		$db->qstr(CerberusContexts::CONTEXT_GPG_PUBLIC_KEY),
+		$db->qstr('cerb.card.widget.sheet'),
+		$db->qstr(json_encode([
+			"data_query" => "type:worklist.records\nof:gpg_public_key\nquery:(\n  id:{{record_id}}\n  limit:1\n  sort:[id]\n)\nformat:dictionaries",
+			"cache_secs" => "",
+			"placeholder_simulator_yaml" => "",
+			"sheet_kata" => "layout:\n  style: fieldset\n  headings@bool: no\n  paging@bool: no\n\ncolumns:\n  text/_label:\n    label: Label\n    params:\n      value_template@raw:\n        <pre>\n        {{key_text}}\n        </pre>"
+		])),
+		time(),
+		time(),
+		4,
+		4,
+		$db->qstr('content')
+	));
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
