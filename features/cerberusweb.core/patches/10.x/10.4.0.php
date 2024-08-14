@@ -212,7 +212,7 @@ $db->ExecuteMaster("DELETE FROM package_library WHERE uri = 'cerb_workspace_widg
 $db->ExecuteMaster("DELETE FROM package_library WHERE uri = 'cerb_workspace_widget_chart_time_series'");
 
 $packages = [
-	'cerb_card_widget_gpg_public_key_subkeys.json',
+	'card_widget/cerb_card_widget_gpg_public_key_subkeys.json',
 	'cerb_connected_service_huggingface.json',
 	'cerb_connected_service_openai.json',
 	'cerb_connected_service_smartsheet.json',
