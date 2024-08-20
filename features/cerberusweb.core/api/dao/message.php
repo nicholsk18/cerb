@@ -277,9 +277,11 @@ class DAO_Message extends Cerb_ORMHelper {
 	}
 	
 	static function onUpdateByActor($actor, $fields, $id) {
-		@$ticket_id = $fields[self::TICKET_ID];
+		if(array_key_exists(self::HTML_ATTACHMENT_ID, $fields)) {
+			DAO_Attachment::addLinks(CerberusContexts::CONTEXT_MESSAGE, $id, $fields[self::HTML_ATTACHMENT_ID]);
+		}
 		
-		if($ticket_id) {
+		if(($ticket_id = ($fields[self::TICKET_ID] ?? null))) {
 			DAO_Ticket::rebuild($ticket_id);
 		}
 	}
