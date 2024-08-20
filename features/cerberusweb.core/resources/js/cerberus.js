@@ -1391,6 +1391,7 @@ var cerbAutocompleteSuggestions = {
 			'params:'
 		],
 		'columns:selection:params:': [
+			'mode:',
 			'value:',
 			'value_key:',
 			'value_template@raw: {{id}}',
@@ -1398,6 +1399,10 @@ var cerbAutocompleteSuggestions = {
 			'text_color@raw:',
 			'text_size@raw: 150%',
 			'selectable@raw: {{expression}}'
+		],
+		'columns:selection:params:mode:': [
+			'single:',
+			'multiple:'
 		],
 		
 		// Slider
