@@ -313,6 +313,17 @@ function DevblocksClass() {
 			window.document.location = eventData.return['open_url'];
 		}
 		
+		if(
+			eventData.return.hasOwnProperty('callout')
+			&& eventData.return.callout.hasOwnProperty('selector')
+		) {
+			let $target = $(eventData.return.callout.selector);
+			let message = eventData.return.callout.message;
+			let my = eventData.return.callout.my;
+			let at = eventData.return.callout.at;
+			Devblocks.tooltip($target, message, my, at);
+		}
+		
 		// Open time tracking timer
 		if(typeof timeTrackingTimer !== 'undefined' && eventData.return.hasOwnProperty('timer')) {
 			timeTrackingTimer.play(eventData.return['timer']);

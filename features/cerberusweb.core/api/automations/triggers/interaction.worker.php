@@ -81,6 +81,10 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'notes' => 'Display the given message at the top of the browser',
 				],
 				[
+					'key' => 'callout',
+					'notes' => 'Show a floating tooltip relative to a DOM element selector',
+				],
+				[
 					'key' => 'clipboard',
 					'notes' => 'Copy the given text to the browser clipboard',
 				],
@@ -1465,8 +1469,16 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 			'(.*?):await:form:elements:chart:datasets:',
 		);
 		
+		$suggestions['*']['(.*):return:callout:'] = [
+			'selector: #someElement',
+			'message: This is the callout text',
+			'my: right top',
+			'at: left bottom'
+		];
+		
 		$suggestions['*']['(.*):return:'] = [
 			'alert:',
+			'callout:',
 			'clipboard:',
 			'open_link:',
 			'open_url:',
