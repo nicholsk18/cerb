@@ -587,9 +587,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 			];
 		}
 		
-		$this->_cacheGetActionExtensions = $actions + $custom_fields;
-		
-		return $this->_cacheGetActionExtensions;
+		return $actions + $custom_fields;
 	}
 	
 	function getActionDefaultOn() {

@@ -188,7 +188,7 @@ class Cerb_SwiftPlugin_GPGSigner implements Swift_Signers_BodySigner {
 		$message->setChildren([]);
 		$message->setEncoder(Swift_DependencyContainer::getInstance()->lookup('mime.rawcontentencoder'));
 		
-		if(@$this->_properties['gpg_sign']) {
+		if($this->_properties['gpg_sign'] ?? null) {
 			if(!$sign_key)
 				throw new Swift_SwiftException('Error: No PGP signing keys are configured for this group/bucket.');
 			
@@ -226,8 +226,8 @@ EOD;
 		
 		$message->setBody($body);
 		
-		if(@$this->_properties['gpg_encrypt']) {
-			if(false == ($recipient_keys = $this->getRecipientKeys($message)))
+		if($this->_properties['gpg_encrypt'] ?? null) {
+			if(!($recipient_keys = $this->getRecipientKeys($message)))
 				throw new Swift_SwiftException('Error: No recipient GPG public keys for encryption.');
 			
 			if($sign_key) {
@@ -1744,7 +1744,7 @@ class CerberusMail {
 			}
 			
 			// Encryption and signing
-			if(@$properties['gpg_sign'] || @$properties['gpg_encrypt']) {
+			if(($properties['gpg_sign'] ?? null) || ($properties['gpg_encrypt'] ?? null)) {
 				$signer = new Cerb_SwiftPlugin_GPGSigner($properties);
 				$mail->attachSigner($signer);
 			}
@@ -1908,7 +1908,7 @@ class CerberusMail {
 			
 			// Did we sign it?
 			// [TODO] We may need to sort out the signing key ahead of time to log this
-			if(!empty(@$properties['gpg_sign'])) {
+			if(!empty($properties['gpg_sign'] ?? null)) {
 				$fields[DAO_Message::SIGNED_AT] = time();
 				//$fields[DAO_Message::SIGNED_KEY_FINGERPRINT] = null;
 			}
