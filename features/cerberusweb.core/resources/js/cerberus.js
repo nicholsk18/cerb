@@ -1138,7 +1138,8 @@ var cerbAutocompleteSuggestions = {
 			'params:'
 		],
 		'columns:toolbar:params:': [
-			'kata:'
+			'kata:',
+			'text_size@raw: 150%'
 		],
 		'columns:toolbar:params:kata:': [
 			{

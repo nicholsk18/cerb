@@ -7105,6 +7105,9 @@ class _CerbApplication_KataSchemas {
                                 kata:
                                   types:
                                     list:
+                                text_size:
+                                  types:
+                                    string:
     EOD;
 	}
 	
