@@ -36,6 +36,7 @@ class DAO_Message extends Cerb_ORMHelper {
 	const WAS_ENCRYPTED = 'was_encrypted';
 	const WORKER_ID = 'worker_id';
 	const _CONTENT = '_content';
+	const _CONTENT_HTML = '_content_html';
 	const _HEADERS = '_headers';
 	
 	private function __construct() {}
@@ -162,6 +163,14 @@ class DAO_Message extends Cerb_ORMHelper {
 			;
 		// text
 		$validation
+			->addField(self::_CONTENT_HTML)
+			->string()
+			->setMaxLength(16777215)
+			->setRequired(false)
+			->setNotEmpty(false)
+			;
+		// text
+		$validation
 			->addField(self::_HEADERS)
 			->string()
 			->setMaxLength(16777215)
@@ -221,6 +230,26 @@ class DAO_Message extends Cerb_ORMHelper {
 			foreach($ids as $id)
 				Storage_MessageContent::put($id, $fields[self::_CONTENT]);
 			unset($fields[self::_CONTENT]);
+		}
+		
+		if(array_key_exists(self::_CONTENT_HTML, $fields)) {
+			// Create an attachment record
+			$file_id = DAO_Attachment::create([
+				DAO_Attachment::NAME => 'original_message.html',
+				DAO_Attachment::MIME_TYPE => 'text/html',
+				DAO_Attachment::UPDATED => time(),
+			]);
+			
+			Storage_Attachments::put($file_id, $fields[self::_CONTENT_HTML]);
+			
+			$fields[self::HTML_ATTACHMENT_ID] = $file_id;
+			
+			// Link the new file to these messages
+			foreach($ids as $id) {
+				DAO_Attachment::addLinks(CerberusContexts::CONTEXT_MESSAGE, $id, $file_id);
+			}
+			
+			unset($fields[self::_CONTENT_HTML]);
 		}
 		
 		if(array_key_exists(self::_HEADERS, $fields)) {
@@ -2846,6 +2875,14 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 			'type' => 'string',
 		];
 		
+		$keys['content_html'] = [
+			'key' => 'content_html',
+			'is_immutable' => false,
+			'is_required' => false,
+			'notes' => 'Optional alternative content for the HTML version of a message',
+			'type' => 'string',
+		];
+		
 		$keys['headers'] = [
 			'key' => 'headers',
 			'is_immutable' => false,
@@ -2901,6 +2938,10 @@ class Context_Message extends Extension_DevblocksContext implements IDevblocksCo
 		switch($dict_key) {
 			case 'content':
 				$out_fields[DAO_Message::_CONTENT] = $value;
+				break;
+				
+			case 'content_html':
+				$out_fields[DAO_Message::_CONTENT_HTML] = $value;
 				break;
 				
 			case 'headers':
