@@ -1523,6 +1523,9 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 			$storage_size = $stats['size'];
 			
 		} else {
+			if(!is_string($contents))
+				$contents = '';
+			
 			// Store the appropriate bytes
 			if(!mb_check_encoding($contents, LANG_CHARSET_CODE))
 				$contents = mb_convert_encoding($contents, LANG_CHARSET_CODE);
