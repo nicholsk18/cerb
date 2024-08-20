@@ -6266,6 +6266,10 @@ class _CerbApplication_KataSchemas {
                                 text_size:
                                   types:
                                     string:
+                                underline:
+                                  types:
+                                    bool:
+                                    
                 
                 selection:
                   multiple@bool: yes

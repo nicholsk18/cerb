@@ -1361,7 +1361,8 @@ var cerbAutocompleteSuggestions = {
 			'bold@bool:',
 			'color@raw:',
 			'text_color@raw:',
-			'text_size@raw: 150%'
+			'text_size@raw: 150%',
+			'underline@bool:',
 		],
 		'columns:search:params:bold:': [
 			'yes',
