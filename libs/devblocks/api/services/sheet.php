@@ -1,4 +1,7 @@
 <?php
+
+use enshrined\svgSanitize\Sanitizer;
+
 class _DevblocksSheetService {
 	private static $_instance = null;
 	
@@ -581,7 +584,16 @@ class _DevblocksSheetServiceTypes {
 				];
 			}
 			
-			if(
+			if(array_key_exists('svg', $column_params) && is_string($column_params['svg']['data'] ?? null)) {
+				$sanitizer = new Sanitizer();
+				$sanitizer->removeRemoteReferences(true);
+				
+				if(!($img = $sanitizer->sanitize($column_params['svg']['data'])))
+					return '';
+				
+				echo $img;
+			
+			} else if(
 				array_key_exists('record_uri', $column_params)
 				&& ($record_uri = $tpl_builder->build($column_params['record_uri'], $sheet_dict))
 			) {

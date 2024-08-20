@@ -6541,6 +6541,13 @@ class _CerbApplication_KataSchemas {
                                         record_uri:
                                           types:
                                             string:
+                                        svg:
+                                          types:
+                                            object:
+                                              attributes:
+                                                data:
+                                                  types:
+                                                    string:
                                 id_key:
                                   types:
                                     string:
@@ -6632,6 +6639,13 @@ class _CerbApplication_KataSchemas {
                                 record_uri:
                                   types:
                                     string:
+                                svg:
+                                  types:
+                                    object:
+                                      attributes:
+                                        data:
+                                          types:
+                                            string:
                                 text_color:
                                   types:
                                     string:
@@ -6755,6 +6769,13 @@ class _CerbApplication_KataSchemas {
                                         record_uri:
                                           types:
                                             string:
+                                        svg:
+                                          types:
+                                            object:
+                                              attributes:
+                                                data:
+                                                  types:
+                                                    string:
                                 text_key:
                                   types:
                                     string:
@@ -6880,6 +6901,13 @@ class _CerbApplication_KataSchemas {
                                         record_uri:
                                           types:
                                             string:
+                                        svg:
+                                          types:
+                                            object:
+                                              attributes:
+                                                data:
+                                                  types:
+                                                    string:
                                 label_key:
                                   types:
                                     string:
@@ -7002,6 +7030,13 @@ class _CerbApplication_KataSchemas {
                                         record_uri:
                                           types:
                                             string:
+                                        svg:
+                                          types:
+                                            object:
+                                              attributes:
+                                                data:
+                                                  types:
+                                                    string:
                                 text_color:
                                   types:
                                     string:

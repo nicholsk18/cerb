@@ -1737,6 +1737,10 @@ UL.cerb-popupmenu > LI:hover A {
   max-width: 100%;
   height: auto;
 }
+.cerb-kb-article-content SVG {
+  max-width: 100%;
+  height: auto;
+}
 
 DIV.cerb-menu {
   margin-top: -5px;
@@ -1834,6 +1838,10 @@ DIV.cerb-markdown-content CODE {
   max-width: 100%;
   height: auto;
 }
+.emailBodyHtml SVG {
+  max-width: 100%;
+  height: auto;
+}
 .emailBodyHtml UL, .emailBodyHtml OL {
   padding-left: 2em;
 }
@@ -1883,6 +1891,10 @@ DIV.cerb-markdown-content CODE {
   font-weight: bold;
 }
 .emailBodyHtmlLight IMG {
+  max-width: 100%;
+  height: auto;
+}
+.emailBodyHtmlLight SVG {
   max-width: 100%;
   height: auto;
 }
@@ -1947,6 +1959,10 @@ DIV.cerb-markdown-content CODE {
   font-size: 115%;
 }
 .commentBodyHtml IMG {
+  max-width: 100%;
+  height: auto;
+}
+.commentBodyHtml SVG {
   max-width: 100%;
   height: auto;
 }

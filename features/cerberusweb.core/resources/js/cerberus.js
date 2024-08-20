@@ -802,6 +802,10 @@ var cerbAutocompleteSuggestions = {
 			{
 				'caption': 'record_uri:',
 				'snippet': 'record_uri@raw: cerb:${1:record_type}:${2:record_id}'
+			},
+			{
+				'caption': 'svg:',
+				'snippet': "svg:\n  data: ${1:<svg></svg>}"
 			}
 		],
 		'columns:text:params:icon:image:': {
@@ -837,6 +841,10 @@ var cerbAutocompleteSuggestions = {
 			{
 				'caption': 'record_uri:',
 				'snippet': 'record_uri@raw: cerb:${1:record_type}:${2:record_id}'
+			},
+			{
+				'caption': 'svg:',
+				'snippet': "svg:\n  data: ${1:<svg></svg>}"
 			}
 		],
 		'columns:card:params:icon:image:': {
@@ -891,6 +899,10 @@ var cerbAutocompleteSuggestions = {
 			{
 				'caption': 'record_uri:',
 				'snippet': 'record_uri@raw: cerb:${1:record_type}:${2:record_id}'
+			},
+			{
+				'caption': 'svg:',
+				'snippet': "svg:\n  data: ${1:<svg></svg>}"
 			},
 			'color@raw:',
 			'text_color@raw:',
@@ -977,6 +989,10 @@ var cerbAutocompleteSuggestions = {
 			{
 				'caption': 'record_uri:',
 				'snippet': 'record_uri@raw: cerb:${1:record_type}:${2:record_id}'
+			},
+			{
+				'caption': 'svg:',
+				'snippet': "svg:\n  data: ${1:<svg></svg>}"
 			}
 		],
 		'columns:link:params:icon:image:': {
@@ -1034,6 +1050,10 @@ var cerbAutocompleteSuggestions = {
 			{
 				'caption': 'record_uri:',
 				'snippet': 'record_uri@raw: cerb:${1:record_type}:${2:record_id}'
+			},
+			{
+				'caption': 'svg:',
+				'snippet': "svg:\n  data: ${1:<svg></svg>}"
 			}
 		],
 		'columns:search:params:icon:image:': {

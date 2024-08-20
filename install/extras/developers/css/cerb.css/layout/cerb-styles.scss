@@ -1636,6 +1636,11 @@ UL.cerb-popupmenu {
 		max-width: 100%;
 		height: auto;
 	}
+
+	SVG {
+		max-width: 100%;
+		height: auto;
+	}
 }
 
 // Menu
@@ -1765,6 +1770,11 @@ DIV.cerb-markdown-content {
 		height: auto;
 	}
 
+	SVG {
+		max-width: 100%;
+		height: auto;
+	}
+
 	DIV.block {
 		H1, H2, H3, H4, H5, H6 {
 			@extend %heading;
@@ -1832,6 +1842,11 @@ DIV.cerb-markdown-content {
 	}
 
 	IMG {
+		max-width: 100%;
+		height: auto;
+	}
+
+	SVG {
 		max-width: 100%;
 		height: auto;
 	}
@@ -1925,6 +1940,11 @@ DIV.cerb-markdown-content {
 	}
 
 	IMG {
+		max-width: 100%;
+		height: auto;
+	}
+
+	SVG {
 		max-width: 100%;
 		height: auto;
 	}
