@@ -3993,6 +3993,9 @@ class CerbQuickSearchLexer {
 		$quotes = [];
 		$start = 0;
 		
+		// Tokenize escaped quotes
+		$query = str_replace('\\"', '<$ESQ>', $query);
+		
 		while(false !== ($from = strpos($query, '"', $start))) {
 			if(false === ($to = strpos($query, '"', $from+1)))
 				break;
@@ -4078,7 +4081,8 @@ class CerbQuickSearchLexer {
 					} elseif (DevblocksPlatform::strStartsWith($match, '<$Q:')) {
 						$idx = intval(substr($match,4));
 						$token_type = 'T_QUOTED_TEXT';
-						$token_value = $quotes[$idx];
+						// Translate escaped quote tokens
+						$token_value = str_replace('<$ESQ>', '"', $quotes[$idx]);
 						
 					} else {
 						switch($match) {
@@ -4491,7 +4495,8 @@ class CerbQuickSearchLexer {
 					break;
 					
 				case 'T_QUOTED_TEXT':
-					$string .= '"' . $token->value;
+					// Escape any quotes
+					$string .= '"' . str_replace('"', '\\"', $token->value);
 					break;
 					
 				case 'T_TEXT':
