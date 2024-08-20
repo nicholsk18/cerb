@@ -223,6 +223,61 @@ function DevblocksClass() {
 		return $status;
 	};
 	
+	this._tooltip_model = undefined;
+	
+	this.tooltip = function(target, message, my, at) {
+		if(undefined === message)
+			return;
+		
+		let $this = this;
+		if(undefined === this._tooltip_model) {
+			this._tooltip_model = $('<span/>')
+				.tooltip({
+					classes: {
+						'ui-tooltip': 'cerb-tooltip-global'
+					}
+				})
+			;
+		}
+		
+		this._tooltip_model.tooltip('close');
+		
+		if(undefined === my)
+			my = "right top"
+		
+		if(undefined === at)
+			at = "left bottom"
+		
+		this._tooltip_model.attr('title', message);
+		this._tooltip_model.tooltip('option', 'position', {
+			my: my,
+			at: at,
+			of: target,
+			using: function(position, feedback) {
+				$(this).css(position);
+				$("<div>")
+					.addClass("arrow")
+					.addClass(feedback.vertical)
+					.addClass(feedback.horizontal)
+					.appendTo(this)
+				;
+			},
+			collision: "flipfit"
+		});
+		
+		try {
+			this._tooltip_model.tooltip('open');
+		} catch(e) {
+			this._tooltip_model.tooltip('close');
+		}
+		
+		$('body > .cerb-tooltip-global')
+			.css('cursor', 'pointer')
+			.off('click')
+			.on('click', function(e) { e.stopPropagation(); $this._tooltip_model.tooltip('close'); })
+		;
+	}
+	
 	this.interactionWorkerPostActions = function(eventData, editor) {
 		if('object' != typeof eventData.return)
 			return;
