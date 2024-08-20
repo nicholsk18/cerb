@@ -1465,12 +1465,13 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 			'(.*?):await:form:elements:chart:datasets:',
 		);
 		
-		$suggestions['(.*):return:'] = [
+		$suggestions['*']['(.*):return:'] = [
 			'alert:',
 			'clipboard:',
 			'open_link:',
 			'open_url:',
 			'snippet:',
+			'timer:',
 		];
 		
 		return $suggestions;
