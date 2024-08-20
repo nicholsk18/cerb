@@ -393,16 +393,16 @@ SELECT OPTGROUP {
 }
 
 BUTTON {
-  height: 26px;
+  height: 2.4em;
   vertical-align: middle;
   color: var(--cerb-color-button-text);
-  padding: 5px;
+  padding: 0.5em;
   font-weight: bold;
   margin: 0 1px 0 0;
   border: 0;
   cursor: pointer;
   background: linear-gradient(to bottom, var(--cerb-color-button-gradient), var(--cerb-color-button-gradient-to));
-  border-radius: 5px;
+  border-radius: 0.5em;
 }
 BUTTON:hover {
   background: linear-gradient(to bottom, var(--cerb-color-button-gradient), var(--cerb-color-button-gradient-to--hover));
@@ -418,7 +418,7 @@ BUTTON::-moz-focus-inner {
 }
 BUTTON SPAN.glyphicons {
   color: var(--cerb-color-button-icon);
-  font-size: 16px;
+  font-size: 1.4em;
 }
 BUTTON SPAN {
   vertical-align: middle;
