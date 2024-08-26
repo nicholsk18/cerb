@@ -6055,6 +6055,9 @@ class _CerbApplication_KataSchemas {
                           types:
                             object:
                               attributes:
+                                bold:
+                                  types:
+                                    bool:
                                 color:
                                   types:
                                     string:

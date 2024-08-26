@@ -1266,6 +1266,7 @@ var cerbAutocompleteSuggestions = {
 			'params:'
 		],
 		'columns:interaction:params:': [
+			'bold@bool: yes',
 			'inputs:',
 			'text:',
 			'text_key:',
