@@ -376,8 +376,13 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 						'snippet' => "label: \${1:Label:}",
 						'score' => 2000,
 					],
+					'as:',
 					'required@bool: yes',
 					'validation@raw:',
+				],
+				'(.*):await:form:elements:fileUpload:as:' => [
+					'attachment',
+					'automation_resource',
 				],
 			
 				'(.*):await:form:elements:map:' => [
