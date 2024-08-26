@@ -76,6 +76,9 @@ class EditorAwait extends AbstractAwait {
 			$toolbar = DevblocksPlatform::services()->ui()->toolbar()->parse($toolbar_schema, $toolbar_dict);
 			$tpl->assign('editor_toolbar', $toolbar);
 			$tpl->assign('editor_has_toolbar', true);
+		} else {
+			$tpl->assign('editor_toolbar', '');
+			$tpl->assign('editor_has_toolbar', false);
 		}
 		
 		$tpl->assign('var', $this->_key);
