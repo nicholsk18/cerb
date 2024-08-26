@@ -53,6 +53,14 @@ class EditorAwait extends AbstractAwait {
 				$editor_autocompletion = 'search_query';
 				break;
 			
+			case 'html':
+			case 'json':
+			case 'markdown':
+			case 'text':
+			case 'yaml':
+				$editor_mode = 'ace/mode/' . $syntax;
+				break;
+				
 			case 'kata':
 				$editor_mode = 'ace/mode/cerb_kata';
 				$schema = $this->_data['schema'] ?? [];
