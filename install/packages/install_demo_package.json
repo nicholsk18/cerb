@@ -3,7 +3,7 @@
 		"name": "Demo Package",
 		"revision": 1,
 		"requires": {
-			"cerb_version": "10.2.4",
+			"cerb_version": "10.4.0",
 			"plugins": [
 				"cerb.project_boards"
 			]
@@ -151,9 +151,9 @@
 			"uid": "org_wgm",
 			"_context": "org",
 			"name": "Webgroup Media, LLC.",
-			"street": "340 S Lemon Ave #2048",
-			"city": "Walnut",
-			"postal": "91789",
+			"street": "440 N Barranca Ave #2048",
+			"city": "Covina",
+			"postal": "91723",
 			"province": "California",
 			"country": "United States",
 			"phone": "+1-714-671-9090",
