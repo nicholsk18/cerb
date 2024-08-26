@@ -1641,7 +1641,7 @@
 			"sender_id": "{{{default.replyto_id}}}",
 			"worker_id": "{{{uid.worker_janey}}}",
 			"headers": "To: s.adams@dobbus.example\r\nFrom: {{{default.replyto_email}}}\r\nSubject: Re: What are seats?\r\nDate: {{{'-486169 seconds'|date('r')}}}\r\nContent-Type: text/plain; charset=utf-8\r\nMessage-Id: <demo3.msg2@cerb.example>\r\n",
-			"content": "> What are seats exactly -- total users, max logged in users?\n\nHi Sarah,\n\nSeats determine the maximum number of workers who can use Cerb at the same time.\n\nFor example, a team of 30 workers who are evenly split into three, non-overlapping shifts (morning, day, night) would only require 10 seats. That’s the highest number of workers who would ever be logged in at the same time.\n\nYou aren’t paying per worker account, so there isn’t a penalty for inviting everyone to participate: full-time staff, part-time contributors, busy executives, interns, temps, contractors, partners, and volunteers. \n"
+			"content": "> What are seats exactly -- total users, max logged in users?\n\nHi Sarah,\n\nSeats determine the maximum number of workers who can use Cerb at the same time.\n\nFor example, a team of 30 workers who are evenly split into three, non-overlapping shifts (morning, day, night) would only require 10 seats. That's the highest number of workers who would ever be logged in at the same time.\n\nYou aren't paying per worker account, so there isn't a penalty for inviting everyone to participate: full-time staff, part-time contributors, busy executives, interns, temps, contractors, partners, and volunteers. \n"
 		},
 		{
 			"uid": "ticket_demo_004",
@@ -3657,7 +3657,7 @@
 			"sender_id": "{{{default.replyto_id}}}",
 			"worker_id": "{{{uid.worker_milo}}}",
 			"headers": "To: b.gibson@twinton.example\r\nFrom: {{{default.replyto_email}}}\r\nSubject: Re: Figuring out what a user wants to do in a chat bot\r\nDate: {{{'-100630 seconds'|date('r')}}}\r\nContent-Type: text/plain; charset=utf-8\r\nMessage-Id: <demo51.msg2@cerb.example>\r\n",
-			"content": "> how does a bot understand what a user is trying to do?\n\nHi Bradley,\n\nA chat bot’s primary goal is to determine a human’s \"intent\" (what they want to accomplish) from their utterances in natural language, and then to fulfill those requests in a helpful way.\n\nThere are a number of ways to detect a user's intent.\n\nOne of the simpler options is the \"classifiers\" feature.\n\nYou can also use a more advanced service like Amazon Lex within your Cerb bot.\n\nSee: https://cerb.ai/docs/classifiers/\n"
+			"content": "> how does a bot understand what a user is trying to do?\n\nHi Bradley,\n\nA chat bot's primary goal is to determine a human's \"intent\" (what they want to accomplish) from their utterances in natural language, and then to fulfill those requests in a helpful way.\n\nThere are a number of ways to detect a user's intent.\n\nOne of the simpler options is the \"classifiers\" feature.\n\nYou can also use a more advanced service like Amazon Lex within your Cerb bot.\n\nSee: https://cerb.ai/docs/classifiers/\n"
 		},
 		{
 			"uid": "ticket_demo_052",
@@ -3867,7 +3867,7 @@
 			"sender_id": "{{{default.replyto_id}}}",
 			"worker_id": "{{{uid.worker_milo}}}",
 			"headers": "To: z.de.vos@donter.example\r\nFrom: {{{default.replyto_email}}}\r\nSubject: Re: Creating a new plugin\r\nDate: {{{'-19776 seconds'|date('r')}}}\r\nContent-Type: text/plain; charset=utf-8\r\nMessage-Id: <demo56.msg2@cerb.example>\r\n",
-			"content": "> Do you have any docs on creating plugins?\n\nHi Zoë,\n\nEverything in Cerb is contributed by plugins -- even the built-in functionality. This way, as we continue to improve Cerb, we’re also automatically expanding the ability for other people to build their own customizations too.\n\nSee: https://cerb.ai/docs/plugins/\n"
+			"content": "> Do you have any docs on creating plugins?\n\nHi Zoë,\n\nEverything in Cerb is contributed by plugins -- even the built-in functionality. This way, as we continue to improve Cerb, we're also automatically expanding the ability for other people to build their own customizations too.\n\nSee: https://cerb.ai/docs/plugins/\n"
 		},
 		{
 			"uid": "ticket_demo_057",
@@ -3909,7 +3909,7 @@
 			"sender_id": "{{{default.replyto_id}}}",
 			"worker_id": "{{{uid.worker_kina}}}",
 			"headers": "To: x.li@zhang.example\r\nFrom: {{{default.replyto_email}}}\r\nSubject: Re: Using Cerb in multiple languages\r\nDate: {{{'-10505 seconds'|date('r')}}}\r\nContent-Type: text/plain; charset=utf-8\r\nMessage-Id: <demo57.msg2@cerb.example>\r\n",
-			"content": "> Can each worker use their native language?\n\nHi Xui,\n\nThe text within Cerb’s interface can be translated into any language.\n\nHere's how to use the existing translations:\nhttps://cerb.ai/guides/localization/import-translation/\n\nYou can also create your own translations:\nhttps://cerb.ai/guides/localization/create-translation/\n"
+			"content": "> Can each worker use their native language?\n\nHi Xui,\n\nThe text within Cerb's interface can be translated into any language.\n\nHere's how to use the existing translations:\nhttps://cerb.ai/guides/localization/import-translation/\n\nYou can also create your own translations:\nhttps://cerb.ai/guides/localization/create-translation/\n"
 		},
 		{
 			"uid": "ticket_demo_058",
