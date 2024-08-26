@@ -1402,8 +1402,8 @@ var cerbAutocompleteSuggestions = {
 			'selectable@raw: {{expression}}'
 		],
 		'columns:selection:params:mode:': [
-			'single:',
-			'multiple:'
+			'single',
+			'multiple'
 		],
 		
 		// Slider

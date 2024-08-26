@@ -628,7 +628,7 @@ class _DevblocksSheetServiceTypes {
 				$image = '';
 			}
 			
-			$image = trim($image);
+			$image = trim(strval($image));
 			
 			// Sanitize image name against known list
 			
