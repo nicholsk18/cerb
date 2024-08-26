@@ -352,7 +352,7 @@ class AutomationTrigger_InteractionWorker extends Extension_AutomationTrigger {
 					'hidden@bool: no',
 					[
 						'caption' => 'uri:',
-						'snippet' => "uri: cerb:automation:\${1:idOrName}",
+						'snippet' => "uri: cerb:\${1:}",
 						'score' => 1999,
 					],
 					[
