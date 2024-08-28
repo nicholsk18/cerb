@@ -222,9 +222,9 @@
   --cerb-color-table-row-subject: rgb(255,255,255);
   --cerb-color-table-row-text: rgb(187,187,187);
   --cerb-color-widget-header: rgb(220,220,220);
-  --cerb-tab-active: rgb(60,60,60);
+  --cerb-tab-active: rgb(62,62,62);
   --cerb-tab-active-gradient: rgb(32,32,32);
-  --cerb-tab-active-border: rgb(50,50,50);
+  --cerb-tab-active-border: rgb(62,62,62);
   --cerb-tab-active-text: rgb(240,240,240);
   --cerb-callout-background: rgba(57,57,57,0.8);
   --cerb-editor-background: rgb(22,22,22);
@@ -3058,18 +3058,19 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
 .ui-tabs .ui-tabs-nav li {
   background: var(--cerb-color-background) linear-gradient(to bottom, var(--cerb-color-background), var(--cerb-color-background-contrast-240));
   border-color: var(--cerb-color-background-contrast-200);
-  margin: 0.5px -0.5px 0 -0.5px;
+  margin: 0.25em -0.3em -0.3em 0;
+  float: none;
+  display: inline-block;
+  border-bottom-width: 1px;
 }
 
 .ui-tabs .ui-tabs-nav li a {
-  padding: 6px 8px;
   outline: none;
+  font-weight: normal;
 }
 
 .ui-tabs .ui-tabs-nav li.ui-state-hover {
   background: var(--cerb-color-background) linear-gradient(to bottom, var(--cerb-color-background), var(--cerb-color-background-contrast-200));
-  border-bottom: none;
-  z-index: 2;
 }
 
 .ui-tabs .ui-tabs-nav li.ui-state-default a {
@@ -3081,17 +3082,16 @@ UL.ui-autocomplete.ui-menu li.ui-menu-item.ui-state-focus {
 }
 
 .ui-tabs .ui-tabs-nav li.ui-tabs-active {
-  padding-bottom: 0;
-  background: var(--cerb-tab-active) linear-gradient(to bottom, var(--cerb-tab-active), var(--cerb-tab-active-gradient));
+  background: var(--cerb-tab-active) linear-gradient(to bottom, var(--cerb-tab-active) 0%, var(--cerb-tab-active-gradient) 50%);
   border-color: var(--cerb-tab-active-border);
+  border-bottom: 1px solid var(--cerb-color-background);
+  padding-top: 1px;
+  margin-bottom: -4px;
 }
 .ui-tabs .ui-tabs-nav li.ui-tabs-active a {
   color: var(--cerb-tab-active-text);
   font-weight: bold;
-  border-bottom: 1px solid var(--cerb-color-background);
-}
-.ui-tabs .ui-tabs-nav li.ui-tabs-active.ui-tabs-state-hover {
-  border-bottom: 1px solid var(--cerb-color-background);
+  font-size: 0.95em;
 }
 
 .ui-dialog {
