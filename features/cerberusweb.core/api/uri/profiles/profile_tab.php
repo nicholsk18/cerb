@@ -54,6 +54,7 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
 		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
+		$url_writer = DevblocksPlatform::services()->url();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
@@ -137,10 +138,13 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 						if($view_id)
 							C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_PROFILE_TAB, $new_tab['id']);
 						
+						$tab_url = $url_writer->write(sprintf('ajax.php?c=pages&a=renderTab&id=%d', $new_tab['id']));
+						
 						echo json_encode([
 							'status' => true,
 							'id' => $new_tab['id'],
 							'label' => $new_tab['label'],
+							'tab_url' => $tab_url,
 							'view_id' => $view_id,
 						]);
 						return;
@@ -150,6 +154,7 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 						$context = DevblocksPlatform::importGPC($_POST['context'] ?? null, 'string', '');
 						$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string', '');
 						$extension_params = DevblocksPlatform::importGPC($_POST['params'] ?? null, 'array', []);
+						$options_kata = DevblocksPlatform::importGPC($_POST['options_kata'] ?? null, 'string', '');
 						
 						$error = null;
 						
@@ -159,6 +164,7 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 								DAO_ProfileTab::EXTENSION_ID => $extension_id,
 								DAO_ProfileTab::EXTENSION_PARAMS_JSON => json_encode($extension_params),
 								DAO_ProfileTab::NAME => $name,
+								DAO_ProfileTab::OPTIONS_KATA => $options_kata,
 								DAO_ProfileTab::UPDATED_AT => time(),
 							);
 							
@@ -178,6 +184,7 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 							$fields = array(
 								DAO_ProfileTab::NAME => $name,
 								DAO_ProfileTab::EXTENSION_PARAMS_JSON => json_encode($extension_params),
+								DAO_ProfileTab::OPTIONS_KATA => $options_kata,
 								DAO_ProfileTab::UPDATED_AT => time(),
 							);
 							
@@ -197,10 +204,13 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 						if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_PROFILE_TAB, $id, $field_ids, $error))
 							throw new Exception_DevblocksAjaxValidationError($error);
 						
+						$tab_url = $url_writer->write(sprintf('ajax.php?c=pages&a=renderTab&id=%d', $id));
+						
 						echo json_encode(array(
 							'status' => true,
 							'id' => $id,
 							'label' => $name,
+							'tab_url' => $tab_url,
 							'view_id' => $view_id,
 						));
 						return;

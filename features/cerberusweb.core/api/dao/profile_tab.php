@@ -5,6 +5,8 @@ class DAO_ProfileTab extends Cerb_ORMHelper {
 	const CONTEXT = 'context';
 	const EXTENSION_ID = 'extension_id';
 	const EXTENSION_PARAMS_JSON = 'extension_params_json';
+	const OPTIONS_KATA = 'options_kata';
+	const POS = 'pos';
 	const UPDATED_AT = 'updated_at';
 	
 	const _CACHE_ALL = 'profile_tabs_all';
@@ -39,6 +41,17 @@ class DAO_ProfileTab extends Cerb_ORMHelper {
 			->string()
 			->setMaxLength(16777215)
 			;
+		$validation
+			->addField(self::OPTIONS_KATA)
+			->string()
+			->setMaxLength(65535)
+		;
+		$validation
+			->addField(self::POS)
+			->uint()
+			->setMin(0)
+			->setMax('2 bytes')
+		;
 		$validation
 			->addField(self::UPDATED_AT)
 			->timestamp()
@@ -144,7 +157,7 @@ class DAO_ProfileTab extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, context, extension_id, extension_params_json, updated_at ".
+		$sql = "SELECT id, name, context, extension_id, extension_params_json, pos, options_kata, updated_at ".
 			"FROM profile_tab ".
 			$where_sql.
 			$sort_sql.
@@ -179,21 +192,7 @@ class DAO_ProfileTab extends Cerb_ORMHelper {
 		
 		return $objects;
 	}
-		
-	static function getByProfile($context) {
-		$profile_tab_ids = DevblocksPlatform::getPluginSetting('cerberusweb.core', 'profile:tabs:' . $context, [], true);
-		
-		$results = [];
-		$profile_tabs = DAO_ProfileTab::getAll();
-		
-		foreach($profile_tab_ids as $profile_tab_id) {
-			if(isset($profile_tabs[$profile_tab_id]))
-				$results[$profile_tab_id] = $profile_tabs[$profile_tab_id];
-		}
-		
-		return $results;
-	}
-	
+
 	static function getByContext($context) {
 		// [TODO] Cache by context?
 		
@@ -201,13 +200,12 @@ class DAO_ProfileTab extends Cerb_ORMHelper {
 		if(false == Extension_DevblocksContext::get($context))
 			return [];
 		
-		
 		$objects = self::getWhere(
 			sprintf("%s = %s",
 				Cerb_ORMHelper::escape(self::CONTEXT),
 				Cerb_ORMHelper::qstr($context)
 			),
-			DAO_ProfileTab::NAME,
+			DAO_ProfileTab::POS,
 			true,
 			null,
 			Cerb_ORMHelper::OPT_GET_MASTER_ONLY
@@ -260,6 +258,8 @@ class DAO_ProfileTab extends Cerb_ORMHelper {
 			$object->extension_id = $row['extension_id'];
 			$object->id = intval($row['id']);
 			$object->name = $row['name'];
+			$object->pos = intval($row['pos']);
+			$object->options_kata = $row['options_kata'];
 			$object->updated_at = intval($row['updated_at']);
 			
 			if(false != ($json = json_decode($row['extension_params_json'] ?? '', true)))
@@ -377,6 +377,26 @@ class DAO_ProfileTab extends Cerb_ORMHelper {
 		$cache = DevblocksPlatform::services()->cache();
 		$cache->remove(self::_CACHE_ALL);
 	}
+	
+	public static function reorder(array $profile_tab_ids) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$values = [];
+		
+		foreach($profile_tab_ids as $pos => $tab_id) {
+			$values[] = sprintf("(%d,%d)", $tab_id, $pos+1);
+		}
+		
+		if($values) {
+			$sql = sprintf("INSERT INTO profile_tab (id, pos) VALUES %s ON DUPLICATE KEY UPDATE pos=VALUES(pos)",
+				implode(',', $values)
+			);
+			$db->ExecuteMaster($sql);
+		}
+		
+		DAO_ProfileTab::clearCache();
+		return true;
+	}
 };
 
 class SearchFields_ProfileTab extends DevblocksSearchFields {
@@ -484,6 +504,8 @@ class Model_ProfileTab extends DevblocksRecordModel {
 	public $context = null;
 	public $extension_id = null;
 	public $extension_params = [];
+	public $options_kata = '';
+	public $pos = 0;
 	public $updated_at = 0;
 	
 	function getContextExtension($as_instance=true) {
@@ -499,6 +521,25 @@ class Model_ProfileTab extends DevblocksRecordModel {
 	
 	function getWidgets() {
 		return DAO_ProfileWidget::getByTab($this->id);
+	}
+	
+	function isHidden(?DevblocksDictionaryDelegate $dict=null) : bool {
+		if(!$dict || !$this->options_kata)
+			return false;
+		
+		$kata = DevblocksPlatform::services()->kata();
+		$error = null;
+		
+		if(!($options = $kata->parse($this->options_kata, $error)))
+			return false;
+		
+		if(!($options = $kata->formatTree($options, $dict, $error)))
+			return false;
+		
+		if(array_key_exists('hidden', $options) && $options['hidden'])
+			return true;
+		
+		return false;
 	}
 };
 

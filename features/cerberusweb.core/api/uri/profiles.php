@@ -265,6 +265,14 @@ class Page_Profiles extends CerberusPageExtension {
 			$tpl->assign('tab_selected', array_shift($path));
 		}
 		
+		$profile_dict = DevblocksDictionaryDelegate::instance([
+			'record__context' => $context,
+			'record_id' => $context_id,
+			'worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'worker_id' => $active_worker->id
+		]);
+		$tpl->assign('profile_dict', $profile_dict);
+		
 		// Template
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/profile.tpl');
@@ -307,32 +315,8 @@ class Page_Profiles extends CerberusPageExtension {
 		
 		$tpl->assign('context', $context);
 		
-		$profile_tabs_available = DAO_ProfileTab::getByContext($context);
-		$profile_tabs_enabled = DevblocksPlatform::getPluginSetting('cerberusweb.core', 'profile:tabs:' . $context, [], true);
-		
-		// Sort enabled tabs first by dragged rank, disabled lexicographically
-		usort($profile_tabs_available, function($a, $b) use ($profile_tabs_enabled) {
-			/* @var $a Model_ProfileTab */
-			/* @var $b Model_ProfileTab */
-			
-			if(false === @$a_pos = array_search($a->id, $profile_tabs_enabled))
-				$a_pos = PHP_INT_MAX;
-			
-			if(false === (@$b_pos = array_search($b->id, $profile_tabs_enabled)))
-				$b_pos = PHP_INT_MAX;
-			
-			if($a_pos == $b_pos) {
-				if($a_pos == PHP_INT_MAX)
-					return strcmp($a->name, $b->name);
-				
-				return 0;
-			}
-			
-			return $a_pos < $b_pos ? -1 : 1;
-		});
-		
-		$tpl->assign('profile_tabs_available', $profile_tabs_available);
-		$tpl->assign('profile_tabs_enabled', $profile_tabs_enabled);
+		$profile_tabs = DAO_ProfileTab::getByContext($context);
+		$tpl->assign('profile_tabs', $profile_tabs);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/profiles/config_tabs.tpl');
 	}
@@ -352,7 +336,7 @@ class Page_Profiles extends CerberusPageExtension {
 		if(!Extension_DevblocksContext::getByAlias($context))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		DevblocksPlatform::setPluginSetting('cerberusweb.core', 'profile:tabs:' . $context, $profile_tabs, true);
+		DAO_ProfileTab::reorder($profile_tabs);
 		
 		return json_encode(true);
 	}

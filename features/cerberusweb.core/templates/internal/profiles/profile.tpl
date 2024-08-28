@@ -94,11 +94,13 @@
 	<ul>
 		{$tabs = []}
 		
-		{$profile_tabs = DAO_ProfileTab::getByProfile($page_context)}
-		
+		{$profile_tabs = DAO_ProfileTab::getByContext($page_context)}
+
 		{foreach from=$profile_tabs item=profile_tab}
-			{$tabs[] = "{$profile_tab->name|lower|devblocks_permalink}"}
-			<li><a href="{devblocks_url}ajax.php?c=profiles&a=renderTab&tab_id={$profile_tab->id}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}">{$profile_tab->name}</a></li>
+			{if !$profile_tab->isHidden($profile_dict)}
+				{$tabs[] = "{$profile_tab->name|lower|devblocks_permalink}"}
+				<li><a href="{devblocks_url}ajax.php?c=profiles&a=renderTab&tab_id={$profile_tab->id}&context={$page_context}&context_id={$page_context_id}{/devblocks_url}" draggable="false">{$profile_tab->name}</a></li>
+			{/if}
 		{/foreach}
 		
 		{if $active_worker->is_superuser}

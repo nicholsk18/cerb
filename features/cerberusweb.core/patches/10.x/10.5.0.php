@@ -265,6 +265,51 @@ if(!array_key_exists('options_kata', $columns)) {
 }
 
 // ===========================================================================
+// Modify profile_tab.pos for conditionality
+
+list($columns, ) = $db->metaTable('profile_tab');
+
+if(!array_key_exists('pos', $columns)) {
+	$db->ExecuteMaster('ALTER TABLE profile_tab ADD COLUMN pos SMALLINT UNSIGNED NOT NULL DEFAULT 0');
+	$db->ExecuteMaster('UPDATE profile_tab SET pos = 100');
+	
+	// Convert the old preferences to the `profile_tab.pos` field
+	$results = $db->GetArrayMaster("SELECT setting, value FROM devblocks_setting WHERE setting LIKE 'profile:tabs:%'");
+	
+	$values = [];
+	
+	foreach($results as $result) {
+		if (false === ($tab_ids = json_decode($result['value'], true)))
+			continue;
+		
+		if (!is_array($tab_ids))
+			continue;
+		
+		foreach ($tab_ids as $i => $tab_id) {
+			$values[] = sprintf("(%d,%d)", $tab_id, $i);
+		}
+	}
+	
+	if($values) {
+		$sql = sprintf("INSERT INTO profile_tab (id, pos) VALUES %s ON DUPLICATE KEY UPDATE pos=VALUES(pos)",
+			implode(',', $values)
+		);
+		$db->ExecuteMaster($sql);
+	}
+	
+	$db->ExecuteMaster("DELETE FROM devblocks_setting WHERE setting LIKE 'profile:tabs:%'");
+}
+
+// ===========================================================================
+// Modify profile_tab.options_kata for conditionality
+
+list($columns, ) = $db->metaTable('profile_tab');
+
+if(!array_key_exists('options_kata', $columns)) {
+	$db->ExecuteMaster('ALTER TABLE profile_tab ADD COLUMN options_kata TEXT');
+}
+
+// ===========================================================================
 // Modify workspace_tab.options_kata for conditionality
 
 list($columns, ) = $db->metaTable('workspace_tab');
