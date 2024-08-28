@@ -811,6 +811,19 @@ TABLE.worklistBody {
 	}
 }
 
+TABLE.cerb-table {
+	border-spacing:0;
+	border-collapse:collapse;
+
+	tbody:nth-child(odd) {
+		background-color:var(--cerb-color-table-row-alt-background);
+	}
+
+	tbody td {
+		padding:0.25em 0.75em 0.25em 0.5em;
+	}
+}
+
 // Calendar
 
 TABLE.calendar {

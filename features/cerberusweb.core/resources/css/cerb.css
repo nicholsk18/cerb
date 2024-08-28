@@ -1065,6 +1065,17 @@ TABLE.worklistBody tbody.disabled A {
   color: var(--cerb-color-background-contrast-160);
 }
 
+TABLE.cerb-table {
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+TABLE.cerb-table tbody:nth-child(odd) {
+  background-color: var(--cerb-color-table-row-alt-background);
+}
+TABLE.cerb-table tbody td {
+  padding: 0.25em 0.75em 0.25em 0.5em;
+}
+
 TABLE.calendar {
   width: 98%;
   border: 0;
