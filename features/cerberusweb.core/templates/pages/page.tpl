@@ -121,7 +121,7 @@ $(function() {
 				if(0 == $selected_tab.length)
 					return;
 				
-				var tab_id = $selected_tab.attr('tab_id');
+				var tab_id = $selected_tab.attr('data-tab-id');
 				
 				// On this page
 				if(e.page_id == {$page->id}) {
@@ -152,7 +152,7 @@ $(function() {
 				if(0 == $selected_tab.length)
 					return;
 				
-				var tab_id = $selected_tab.attr('tab_id');
+				let tab_id = $selected_tab.attr('data-tab-id');
 				
 				if(0 != $tabs.length) {
 					var tab = $tabs.find('.ui-tabs-nav li:eq(' + $tabs.tabs('option','active') + ')').remove();
@@ -174,13 +174,13 @@ $(function() {
 	$workspace.find('a.export-tab').click(function(e) {
 		e.stopPropagation();
 		
-		var $tabs = $("#pageTabs{$page->id}");
-		var $selected_tab = $tabs.find('li.ui-tabs-active').first();
+		let $tabs = $("#pageTabs{$page->id}");
+		let $selected_tab = $tabs.find('li.ui-tabs-active').first();
 		
 		if(0 == $selected_tab.length)
 			return;
 		
-		var tab_id = $selected_tab.attr('tab_id');
+		let tab_id = $selected_tab.attr('data-tab-id');
 		
 		if(null == tab_id)
 			return;

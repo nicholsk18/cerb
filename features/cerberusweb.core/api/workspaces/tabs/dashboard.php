@@ -125,6 +125,7 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 				'_context' => CerberusContexts::CONTEXT_WORKSPACE_TAB,
 				'name' => $tab->name,
 				'extension_id' => $tab->extension_id,
+				'pos' => $tab->pos,
 				'params' => $tab->params,
 				'widgets' => array(),
 			),

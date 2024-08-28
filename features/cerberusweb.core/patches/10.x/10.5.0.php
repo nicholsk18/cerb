@@ -265,6 +265,15 @@ if(!array_key_exists('options_kata', $columns)) {
 }
 
 // ===========================================================================
+// Modify workspace_tab.options_kata for conditionality
+
+list($columns, ) = $db->metaTable('workspace_tab');
+
+if(!array_key_exists('options_kata', $columns)) {
+	$db->ExecuteMaster('ALTER TABLE workspace_tab ADD COLUMN options_kata TEXT');
+}
+
+// ===========================================================================
 // OAuth App
 
 list($columns, ) = $db->metaTable('oauth_app');

@@ -90,7 +90,17 @@
 		</div>
 			
 		{include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$peek_context_id}
-		
+
+		<fieldset data-cerb-fieldset-advanced class="peek" style="margin-top:0.5em;">
+			<legend>Advanced options:</legend>
+			<div>
+				<div class="cerb-code-editor-toolbar">
+					<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-magic title="{'common.autocomplete'|devblocks_translate|capitalize} (Ctrl+Space)"><span class="glyphicons glyphicons-magic"></span></button>
+				</div>
+				<textarea name="options_kata" data-editor-mode="ace/mode/cerb_kata" class="placeholders" style="display:none;">{$model->options_kata}</textarea>
+			</div>
+		</fieldset>
+
 		{if !empty($peek_context_id)}
 		<fieldset style="display:none;" class="delete">
 			<legend>{'common.delete'|devblocks_translate|capitalize}</legend>
@@ -185,7 +195,35 @@ $(function() {
 				$params.find('.cerb-peek-trigger').cerbPeekTrigger();
 			});
 		});
-		
+
+		// Options Editor
+
+		let $fieldset_advanced = $frm.find('fieldset[data-cerb-fieldset-advanced]');
+
+		let $advanced_editor = $fieldset_advanced
+				.find('textarea[name=options_kata]')
+				.cerbCodeEditor()
+				.cerbCodeEditorAutocompleteKata({
+					autocomplete_suggestions: {
+						'': [
+							'hidden@bool:'
+						],
+						'hidden:': [
+							'yes',
+							'no',
+							'{literal}{{worker_id == 123}}{/literal}',
+							'{literal}{{not worker_is_superuser}}{/literal}'
+						]
+					}
+				})
+				.nextAll('pre.ace_editor')
+		;
+
+		let advanced_editor = ace.edit($advanced_editor.attr('id'));
+
+		$fieldset_advanced.find('[data-cerb-editor-button-magic]').on('click', function(e) {
+			advanced_editor.commands.byName.startAutocomplete.exec(advanced_editor);
+		});
 	});
 });
 </script>

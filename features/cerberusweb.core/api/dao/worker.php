@@ -1974,7 +1974,7 @@ class Model_Worker extends DevblocksRecordModel {
 				$pages_menu[$menu_page->id] = [
 					'id' => $menu_page->id,
 					'name' => $menu_page->name,
-					'tabs' => $menu_page->getTabs($this),
+					'tabs' => $menu_page->getTabs(),
 				];
 			}
 			

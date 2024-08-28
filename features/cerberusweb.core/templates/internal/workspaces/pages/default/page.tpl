@@ -32,16 +32,18 @@
 		{$tabs = []}
 		
 		{foreach from=$page_tabs item=tab}
+			{if !$tab->isHidden($page_dict)}
 			{$tabs[] = "{$tab->name|lower|devblocks_permalink}"}
-			<li class="drag" tab_id="{$tab->id}">
-				<a href="{devblocks_url}ajax.php?c=pages&a=renderTab&point={$point}&id={$tab->id}{/devblocks_url}">
+			<li data-tab-id="{$tab->id}">
+				<a href="{devblocks_url}ajax.php?c=pages&a=renderTab&point={$point}&id={$tab->id}{/devblocks_url}" draggable="false">
 					{$tab->name}
 				</a>
 			</li>
+			{/if}
 		{/foreach}
 
 		{if $is_writeable && $active_worker->hasPriv("contexts.{CerberusContexts::CONTEXT_WORKSPACE_TAB}.create")}
-			<li><a href="{devblocks_url}ajax.php?c=pages&a=renderAddTabs&page_id={$page->id}{/devblocks_url}">&nbsp;<span class="glyphicons glyphicons-cogwheel"></span>&nbsp;</a></li>
+			<li><a href="{devblocks_url}ajax.php?c=pages&a=renderAddTabs&page_id={$page->id}{/devblocks_url}" draggable="false">&nbsp;<span class="glyphicons glyphicons-cogwheel"></span>&nbsp;</a></li>
 		{/if}
 	</ul>
 </div>
@@ -52,7 +54,7 @@ $(function() {
 	// Set the browser tab label to the record label
 	document.title = "{$page->name|escape:'javascript' nofilter} - {$settings->get('cerberusweb.core','helpdesk_title')|escape:'javascript' nofilter}";
 	
-	var $tabs = $("#pageTabs{$page->id}");
+	let $tabs = $("#pageTabs{$page->id}");
 
 	{if array_key_exists('tab_style', $page->extension_params) && 'menu' == $page->extension_params.tab_style}
 	var $tab_switcher = $tabs.prevAll('h2.cerb-page-tab--title');
@@ -84,10 +86,10 @@ $(function() {
 	{/if}
 	
 	tabOptions.create = function(e, ui) {
-		var tab_id = $(ui.tab).attr('tab_id');
+		let tab_id = $(ui.tab).attr('data-tab-id');
 		
-		var $frm = $('#frmWorkspacePage{$page->id}');
-		var $menu = $frm.find('ul.cerb-popupmenu');
+		let $frm = $('#frmWorkspacePage{$page->id}');
+		let $menu = $frm.find('ul.cerb-popupmenu');
 		
 		if(undefined == tab_id) {
 			$menu.find('a.edit-tab').attr('data-context-id', '');
@@ -103,11 +105,11 @@ $(function() {
 	tabOptions.activate = function(e, ui) {
 		Devblocks.getDefaultjQueryUiTabOptions().activate(e, ui);
 		
-		var $new_tab = $(ui.newTab);
-		var tab_id = $new_tab.attr('tab_id');
+		let $new_tab = $(ui.newTab);
+		let tab_id = $new_tab.attr('data-tab-id');
 		
-		var $frm = $('#frmWorkspacePage{$page->id}');
-		var $menu = $frm.find('ul.cerb-popupmenu');
+		let $frm = $('#frmWorkspacePage{$page->id}');
+		let $menu = $frm.find('ul.cerb-popupmenu');
 		
 		if(undefined == tab_id) {
 			$menu.find('a.edit-tab').attr('data-context-id', '');
@@ -130,48 +132,7 @@ $(function() {
 	$tabs.tabs('option', 'active', tabActiveIndex);
 	
 	{$user_agent = DevblocksPlatform::getClientUserAgent()}
-	
-	{if is_array($user_agent) && 0 != strcasecmp($user_agent.platform|default:'', 'Android')}
-	$tabs.find('ul')
-		.find('> li.drag')
-		.hoverIntent({
-			interval:750,
-			timeout:250,
-			over:function(e) {
-				$(this).css('cursor', 'move');
-				$(this).children().css('cursor', 'move');
-			},
-			out:function() {
-				$(this).css('cursor', 'pointer');
-				$(this).children().css('cursor', 'pointer');
-			}
-		})
-		;
-	
-	$tabs.find('> ul').sortable({
-		items:'> li.drag',
-		distance: 20,
-		forcePlaceholderWidth:true,
-		stop:function(e) {
-			e.stopPropagation();
-			
-			$tabs = $("#pageTabs{$page->id}");
-			$page_tabs = $tabs.find('ul.ui-tabs-nav > li.drag[tab_id]');
-			page_tab_ids = $page_tabs.map(function(e) {
-				return $(this).attr('tab_id');
-			}).get().join(',');
 
-			var formData = new FormData();
-			formData.set('c', 'pages');
-			formData.set('a', 'setTabOrder');
-			formData.set('page_id', '{$page->id}');
-			formData.set('tabs', page_tab_ids);
-
-			genericAjaxPost(formData, '', '');
-		}
-	});
-	{/if}
-	
 	// Keyboard shortcuts
 	
 	$(document).keypress(function(event) {

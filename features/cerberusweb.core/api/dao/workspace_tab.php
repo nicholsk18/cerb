@@ -3,6 +3,7 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 	const EXTENSION_ID = 'extension_id';
 	const ID = 'id';
 	const NAME = 'name';
+	const OPTIONS_KATA = 'options_kata';
 	const PARAMS_JSON = 'params_json';
 	const POS = 'pos';
 	const UPDATED_AT = 'updated_at';
@@ -43,6 +44,11 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 			->setMaxLength(128)
 			->setRequired(true)
 			;
+		$validation
+			->addField(self::OPTIONS_KATA)
+			->string()
+			->setMaxLength(65535)
+		;
 		// text
 		$validation
 			->addField(self::PARAMS_JSON)
@@ -207,7 +213,7 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, workspace_page_id, pos, extension_id, params_json, updated_at ".
+		$sql = "SELECT id, name, workspace_page_id, pos, extension_id, options_kata, params_json, updated_at ".
 			"FROM workspace_tab ".
 			$where_sql.
 			$sort_sql.
@@ -296,6 +302,7 @@ class DAO_WorkspaceTab extends Cerb_ORMHelper {
 			$object->id = intval($row['id']);
 			$object->name = $row['name'];
 			$object->workspace_page_id = intval($row['workspace_page_id']);
+			$object->options_kata = $row['options_kata'];
 			$object->pos = intval($row['pos']);
 			$object->extension_id = $row['extension_id'];
 			$object->updated_at = intval($row['updated_at']);
@@ -561,6 +568,7 @@ class Model_WorkspaceTab extends DevblocksRecordModel {
 	public $id;
 	public $name;
 	public $workspace_page_id;
+	public $options_kata = '';
 	public $pos;
 	public $extension_id;
 	public $params=[];
@@ -594,6 +602,25 @@ class Model_WorkspaceTab extends DevblocksRecordModel {
 			return null;
 		
 		return DevblocksPlatform::translateCapitalized($extension->manifest->params['label']);
+	}
+	
+	function isHidden(?DevblocksDictionaryDelegate $dict=null) : bool {
+		if(!$dict || !$this->options_kata)
+			return false;
+		
+		$kata = DevblocksPlatform::services()->kata();
+		$error = null;
+		
+		if(!($options = $kata->parse($this->options_kata, $error)))
+			return false;
+		
+		if(!($options = $kata->formatTree($options, $dict, $error)))
+			return false;
+		
+		if(array_key_exists('hidden', $options) && $options['hidden'])
+			return true;
+		
+		return false;
 	}
 	
 	function getPlaceholderPrompts(?DevblocksDictionaryDelegate $dict=null) {

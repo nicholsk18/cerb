@@ -70,8 +70,8 @@ class Page_Custom extends CerberusPageExtension {
 				return $this->_pageAction_renderWorklist();
 			case 'setOrder':
 				return $this->_pageAction_setOrder();
-			case 'setTabOrder':
-				return $this->_pageAction_setTabOrder();
+			case 'saveTabs':
+				return $this->_pageAction_saveTabs();
 			case 'toggleMenuPageJson':
 				return $this->_pageAction_toggleMenuPageJson();
 		}
@@ -203,7 +203,16 @@ class Page_Custom extends CerberusPageExtension {
 		if(null != ($page_extension = DevblocksPlatform::getExtension($page->extension_id, true)))
 			$tpl->assign('page_extension', $page_extension);
 		
+		// Dictionary for page
+		$page_dict = DevblocksDictionaryDelegate::instance([
+			'page__context' => CerberusContexts::CONTEXT_WORKSPACE_PAGE,
+			'page_id' => $page->id,
+			'worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'worker_id' => $active_worker->id,
+		]);
+		
 		$tpl->assign('page', $page);
+		$tpl->assign('page_dict', $page_dict);
 		$tpl->display('devblocks:cerberusweb.core::pages/page.tpl');
 	}
 	
@@ -236,24 +245,24 @@ class Page_Custom extends CerberusPageExtension {
 		exit;
 	}
 	
-	private function _pageAction_setTabOrder() {
+	private function _pageAction_saveTabs() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$page_id = DevblocksPlatform::importGPC($_POST['page_id'] ?? null, 'integer','0');
-		$tab_ids_str = DevblocksPlatform::importGPC($_POST['tabs'] ?? null, 'string','');
+		$page_id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer','0');
+		$tab_ids = DevblocksPlatform::importGPC($_POST['workspace_tabs'] ?? [], 'array',[]);
 		
 		if(null == ($page = DAO_WorkspacePage::get($page_id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if(!Context_WorkspacePage::isReadableByActor($page, $active_worker))
+		if(!Context_WorkspacePage::isWriteableByActor($page, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		$tab_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::parseCsvString($tab_ids_str), 'integer', array('nonzero','unique'));
+		$tab_ids = DevblocksPlatform::sanitizeArray($tab_ids, 'integer', ['nonzero','unique']);
 		
-		DAO_WorkerPref::setAsJson($active_worker->id, 'page_tabs_' . $page->id . '_json', $tab_ids);
+		$page->reorder($tab_ids);
 		
 		$active_worker->clearPagesMenuCache();
-		exit;
+		DevblocksPlatform::exit();
 	}
 	
 	private function _pageAction_renderAddTabs() {
@@ -267,6 +276,9 @@ class Page_Custom extends CerberusPageExtension {
 		
 		if(!Context_WorkspacePage::isWriteableByActor($page, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$workspace_tabs = $page->getTabs();
+		$tpl->assign('workspace_tabs', $workspace_tabs);
 		
 		$tpl->assign('page', $page);
 		$tpl->display('devblocks:cerberusweb.core::pages/add_tabs.tpl');

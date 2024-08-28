@@ -477,6 +477,26 @@ class DAO_WorkspacePage extends Cerb_ORMHelper {
 		$cache->remove(self::_CACHE_ALL);
 		$cache->removeByTags(['pages_menu']);
 	}
+	
+	public static function reorder(int $page_id, array $tab_ids=[]) : bool {
+		$db = DevblocksPlatform::services()->database();
+		
+		$values = [];
+		
+		foreach($tab_ids as $pos => $tab_id) {
+			$values[] = sprintf("(%d,%d,%d)", $tab_id, $page_id, $pos+1);
+		}
+		
+		if($values) {
+			$sql = sprintf("INSERT INTO workspace_tab (id, workspace_page_id, pos) VALUES %s ON DUPLICATE KEY UPDATE pos=VALUES(pos)",
+				implode(',', $values)
+			);
+			$db->ExecuteMaster($sql);
+		}
+		
+		DAO_WorkspaceTab::clearCache();
+		return true;
+	}
 };
 
 class SearchFields_WorkspacePage extends DevblocksSearchFields {
@@ -622,38 +642,10 @@ class Model_WorkspacePage extends DevblocksRecordModel {
 	
 	/**
 	 *
-	 * @param Model_Worker $as_worker
 	 * @return Model_WorkspaceTab[]
 	 */
-	function getTabs(Model_Worker $as_worker=null) {
-		$tabs = DAO_WorkspaceTab::getByPage($this->id);
-		
-		// Order by given worker prefs
-		if(!empty($as_worker)) {
-			$available_tabs = $tabs;
-			$tabs = [];
-			
-			// Do we have prefs?
-			$json = DAO_WorkerPref::get($as_worker->id, 'page_tabs_' . $this->id . '_json', '');
-			$tab_ids = json_decode($json);
-			
-			if(!is_array($tab_ids) || empty($json))
-				return $available_tabs;
-			
-			// Sort tabs by the worker's preferences
-			foreach($tab_ids as $tab_id) {
-				if(isset($available_tabs[$tab_id])) {
-					$tabs[$tab_id] = $available_tabs[$tab_id];
-					unset($available_tabs[$tab_id]);
-				}
-			}
-
-			// Add anything left to the end that the worker didn't explicitly sort
-			if(!empty($available_tabs))
-				$tabs += $available_tabs;
-		}
-		
-		return $tabs;
+	function getTabs() : array {
+		return DAO_WorkspaceTab::getByPage($this->id);
 	}
 	
 	function getUsers() {
@@ -665,6 +657,15 @@ class Model_WorkspacePage extends DevblocksRecordModel {
 			return null;
 		
 		return $page_owner_context_ext->getMeta($this->owner_context_id);
+	}
+	
+	public function reorder(array $tab_ids) : bool {
+		$tabs = $this->getTabs();
+		
+		// Ensure we're only reordering tabs that exist on this page
+		$tab_ids = array_intersect($tab_ids, array_keys($tabs));
+		
+		return DAO_WorkspacePage::reorder($this->id, $tab_ids);
 	}
 };
 

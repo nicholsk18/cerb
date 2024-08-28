@@ -24,7 +24,7 @@ class WorkspacePage_Workspace extends Extension_WorkspacePage {
 		
 		$tpl->assign('page', $page);
 		
-		$tabs = $page->getTabs($active_worker);
+		$tabs = $page->getTabs();
 		$tpl->assign('page_tabs', $tabs);
 		
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/pages/default/page.tpl');
@@ -38,8 +38,6 @@ class WorkspacePage_Workspace extends Extension_WorkspacePage {
 	}
 	
 	function exportPageConfigJson(Model_WorkspacePage $page) {
-		$active_worker = CerberusApplication::getActiveWorker();
-		
 		$json_array = array(
 			'page' => array(
 				'uid' => 'workspace_page_' . $page->id,
@@ -50,7 +48,7 @@ class WorkspacePage_Workspace extends Extension_WorkspacePage {
 			),
 		);
 		
-		$tabs = $page->getTabs($active_worker);
+		$tabs = $page->getTabs();
 
 		if(is_array($tabs))
 		foreach($tabs as $tab) { /* @var $tab Model_WorkspaceTab */

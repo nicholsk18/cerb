@@ -274,11 +274,13 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 					case 'build':
 						$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
 						$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string', '');
+						$options_kata = DevblocksPlatform::importGPC($_POST['options_kata'] ?? null, 'string', '');
 						
 						if(empty($id)) { // New
 							$fields = [
 								DAO_WorkspaceTab::EXTENSION_ID => $extension_id,
 								DAO_WorkspaceTab::NAME => $name,
+								DAO_WorkspaceTab::OPTIONS_KATA => $options_kata,
 								DAO_WorkspaceTab::POS => 99,
 								DAO_WorkspaceTab::UPDATED_AT => time(),
 								DAO_WorkspaceTab::WORKSPACE_PAGE_ID => $workspace_page_id,
@@ -299,6 +301,7 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 						} else { // Edit
 							$fields = [
 								DAO_WorkspaceTab::NAME => $name,
+								DAO_WorkspaceTab::OPTIONS_KATA => $options_kata,
 								DAO_WorkspaceTab::UPDATED_AT => time(),
 							];
 							
