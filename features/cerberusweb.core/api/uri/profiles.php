@@ -655,6 +655,21 @@ class ProfileTab_Dashboard extends Extension_ProfileTab {
 					'sidebar' => [],
 				];
 				break;
+			
+			case 'halves':
+				$zones = [
+					'left' => [],
+					'right' => [],
+				];
+				break;
+			
+			case 'thirds':
+				$zones = [
+					'left' => [],
+					'center' => [],
+					'right' => [],
+				];
+				break;
 		}
 
 		// Sanitize zones

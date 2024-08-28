@@ -42,6 +42,50 @@
 			</div>
 		</div>
 	</div>
+{elseif 'halves' == $layout}
+	<div id="profileTab{$model->id}" class="cerb-workspace-layout cerb-profile-layout--halves" style="vertical-align:top;display:flex;flex-flow:row wrap;">
+		<div data-layout-zone="left" class="cerb-profile-layout-zone cerb-profile-layout-zone--left" style="flex:1 1 50%;min-width:345px;overflow-x:hidden;">
+			<div class="cerb-profile-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
+				{foreach from=$zones.left item=widget name=widgets}
+					{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
+				{/foreach}
+			</div>
+		</div>
+
+		<div data-layout-zone="right" class="cerb-profile-layout-zone cerb-profile-layout-zone--right" style="flex:1 1 50%;min-width:345px;overflow-x:hidden;">
+			<div class="cerb-profile-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
+				{foreach from=$zones.right item=widget name=widgets}
+					{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
+				{/foreach}
+			</div>
+		</div>
+	</div>
+{elseif 'thirds' == $layout}
+	<div id="profileTab{$model->id}" class="cerb-profile-layout cerb-profile-layout--thirds" style="vertical-align:top;display:flex;flex-flow:row wrap;">
+		<div data-layout-zone="left" class="cerb-profile-layout-zone cerb-profile-layout-zone--left" style="flex:1 1 33%;min-width:345px;overflow-x:hidden;">
+			<div class="cerb-profile-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
+				{foreach from=$zones.left item=widget name=widgets}
+					{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
+				{/foreach}
+			</div>
+		</div>
+
+		<div data-layout-zone="center" class="cerb-profile-layout-zone cerb-profile-layout-zone--center" style="flex:1 1 33%;min-width:345px;overflow-x:hidden;">
+			<div class="cerb-profile-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
+				{foreach from=$zones.center item=widget name=widgets}
+					{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
+				{/foreach}
+			</div>
+		</div>
+
+		<div data-layout-zone="right" class="cerb-profile-layout-zone cerb-profile-layout-zone--right" style="flex:1 1 33%;min-width:345px;overflow-x:hidden;">
+			<div class="cerb-profile-layout-zone--widgets" style="padding:2px;vertical-align:top;display:flex;flex-flow:row wrap;min-height:100px;">
+				{foreach from=$zones.right item=widget name=widgets}
+					{include file="devblocks:cerberusweb.core::internal/profiles/widgets/render.tpl" widget=$widget}
+				{/foreach}
+			</div>
+		</div>
+	</div>
 {else}
 	<div id="profileTab{$model->id}" class="cerb-profile-layout cerb-profile-layout--content" style="vertical-align:top;display:flex;flex-flow:row wrap;">
 		<div data-layout-zone="content" class="cerb-profile-layout-zone" style="flex:1 1 100%;overflow-x:hidden;">
