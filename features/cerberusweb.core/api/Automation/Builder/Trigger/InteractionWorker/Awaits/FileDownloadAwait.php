@@ -26,6 +26,13 @@ class FileDownloadAwait extends AbstractAwait {
 	private function _promptAction_download() {
 		$uri = $this->_data['uri'] ?? null;
 		
+		if(array_key_exists('data', $this->_data) && $data = ($this->_data['data'] ?? null)) {
+			$content_type = 'application/octet-stream';
+			DevblocksPlatform::services()->http()->setHeader('Content-Type', $content_type);
+			echo $data;
+			return;
+		}
+		
 		if(!$uri)
 			DevblocksPlatform::dieWithHttpError(null, 404);
 	
