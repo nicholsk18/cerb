@@ -141,106 +141,132 @@ class _DevblocksDataService {
 			[
 				'name' => 'automation.invoke',
 				'description' => 'Invoke an automation for custom data queries',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/automation/invoke/',
 			],
 			[
 				'name' => 'attachment.manifest',
 				'description' => 'Read and filter file contents from archives',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/attachment/manifest/',
 			],
 			[
 				'name' => 'autocomplete.completions',
 				'description' => 'Autocomplete completions for a schema',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/autocomplete/completions/',
 			],
 			[
 				'name' => 'calendar.availability',
 				'description' => 'Combined availability from calendars',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/calendar/availability/',
 			],
 			[
 				'name' => 'calendar.events',
 				'description' => 'Get events and recurring events from calendars',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/calendar/events/',
 			],
 			[
 				'name' => 'classifier.prediction',
 				'description' => 'Predict classification for text with a classifier',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/classifier/prediction/',
 			],
 			[
 				'name' => 'data.query.types',
 				'description' => 'Get metadata for data query types',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/data/query-types/',
 			],
 			[
 				'name' => 'gpg.keyinfo',
 				'description' => 'Get info for a PGP public key',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/gpg/keyinfo/',
 			],
 			[
 				'name' => 'metrics.timeseries',
 				'description' => 'Chart and aggregate time-based metrics',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/metrics/timeseries/',
 			],
 			[
 				'name' => 'platform.extensions',
 				'description' => 'Filterable and pageable list of plugin extensions for a given hook',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/platform/extensions/',
 			],
 			[
 				'name' => 'platform.extension.points',
 				'description' => 'Filterable and pageable list of plugin extensions hooks',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/platform/extension-points/',
 			],
 			[
 				'name' => 'record.fields',
 				'description' => 'Filterable and pageable list of fields from a record type',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/record/fields/',
 			],
 			[
 				'name' => 'record.types',
 				'description' => 'Filterable and pageable list of record types',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/record/types/',
 			],
 			[
 				'name' => 'sample.geo.points',
 				'description' => 'Simulated GeoJSON data',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/sample/geopoints/',
 			],
 			[
 				'name' => 'sample.records',
 				'description' => 'Simulated record dictionaries data',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/sample/records/',
 			],
 			[
 				'name' => 'sample.timeseries',
 				'description' => 'Simulated time-series data',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/sample/timeseries/',
 			],
 			[
 				'name' => 'sample.xy',
 				'description' => 'Simulated X/Y data for scatterplots',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/sample/xy/',
 			],
 			[
 				'name' => 'ui.icons',
 				'description' => 'Filterable and pageable list of icons',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/ui/icons/',
 			],
 			[
 				'name' => 'usage.behaviors',
 				'description' => 'Historical usage data for bot behaviors',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/usage/bot-behaviors/',
 			],
 			[
 				'name' => 'usage.snippets',
 				'description' => 'Historical usage data for snippets',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/usage/snippets/',
 			],
 			[
 				'name' => 'worklist.geo.points',
 				'description' => 'Geolocation data from worklist records',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/worklist/geopoints/',
 			],
 			[
 				'name' => 'worklist.metrics',
 				'description' => 'Computed metrics based on worklist data',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/worklist/metrics/',
 			],
 			[
 				'name' => 'worklist.records',
 				'description' => 'Record dictionaries with a search query',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/worklist/records/',
 			],
 			[
 				'name' => 'worklist.series',
 				'description' => 'Series-based data from any worklist',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/worklist/series/',
 			],
 			[
 				'name' => 'worklist.subtotals',
 				'description' => 'Aggregations on worklist record fields',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/worklist/subtotals/',
 			],
 			[
 				'name' => 'worklist.xy',
 				'description' => 'Compute clusters of two dimensional data from records',
+				'docs_url' => 'https://cerb.ai/docs/data-queries/worklist/xy/',
 			],
 		];
 		
