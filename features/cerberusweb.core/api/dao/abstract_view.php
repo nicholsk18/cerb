@@ -752,12 +752,12 @@ abstract class C4_AbstractView {
 		foreach($sort_fields as $sort_field) {
 			$sort_asc = true;
 			
-			if('-' == substr($sort_field,0,1))
+			if(str_starts_with($sort_field, '-'))
 				$sort_asc = false;
 			
 			$sort_field = ltrim($sort_field, '+-');
 			
-			@$search_field = $search_fields[$sort_field];
+			$search_field = ($search_fields[$sort_field] ?? null);
 			
 			if(!is_array($search_field) || empty($search_field))
 				continue;
