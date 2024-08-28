@@ -72,6 +72,13 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 				];
 				break;
 				
+			case 'halves':
+				$zones = [
+					'left' => [],
+					'right' => [],
+				];
+				break;
+			
 			case 'thirds':
 				$zones = [
 					'left' => [],
