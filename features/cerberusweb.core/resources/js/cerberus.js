@@ -1267,6 +1267,7 @@ var cerbAutocompleteSuggestions = {
 		],
 		'columns:interaction:params:': [
 			'bold@bool: yes',
+			'icon:',
 			'inputs:',
 			'text:',
 			'text_key:',
@@ -1278,6 +1279,22 @@ var cerbAutocompleteSuggestions = {
 			'text_color@raw:',
 			'text_size@raw: 150%'
 		],
+		'columns:interaction:params:icon:': [
+			'image:',
+			'image_key:',
+			'image_template@raw:',
+			{
+				'caption': 'record_uri:',
+				'snippet': 'record_uri@raw: cerb:${1:record_type}:${2:record_id}'
+			},
+			{
+				'caption': 'svg:',
+				'snippet': "svg:\n  data: ${1:<svg></svg>}"
+			}
+		],
+		'columns:interaction:params:icon:image:': {
+			'type': 'icon'
+		},
 		'columns:interaction:params:uri:': {
 			'type': 'cerb-uri',
 			'params': {

@@ -6061,6 +6061,30 @@ class _CerbApplication_KataSchemas {
                                 color:
                                   types:
                                     string:
+                                icon:
+                                  types:
+                                    string:
+                                    object:
+                                      attributes:
+                                        image_key:
+                                          types:
+                                            string:
+                                        image_template:
+                                          types:
+                                            string:
+                                        image:
+                                          types:
+                                            string:
+                                        record_uri:
+                                          types:
+                                            string:
+                                        svg:
+                                          types:
+                                            object:
+                                              attributes:
+                                                data:
+                                                  types:
+                                                    string:
                                 inputs:
                                   types:
                                     list:
