@@ -61,6 +61,16 @@ $(function() {
 		.cerbSearchTrigger()
 	;
 
+	$sheet.find('.cerb-bot-trigger, .cerb-interaction-trigger')
+		.cerbBotTrigger({
+			done: function(e) {
+				let evt = $.Event('cerb-sheet--interaction-done', e);
+				evt.type = 'cerb-sheet--interaction-done';
+				$sheet.trigger(evt);
+			}
+		})
+	;
+
 	$sheet.parent().find('.cerb-paging')
 		.click(function() {
 			var $this = $(this);
