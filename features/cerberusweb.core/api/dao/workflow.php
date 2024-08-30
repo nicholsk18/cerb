@@ -895,6 +895,9 @@ class Model_Workflow extends DevblocksRecordModel {
 						unset($was_records[$record_key]);
 						
 					} else {
+						foreach($delta['fields'] ?? [] as $field_key => $field)
+							$delta['fields'][$field_key] = $new_record['fields'][$field_key];
+						
 						$action = [
 							'output' => $record_name,
 							'inputs' => [
