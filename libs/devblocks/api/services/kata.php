@@ -341,10 +341,17 @@ class _DevblocksKataService {
 					
 					if(is_array($v)) {
 						if(DevblocksPlatform::arrayIsIndexed($v)) {
-							$output .= str_repeat('  ', $indent) . strval($k) . "@list:\n";
-							
-							foreach($v as $list_item) {
-								$output .= str_repeat('  ', $indent+1) . strval($list_item) . "\n";
+							// If we have a nested array, encode as JSON instead
+							if(array_filter($v, fn($line_item) => is_array($line_item))) {
+								$output .= str_repeat('  ', $indent) . strval($k) . "@json:\n";
+								$output .= str_repeat('  ', $indent+1) . json_encode($v) . "\n";
+								
+							} else {
+								$output .= str_repeat('  ', $indent) . strval($k) . "@list:\n";
+								
+								foreach($v as $list_item) {
+									$output .= str_repeat('  ', $indent+1) . strval($list_item) . "\n";
+								}
 							}
 							
 						} else {

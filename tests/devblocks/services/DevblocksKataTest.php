@@ -549,6 +549,53 @@ EOD;
 		$this->assertEquals($expected, $actual);
 	}
 	
+	function testKataEmitNestedLists() {
+		$data = [
+			'properties' => [
+				[ 'red', 'green', 'blue' ]
+			]
+		];
+		
+		$actual = DevblocksPlatform::services()->kata()->emit($data);
+		
+		$expected = <<< EOD
+    properties@json:
+      [["red","green","blue"]]
+    EOD;
+		
+		$this->assertEquals($expected, $actual);
+	}
+	
+	function testKataEmitRaw() {
+		$data = [
+			'text' => new DevblocksKataRawString("This should not convert {{placeholders}}"),
+		];
+		
+		$actual = DevblocksPlatform::services()->kata()->emit($data);
+		
+		$expected = <<< EOD
+    text@raw: This should not convert {{placeholders}}
+    EOD;
+		
+		$this->assertEquals($expected, $actual);
+	}
+	
+	function testKataEmitRawJson() {
+		$data = <<< EOD
+    json@raw,json: {"text":"{{placeholder}}"}
+    EOD;
+		
+		$data = DevblocksPlatform::services()->kata()->parse($data);
+		
+		$actual = DevblocksPlatform::services()->kata()->emit($data);
+		
+		$expected = <<< EOD
+    json@raw,json: {"text":"{{placeholder}}"}
+    EOD;
+		
+		$this->assertEquals($expected, $actual);
+	}
+	
 	function testKataDuplicateSiblingWithDiffAnnotations() {
 		$kata = <<< EOD
 allow/rule@text: ok
