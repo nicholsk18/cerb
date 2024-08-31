@@ -290,6 +290,17 @@ function DevblocksClass() {
 			editor.focus();
 		}
 		
+		if(eventData.return.hasOwnProperty('command')
+			&& 'object' == typeof eventData.return.command
+			&& 'object' == typeof editor
+		) {
+			let editor_command = eventData.return.command;
+			
+			if('editor_commands' === editor_command.name) {
+				editor.execCommand('openCommandPalette');
+			}
+		}
+		
 		if(eventData.return.hasOwnProperty('alert')) {
 			Devblocks.createAlert(eventData.return['alert']);
 		}

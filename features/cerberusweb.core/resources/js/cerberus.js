@@ -2264,6 +2264,8 @@ var ajax = new cAjaxCalls();
 				}
 			});
 			
+			editor.commands.removeCommand('showSettingsMenu');
+			
 			$this
 				.data('$editor', $editor)
 				.data('editor', editor)

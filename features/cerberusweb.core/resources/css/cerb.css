@@ -2286,6 +2286,10 @@ UL.ui-menu li.ui-state-focus {
   color: var(--cerb-editor-completion-highlight);
   font-weight: bold;
 }
+.ace_editor.ace_autocomplete .ace_completion-message {
+  color: var(--cerb-color-text);
+  font-weight: bold;
+}
 .ace_editor.ace_autocomplete .ace_line-hover {
   border: 0;
   background-color: var(--cerb-editor-line-hover);

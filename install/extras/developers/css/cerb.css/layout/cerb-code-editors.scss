@@ -86,6 +86,11 @@
 		font-weight: bold;
 	}
 	
+	.ace_completion-message {
+		color: var(--cerb-color-text);
+		font-weight: bold;
+	}
+
 	.ace_line-hover {
 		border: 0;
 		background-color: var(--cerb-editor-line-hover);

@@ -84,6 +84,7 @@
 			<div class="cerb-code-editor-toolbar-divider"></div>
 			<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets-code title="{'common.change_history'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-history"></span></button>
 		{/if}
+		<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-commands title="Editor Commands"><span class="glyphicons glyphicons-adjust-alt"></span></button>
 		<button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-export title="{'common.export'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-disk-export"></span></button>
 	</div>
 	<textarea name="automation_script" data-editor-mode="ace/mode/cerb_kata" data-editor-lines="25">{$model->script}</textarea>
@@ -420,6 +421,11 @@ $(function() {
 			;
 
 		var editor_automation = ace.edit($automation_yaml.nextAll('pre.ace_editor').attr('id'));
+
+		$popup.find('[data-cerb-editor-button-commands]').on('click', function(e) {
+			e.stopPropagation();
+			editor_automation.execCommand('openCommandPalette');
+		});
 
 		{if $model->id}
 		$popup.find('[data-cerb-editor-button-changesets-code]').on('click', function(e) {

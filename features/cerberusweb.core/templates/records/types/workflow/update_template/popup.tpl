@@ -16,6 +16,7 @@
             <div>
                 <div class="cerb-code-editor-toolbar" style="margin:0.5em 0;">
                     <button type="button" class="cerb-code-editor-toolbar-button" data-cerb-editor-button-changesets-template title="{'common.change_history'|devblocks_translate|capitalize}"><span class="glyphicons glyphicons-history"></span></button>
+                    <button type="button" class="cerb-code-editor-commands-button" data-cerb-editor-button-commands title="Editor Commands"><span class="glyphicons glyphicons-adjust-alt"></span></button>
                 </div>
                 <textarea name="template[kata]" data-editor-mode="ace/mode/cerb_kata" data-editor-lines="35">{$model->workflow_kata}</textarea>
             </div>
@@ -76,6 +77,11 @@ $(function() {
 
         {if $model->id}
         let editor_template = ace.edit($editor.attr('id'));
+
+        $popup.find('[data-cerb-editor-button-commands]').on('click', function(e) {
+            e.stopPropagation();
+            editor_template.execCommand('openCommandPalette');
+        });
 
         $popup.find('[data-cerb-editor-button-changesets-template]').on('click', function(e) {
             e.stopPropagation();
