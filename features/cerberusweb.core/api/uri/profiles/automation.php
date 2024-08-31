@@ -527,6 +527,7 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 	
 	private function _profileAction_showExportPopup() {
 		$tpl = DevblocksPlatform::services()->template();
+		$kata = DevblocksPlatform::services()->kata();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		if('POST' != DevblocksPlatform::getHttpMethod())
@@ -536,6 +537,8 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		$fields = DevblocksPlatform::importGPC($_POST['fields'] ?? null, 'array', []);
+		
+		// Package
 		
 		$package_data = [
 			'package' => [],
@@ -553,8 +556,25 @@ class PageSection_ProfilesAutomation extends Extension_PageSection {
 				]
 			]
 		];
-		
 		$tpl->assign('export_json', DevblocksPlatform::strFormatJson($package_data));
+		
+		// Workflow
+		
+		$workflow_data = [
+			'records' => [
+				'automation/' . uniqid() => [
+					'fields' => [
+						'name' => $fields['name'] ?? '',
+						'extension_id' => $fields['extension_id'] ?? '',
+						'description' => $fields['description'] ?? '',
+						'script' => new DevblocksKataRawString($fields['script'] ?? ''),
+						'policy_kata' => new DevblocksKataRawString($fields['policy_kata'] ?? ''),
+					]
+				]
+			]
+		];
+		$tpl->assign('export_workflow', $kata->emit($workflow_data));
+		
 		$tpl->display('devblocks:cerberusweb.core::internal/automation/editor/popup_export.tpl');
 	}
 	
