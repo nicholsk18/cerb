@@ -2706,6 +2706,11 @@ UL.ui-menu li.ui-state-focus {
   margin-left: 5px;
 }
 
+.cerb-card-widget--content svg {
+  max-width: 100%;
+  height: auto;
+}
+
 .cerb-profile-widget {
   min-width: 345px;
   margin-bottom: 15px;
@@ -2737,6 +2742,11 @@ UL.ui-menu li.ui-state-focus {
   font-size: 0.5em;
   vertical-align: middle;
   margin-left: 5px;
+}
+
+.cerb-profile-widget--content svg {
+  max-width: 100%;
+  height: auto;
 }
 
 svg.cerb-spinner {
@@ -2811,6 +2821,11 @@ svg.cerb-spinner circle {
   font-size: 0.5em;
   vertical-align: middle;
   margin-left: 5px;
+}
+
+.cerb-workspace-widget--content svg {
+  max-width: 100%;
+  height: auto;
 }
 
 div.cerb-board div.cerb-board-columns {

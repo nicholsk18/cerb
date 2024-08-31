@@ -36,4 +36,8 @@
 }
 
 .cerb-workspace-widget--content {
+	svg {
+		max-width: 100%;
+		height: auto;
+	}
 }
