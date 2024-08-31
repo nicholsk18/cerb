@@ -162,6 +162,7 @@ if(($widget_id = $db->GetOneMaster("SELECT id FROM profile_widget WHERE name = '
 $automation_files = [
 	'ai.cerb.automationBuilder.action.recordGet.json',
 	'ai.cerb.automationBuilder.action.recordUpsert.json',
+	'ai.cerb.automationBuilder.autocomplete.d3TimeFormat.json',
 	'ai.cerb.chooser.toolbar.json',
 	'ai.cerb.routingRuleBuilder.inputChooser.json',
 	'cerb.reply.isBannedDefunct.json',
