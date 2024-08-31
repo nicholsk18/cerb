@@ -50,6 +50,12 @@ UL.ui-menu {
 .ui-menu .ui-menu-item-wrapper {
 	color: var(--cerb-color-menu-item-text);
 	font-weight:normal;
+
+	&.ui-state-active {
+		.ui-menu-icon {
+			background-image: url("../../devblocks.core/css/images/ui-icons_217bc0_256x240.png");
+		}
+	}
 }
 
 .ui-menu .ui-menu-divider {
