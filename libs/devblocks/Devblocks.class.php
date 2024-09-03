@@ -317,6 +317,10 @@ class _DevblocksServices {
 	function vobject() : _DevblocksVObjectService {
 		return _DevblocksVObjectService::getInstance();
 	}
+	
+	public function workflow() : _DevblocksWorkflowService{
+		return _DevblocksWorkflowService::getInstance();
+	}
 }
 
 /**

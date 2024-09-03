@@ -801,7 +801,7 @@ class Model_Workflow extends DevblocksRecordModel {
 		
 		// Modified Template
 		
-		if(false === ($new_template = $kata->parse($new->workflow_kata, $errro)))
+		if(false === ($new_template = $kata->parse($new->workflow_kata, $error)))
 			$new_template = [];
 		
 		if(false === ($initial_state = $new->getChangesAutomationInitialState($error)))
@@ -1161,6 +1161,14 @@ class Model_Workflow extends DevblocksRecordModel {
 			return false;
 		
 		return $workflow_template;
+	}
+	
+	public function getExtensionBits() : int {
+		return
+			(str_contains($this->workflow_kata, 'activity/') ? Model_Workflow::HAS_ACTIVITIES : 0)
+			+ (str_contains($this->workflow_kata, 'permission/') ? Model_Workflow::HAS_PERMISSIONS : 0)
+			+ (str_contains($this->workflow_kata, 'translation/') ? Model_Workflow::HAS_TRANSLATIONS : 0)
+			;
 	}
 };
 

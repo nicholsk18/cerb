@@ -314,6 +314,10 @@ class _DevblocksClassLoadManager {
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/vobject.php', array(
 			'_DevblocksVObjectService',
 		));
+		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/workflow.php', [
+			'Exception_CerbWorkflowError',
+			'_DevblocksWorkflowService',
+		]);
 		
 		return true;
 	}
