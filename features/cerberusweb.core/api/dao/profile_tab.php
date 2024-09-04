@@ -182,7 +182,7 @@ class DAO_ProfileTab extends Cerb_ORMHelper {
 		$cache = DevblocksPlatform::services()->cache();
 		
 		if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
-			$objects = self::getWhere(null, DAO_ProfileTab::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
+			$objects = self::getWhere(null, DAO_ProfileTab::POS, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
 			
 			if(!is_array($objects))
 				return false;
@@ -194,27 +194,11 @@ class DAO_ProfileTab extends Cerb_ORMHelper {
 	}
 
 	static function getByContext($context) {
-		// [TODO] Cache by context?
-		
 		// Ensure the context is legitimate
-		if(false == Extension_DevblocksContext::get($context))
+		if(!Extension_DevblocksContext::get($context))
 			return [];
 		
-		$objects = self::getWhere(
-			sprintf("%s = %s",
-				Cerb_ORMHelper::escape(self::CONTEXT),
-				Cerb_ORMHelper::qstr($context)
-			),
-			DAO_ProfileTab::POS,
-			true,
-			null,
-			Cerb_ORMHelper::OPT_GET_MASTER_ONLY
-		);
-		
-		if(!is_array($objects))
-			return [];
-			
-		return $objects;
+		return array_filter(self::getAll(), fn($profile_tab) => $profile_tab->context == $context);
 	}
 
 	/**
