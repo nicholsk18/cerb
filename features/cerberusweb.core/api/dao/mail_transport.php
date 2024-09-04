@@ -240,7 +240,7 @@ class DAO_MailTransport extends Cerb_ORMHelper {
 			$object->updated_at = $row['updated_at'];
 			
 			// Unserialize JSON params
-			if(false != (@$params = json_decode($row['params_json'], true)))
+			if(false !== ($params = json_decode($row['params_json'] ?: '', true)))
 				$object->params = $params;
 			
 			$objects[$object->id] = $object;

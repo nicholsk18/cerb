@@ -872,8 +872,12 @@ class Model_Snippet extends DevblocksRecordModel {
 		
 		foreach($prompts as $prompt_key => &$prompt) {
 			list($prompt_type, $prompt_name) = array_pad(explode('/', $prompt_key, 2), 2, null);
+			
+			if(!is_array($prompt))
+				$prompt = [];
+			
 			$prompt['type'] = $prompt_type;
-			$prompt['name'] = $prompt_name;
+			$prompt['name'] = $prompt_name ?: $prompt_type;
 			
 			// Sanitize
 			if(array_key_exists('default', $prompt) && !is_scalar($prompt['default'])) {

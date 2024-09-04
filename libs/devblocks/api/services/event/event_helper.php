@@ -4124,17 +4124,13 @@ class DevblocksEventHelper {
 	}
 	
 	static function simulateActionCreateTask($params, DevblocksDictionaryDelegate $dict, $default_on) {
-		@$trigger = $dict->__trigger;
-		
-		$due_date = $params['due_date'];
-
-		@$watcher_worker_ids = DevblocksPlatform::importVar($params['worker_id'],'array',[]);
+		$watcher_worker_ids = DevblocksPlatform::importVar($params['worker_id'] ?? null,'array',[]);
 		$watcher_worker_ids = DevblocksEventHelper::mergeWorkerVars($watcher_worker_ids, $dict);
 		
-		@$notify_worker_ids = DevblocksPlatform::importVar($params['notify_worker_id'],'array',[]);
+		$notify_worker_ids = DevblocksPlatform::importVar($params['notify_worker_id'] ?? null,'array',[]);
 		$notify_worker_ids = DevblocksEventHelper::mergeWorkerVars($notify_worker_ids, $dict);
 		
-		@$owner_ids = DevblocksPlatform::importVar($params['owner_id'],'string','');
+		$owner_ids = DevblocksPlatform::importVar($params['owner_id'] ?? null,'string','');
 		$owner_ids = DevblocksEventHelper::mergeWorkerVars($owner_ids, $dict);
 		$owner_id = array_shift($owner_ids) ?: 0;
 		
