@@ -2756,7 +2756,7 @@ UL.ui-menu li.ui-state-focus {
 svg.cerb-spinner {
   animation: 2s linear infinite cerb-spinner-animation;
   display: inline-block;
-  max-width: 32px;
+  width: 32px;
   margin: 5px;
   vertical-align: middle;
   opacity: 1;
