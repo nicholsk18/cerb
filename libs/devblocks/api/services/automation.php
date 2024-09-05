@@ -2,7 +2,14 @@
 
 use Cerb\AutomationBuilder\Node\AbstractNode;
 
-class Exception_DevblocksAutomationError extends Exception_Devblocks {};
+class Exception_DevblocksAutomationError extends Exception_Devblocks {
+	public ?DevblocksDictionaryDelegate $dict = null;
+	
+	public function __construct(string $message = "", ?DevblocksDictionaryDelegate $dict=null) {
+		$this->dict = $dict;
+		parent::__construct($message);
+	}
+};
 
 class _DevblocksAutomationService {
 	private static $_instance = null;
@@ -334,26 +341,15 @@ class _DevblocksAutomationService {
 		}
 	}
 	
-	/**
-	 * 
-	 * @param Model_Automation $automation
-	 * @param array $initial_state
-	 * @param string $error
-	 * @return DevblocksDictionaryDelegate|false
-	 */
-	public function executeScript(Model_Automation $automation, array $initial_state=[], &$error=null) {
+	public function executeScript(Model_Automation $automation, array $initial_state=[], ?string &$error=null, ?DevblocksDictionaryDelegate &$exit_state=null) : DevblocksDictionaryDelegate|false {
 		$error = null;
 		$is_simulate = array_key_exists('__simulate', $initial_state) && $initial_state['__simulate'];
 		
 		try {
 			if(!($automation_script = DevblocksPlatform::services()->kata()->parse($automation->script, $error))) {
-				if(!$error) {
-					if(!$automation_script) {
-						$error = "No `start:` node was found";
-					} else {
-						$error = "Invalid automation script";
-					}
-				}
+				if(!$error)
+					$error = "No `start:` node was found";
+				
 				throw new Exception_DevblocksAutomationError($error);
 			}
 			
@@ -362,14 +358,14 @@ class _DevblocksAutomationService {
 			// On the first run
 			if(!$dict->exists('__state')) {
 				if(false === $this->_validateInputs($automation_script, $dict, $error))
-					throw new Exception_DevblocksAutomationError(strval($error));
+					throw new Exception_DevblocksAutomationError(strval($error), $dict);
 			}
 			
 			// Remove inputs before running
 			unset($automation_script['inputs']);
 			
 			if(!$automation->execute($dict, $error))
-				throw new Exception_DevblocksAutomationError(strval($error));
+				throw new Exception_DevblocksAutomationError(strval($error), $dict);
 			
 			// Log when we exit in an error state and are not simulating
 			if($dict->getKeyPath('__exit') == 'error') {
@@ -384,10 +380,12 @@ class _DevblocksAutomationService {
 				}
 			}
 			
+			$exit_state = $dict;
 			return $dict;
 			
 		} catch (Exception_DevblocksAutomationError $e) {
 			$error = $e->getMessage();
+			$exit_state = $e->dict;
 			
 			// Only log when this isn't CLI (e.g. ignore unit tests)
 			if(php_sapi_name() != 'cli')
