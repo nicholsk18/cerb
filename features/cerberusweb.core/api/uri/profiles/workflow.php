@@ -607,7 +607,11 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_WORKFLOW, $id, $was_workflow->name);
 				
 				// Bit flags for extension types
-				$has_extensions = $new_workflow->getExtensionBits();
+				$has_extensions = $was_workflow->getExtensionBits();
+				
+				if(false === ($workflows->import($new_workflow, $active_worker, $error))) {
+					throw new Exception_DevblocksAjaxValidationError($error);
+				}
 				
 				DAO_Workflow::delete($id);
 				
