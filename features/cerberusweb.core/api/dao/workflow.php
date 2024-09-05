@@ -836,52 +836,6 @@ class Model_Workflow extends DevblocksRecordModel {
 		$was_records = $was_template['records'] ?? [];
 		$new_records = $new_template['records'] ?? [];
 		
-		// Record deletion
-		foreach($was_records as $record_key => $was_record) {
-			$record_type = DevblocksPlatform::services()->string()->strBefore($record_key, '/');
-			$record_name = DevblocksPlatform::services()->string()->strAfter($record_key, '/') ?: $record_type;
-			
-			// Delete
-			if(!array_key_exists($record_key, $new_records)) {
-				$was_record_id = intval($workflow_resources['records'][$record_key] ?? null);
-				$deletion_policy = DevblocksPlatform::strLower($was_record['deletionPolicy'] ?? '');
-				
-				// If retaining, skip deletion
-				if('retain' == $deletion_policy) {
-					$resource_keys['records'][$record_key] = [
-						'action' => 'retain',
-						'was_record_id' => $was_record_id,
-					];
-					continue;
-				}
-				
-				$action = [
-					'output' => $record_name,
-					'inputs' => [
-						'record_type' => $record_type,
-						'record_id' => $was_record_id,
-					],
-					'on_success' => [
-						'var.unset/record' => [
-							'inputs' => [
-								'key' => 'records:' . $record_name,
-							],
-						],
-					],
-					'on_error' => [],
-				];
-				
-				if($was_record_id) {
-					$resource_keys['records'][$record_key] = [
-						'action' => 'delete',
-						'record_type' => $record_type,
-						'record_id' => $was_record_id,
-					];
-					$script['start']['record.delete/' . $record_name] = $action;
-				}
-			}
-		}
-		
 		foreach($new_records as $record_key => $new_record) {
 			$record_type = DevblocksPlatform::services()->string()->strBefore($record_key, '/');
 			$record_name = DevblocksPlatform::services()->string()->strAfter($record_key, '/') ?: $record_type;
@@ -952,6 +906,53 @@ class Model_Workflow extends DevblocksRecordModel {
 						'fields' => $new_record['fields'] ?? [],
 					];
 					$script['start']['record.create/' . $record_name] = $action;
+				}
+			}
+		}
+		
+		// Record deletion (always do last)
+		foreach($was_records as $record_key => $was_record) {
+			$record_type = DevblocksPlatform::services()->string()->strBefore($record_key, '/');
+			$record_name = DevblocksPlatform::services()->string()->strAfter($record_key, '/') ?: $record_type;
+			
+			// Delete
+			if(!array_key_exists($record_key, $new_records)) {
+				$was_record_id = intval($workflow_resources['records'][$record_key] ?? null);
+				$deletion_policy = DevblocksPlatform::strLower($was_record['deletionPolicy'] ?? '');
+				
+				// If retaining, skip deletion
+				if('retain' == $deletion_policy) {
+					$resource_keys['records'][$record_key] = [
+						'action' => 'retain',
+						'was_record_id' => $was_record_id,
+					];
+					continue;
+				}
+				
+				$action = [
+					'output' => $record_name,
+					'inputs' => [
+						'record_type' => $record_type,
+						'record_id' => $was_record_id,
+					],
+					'on_success' => [
+						'var.unset/record' => [
+							'inputs' => [
+								'key' => 'records:' . $record_name,
+							],
+						],
+					],
+					// [TODO] Handle silent errors on missing records, rollback?
+					'on_error' => [],
+				];
+				
+				if($was_record_id) {
+					$resource_keys['records'][$record_key] = [
+						'action' => 'delete',
+						'record_type' => $record_type,
+						'record_id' => $was_record_id,
+					];
+					$script['start']['record.delete/' . $record_name] = $action;
 				}
 			}
 		}
