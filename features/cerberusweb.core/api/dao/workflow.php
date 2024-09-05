@@ -883,29 +883,56 @@ class Model_Workflow extends DevblocksRecordModel {
 			
 			// Create
 			if(!array_key_exists($record_key, $was_records)) {
-				$action = [
-					'output' => 'new_record',
-					'inputs' => [
-						'record_type' => $record_type,
-						'fields' => $new_record['fields'] ?? [],
-					],
-					'on_success' => [
-						'var.set/record' => [
-							'inputs' => [
-								'key' => 'records:' . $record_name,
-								'value@json' => '{{new_record|json_encode}}',
+				// The record wasn't in the past template, but we have an existing reference (e.g. import)
+				if(
+					array_key_exists($record_key, $workflow_resource_dicts)
+					&& ($was_record_id = intval($workflow_resource_dicts[$record_key]->get('id')))
+				) {
+					$action = [
+						'output' => $record_name,
+						'inputs' => [
+							'record_type' => $record_type,
+							'record_id' => $was_record_id,
+							'fields' => $new_record['fields'] ?? [],
+						],
+					];
+					
+					if($action['inputs']['fields'] ?? null) {
+						$resource_keys['records'][$record_key] = [
+							'action' => 'update',
+							'record_type' => $record_type,
+							'record_id' => $was_record_id,
+							'fields' => $new_record['fields'] ?? [],
+						];
+						$script['start']['record.update/' . $record_name] = $action;
+					}
+					
+				// This is a new record and we have no reference
+				} else {
+					$action = [
+						'output' => 'new_record',
+						'inputs' => [
+							'record_type' => $record_type,
+							'fields' => $new_record['fields'] ?? [],
+						],
+						'on_success' => [
+							'var.set/record' => [
+								'inputs' => [
+									'key' => 'records:' . $record_name,
+									'value@json' => '{{new_record|json_encode}}',
+								],
 							],
 						],
-					],
-				];
-				
-				if($action['inputs']['fields'] ?? null) {
-					$resource_keys['records'][$record_key] = [
-						'action' => 'create',
-						'record_type' => $record_type,
-						'fields' => $new_record['fields'] ?? [],
 					];
-					$script['start']['record.create/' . $record_name] = $action;
+					
+					if($action['inputs']['fields'] ?? null) {
+						$resource_keys['records'][$record_key] = [
+							'action' => 'create',
+							'record_type' => $record_type,
+							'fields' => $new_record['fields'] ?? [],
+						];
+						$script['start']['record.create/' . $record_name] = $action;
+					}
 				}
 			}
 		}

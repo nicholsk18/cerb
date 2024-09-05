@@ -1,5 +1,13 @@
 <?php
-class Exception_CerbWorkflowError extends Exception_Devblocks {}
+class CerbWorkflowResults {
+	const STATE_COMPLETE = 0;
+	const STATE_UPDATING = 1;
+	const STATE_ERROR = 2;
+	
+	public int $state = self::STATE_UPDATING;
+	public array $resources = [];
+	public string $error = '';
+}
 
 class _DevblocksWorkflowService {
 	private static ?_DevblocksWorkflowService $_instance = null;
@@ -13,7 +21,7 @@ class _DevblocksWorkflowService {
 	
 	private function __construct() {}
 	
-	private function _syncChanges(Model_Workflow $was_workflow, Model_Workflow $new_workflow) : array {
+	private function _syncChanges(Model_Workflow $was_workflow, Model_Workflow $new_workflow) : CerbWorkflowResults {
 		$automator = DevblocksPlatform::services()->automation();
 		
 		$error = null;
@@ -21,22 +29,34 @@ class _DevblocksWorkflowService {
 		
 		$initial_state = $new_workflow->getChangesAutomationInitialState();
 		
-		if (false === ($resources = $was_workflow->getResources($error)))
-			throw new Exception_CerbWorkflowError('[Resources] ' . $error);
+		$results = new CerbWorkflowResults();
+		
+		if (false === ($results->resources = $was_workflow->getResources($error))) {
+			$results->state = CerbWorkflowResults::STATE_ERROR;
+			$results->error = '[Resources] ' . $error;
+			$results->resources = [];
+			return $results;
+		}
 		
 		$automation = $was_workflow->getChangesAutomation($new_workflow, $resource_keys);
 		
 		if($automation instanceof Model_Automation && $automation->script) {
-			if (false === ($automation_results = $automator->executeScript($automation, $initial_state, $error)))
-				throw new Exception_CerbWorkflowError('[ERROR] ' . $error);
+			$exit_state = null;
+			
+			if (false === ($automation_results = $automator->executeScript($automation, $initial_state, $error, $exit_state))) {
+				$results->state = CerbWorkflowResults::STATE_ERROR;
+				$results->error = '[Script] ' . $error;
+				$automation_results = $exit_state;
+			} else {
+				$results->state = CerbWorkflowResults::STATE_COMPLETE;
+			}
 			
 			foreach (($resource_keys['records'] ?? []) as $record_key => $record_changes) {
 				if(!($record_action = $record_changes['action'] ?? ''))
 					continue;
 				
 				if(in_array($record_action, ['delete', 'retain'])) {
-					if (is_array($resources))
-						unset($resources['records'][$record_key]);
+					unset($results->resources['records'][$record_key]);
 					
 				} else if('create' == $record_action) {
 					$record_name = DevblocksPlatform::services()->string()->strAfter($record_key, '/');
@@ -48,57 +68,65 @@ class _DevblocksWorkflowService {
 					
 					$new_record_id = $new_record->get('id', 0);
 					
-					if(is_array($resources) && $new_record_id) {
-						$resources['records'][$record_key] = intval($new_record_id);
+					if($new_record_id) {
+						$results->resources['records'][$record_key] = intval($new_record_id);
 					}
 				}
 			}
 		}
 		
-		return $resources;
+		return $results;
 	}
 	
 	public function import(Model_Workflow $new_workflow, ?Model_Worker $as_worker, string &$error = null) : bool {
 		$kata = DevblocksPlatform::services()->kata();
 		
-		if(null == ($was_workflow = DAO_Workflow::getByName($new_workflow->name))) {
+		// Modify a copy of the model, not the original
+		$changed_workflow = clone $new_workflow;
+		
+		if(null == ($was_workflow = DAO_Workflow::getByName($changed_workflow->name))) {
 			$was_workflow_id = DAO_Workflow::create([
-				DAO_Workflow::NAME => $new_workflow->name,
+				DAO_Workflow::NAME => $changed_workflow->name,
 			]);
 			
 			$was_workflow = DAO_Workflow::get($was_workflow_id);
 		}
 		
-		$new_workflow->id = $was_workflow->id;
+		$changed_workflow->id = $was_workflow->id;
 		
-		try {
-			$resources = $this->_syncChanges($was_workflow, $new_workflow);
-		} catch (Exception_CerbWorkflowError $e) {
-			$error = $e->getMessage();
+		$results = $this->_syncChanges($was_workflow, $changed_workflow);
+		
+		$changed_workflow->resources_kata = $kata->emit($results->resources);
+		
+		if($results->state == CerbWorkflowResults::STATE_ERROR) {
+			// On error, store the partial resource changes
+			DAO_Workflow::update($changed_workflow->id, [
+				DAO_Workflow::RESOURCES_KATA => $changed_workflow->resources_kata,
+			]);
+			
+			$error = $results->error;
 			return false;
 		}
 		
-		$new_workflow->resources_kata = $kata->emit($resources);
-		
-		$has_extensions = $new_workflow->getExtensionBits();
+		$has_extensions = $changed_workflow->getExtensionBits();
 		
 		$fields = [
-			DAO_Workflow::CONFIG_KATA => $new_workflow->config_kata,
-			DAO_Workflow::DESCRIPTION => $new_workflow->description,
+			DAO_Workflow::CONFIG_KATA => $changed_workflow->config_kata,
+			DAO_Workflow::DESCRIPTION => $changed_workflow->description,
 			DAO_Workflow::HAS_EXTENSIONS => $has_extensions,
-			DAO_Workflow::RESOURCES_KATA => $new_workflow->resources_kata,
+			DAO_Workflow::RESOURCES_KATA => $changed_workflow->resources_kata,
 			DAO_Workflow::UPDATED_AT => time(),
-			DAO_Workflow::WORKFLOW_KATA => $new_workflow->workflow_kata,
+			DAO_Workflow::WORKFLOW_KATA => $changed_workflow->workflow_kata,
 		];
-		DAO_Workflow::update($new_workflow->id, $fields);
+		DAO_Workflow::update($changed_workflow->id, $fields);
 		
 		// Versioning
 		try {
 			DAO_RecordChangeset::create(
 				'workflow',
-				$new_workflow->id,
+				$changed_workflow->id,
 				[
-					'template' => $fields[DAO_Workflow::WORKFLOW_KATA] ?? '',
+					'template' => $changed_workflow->workflow_kata,
 				],
 				$as_worker->id ?? 0
 			);
