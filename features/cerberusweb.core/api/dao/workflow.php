@@ -815,6 +815,9 @@ class Model_Workflow extends DevblocksRecordModel {
 		if(false === ($workflow_resources = $this->getResources($error)))
 			return false;
 		
+		// Verify the record ID we have actually still exists
+		$workflow_resource_dicts = $this->getResourceRecordDictionaries($error);
+		
 		$automation = new Model_Automation();
 		$automation->id = 0;
 		$automation->policy_kata = <<< EOD
@@ -891,7 +894,10 @@ class Model_Workflow extends DevblocksRecordModel {
 					$was_record_id = intval($workflow_resources['records'][$record_key] ?? null);
 					
 					// If we don't have the former record, re-create instead
-					if(!$was_record_id) {
+					if(
+						!$was_record_id
+						|| !array_key_exists($record_key, $workflow_resource_dicts)
+					) {
 						unset($was_records[$record_key]);
 						
 					} else {
