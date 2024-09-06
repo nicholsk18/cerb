@@ -329,6 +329,11 @@ function DevblocksClass() {
 			&& eventData.return.callout.hasOwnProperty('selector')
 		) {
 			let $target = $(eventData.return.callout.selector);
+			
+			if(!$target.visible()) {
+				$target[0].scrollIntoView();
+			}
+			
 			let message = eventData.return.callout.message;
 			let my = eventData.return.callout.my;
 			let at = eventData.return.callout.at;
