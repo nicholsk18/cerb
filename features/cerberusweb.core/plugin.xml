@@ -6956,19 +6956,6 @@
 		<!-- Pages -->
 		
 		<extension point="cerberusweb.page">
-			<id>core.page.welcome</id>
-			<name>Welcome Page</name>
-			<class>
-				<file>api/uri/welcome.php</file>
-				<name>ChWelcomePage</name>
-			</class>
-			<params>
-				<param key="uri" value="welcome" />
-				<param key="menutitle" value="" />
-			</params>
-		</extension>
-		
-		<extension point="cerberusweb.page">
 			<id>core.page.pages</id>
 			<name>Custom Pages</name>
 			<class>
