@@ -204,6 +204,7 @@ $packages = [
 	'cerb_profile_tab_ticket_overview.json',
 	'cerb_profile_widget_ticket_status.json',
 	'cerb_profile_widget_ticket_participants.json',
+	'cerb_project_board_kanban.json',
 	'cerb_workspace_page_home.json',
 	'cerb_workspace_widget_chart.json',
 	'cerb_workspace_widget_worklist.json',

@@ -1,9 +1,9 @@
 {
   "package": {
     "name": "Project Board: Kanban Template",
-    "revision": 2020100501,
+    "revision": 2024090601,
     "requires": {
-      "cerb_version": "10.0.0",
+      "cerb_version": "10.5.0",
       "plugins": [
 
       ]
@@ -39,11 +39,6 @@
       "name": "{{{prompt_project_name}}}",
       "owner__context": "app",
       "owner_id": "0",
-      "columns": [
-        "{{{uid.project_board_kanban_todo}}}",
-        "{{{uid.project_board_kanban_in_progress}}}",
-        "{{{uid.project_board_kanban_completed}}}"
-      ],
       "cards_kata": "automation/task_sheet:\n  uri: cerb:automation:cerb.projectBoard.card.sheet\n  disabled@bool:\n    {{card__context is not record type ('task')}}\n  inputs:\n    sheet:\n      columns:\n        card/card__label:\n          label: Record\n        text/card_status:\n          label: Status\n        slider/card_importance:\n          label: Importance\n        card/card_owner__label:\n          label: Owner\n          params:\n            image@bool: yes"
     },
     {
@@ -51,6 +46,7 @@
       "_context": "cerberusweb.contexts.project.board.column",
       "name": "TODO",
       "board_id": "{{{uid.project_board_kanban}}}",
+      "pos": 0,
       "cards": [
       ],
       "cards_kata": "",
@@ -62,6 +58,7 @@
       "_context": "cerberusweb.contexts.project.board.column",
       "name": "In Progress",
       "board_id": "{{{uid.project_board_kanban}}}",
+      "pos": 1,
       "cards": [
       ],
       "cards_kata": "",
@@ -73,6 +70,7 @@
       "_context": "cerberusweb.contexts.project.board.column",
       "name": "Completed!",
       "board_id": "{{{uid.project_board_kanban}}}",
+      "pos": 2,
       "cards": [
       ],
       "cards_kata": "automation/completed:\n  uri: cerb:automation:cerb.projectBoard.card.done\n",

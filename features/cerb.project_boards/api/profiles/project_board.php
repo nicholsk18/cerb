@@ -329,9 +329,9 @@ class PageSection_ProfilesProjectBoard extends Extension_PageSection {
 		if(!Context_ProjectBoard::isWriteableByActor($board, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		DAO_ProjectBoard::update($board_id, [
-			DAO_ProjectBoard::COLUMNS_JSON => json_encode(DevblocksPlatform::sanitizeArray(DevblocksPlatform::parseCsvString($columns), 'int')),
-		]);
+		$column_ids = DevblocksPlatform::sanitizeArray(DevblocksPlatform::parseCsvString($columns), 'int');
+		
+		$board->reorderColumns($column_ids);
 	}
 	
 	private function _profileAction_reorderColumn() {

@@ -1,6 +1,5 @@
 <?php
 class DAO_ProjectBoard extends Cerb_ORMHelper {
-	const COLUMNS_JSON = 'columns_json';
 	const ID = 'id';
 	const NAME = 'name';
 	const CARDS_KATA = 'cards_kata';
@@ -13,12 +12,6 @@ class DAO_ProjectBoard extends Cerb_ORMHelper {
 	static function getFields() {
 		$validation = DevblocksPlatform::services()->validation();
 		
-		// varchar(255)
-		$validation
-			->addField(self::COLUMNS_JSON)
-			->string()
-			->setMaxLength(255)
-			;
 		// int(10) unsigned
 		$validation
 			->addField(self::ID)
@@ -153,7 +146,7 @@ class DAO_ProjectBoard extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, cards_kata, owner_context, owner_context_id, updated_at, columns_json ".
+		$sql = "SELECT id, name, cards_kata, owner_context, owner_context_id, updated_at ".
 			"FROM project_board ".
 			$where_sql.
 			$sort_sql.
@@ -234,10 +227,6 @@ class DAO_ProjectBoard extends Cerb_ORMHelper {
 			$object->owner_context = $row['owner_context'];
 			$object->owner_context_id = $row['owner_context_id'];
 			$object->updated_at = $row['updated_at'];
-
-			$json = json_decode($row['columns_json'] ?? '', true);
-			$object->columns = (false !== $json) ? $json : [];
-			
 			$objects[$object->id] = $object;
 		}
 		
@@ -436,7 +425,6 @@ class Model_ProjectBoard extends DevblocksRecordModel {
 	public $owner_context = null;
 	public $owner_context_id = 0;
 	public $updated_at = 0;
-	public $columns = [];
 	
 	/**
 	 * @param DevblocksDictionaryDelegate $card
@@ -472,26 +460,8 @@ class Model_ProjectBoard extends DevblocksRecordModel {
 	 * 
 	 * @return Model_ProjectBoardColumn[]
 	 */
-	function getColumns() {
-		$columns = DAO_ProjectBoardColumn::getByBoardId($this->id);
-		
-		if(is_array($this->columns)) {
-			$sort = array_flip($this->columns);
-		} else {
-			$sort = [];
-		}
-		
-		uksort($columns, function($a, $b) use ($sort) {
-			$a_pos = isset($sort[$a]) ? $sort[$a] : PHP_INT_MAX;
-			$b_pos = isset($sort[$b]) ? $sort[$b] : PHP_INT_MAX;
-			
-			if($a_pos == $b_pos)
-				return 0;
-			
-			return ($a_pos < $b_pos) ? -1 : 1;
-		});
-		
-		return $columns;
+	function getColumns() : array {
+		return DAO_ProjectBoardColumn::getByBoardId($this->id);
 	}
 	
 	function renderCard(DevblocksDictionaryDelegate $card, Model_ProjectBoardColumn $column=null) {
@@ -571,6 +541,21 @@ class Model_ProjectBoard extends DevblocksRecordModel {
 		$html = $tpl->fetch('devblocks:cerb.project_boards::boards/board/card_sheet.tpl');
 		
 		echo $html;
+	}
+	
+	public function reorderColumns(array $column_ids) {
+		$db = DevblocksPlatform::services()->database();
+		
+		$values = array_map(fn($i) => sprintf('(%d,%d)', $column_ids[$i], $i), array_keys($column_ids));
+		
+		if($values) {
+			$sql = sprintf("INSERT IGNORE INTO project_board_column (id, pos) VALUES %s ON DUPLICATE KEY UPDATE pos=VALUES(pos)",
+				implode(',', $values)
+			);
+			$db->ExecuteMaster($sql);
+		}
+		
+		return true;
 	}
 };
 
@@ -1018,7 +1003,6 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
-			'columns' => $prefix.$translate->_('dashboard.columns'),
 			'id' => $prefix.$translate->_('common.id'),
 			'cards_kata' => $prefix.$translate->_('common.cards_kata'),
 			'name' => $prefix.$translate->_('common.name'),
@@ -1030,7 +1014,6 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
-			'columns' => Model_CustomField::TYPE_SINGLE_LINE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'cards_kata' => Model_CustomField::TYPE_MULTI_LINE,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
@@ -1057,7 +1040,6 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 		if($project_board) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $project_board->name;
-			$token_values['columns'] = $project_board->columns;
 			$token_values['cards_kata'] = $project_board->cards_kata;
 			$token_values['id'] = $project_board->id;
 			$token_values['name'] = $project_board->name;
@@ -1097,39 +1079,11 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 			'type' => 'object',
 		];
 		
-		$keys['columns'] = [
-			'key' => 'columns',
-			'is_immutable' => false,
-			'is_required' => false,
-			'notes' => 'JSON-encoded array of [project board column](/docs/records/types/project_board_column/) IDs; e.g. `[1,2,3]`',
-			'type' => 'string',
-		];
-		
 		return $keys;
 	}
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
-		$dict_key = DevblocksPlatform::strLower($key);
-		switch($dict_key) {
-			case 'columns':
-				if(!is_array($value)) {
-					$error = 'must be an object.';
-					return false;
-				}
-				
-				// Sanitize the array to ints
-				$value = DevblocksPlatform::sanitizeArray($value, 'int');
-				
-				// Encode
-				if(false == ($json = json_encode($value))) {
-					$error = 'could not be JSON encoded.';
-					return false;
-				}
-				
-				$out_fields[DAO_ProjectBoard::COLUMNS_JSON] = $json;
-				break;
-		}
-		
+		//$dict_key = DevblocksPlatform::strLower($key);
 		return true;
 	}
 	

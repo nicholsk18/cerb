@@ -902,7 +902,6 @@ class Cerb_Packages {
 			
 			$project_board_id = DAO_ProjectBoard::create([
 				DAO_ProjectBoard::NAME => $project_board['name'],
-				DAO_ProjectBoard::COLUMNS_JSON => '[]',
 				DAO_ProjectBoard::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
 				DAO_ProjectBoard::OWNER_CONTEXT_ID => 0,
 				DAO_ProjectBoard::UPDATED_AT => time(),
@@ -1537,6 +1536,7 @@ class Cerb_Packages {
 			
 			$columns = $project_board['columns'] ?? null;
 			$column_ids = [];
+			$pos = 0;
 			
 			if(is_array($columns))
 			foreach($columns as $column) {
@@ -1578,14 +1578,16 @@ class Cerb_Packages {
 				DAO_ProjectBoardColumn::update($column_id, [
 					DAO_ProjectBoardColumn::NAME => $column['name'],
 					DAO_ProjectBoardColumn::BOARD_ID => $project_board_id,
+					DAO_ProjectBoardColumn::POS => array_key_exists('pos', $column) ? $column['pos'] : $pos,
 					DAO_ProjectBoardColumn::CARDS_JSON => json_encode($card_ids),
 					DAO_ProjectBoardColumn::UPDATED_AT => time(),
 				]);
+				
+				$pos++;
 			}
 			
 			DAO_ProjectBoard::update($project_board_id, [
 				DAO_ProjectBoard::NAME => $project_board['name'],
-				DAO_ProjectBoard::COLUMNS_JSON => json_encode($column_ids),
 				DAO_ProjectBoard::UPDATED_AT => time(),
 				DAO_ProjectBoard::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
 				DAO_ProjectBoard::OWNER_CONTEXT_ID => 0,

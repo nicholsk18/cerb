@@ -3,10 +3,11 @@ class DAO_ProjectBoardColumn extends Cerb_ORMHelper {
 	const BOARD_ID = 'board_id';
 	const CARDS_JSON = 'cards_json';
 	const CARDS_KATA = 'cards_kata';
+	const FUNCTIONS_KATA = 'functions_kata';
 	const ID = 'id';
 	const NAME = 'name';
+	const POS = 'pos';
 	const TOOLBAR_KATA = 'toolbar_kata';
-	const FUNCTIONS_KATA = 'functions_kata';
 	const UPDATED_AT = 'updated_at';
 	
 	private function __construct() {}
@@ -51,6 +52,11 @@ class DAO_ProjectBoardColumn extends Cerb_ORMHelper {
 			->string()
 			->setMaxLength(255)
 			->setRequired(true)
+			;
+		// tinyint unsigned
+		$validation
+			->addField(self::POS)
+			->uint(1)
 			;
 		// text
 		$validation
@@ -170,7 +176,7 @@ class DAO_ProjectBoardColumn extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, board_id, updated_at, cards_kata, toolbar_kata, functions_kata, cards_json ".
+		$sql = "SELECT id, name, board_id, updated_at, cards_kata, pos, toolbar_kata, functions_kata, cards_json ".
 			"FROM project_board_column ".
 			$where_sql.
 			$sort_sql.
@@ -194,7 +200,7 @@ class DAO_ProjectBoardColumn extends Cerb_ORMHelper {
 	static function getAll($nocache=false) {
 		//$cache = DevblocksPlatform::services()->cache();
 		//if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
-			$objects = self::getWhere(null, DAO_ProjectBoardColumn::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
+			$objects = self::getWhere(null, DAO_ProjectBoardColumn::POS, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
 			
 			//if(!is_array($objects))
 			//	return false;
@@ -264,12 +270,13 @@ class DAO_ProjectBoardColumn extends Cerb_ORMHelper {
 		
 		while($row = mysqli_fetch_assoc($rs)) {
 			$object = new Model_ProjectBoardColumn();
-			$object->id = intval($row['id']);
-			$object->name = $row['name'];
 			$object->board_id = intval($row['board_id']);
 			$object->cards_kata = $row['cards_kata'];
-			$object->toolbar_kata = $row['toolbar_kata'];
 			$object->functions_kata = $row['functions_kata'];
+			$object->id = intval($row['id']);
+			$object->name = $row['name'];
+			$object->pos = intval($row['pos']);
+			$object->toolbar_kata = $row['toolbar_kata'];
 			$object->updated_at = intval($row['updated_at']);
 			
 			$json = json_decode($row['cards_json'] ?? '', true) ?: [];
@@ -507,15 +514,16 @@ class SearchFields_ProjectBoardColumn extends DevblocksSearchFields {
 };
 
 class Model_ProjectBoardColumn extends DevblocksRecordModel {
+	public $board_id;
+	public $cards;
+	public $cards_kata;
+	public $functions_kata;
 	public $id;
 	public $name;
-	public $board_id;
-	public $cards_kata;
-	public $toolbar_kata;
-	public $functions_kata;
-	public $updated_at;
 	public $params;
-	public $cards;
+	public $pos;
+	public $toolbar_kata;
+	public $updated_at;
 	
 	private $_board = null;
 	
@@ -1148,28 +1156,30 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 		// Token labels
 		$token_labels = array(
 			'_label' => $prefix,
-			'id' => $prefix.$translate->_('common.id'),
-			'name' => $prefix.$translate->_('common.name'),
+			'board__label' => $prefix.$translate->_('projects.common.board'),
 			'cards_kata' => $prefix.$translate->_('dao.project_board.cards_kata'),
 			'functions_kata' => $prefix.$translate->_('dao.project_board.functions_kata'),
+			'id' => $prefix.$translate->_('common.id'),
+			'name' => $prefix.$translate->_('common.name'),
+			'pos' => $prefix.$translate->_('common.order'),
+			'record_url' => $prefix.$translate->_('common.url.record'),
 			'toolbar_kata' => $prefix.$translate->_('dao.project_board.toolbar_kata'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
-			'record_url' => $prefix.$translate->_('common.url.record'),
-			'board__label' => $prefix.$translate->_('projects.common.board'),
 		);
 		
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
-			'board_id' => Model_CustomField::TYPE_NUMBER,
 			'board__label' => 'context_url',
-			'id' => Model_CustomField::TYPE_NUMBER,
-			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'board_id' => Model_CustomField::TYPE_NUMBER,
 			'cards_kata' => Model_CustomField::TYPE_MULTI_LINE,
 			'functions_kata' => Model_CustomField::TYPE_MULTI_LINE,
+			'id' => Model_CustomField::TYPE_NUMBER,
+			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'pos' => Model_CustomField::TYPE_NUMBER,
+			'record_url' => Model_CustomField::TYPE_URL,
 			'toolbar_kata' => Model_CustomField::TYPE_MULTI_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
-			'record_url' => Model_CustomField::TYPE_URL,
 		);
 		
 		// Custom field/fieldset token labels
@@ -1193,10 +1203,11 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $project_board_column->name;
 			$token_values['board_id'] = $project_board_column->board_id;
-			$token_values['id'] = $project_board_column->id;
-			$token_values['name'] = $project_board_column->name;
 			$token_values['cards_kata'] = $project_board_column->cards_kata;
 			$token_values['functions_kata'] = $project_board_column->functions_kata;
+			$token_values['id'] = $project_board_column->id;
+			$token_values['name'] = $project_board_column->name;
+			$token_values['pos'] = $project_board_column->pos;
 			$token_values['toolbar_kata'] = $project_board_column->toolbar_kata;
 			$token_values['updated_at'] = $project_board_column->updated_at;
 			
@@ -1215,11 +1226,12 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 		return [
 			'board_id' => DAO_ProjectBoardColumn::BOARD_ID,
 			'cards_kata' => DAO_ProjectBoardColumn::CARDS_KATA,
-			'toolbar_kata' => DAO_ProjectBoardColumn::TOOLBAR_KATA,
 			'functions_kata' => DAO_ProjectBoardColumn::FUNCTIONS_KATA,
 			'id' => DAO_ProjectBoardColumn::ID,
 			'links' => '_links',
 			'name' => DAO_ProjectBoardColumn::NAME,
+			'pos' => DAO_ProjectBoardColumn::POS,
+			'toolbar_kata' => DAO_ProjectBoardColumn::TOOLBAR_KATA,
 			'updated_at' => DAO_ProjectBoardColumn::UPDATED_AT,
 		];
 	}
