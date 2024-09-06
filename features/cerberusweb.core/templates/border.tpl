@@ -6,8 +6,6 @@
 	{/foreach}
 {/if}
 
-{if !empty($tour_enabled)}{include file="devblocks:cerberusweb.core::internal/tour/banner.tpl"}{/if}
-
 {if $active_worker}
 <div class="cerb-no-print" style="display:flex;flex-flow:row wrap;">
 	<div style="flex:2 2;">

@@ -188,6 +188,11 @@ foreach($automation_files as $automation_file) {
 $db->ExecuteWriter("DELETE FROM translation WHERE string_id IN ('acl.reports.group.bots','acl.reports.group.snippets')");
 
 // ===========================================================================
+// Remove legacy worker prefs
+
+$db->ExecuteWriter("DELETE FROM worker_pref WHERE setting IN ('assist_mode')");
+
+// ===========================================================================
 // Update package library
 
 $db->ExecuteMaster("DELETE FROM package_library WHERE uri = 'cerb_workspace_widget_chart_categories'");

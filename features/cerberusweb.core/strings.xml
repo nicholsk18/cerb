@@ -5457,11 +5457,6 @@ For example: *receipt*</seg>
 				<seg>Preferences</seg>
 			</tuv>
 		</tu>
-		<tu tuid="preferences.account.assist">
-			<tuv xml:lang="en_US">
-				<seg>Assist Mode:</seg>
-			</tuv>
-		</tu>
 		<tu tuid="preferences.account.dark_mode">
 			<tuv xml:lang="en_US">
 				<seg>Dark Mode:</seg>

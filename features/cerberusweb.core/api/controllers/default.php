@@ -137,11 +137,8 @@ class Controller_Default extends DevblocksControllerExtension {
 		}
 
 		$tpl->assign('active_worker', $active_worker);
-		$tour_enabled = false;
 		
 		if(!empty($visit) && !is_null($active_worker)) {
-			$tour_enabled = intval(DAO_WorkerPref::get($active_worker->id, 'assist_mode', 1));
-
 			$keyboard_shortcuts = intval(DAO_WorkerPref::get($active_worker->id,'keyboard_shortcuts',1));
 			$tpl->assign('pref_keyboard_shortcuts', $keyboard_shortcuts);
 			
@@ -151,7 +148,6 @@ class Controller_Default extends DevblocksControllerExtension {
 			$active_worker_memberships = $active_worker->getMemberships();
 			$tpl->assign('active_worker_memberships', $active_worker_memberships);
 		}
-		$tpl->assign('tour_enabled', $tour_enabled);
 		
 		// [JAS]: Variables provided to all page templates
 		$tpl->assign('settings', $settings);

@@ -28,7 +28,7 @@
 	</li>
 	
 	{if $active_worker->is_superuser}
-	<li class="{if $page->id=='core.page.configuration'}selected{/if}" style="float:right;">
+	<li class="tour-navmenu-setup{if $page->id=='core.page.configuration'} selected{/if}" style="float:right;">
 		<a href="{devblocks_url}c=config{/devblocks_url}">{'header.config'|devblocks_translate|lower}</a>
 	</li>
 	{/if}

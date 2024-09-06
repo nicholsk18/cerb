@@ -4418,11 +4418,6 @@
                 <seg>wyloguj się</seg>
             </tuv>
         </tu>
-        <tu tuid="preferences.account.assist">
-            <tuv xml:lang="pl_PL">
-                <seg>Tryb asysty:</seg>
-            </tuv>
-        </tu>
         <tu tuid="preferences.account.availability.calendar_id">
             <tuv xml:lang="pl_PL">
                 <seg>Określ moją dostępność na podstawie kalendarza:</seg>

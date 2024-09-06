@@ -3388,11 +3388,6 @@
 				<seg>Terminar sessão</seg>
 			</tuv>
 		</tu>
-		<tu tuid="preferences.account.assist">
-			<tuv xml:lang="pt_PT">
-				<seg>Modo de Assistência: </seg>
-			</tuv>
-		</tu>
 		<tu tuid="preferences.account.availability.calendar_id">
 			<tuv xml:lang="pt_PT">
 				<seg/>

@@ -3878,11 +3878,6 @@
 				<seg>sign out</seg>
 			</tuv>
 		</tu>
-		<tu tuid="preferences.account.assist">
-			<tuv xml:lang="en_GB">
-				<seg>Assist Mode:</seg>
-			</tuv>
-		</tu>
 		<tu tuid="preferences.account.availability.calendar_id">
 			<tuv xml:lang="en_GB">
 				<seg>Determine my availability using calendar:</seg>

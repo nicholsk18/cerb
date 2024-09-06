@@ -58,11 +58,6 @@
 	<legend>{'common.ui'|devblocks_translate|capitalize}</legend>
 
 	<div style="margin-bottom:5px;">
-		<b>{'preferences.account.assist'|devblocks_translate|capitalize}</b><br>
-		<label><input type="checkbox" name="assist_mode" value="1" {if $prefs.assist_mode eq 1}checked{/if}> {'common.enabled'|devblocks_translate|capitalize}</label>
-	</div>
-
-	<div style="margin-bottom:5px;">
 		<b>{'preferences.account.dark_mode'|devblocks_translate|capitalize}</b><br>
 		<label><input type="checkbox" name="dark_mode" value="1" {if $prefs.dark_mode == 1}checked{/if}> {'common.enabled'|devblocks_translate|capitalize}</label>
 	</div>

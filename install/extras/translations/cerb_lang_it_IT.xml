@@ -3348,11 +3348,6 @@
 				<seg/>
 			</tuv>
 		</tu>
-		<tu tuid="preferences.account.assist">
-			<tuv xml:lang="it_IT">
-				<seg/>
-			</tuv>
-		</tu>
 		<tu tuid="preferences.account.availability.calendar_id">
 			<tuv xml:lang="it_IT">
 				<seg/>

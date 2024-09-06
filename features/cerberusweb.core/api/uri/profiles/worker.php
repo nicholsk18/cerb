@@ -50,8 +50,6 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 					return $this->_profileAction_showBulkPopup();
 				case 'startBulkUpdateJson':
 					return $this->_profileAction_startBulkUpdateJson();
-				case 'stopTour':
-					return $this->_profileAction_stopTour();
 				case 'su':
 					return $this->_profileAction_su();
 				case 'suRevert':
@@ -367,14 +365,6 @@ class PageSection_ProfilesWorker extends Extension_PageSection {
 			]);
 			return true;
 		}
-	}
-	
-	private function _profileAction_stopTour() {
-		if('POST' != DevblocksPlatform::getHttpMethod())
-			DevblocksPlatform::dieWithHttpError(null, 405);
-		
-		$worker = CerberusApplication::getActiveWorker();
-		DAO_WorkerPref::set($worker->id, 'assist_mode', 0);
 	}
 	
 	// Impostor mode

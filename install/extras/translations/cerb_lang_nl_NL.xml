@@ -3354,11 +3354,6 @@
 				<seg>log uit</seg>
 			</tuv>
 		</tu>
-		<tu tuid="preferences.account.assist">
-			<tuv xml:lang="nl_NL">
-				<seg>Assistentiemodus:</seg>
-			</tuv>
-		</tu>
 		<tu tuid="preferences.account.availability.calendar_id">
 			<tuv xml:lang="nl_NL">
 				<seg/>

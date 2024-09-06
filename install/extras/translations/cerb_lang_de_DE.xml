@@ -3358,11 +3358,6 @@
 				<seg>Abmelden</seg>
 			</tuv>
 		</tu>
-		<tu tuid="preferences.account.assist">
-			<tuv xml:lang="de_DE">
-				<seg>Assistentenmodus:</seg>
-			</tuv>
-		</tu>
 		<tu tuid="preferences.account.availability.calendar_id">
 			<tuv xml:lang="de_DE">
 				<seg/>

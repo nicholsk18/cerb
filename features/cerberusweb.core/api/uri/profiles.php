@@ -913,7 +913,6 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 		switch($tab) {
 			case 'profile':
 				$prefs = [];
-				$prefs['assist_mode'] = intval(DAO_WorkerPref::get($worker->id, 'assist_mode', 1));
 				$prefs['dark_mode'] = intval(DAO_WorkerPref::get($worker->id, 'dark_mode', 0));
 				$prefs['keyboard_shortcuts'] = intval(DAO_WorkerPref::get($worker->id, 'keyboard_shortcuts', 1));
 				$tpl->assign('prefs', $prefs);
@@ -1105,9 +1104,6 @@ class ProfileTab_WorkerSettings extends Extension_ProfileTab {
 					// Update
 					if(!empty($worker_fields))
 						DAO_Worker::update($worker->id, $worker_fields);
-					
-					$assist_mode = DevblocksPlatform::importGPC($_POST['assist_mode'] ?? null, 'integer',0);
-					DAO_WorkerPref::set($worker->id, 'assist_mode', $assist_mode);
 					
 					$dark_mode = DevblocksPlatform::importGPC($_POST['dark_mode'] ?? null, 'integer',0);
 					DAO_WorkerPref::set($worker->id, 'dark_mode', $dark_mode);
