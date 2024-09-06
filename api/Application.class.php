@@ -585,9 +585,9 @@ class CerberusApplication extends DevblocksApplication {
 		return TRUE;
 	}
 	
-	static function initBundledResources() {
+	static function initBundledResources($force=false) {
 		// Load packages
-		if(0 == DAO_PackageLibrary::count()) {
+		if($force || 0 == DAO_PackageLibrary::count()) {
 			$dir = new RecursiveDirectoryIterator(realpath(APP_PATH . '/features/cerberusweb.core/packages/library/'));
 			$iter = new RecursiveIteratorIterator($dir);
 			$regex = new RegexIterator($iter, '/^.+\.json/i', RecursiveRegexIterator::GET_MATCH);
@@ -604,7 +604,7 @@ class CerberusApplication extends DevblocksApplication {
 		}
 		
 		// Load automations
-		if(0 == DAO_Automation::count()) {
+		if($force || 0 == DAO_Automation::count()) {
 			$dir = new DirectoryIterator(realpath(APP_PATH . '/features/cerberusweb.core/assets/automations/'));
 			$iter = new IteratorIterator($dir);
 			$regex = new RegexIterator($iter, '/^.+\.json/i', RegexIterator::MATCH);
@@ -620,7 +620,7 @@ class CerberusApplication extends DevblocksApplication {
 		}
 		
 		// Load resources
-		if(0 == DAO_Resource::count()) {
+		if($force || 0 == DAO_Resource::count()) {
 			$dir = new DirectoryIterator(realpath(APP_PATH . '/features/cerberusweb.core/assets/resources/'));
 			$iter = new IteratorIterator($dir);
 			$regex = new RegexIterator($iter, '/^.+\.json/i', RegexIterator::MATCH);
@@ -636,7 +636,7 @@ class CerberusApplication extends DevblocksApplication {
 		}
 		
 		// Init tutorial
-		if(!DAO_Workflow::getByName('cerb.tutorial')) {
+		if($force || !DAO_Workflow::getByName('cerb.tutorial')) {
 			$error = null;
 			$new_workflow = new Model_Workflow();
 			$new_workflow->name = 'cerb.tutorial';

@@ -648,7 +648,7 @@ switch($step) {
 				$contents = sprintf('<?php define(\'APP_BUILD_CACHED\', %s);', APP_BUILD);
 				file_put_contents($path, $contents);
 				
-				CerberusApplication::initBundledResources();
+				CerberusApplication::initBundledResources(force: true);
 				
 				// Success
 				$tpl->assign('step', STEP_OUTGOING_MAIL);
