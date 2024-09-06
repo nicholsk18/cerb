@@ -280,7 +280,7 @@ if(!isset($columns['user_id'])) {
 }
 
 if(!isset($columns['user_ip'])) {
-	$db->ExecuteMaster("ALTER TABLE devblocks_session ADD COLUMN user_ip VARCHAR(32) NOT NULL DEFAULT ''");
+	$db->ExecuteMaster("ALTER TABLE devblocks_session ADD COLUMN user_ip VARCHAR(64) NOT NULL DEFAULT ''");
 }
 
 if(!isset($columns['user_agent'])) {

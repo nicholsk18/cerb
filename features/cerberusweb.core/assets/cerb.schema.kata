@@ -67,7 +67,7 @@ tables:
         extra@text:
       is_trusted:
         field: is_trusted
-        type: tinyint(1)
+        type: tinyint
         collation@text:
         null: NO
         key@text:
@@ -1025,7 +1025,7 @@ tables:
         extra: auto_increment
       is_disabled:
         field: is_disabled
-        type: tinyint(1)
+        type: tinyint
         collation@text:
         null: NO
         key@text:
@@ -1033,7 +1033,7 @@ tables:
         extra@text:
       is_recurring:
         field: is_recurring
-        type: tinyint(1)
+        type: tinyint
         collation@text:
         null: NO
         key@text:
@@ -6712,6 +6712,125 @@ tables:
             index_type: BTREE
             subpart@text:
             unique@text:
+  mail_delivery_log:
+    columns:
+      created_at:
+        field: created_at
+        type: int unsigned
+        collation@text:
+        null: NO
+        key: MUL
+        default: 0
+        extra@text:
+      from_id:
+        field: from_id
+        type: int unsigned
+        collation@text:
+        null: NO
+        key@text:
+        default: 0
+        extra@text:
+      header_message_id:
+        field: header_message_id
+        type: varchar(255)
+        collation: utf8mb4_unicode_ci
+        null: NO
+        key: MUL
+        default@text:
+        extra@text:
+      id:
+        field: id
+        type: int unsigned
+        collation@text:
+        null: NO
+        key: PRI
+        default@text:
+        extra: auto_increment
+      mail_transport_id:
+        field: mail_transport_id
+        type: int unsigned
+        collation@text:
+        null: NO
+        key@text:
+        default: 0
+        extra@text:
+      properties_json:
+        field: properties_json
+        type: mediumtext
+        collation: utf8mb4_unicode_ci
+        null: YES
+        key@text:
+        default@text:
+        extra@text:
+      status_id:
+        field: status_id
+        type: tinyint unsigned
+        collation@text:
+        null: NO
+        key@text:
+        default: 0
+        extra@text:
+      status_message:
+        field: status_message
+        type: varchar(255)
+        collation: utf8mb4_unicode_ci
+        null: NO
+        key@text:
+        default@text:
+        extra@text:
+      subject:
+        field: subject
+        type: varchar(255)
+        collation: utf8mb4_unicode_ci
+        null: NO
+        key@text:
+        default@text:
+        extra@text:
+      to:
+        field: to
+        type: varchar(255)
+        collation: utf8mb4_unicode_ci
+        null: NO
+        key@text:
+        default@text:
+        extra@text:
+      type:
+        field: type
+        type: varchar(32)
+        collation: utf8mb4_unicode_ci
+        null: NO
+        key: MUL
+        default@text:
+        extra@text:
+    indexes:
+      PRIMARY:
+        columns:
+          id:
+            column_name: id
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+      created_at:
+        columns:
+          created_at:
+            column_name: created_at
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+      header_message_id:
+        columns:
+          header_message_id:
+            column_name: header_message_id
+            index_type: BTREE
+            subpart: 8
+            unique@text:
+      type:
+        columns:
+          type:
+            column_name: type
+            index_type: BTREE
+            subpart@text:
+            unique@text:
   mail_html_template:
     columns:
       content:
@@ -6787,6 +6906,155 @@ tables:
             unique@text:
           owner_context_id:
             column_name: owner_context_id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+  mail_inbound_log:
+    columns:
+      created_at:
+        field: created_at
+        type: int unsigned
+        collation@text:
+        null: NO
+        key: MUL
+        default: 0
+        extra@text:
+      events_log_json:
+        field: events_log_json
+        type: mediumtext
+        collation: utf8mb4_unicode_ci
+        null: YES
+        key@text:
+        default@text:
+        extra@text:
+      from_id:
+        field: from_id
+        type: int unsigned
+        collation@text:
+        null: NO
+        key: MUL
+        default: 0
+        extra@text:
+      header_message_id:
+        field: header_message_id
+        type: varchar(255)
+        collation: utf8mb4_unicode_ci
+        null: NO
+        key: MUL
+        default@text:
+        extra@text:
+      id:
+        field: id
+        type: int unsigned
+        collation@text:
+        null: NO
+        key: PRI
+        default@text:
+        extra: auto_increment
+      mailbox_id:
+        field: mailbox_id
+        type: int unsigned
+        collation@text:
+        null: NO
+        key@text:
+        default: 0
+        extra@text:
+      message_id:
+        field: message_id
+        type: int unsigned
+        collation@text:
+        null: NO
+        key: MUL
+        default: 0
+        extra@text:
+      parse_time_ms:
+        field: parse_time_ms
+        type: int unsigned
+        collation@text:
+        null: NO
+        key: MUL
+        default: 0
+        extra@text:
+      status_id:
+        field: status_id
+        type: tinyint unsigned
+        collation@text:
+        null: NO
+        key@text:
+        default: 0
+        extra@text:
+      status_message:
+        field: status_message
+        type: varchar(255)
+        collation: utf8mb4_unicode_ci
+        null: NO
+        key@text:
+        default@text:
+        extra@text:
+      subject:
+        field: subject
+        type: varchar(255)
+        collation: utf8mb4_unicode_ci
+        null: NO
+        key@text:
+        default@text:
+        extra@text:
+      ticket_id:
+        field: ticket_id
+        type: int unsigned
+        collation@text:
+        null: NO
+        key@text:
+        default: 0
+        extra@text:
+      to:
+        field: to
+        type: varchar(255)
+        collation: utf8mb4_unicode_ci
+        null: NO
+        key@text:
+        default@text:
+        extra@text:
+    indexes:
+      PRIMARY:
+        columns:
+          id:
+            column_name: id
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+      created_at:
+        columns:
+          created_at:
+            column_name: created_at
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+      from_id:
+        columns:
+          from_id:
+            column_name: from_id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+      header_message_id:
+        columns:
+          header_message_id:
+            column_name: header_message_id
+            index_type: BTREE
+            subpart: 8
+            unique@text:
+      message_id:
+        columns:
+          message_id:
+            column_name: message_id
+            index_type: BTREE
+            subpart@text:
+            unique@text:
+      parse_time_ms:
+        columns:
+          parse_time_ms:
+            column_name: parse_time_ms
             index_type: BTREE
             subpart@text:
             unique@text:
@@ -7421,7 +7689,7 @@ tables:
         extra@text:
       was_encrypted:
         field: was_encrypted
-        type: tinyint(1)
+        type: tinyint
         collation@text:
         null: NO
         key: MUL
@@ -9114,7 +9382,7 @@ tables:
         extra: auto_increment
       is_dynamic:
         field: is_dynamic
-        type: tinyint(1)
+        type: tinyint
         collation@text:
         null: NO
         key@text:
@@ -11319,7 +11587,7 @@ tables:
     columns:
       is_editable:
         field: is_editable
-        type: tinyint(1)
+        type: tinyint
         collation@text:
         null: NO
         key@text:
@@ -11327,7 +11595,7 @@ tables:
         extra@text:
       is_member:
         field: is_member
-        type: tinyint(1)
+        type: tinyint
         collation@text:
         null: NO
         key@text:
@@ -11335,7 +11603,7 @@ tables:
         extra@text:
       is_readable:
         field: is_readable
-        type: tinyint(1)
+        type: tinyint
         collation@text:
         null: NO
         key@text:

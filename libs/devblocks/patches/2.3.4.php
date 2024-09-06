@@ -15,8 +15,8 @@ list($columns,) = $db->metaTable('devblocks_session');
 
 $changes = array();
 
-if(isset($columns['user_ip']) && 'varchar(40)' != $columns['user_ip']['type'])
-	$changes[] = "modify column user_ip varchar(40) not null default ''";
+if(isset($columns['user_ip']) && 'varchar(64)' != $columns['user_ip']['type'])
+	$changes[] = "modify column user_ip varchar(64 not null default ''";
 
 if(!empty($changes)) {
 	$sql = sprintf("ALTER TABLE devblocks_session %s", implode(', ', $changes));
