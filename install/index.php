@@ -648,51 +648,7 @@ switch($step) {
 				$contents = sprintf('<?php define(\'APP_BUILD_CACHED\', %s);', APP_BUILD);
 				file_put_contents($path, $contents);
 				
-				// Load packages
-				
-				$dir = new RecursiveDirectoryIterator(realpath(APP_PATH . '/features/cerberusweb.core/packages/library/'));
-				$iter = new RecursiveIteratorIterator($dir);
-				$regex = new RegexIterator($iter, '/^.+\.json/i', RecursiveRegexIterator::GET_MATCH);
-				
-				foreach($regex as $class_file => $o) {
-					if(is_null($o))
-						continue;
-					
-					if(false == ($package_json = file_get_contents($class_file)))
-						continue;
-					
-					CerberusApplication::packages()->importToLibraryFromString($package_json);
-				}
-				
-				// Load automations
-				
-				$dir = new DirectoryIterator(realpath(APP_PATH . '/features/cerberusweb.core/assets/automations/'));
-				$iter = new IteratorIterator($dir);
-				$regex = new RegexIterator($iter, '/^.+\.json/i', RegexIterator::MATCH);
-				
-				foreach($regex as $o) {
-					if(is_null($o) || false === ($automation_data = json_decode(file_get_contents($o->getPathname()), true)))
-						continue;
-					
-					DAO_Automation::importFromJson($automation_data);
-					
-					unset($automation_data);
-				}
-				
-				// Load resources
-				
-				$dir = new DirectoryIterator(realpath(APP_PATH . '/features/cerberusweb.core/assets/resources/'));
-				$iter = new IteratorIterator($dir);
-				$regex = new RegexIterator($iter, '/^.+\.json/i', RegexIterator::MATCH);
-				
-				foreach($regex as $o) {
-					if(is_null($o) || false === ($resource_data = json_decode(file_get_contents($o->getPathname()), true)))
-						continue;
-					
-					DAO_Resource::importFromJson($resource_data);
-					
-					unset($resource_data);
-				}
+				CerberusApplication::initBundledResources();
 				
 				// Success
 				$tpl->assign('step', STEP_OUTGOING_MAIL);
@@ -907,23 +863,32 @@ switch($step) {
 		if(!empty($form_submit)) {
 			$package = DevblocksPlatform::importGPC($_POST['package'] ?? null, 'string', '');
 			
+			$kata = DevblocksPlatform::services()->kata();
 			$encrypt = DevblocksPlatform::services()->encryption();
-			@$setup_defaults = json_decode($encrypt->decrypt(file_get_contents(APP_TEMP_PATH . '/setup.json')), true) ?: [];
+			$prompts = @json_decode($encrypt->decrypt(file_get_contents(APP_TEMP_PATH . '/setup.json')), true) ?: [];
 			
 			$records_created = [];
 			
-			switch($package) {
-				case 'demo':
-					$json = file_get_contents(APP_PATH . '/install/packages/install_demo_package.json');
-					$prompts = $setup_defaults;
-					CerberusApplication::packages()->import($json, $prompts, $records_created);
-					break;
-					
-				case 'standard':
-					$json = file_get_contents(APP_PATH . '/install/packages/install_standard_package.json');
-					$prompts = $setup_defaults;
-					CerberusApplication::packages()->import($json, $prompts, $records_created);
-					break;
+			$json = file_get_contents(APP_PATH . '/install/packages/install_base_package.json');
+			CerberusApplication::packages()->import($json, $prompts, $records_created);
+			
+			// Import quickstart checklist
+			$error = null;
+			$new_workflow = new Model_Workflow();
+			$new_workflow->name = 'cerb.quickstart';
+			$new_workflow->description = "A workspace with a quickstart checklist for initial configuration of Cerb";
+			$new_workflow->workflow_kata = file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.quickstart.kata');
+			$new_workflow->config_kata = '';
+			DevblocksPlatform::services()->workflow()->import($new_workflow, null, $error);
+			
+			if($package == 'demo') {
+				$error = null;
+				$new_workflow = new Model_Workflow();
+				$new_workflow->name = 'cerb.demo.data';
+				$new_workflow->description = "Sample data for demonstration, testing, and development";
+				$new_workflow->workflow_kata = file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.demo.data.kata');
+				$new_workflow->config_kata = '';
+				DevblocksPlatform::services()->workflow()->import($new_workflow, null, $error);
 			}
 			
 			// Index initial content
