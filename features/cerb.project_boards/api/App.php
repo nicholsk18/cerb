@@ -18,8 +18,20 @@ class ProfileWidget_ProjectBoard extends Extension_ProfileWidget {
 	function render(Model_ProfileWidget $model, $context, $context_id) {
 		$tpl = DevblocksPlatform::services()->template();
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$active_worker = CerberusApplication::getActiveWorker();
 		
-		$target_context_id = intval($model->extension_params['context_id'] ?? 0);
+		$target_context_id = $model->extension_params['context_id'] ?? null;
+		
+		$dict = DevblocksDictionaryDelegate::instance([
+			'record__context' => $context,
+			'record_id' => $context_id,
+			'widget__context' => CerberusContexts::CONTEXT_PROFILE_WIDGET,
+			'widget_id' => $model->id,
+			'worker__context' => CerberusContexts::CONTEXT_WORKER,
+			'worker_id' => $active_worker->id,
+		]);
+		
+		$target_context_id = intval($tpl_builder->build($target_context_id, $dict));
 		
 		if(!($context_ext = Extension_DevblocksContext::get($context)))
 			return;
