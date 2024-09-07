@@ -268,6 +268,7 @@ class _DevblocksTemplateBuilder {
 				'cerb_file_url',
 				'cerb_has_priv',
 				'cerb_placeholders_list',
+				'cerb_plugin_enabled',
 				'cerb_record_readable',
 				'cerb_record_writeable',
 				'cerb_url',
@@ -1187,6 +1188,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFunction('cerb_file_url', [$this, 'function_cerb_file_url']),
 			new \Twig\TwigFunction('cerb_has_priv', [$this, 'function_cerb_has_priv']),
 			new \Twig\TwigFunction('cerb_placeholders_list', [$this, 'function_cerb_placeholders_list'], ['needs_environment' => true]),
+			new \Twig\TwigFunction('cerb_plugin_enabled', [$this, 'function_cerb_plugin_enabled']),
 			new \Twig\TwigFunction('cerb_record_readable', [$this, 'function_cerb_record_readable']),
 			new \Twig\TwigFunction('cerb_record_writeable', [$this, 'function_cerb_record_writeable']),
 			new \Twig\TwigFunction('cerb_url', [$this, 'function_cerb_url']),
@@ -1579,6 +1581,16 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		
 		/* @var $dict DevblocksDictionaryDelegate */
 		return $dict->getDictionary($extract, false, $prefix);
+	}
+	
+	function function_cerb_plugin_enabled($string) {
+		if($string instanceof Twig\Markup)
+			$string = strval($string);
+		
+		if(!($plugin = DevblocksPlatform::getPlugin($string)))
+			return false;
+		
+		return (int) $plugin->enabled;
 	}
 	
 	function function_random_string($length=8) {
