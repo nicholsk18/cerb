@@ -45,6 +45,11 @@ class _DevblocksDataProviderClassifierPrediction extends _DevblocksDataProvider 
 	}
 	
 	function getData($query, $chart_fields, &$error=null, array $options=[]) {
+		if(!($plugin = DevblocksPlatform::getPlugin('cerb.classifiers')) || !$plugin->enabled) {
+			$error = 'The `cerb.classifiers` plugin is not enabled';
+			return false;
+		}
+		
 		$chart_model = [
 			'type' => 'classifier.prediction',
 			'text' => '',
@@ -82,7 +87,7 @@ class _DevblocksDataProviderClassifierPrediction extends _DevblocksDataProvider 
 		$classifier_id = 0;
 		
 		if(array_key_exists('classifier_query', $chart_model)) {
-			$classifier_ext = Extension_DevblocksContext::get(Context_Classifier::ID, true);
+			$classifier_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_CLASSIFIER, true);
 			
 			$view = $classifier_ext->getTempView();
 			$view->addParamsWithQuickSearch($chart_model['classifier_query']);
@@ -109,9 +114,7 @@ class _DevblocksDataProviderClassifierPrediction extends _DevblocksDataProvider 
 			return false;
 		}
 		
-		$predict = DevblocksPlatform::services()->bayesClassifier();
-		
-		if(false == ($prediction = $predict::predict($chart_model['text'], $classifier_id)))
+		if(!($prediction = Model_Classifier::predict($chart_model['text'], $classifier_id)))
 			return false;
 		
 		$chart_model['data'] = $prediction;

@@ -147,8 +147,7 @@ class DAO_ClassifierExample extends Cerb_ORMHelper {
 		@$expression = $fields[self::EXPRESSION];
 		
 		if($classifier_id && $class_id && $expression) {
-			$bayes = DevblocksPlatform::services()->bayesClassifier();
-			$bayes::train($expression, $classifier_id, $class_id);
+			Model_Classifier::train($expression, $classifier_id, $class_id);
 		}
 	}
 	
@@ -773,7 +772,7 @@ class View_ClassifierExample extends C4_AbstractView implements IAbstractView_Su
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CLASSIFIER_EXAMPLE);
 		$tpl->assign('custom_fields', $custom_fields);
 
-		$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/classifier/example/view.tpl');
+		$tpl->assign('view_template', 'devblocks:cerb.classifiers::record_types/classifier/example/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
@@ -1247,8 +1246,7 @@ class Context_ClassifierExample extends Extension_DevblocksContext implements ID
 			$tpl->assign('classes', $classes);
 			
 			// Entities
-			$bayes = DevblocksPlatform::services()->bayesClassifier();
-			$entities = $bayes::getEntities();
+			$entities = Model_Classifier::getEntities();
 			$tpl->assign('entities', $entities);
 			
 			// Custom fields
@@ -1265,7 +1263,7 @@ class Context_ClassifierExample extends Extension_DevblocksContext implements ID
 			// View
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);
-			$tpl->display('devblocks:cerberusweb.core::internal/classifier/example/peek_edit.tpl');
+			$tpl->display('devblocks:cerb.classifiers::record_types/classifier/example/peek_edit.tpl');
 			
 		} else {
 			Page_Profiles::renderCard($context, $context_id, $model);

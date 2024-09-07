@@ -28,125 +28,6 @@ if(!isset($tables['connected_account'])) {
 }
 
 // ===========================================================================
-// Add `classifier` table
-
-if(!isset($tables['classifier'])) {
-	$sql = sprintf("
-	CREATE TABLE `classifier` (
-		id int unsigned auto_increment,
-		name varchar(255) not null default '',
-		owner_context varchar(255) not null default '',
-		owner_context_id int unsigned not null default 0,
-		created_at int unsigned not null default 0,
-		updated_at int unsigned not null default 0,
-		dictionary_size int unsigned not null default 0,
-		params_json text,
-		primary key (id),
-		index owner (owner_context, owner_context_id)
-	) ENGINE=%s;
-	", APP_DB_ENGINE);
-	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
-
-	$tables['classifier'] = 'classifier';
-}
-
-// ===========================================================================
-// Add `classifier_class` table
-
-if(!isset($tables['classifier_class'])) {
-	$sql = sprintf("
-	CREATE TABLE `classifier_class` (
-		id int unsigned auto_increment,
-		name varchar(255) not null default '',
-		classifier_id int unsigned not null default 0,
-		training_count int unsigned not null default 0,
-		dictionary_size int unsigned not null default 0,
-		entities varchar(255) default '',
-		slots_json text,
-		updated_at int unsigned not null default 0,
-		primary key (id),
-		index (classifier_id)
-	) ENGINE=%s;
-	", APP_DB_ENGINE);
-	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
-
-	$tables['classifier_class'] = 'classifier_class';
-}
-
-// ===========================================================================
-// Add `classifier_ngram` table
-
-if(!isset($tables['classifier_ngram'])) {
-	$sql = sprintf("
-	CREATE TABLE `classifier_ngram` (
-		id int unsigned auto_increment,
-		token varchar(255) not null default '',
-		n tinyint unsigned not null default 0,
-		primary key (id),
-		unique (token)
-	) ENGINE=%s;
-	", APP_DB_ENGINE);
-	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
-
-	$tables['classifier_ngram'] = 'classifier_ngram';
-}
-
-if(!isset($tables['classifier_ngram_to_class'])) {
-	$sql = sprintf("
-	CREATE TABLE `classifier_ngram_to_class` (
-		token_id int unsigned not null default 0,
-		class_id int unsigned not null default 0,
-		training_count int unsigned not null default 0,
-		primary key (token_id, class_id)
-	) ENGINE=%s;
-	", APP_DB_ENGINE);
-	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
-
-	$tables['classifier_ngram_to_class'] = 'classifier_ngram_to_class';
-}
-
-// ===========================================================================
-// Add `classifier_entity` table
-
-if(!isset($tables['classifier_entity'])) {
-	$sql = sprintf("
-	CREATE TABLE `classifier_entity` (
-		id int unsigned auto_increment,
-		name varchar(255) not null default '',
-		description varchar(255) not null default '',
-		type varchar(255) not null default '',
-		params_json text,
-		updated_at int unsigned not null default 0,
-		primary key (id)
-	) ENGINE=%s;
-	", APP_DB_ENGINE);
-	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
-
-	$tables['classifier_entity'] = 'classifier_entity';
-}
-
-// ===========================================================================
-// Add `classifier_example` table
-
-if(!isset($tables['classifier_example'])) {
-	$sql = sprintf("
-	CREATE TABLE `classifier_example` (
-		id int unsigned auto_increment,
-		classifier_id int unsigned not null default 0,
-		class_id int unsigned not null default 0,
-		expression text,
-		updated_at int unsigned not null default 0,
-		primary key (id),
-		index (classifier_id),
-		index (class_id)
-	) ENGINE=%s;
-	", APP_DB_ENGINE);
-	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
-
-	$tables['classifier_example'] = 'classifier_example';
-}
-
-// ===========================================================================
 // Add `context_alias` table
 
 if(!isset($tables['context_alias'])) {
@@ -557,7 +438,6 @@ while($row = mysqli_fetch_assoc($rs)) {
 
 $db->ExecuteMaster("UPDATE attachment_link SET context = 'cerberusweb.contexts.bot' WHERE context = 'cerberusweb.contexts.virtual.attendant'");
 $db->ExecuteMaster("UPDATE calendar SET owner_context = 'cerberusweb.contexts.bot' WHERE owner_context = 'cerberusweb.contexts.virtual.attendant'");
-$db->ExecuteMaster("UPDATE classifier SET owner_context = 'cerberusweb.contexts.bot' WHERE owner_context = 'cerberusweb.contexts.virtual.attendant'");
 $db->ExecuteMaster("UPDATE comment SET context = 'cerberusweb.contexts.bot' WHERE context = 'cerberusweb.contexts.virtual.attendant'");
 $db->ExecuteMaster("UPDATE comment SET owner_context = 'cerberusweb.contexts.bot' WHERE owner_context = 'cerberusweb.contexts.virtual.attendant'");
 $db->ExecuteMaster("UPDATE context_activity_log SET actor_context = 'cerberusweb.contexts.bot' WHERE actor_context = 'cerberusweb.contexts.virtual.attendant'");
@@ -583,6 +463,9 @@ $db->ExecuteMaster("UPDATE snippet SET context = 'cerberusweb.contexts.bot' WHER
 $db->ExecuteMaster("UPDATE snippet SET owner_context = 'cerberusweb.contexts.bot' WHERE owner_context = 'cerberusweb.contexts.virtual.attendant'");
 $db->ExecuteMaster("UPDATE workspace_list SET context = 'cerberusweb.contexts.bot' WHERE context = 'cerberusweb.contexts.virtual.attendant'");
 $db->ExecuteMaster("UPDATE workspace_page SET owner_context = 'cerberusweb.contexts.bot' WHERE owner_context = 'cerberusweb.contexts.virtual.attendant'");
+
+if(array_key_exists('classifier', $tables))
+	$db->ExecuteMaster("UPDATE classifier SET owner_context = 'cerberusweb.contexts.bot' WHERE owner_context = 'cerberusweb.contexts.virtual.attendant'");
 
 $db->ExecuteMaster("UPDATE context_activity_log SET entry_json = REPLACE(entry_json, 'cerberusweb.contexts.virtual.attendant', 'cerberusweb.contexts.bot')");
 $db->ExecuteMaster("UPDATE decision_node SET params_json = REPLACE(params_json, 'cerberusweb.contexts.virtual.attendant', 'cerberusweb.contexts.bot')");

@@ -3516,24 +3516,6 @@
 			</tuv>
 		</tu>
 		
-		<!-- Classifier -->
-		
-		<tu tuid='dao.classifier.dictionary_size'>
-			<tuv xml:lang="en_US"><seg>Dictionary Size</seg></tuv>
-		</tu>
-		
-		<!-- Classifier Class -->
-		
-		<tu tuid='dao.classifier_class.training_count'>
-			<tuv xml:lang="en_US"><seg>Training Count</seg></tuv>
-		</tu>
-		
-		<!-- ClassifierExample -->
-		
-		<tu tuid='dao.classifier_example.expression'>
-			<tuv xml:lang="en_US"><seg>Expression</seg></tuv>
-		</tu>
-		
 		<!-- Currency -->
 		
 		<tu tuid='dao.currency.code'>

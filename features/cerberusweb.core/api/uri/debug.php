@@ -146,7 +146,6 @@ class ChDebugController extends DevblocksControllerExtension  {
 						'bot_behaviors' => intval($db->GetOneMaster('SELECT count(id) FROM trigger_event')),
 						'bot_events' => is_array($bot_behavior_counts) ? $bot_behavior_counts : [],
 						'buckets' => intval($db->GetOneMaster('SELECT count(id) FROM bucket')),
-						'classifiers' => intval(@$db->GetOneMaster('SELECT count(id) FROM classifier')),
 						'comments' => intval($db->GetOneMaster('SELECT count(id) FROM comment')),
 						'custom_fields' => intval($db->GetOneMaster('SELECT count(id) FROM custom_field')),
 						'custom_fieldsets' => intval($db->GetOneMaster('SELECT count(id) FROM custom_fieldset')),
@@ -181,6 +180,9 @@ class ChDebugController extends DevblocksControllerExtension  {
 						'message_content' => intval($db->GetOneMaster('SELECT sum(storage_size) FROM message')),
 					)
 				);
+				
+				if(DevblocksPlatform::isPluginEnabled('cerb.classifiers'))
+					$status['counts']['classifiers'] = intval(@$db->GetOneMaster('SELECT count(id) FROM classifier'));
 				
 				if(DevblocksPlatform::isPluginEnabled('cerb.project_boards'))
 					$status['counts']['project_boards'] = intval(@$db->GetOneMaster('SELECT count(id) FROM project_board'));

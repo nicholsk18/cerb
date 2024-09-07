@@ -188,7 +188,7 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 		
 		$tpl->assign('classifier_id', $classifier_id);
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/classifier/import_popup.tpl');
+		$tpl->display('devblocks:cerb.classifiers::record_types/classifier/import_popup.tpl');
 	}
 	
 	private function _profileAction_saveImportPopupJson() {
@@ -280,11 +280,11 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 				DAO_ClassifierExample::UPDATED_AT => time(),
 			]);
 			
-			$bayes::train($expression, $classifier_id, $class_id, true);
+			Model_Classifier::train($expression, $classifier_id, $class_id, true);
 		}
 		
 		// Update the model
-		$bayes::build($classifier_id);
+		Model_Classifier::build($classifier_id);
 		
 		echo json_encode([
 			'status' => true,
@@ -300,7 +300,6 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 	}
 	
 	private function _profileAction_predict() {
-		$bayes = DevblocksPlatform::services()->bayesClassifier();
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -320,12 +319,12 @@ class PageSection_ProfilesClassifier extends Extension_PageSection {
 			'timezone' => '',
 		];
 		
-		$prediction = $bayes::predict($text, $classifier_id, $environment);
+		$prediction = Model_Classifier::predict($text, $classifier_id, $environment);
 		$tpl->assign('prediction', $prediction['prediction']);
 		
 		$is_writeable = Context_Classifier::isWriteableByActor($classifier_id, $active_worker);
 		$tpl->assign('is_writeable', $is_writeable);
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/classifier/prediction.tpl');
+		$tpl->display('devblocks:cerb.classifiers::record_types/classifier/prediction.tpl');
 	}
 };

@@ -1,24 +1,25 @@
 <?php
-class DAO_Classifier extends Cerb_ORMHelper {
-	const CREATED_AT = 'created_at';
+class DAO_ClassifierClass extends Cerb_ORMHelper {
+	const CLASSIFIER_ID = 'classifier_id';
 	const DICTIONARY_SIZE = 'dictionary_size';
 	const ID = 'id';
 	const NAME = 'name';
-	const OWNER_CONTEXT = 'owner_context';
-	const OWNER_CONTEXT_ID = 'owner_context_id';
-	const PARAMS_JSON = 'params_json';
+	const SLOTS_JSON = 'slots_json';
+	const TRAINING_COUNT = 'training_count';
 	const UPDATED_AT = 'updated_at';
 	
-	const _CACHE_ALL = 'cerb_classifiers';
+	const _CACHE_ALL = 'cerb_classifier_classes';
 	
 	private function __construct() {}
 	
 	static function getFields() {
 		$validation = DevblocksPlatform::services()->validation();
-
+		
 		$validation
-			->addField(self::CREATED_AT)
-			->timestamp()
+			->addField(self::CLASSIFIER_ID)
+			->id()
+			->setRequired(true)
+			->addValidator($validation->validators()->contextId(CerberusContexts::CONTEXT_CLASSIFIER))
 			;
 		$validation
 			->addField(self::DICTIONARY_SIZE)
@@ -36,19 +37,14 @@ class DAO_Classifier extends Cerb_ORMHelper {
 			->setRequired(true)
 			;
 		$validation
-			->addField(self::OWNER_CONTEXT)
-			->context()
-			->setRequired(true)
-			;
-		$validation
-			->addField(self::OWNER_CONTEXT_ID)
-			->id()
-			->setRequired(true)
-			;
-		$validation
-			->addField(self::PARAMS_JSON)
+			->addField(self::SLOTS_JSON)
 			->string()
 			->setMaxLength(16777215)
+			;
+		$validation
+			->addField(self::TRAINING_COUNT)
+			->uint()
+			->setEditable(false)
 			;
 		$validation
 			->addField(self::UPDATED_AT)
@@ -67,15 +63,15 @@ class DAO_Classifier extends Cerb_ORMHelper {
 			
 		return $validation->getFields();
 	}
-
+	
 	static function create($fields) {
 		$db = DevblocksPlatform::services()->database();
 		
-		$sql = "INSERT INTO classifier () VALUES ()";
+		$sql = "INSERT INTO classifier_class () VALUES ()";
 		$db->ExecuteMaster($sql);
 		$id = $db->LastInsertId();
 		
-		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_CLASSIFIER, $id);
+		CerberusContexts::checkpointCreations(CerberusContexts::CONTEXT_CLASSIFIER_CLASS, $id);
 		
 		self::update($id, $fields);
 		
@@ -94,7 +90,7 @@ class DAO_Classifier extends Cerb_ORMHelper {
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
 		
-		$context = CerberusContexts::CONTEXT_CLASSIFIER;
+		$context = CerberusContexts::CONTEXT_CLASSIFIER_CLASS;
 		self::_updateAbstract($context, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
@@ -106,11 +102,11 @@ class DAO_Classifier extends Cerb_ORMHelper {
 				
 			// Send events
 			if($check_deltas) {
-				CerberusContexts::checkpointChanges(CerberusContexts::CONTEXT_CLASSIFIER, $batch_ids);
+				CerberusContexts::checkpointChanges($context, $batch_ids);
 			}
 			
 			// Make changes
-			parent::_update($batch_ids, 'classifier', $fields);
+			parent::_update($batch_ids, 'classifier_class', $fields);
 			
 			// Send events
 			if($check_deltas) {
@@ -118,7 +114,7 @@ class DAO_Classifier extends Cerb_ORMHelper {
 				$eventMgr = DevblocksPlatform::services()->event();
 				$eventMgr->trigger(
 					new Model_DevblocksEvent(
-						'dao.classifier.update',
+						'dao.classifier_class.update',
 						array(
 							'fields' => $fields,
 						)
@@ -126,7 +122,7 @@ class DAO_Classifier extends Cerb_ORMHelper {
 				);
 				
 				// Log the context update
-				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_CLASSIFIER, $batch_ids);
+				DevblocksPlatform::markContextChanged($context, $batch_ids);
 			}
 		}
 		
@@ -134,25 +130,34 @@ class DAO_Classifier extends Cerb_ORMHelper {
 	}
 	
 	static function updateWhere($fields, $where) {
-		parent::_updateWhere('classifier', $fields, $where);
+		parent::_updateWhere('classifier_class', $fields, $where);
 	}
 	
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
-		$context = CerberusContexts::CONTEXT_CLASSIFIER;
+		$context = CerberusContexts::CONTEXT_CLASSIFIER_CLASS;
 		
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
 			return false;
 		
-		@$owner_context = $fields[self::OWNER_CONTEXT];
-		@$owner_context_id = intval($fields[self::OWNER_CONTEXT_ID]);
+		if(!$id && !isset($fields[self::CLASSIFIER_ID])) {
+			$error = "A 'classifier_id' is required.";
+			return false;
+		}
 		
-		// Verify that the actor can use this new owner
-		if($owner_context) {
-			if(!CerberusContexts::isOwnableBy($owner_context, $owner_context_id, $actor)) {
-				$error = DevblocksPlatform::translate('error.core.no_acl.owner');
+		if(isset($fields[self::CLASSIFIER_ID])) {
+			@$classifier_id = $fields[self::CLASSIFIER_ID];
+			
+			if(!$classifier_id) {
+				$error = "Invalid 'classifier_id' value.";
+				return false;
+			}
+			
+			if(!Context_Classifier::isWriteableByActor($classifier_id, $actor)) {
+				$error = "You do not have permission to create classifications on this classifier.";
 				return false;
 			}
 		}
+		
 		
 		return true;
 	}
@@ -162,7 +167,7 @@ class DAO_Classifier extends Cerb_ORMHelper {
 	 * @param mixed $sortBy
 	 * @param mixed $sortAsc
 	 * @param integer $limit
-	 * @return Model_Classifier[]
+	 * @return Model_ClassifierClass[]
 	 */
 	static function getWhere($where=null, $sortBy=null, $sortAsc=true, $limit=null, $options=null) {
 		$db = DevblocksPlatform::services()->database();
@@ -170,8 +175,8 @@ class DAO_Classifier extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, owner_context, owner_context_id, created_at, updated_at, dictionary_size, params_json ".
-			"FROM classifier ".
+		$sql = "SELECT id, classifier_id, name, updated_at, slots_json, dictionary_size, training_count ".
+			"FROM classifier_class ".
 			$where_sql.
 			$sort_sql.
 			$limit_sql
@@ -189,12 +194,12 @@ class DAO_Classifier extends Cerb_ORMHelper {
 	/**
 	 *
 	 * @param bool $nocache
-	 * @return Model_Classifier[]
+	 * @return Model_ClassifierClass[]
 	 */
 	static function getAll($nocache=false) {
 		$cache = DevblocksPlatform::services()->cache();
 		if($nocache || null === ($objects = $cache->load(self::_CACHE_ALL))) {
-			$objects = self::getWhere(null, DAO_Classifier::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
+			$objects = self::getWhere(null, DAO_ClassifierClass::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
 			
 			if(!is_array($objects))
 				return false;
@@ -205,31 +210,18 @@ class DAO_Classifier extends Cerb_ORMHelper {
 		return $objects;
 	}
 
-	static function getReadableByActor($actor_context, $actor_context_id) {
-		$classifiers = self::getAll();
-		
-		$classifiers = array_filter($classifiers, function($classifier) use ($actor_context, $actor_context_id) {
-			return CerberusContexts::isReadableByActor($classifier->owner_context, $classifier->owner_context_id, array($actor_context, $actor_context_id));
-		});
-		
-		return $classifiers;
-	}
-
 	/**
 	 * @param integer $id
-	 * @return Model_Classifier
+	 * @return Model_ClassifierClass
 	 */
 	static function get($id) {
 		if(empty($id))
 			return null;
 		
-		$objects = self::getWhere(sprintf("%s = %d",
-			self::ID,
-			$id
-		));
-		
-		if(array_key_exists($id, $objects))
-			return $objects[$id];
+		$classifications = DAO_ClassifierClass::getAll();
+
+		if(isset($classifications[$id]))
+			return $classifications[$id];
 		
 		return null;
 	}
@@ -237,34 +229,41 @@ class DAO_Classifier extends Cerb_ORMHelper {
 	/**
 	 * 
 	 * @param array $ids
-	 * @return Model_Classifier[]
+	 * @return Model_ClassifierClass[]
 	 */
 	static function getIds(array $ids) : array {
 		return parent::getIds($ids);
 	}
 	
+	static function getByClassifierId($classifier_id) {
+		$classes = self::getAll();
+		
+		return array_filter($classes, function($class) use ($classifier_id) { /* @var $class Model_ClassifierClass */
+			return $class->classifier_id == $classifier_id;
+		});
+	}
+	
 	/**
 	 * @param mysqli_result|false $rs
-	 * @return Model_Classifier[]
+	 * @return Model_ClassifierClass[]
 	 */
 	static private function _getObjectsFromResult($rs) {
-		$objects = array();
+		$objects = [];
 		
 		if(!($rs instanceof mysqli_result))
 			return false;
 		
 		while($row = mysqli_fetch_assoc($rs)) {
-			$object = new Model_Classifier();
-			$object->id = $row['id'];
+			$object = new Model_ClassifierClass();
+			$object->id = intval($row['id']);
+			$object->classifier_id = intval($row['classifier_id']);
 			$object->name = $row['name'];
-			$object->owner_context = $row['owner_context'];
-			$object->owner_context_id = $row['owner_context_id'];
-			$object->created_at = $row['created_at'];
-			$object->updated_at = $row['updated_at'];
+			$object->updated_at = intval($row['updated_at']);
 			$object->dictionary_size = $row['dictionary_size'];
+			$object->training_count = $row['training_count'];
 			
-			if(false != ($params_json = json_decode($row['params_json'] ?? '', true)))
-				$object->params = $params_json;
+			$slots_json = json_decode($row['slots_json'] ?? '');
+			$object->attribs = is_array($slots_json) ? $slots_json : [];
 			
 			$objects[$object->id] = $object;
 		}
@@ -275,15 +274,14 @@ class DAO_Classifier extends Cerb_ORMHelper {
 	}
 	
 	static function random() {
-		return self::_getRandom('classifier');
+		return self::_getRandom('classifier_class');
 	}
 	
-	static public function countByBot($bot_id) {
+	static public function count($classifier_id) {
 		$db = DevblocksPlatform::services()->database();
-		return $db->GetOneReader(sprintf("SELECT count(*) FROM classifier ".
-			"WHERE owner_context = %s AND owner_context_id = %d",
-			$db->qstr(CerberusContexts::CONTEXT_BOT),
-			$bot_id
+		return $db->GetOneReader(sprintf("SELECT count(id) FROM classifier_class ".
+			"WHERE classifier_id = %d",
+			$classifier_id
 		));
 	}
 	
@@ -295,12 +293,12 @@ class DAO_Classifier extends Cerb_ORMHelper {
 		
 		if(empty($ids)) return false;
 		
-		$context = CerberusContexts::CONTEXT_CLASSIFIER;
+		$context = CerberusContexts::CONTEXT_CLASSIFIER_CLASS;
 		$ids_list = implode(',', self::qstrArray($ids));
 		
 		parent::_deleteAbstractBefore($context, $ids);
 		
-		$db->ExecuteMaster(sprintf("DELETE FROM classifier WHERE id IN (%s)", $ids_list));
+		$db->ExecuteMaster(sprintf("DELETE FROM classifier_class WHERE id IN (%s)", $ids_list));
 		
 		parent::_deleteAbstractAfter($context, $ids);
 		
@@ -309,47 +307,34 @@ class DAO_Classifier extends Cerb_ORMHelper {
 	}
 	
 	public static function getSearchQueryComponents($columns, $params, $sortBy=null, $sortAsc=null) {
-		$fields = SearchFields_Classifier::getFields();
+		$fields = SearchFields_ClassifierClass::getFields();
 		
-		switch($sortBy) {
-			case SearchFields_Classifier::VIRTUAL_OWNER:
-				$sortBy = SearchFields_Classifier::OWNER_CONTEXT;
-				
-				if(!in_array($sortBy, $columns))
-					$columns[] = $sortBy;
-				break;
-		}
-		
-		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_Classifier', $sortBy);
+		list(,$wheres) = parent::_parseSearchParams($params, $columns, 'SearchFields_ClassifierClass', $sortBy);
 		
 		$select_sql = sprintf("SELECT ".
-			"classifier.id as %s, ".
-			"classifier.name as %s, ".
-			"classifier.owner_context as %s, ".
-			"classifier.owner_context_id as %s, ".
-			"classifier.created_at as %s, ".
-			"classifier.updated_at as %s, ".
-			"classifier.dictionary_size as %s, ".
-			"classifier.params_json as %s ",
-				SearchFields_Classifier::ID,
-				SearchFields_Classifier::NAME,
-				SearchFields_Classifier::OWNER_CONTEXT,
-				SearchFields_Classifier::OWNER_CONTEXT_ID,
-				SearchFields_Classifier::CREATED_AT,
-				SearchFields_Classifier::UPDATED_AT,
-				SearchFields_Classifier::DICTIONARY_SIZE,
-				SearchFields_Classifier::PARAMS_JSON
+			"classifier_class.id as %s, ".
+			"classifier_class.classifier_id as %s, ".
+			"classifier_class.name as %s, ".
+			"classifier_class.updated_at as %s, ".
+			"classifier_class.dictionary_size as %s, ".
+			"classifier_class.training_count as %s ",
+				SearchFields_ClassifierClass::ID,
+				SearchFields_ClassifierClass::CLASSIFIER_ID,
+				SearchFields_ClassifierClass::NAME,
+				SearchFields_ClassifierClass::UPDATED_AT,
+				SearchFields_ClassifierClass::DICTIONARY_SIZE,
+				SearchFields_ClassifierClass::TRAINING_COUNT
 			);
 			
-		$join_sql = "FROM classifier ";
+		$join_sql = "FROM classifier_class ";
 		
 		$where_sql = "".
 			(!empty($wheres) ? sprintf("WHERE %s ",implode(' AND ',$wheres)) : "WHERE 1 ");
 			
-		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_Classifier');
+		$sort_sql = self::_buildSortClause($sortBy, $sortAsc, $fields, $select_sql, 'SearchFields_ClassifierClass');
 	
 		return array(
-			'primary_table' => 'classifier',
+			'primary_table' => 'classifier_class',
 			'select' => $select_sql,
 			'join' => $join_sql,
 			'where' => $where_sql,
@@ -379,7 +364,7 @@ class DAO_Classifier extends Cerb_ORMHelper {
 		$sort_sql = $query_parts['sort'];
 		
 		return self::_searchWithTimeout(
-			SearchFields_Classifier::ID,
+			SearchFields_ClassifierClass::ID,
 			$select_sql,
 			$join_sql,
 			$where_sql,
@@ -389,46 +374,43 @@ class DAO_Classifier extends Cerb_ORMHelper {
 			$withCounts
 		);
 	}
-
 };
 
-class SearchFields_Classifier extends DevblocksSearchFields {
+class SearchFields_ClassifierClass extends DevblocksSearchFields {
 	const ID = 'c_id';
+	const CLASSIFIER_ID = 'c_classifier_id';
 	const NAME = 'c_name';
-	const OWNER_CONTEXT = 'c_owner_context';
-	const OWNER_CONTEXT_ID = 'c_owner_context_id';
-	const CREATED_AT = 'c_created_at';
 	const UPDATED_AT = 'c_updated_at';
 	const DICTIONARY_SIZE = 'c_dictionary_size';
-	const PARAMS_JSON = 'c_params_json';
+	const TRAINING_COUNT = 'c_training_count';
 
+	const VIRTUAL_CLASSIFIER_SEARCH = '*_classifier_search';
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
-	const VIRTUAL_OWNER = '*_owner';
 	
 	static private $_fields = null;
 	
 	static function getPrimaryKey() {
-		return 'classifier.id';
+		return 'classifier_class.id';
 	}
 	
 	static function getCustomFieldContextKeys() {
 		// [TODO] Context
 		return array(
-			'' => new DevblocksSearchFieldContextKeys('classifier.id', self::ID),
+			'' => new DevblocksSearchFieldContextKeys('classifier_class.id', self::ID),
 		);
 	}
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::VIRTUAL_CLASSIFIER_SEARCH:
+				return self::_getWhereSQLFromVirtualSearchField($param, CerberusContexts::CONTEXT_CLASSIFIER, 'classifier_class.classifier_id');
+			
 			case self::VIRTUAL_CONTEXT_LINK:
-				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_CLASSIFIER, self::getPrimaryKey());
+				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_CLASSIFIER_CLASS, self::getPrimaryKey());
 				
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_CLASSIFIER), '%s'), self::getPrimaryKey());
-				
-			case self::VIRTUAL_OWNER:
-				return self::_getWhereSQLFromContextAndID($param, 'classifier.owner_context', 'classifier.owner_context_id');
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(CerberusContexts::CONTEXT_CLASSIFIER_CLASS), '%s'), self::getPrimaryKey());
 			
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
@@ -441,24 +423,8 @@ class SearchFields_Classifier extends DevblocksSearchFields {
 	
 	static function getFieldForSubtotalKey($key, $context, array $query_fields, array $search_fields, $primary_key) {
 		switch($key) {
-			case 'owner':
-				$key = 'owner';
-				$search_key = 'owner';
-				$owner_field = $search_fields[SearchFields_Classifier::OWNER_CONTEXT];
-				$owner_id_field = $search_fields[SearchFields_Classifier::OWNER_CONTEXT_ID];
-				
-				return [
-					'key_query' => $key,
-					'key_select' => $search_key,
-					'type' => DevblocksSearchCriteria::TYPE_CONTEXT,
-					'sql_select' => sprintf("CONCAT_WS(':',%s.%s,%s.%s)",
-						Cerb_ORMHelper::escape($owner_field->db_table),
-						Cerb_ORMHelper::escape($owner_field->db_column),
-						Cerb_ORMHelper::escape($owner_id_field->db_table),
-						Cerb_ORMHelper::escape($owner_id_field->db_column)
-					),
-					'get_value_as_filter_callback' => parent::getValueAsFilterCallback()->link('owner'),
-				];
+			case 'classifier':
+				$key = 'classifier.id';
 				break;
 		}
 		
@@ -467,12 +433,18 @@ class SearchFields_Classifier extends DevblocksSearchFields {
 	
 	static function getLabelsForKeyValues($key, $values) {
 		switch($key) {
-			case SearchFields_Classifier::ID:
+			case SearchFields_ClassifierClass::CLASSIFIER_ID:
 				$models = DAO_Classifier::getIds($values);
-				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				$label_map = array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				if(in_array(0, $values))
+					$label_map[0] = sprintf('(%s)', DevblocksPlatform::translate('common.none'));
+				return $label_map;
+				break;
 				
-			case 'owner':
-				return self::_getLabelsForKeyContextAndIdValues($values);
+			case SearchFields_ClassifierClass::ID:
+				$models = DAO_ClassifierClass::getIds($values);
+				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
+				break;
 		}
 		
 		return parent::getLabelsForKeyValues($key, $values);
@@ -495,18 +467,16 @@ class SearchFields_Classifier extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = array(
-			self::ID => new DevblocksSearchField(self::ID, 'classifier', 'id', $translate->_('common.id'), null, true),
-			self::NAME => new DevblocksSearchField(self::NAME, 'classifier', 'name', $translate->_('common.name'), null, true),
-			self::OWNER_CONTEXT => new DevblocksSearchField(self::OWNER_CONTEXT, 'classifier', 'owner_context', $translate->_('common.owner_context'), null, true),
-			self::OWNER_CONTEXT_ID => new DevblocksSearchField(self::OWNER_CONTEXT_ID, 'classifier', 'owner_context_id', $translate->_('common.owner_context_id'), null, true),
-			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'classifier', 'created_at', $translate->_('common.created'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'classifier', 'updated_at', $translate->_('common.updated'), null, true),
-			self::DICTIONARY_SIZE => new DevblocksSearchField(self::DICTIONARY_SIZE, 'classifier', 'dictionary_size', $translate->_('dao.classifier.dictionary_size'), null, true),
-			self::PARAMS_JSON => new DevblocksSearchField(self::PARAMS_JSON, 'classifier', 'params_json', $translate->_('common.params'), null, true),
+			self::ID => new DevblocksSearchField(self::ID, 'classifier_class', 'id', $translate->_('common.id'), null, true),
+			self::CLASSIFIER_ID => new DevblocksSearchField(self::CLASSIFIER_ID, 'classifier_class', 'classifier_id', $translate->_('common.classifier'), null, true),
+			self::NAME => new DevblocksSearchField(self::NAME, 'classifier_class', 'name', $translate->_('common.name'), null, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'classifier_class', 'updated_at', $translate->_('common.updated'), null, true),
+			self::DICTIONARY_SIZE => new DevblocksSearchField(self::DICTIONARY_SIZE, 'classifier_class', 'dictionary_size', $translate->_('dao.classifier.dictionary_size'), null, true),
+			self::TRAINING_COUNT => new DevblocksSearchField(self::TRAINING_COUNT, 'classifier_class', 'training_count', $translate->_('common.examples'), null, true),
 
+			self::VIRTUAL_CLASSIFIER_SEARCH => new DevblocksSearchField(self::VIRTUAL_CLASSIFIER_SEARCH, '*', 'classifier_search', null, null, false),
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
-			self::VIRTUAL_OWNER => new DevblocksSearchField(self::VIRTUAL_OWNER, '*', 'owner', $translate->_('common.owner')),
 		);
 		
 		// Custom Fields
@@ -522,59 +492,43 @@ class SearchFields_Classifier extends DevblocksSearchFields {
 	}
 };
 
-class Model_Classifier extends DevblocksRecordModel {
+class Model_ClassifierClass extends DevblocksRecordModel {
 	public $id = 0;
+	public $classifier_id = 0;
 	public $name = null;
-	public $owner_context = null;
-	public $owner_context_id = 0;
-	public $created_at = 0;
 	public $updated_at = 0;
+	public $attribs = [];
 	public $dictionary_size = 0;
-	public $params = [];
+	public $training_count= 0;
 	
-	function trainModel() {
-		$bayes = DevblocksPlatform::services()->bayesClassifier();
-		$bayes::clearModel($this->id);
-		
-		// Load examples
-		$examples = DAO_ClassifierExample::getByClassifier($this->id);
-		
-		foreach($examples as $example) {
-			// Only train examples with a given class_id
-			if(!$example->class_id)
-				continue;
-			
-			$bayes::train($example->expression, $example->classifier_id, $example->class_id, true);
-		}
-		
-		$bayes::build($this->id);
+	function getClassifier() {
+		return DAO_Classifier::get($this->classifier_id);
 	}
 };
 
-class View_Classifier extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
-	const DEFAULT_ID = 'classifiers';
+class View_ClassifierClass extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
+	const DEFAULT_ID = 'classifier_classes';
 
 	function __construct() {
 		$translate = DevblocksPlatform::getTranslationService();
 	
 		$this->id = self::DEFAULT_ID;
-		$this->name = mb_convert_case($translate->_('common.classifiers'), MB_CASE_TITLE);
+		$this->name = mb_convert_case($translate->_('common.classifier.classifications'), MB_CASE_TITLE);
 		$this->renderLimit = 25;
-		$this->renderSortBy = SearchFields_Classifier::NAME;
+		$this->renderSortBy = SearchFields_ClassifierClass::ID;
 		$this->renderSortAsc = true;
 
 		$this->view_columns = array(
-			SearchFields_Classifier::NAME,
-			SearchFields_Classifier::VIRTUAL_OWNER,
-			SearchFields_Classifier::UPDATED_AT,
+			SearchFields_ClassifierClass::NAME,
+			SearchFields_ClassifierClass::CLASSIFIER_ID,
+			SearchFields_ClassifierClass::TRAINING_COUNT,
+			SearchFields_ClassifierClass::UPDATED_AT,
 		);
-		
+
 		$this->addColumnsHidden(array(
-			SearchFields_Classifier::OWNER_CONTEXT,
-			SearchFields_Classifier::OWNER_CONTEXT_ID,
-			SearchFields_Classifier::PARAMS_JSON,
-			SearchFields_Classifier::VIRTUAL_CONTEXT_LINK,
-			SearchFields_Classifier::VIRTUAL_HAS_FIELDSET,
+			SearchFields_ClassifierClass::VIRTUAL_CLASSIFIER_SEARCH,
+			SearchFields_ClassifierClass::VIRTUAL_CONTEXT_LINK,
+			SearchFields_ClassifierClass::VIRTUAL_HAS_FIELDSET,
 		));
 		
 		$this->doResetCriteria();
@@ -585,7 +539,7 @@ class View_Classifier extends C4_AbstractView implements IAbstractView_Subtotals
 	 * @throws Exception_DevblocksDatabaseQueryTimeout
 	 */
 	protected function _getData() {
-		return DAO_Classifier::search(
+		return DAO_ClassifierClass::search(
 			$this->view_columns,
 			$this->getParams(),
 			$this->renderLimit,
@@ -599,23 +553,23 @@ class View_Classifier extends C4_AbstractView implements IAbstractView_Subtotals
 	function getData() {
 		$objects = $this->_getDataBoundedTimed();
 		
-		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_Classifier');
+		$this->_lazyLoadCustomFieldsIntoObjects($objects, 'SearchFields_ClassifierClass');
 		
 		return $objects;
 	}
 	
 	function getDataAsObjects($ids=null, &$total=null) {
-		return $this->_getDataAsObjects('DAO_Classifier', $ids, $total);
+		return $this->_getDataAsObjects('DAO_ClassifierClass', $ids, $total);
 	}
 	
 	function getDataSample($size) {
-		return $this->_doGetDataSample('DAO_Classifier', $size);
+		return $this->_doGetDataSample('DAO_ClassifierClass', $size);
 	}
 
 	function getSubtotalFields() {
 		$all_fields = $this->getParamsAvailable(true);
 		
-		$fields = array();
+		$fields = [];
 
 		if(is_array($all_fields))
 		foreach($all_fields as $field_key => $field_model) {
@@ -623,14 +577,13 @@ class View_Classifier extends C4_AbstractView implements IAbstractView_Subtotals
 			
 			switch($field_key) {
 				// Fields
-//				case SearchFields_Classifier::EXAMPLE:
-//					$pass = true;
-//					break;
+				case SearchFields_ClassifierClass::CLASSIFIER_ID:
+					$pass = true;
+					break;
 					
 				// Virtuals
-				case SearchFields_Classifier::VIRTUAL_CONTEXT_LINK:
-				case SearchFields_Classifier::VIRTUAL_HAS_FIELDSET:
-				case SearchFields_Classifier::VIRTUAL_OWNER:
+				case SearchFields_ClassifierClass::VIRTUAL_CONTEXT_LINK:
+				case SearchFields_ClassifierClass::VIRTUAL_HAS_FIELDSET:
 					$pass = true;
 					break;
 					
@@ -649,32 +602,26 @@ class View_Classifier extends C4_AbstractView implements IAbstractView_Subtotals
 	}
 	
 	function getSubtotalCounts($column) {
-		$counts = array();
+		$counts = [];
 		$fields = $this->getFields();
-		$context = CerberusContexts::CONTEXT_CLASSIFIER;
+		$context = CerberusContexts::CONTEXT_CLASSIFIER_CLASS;
 
 		if(!isset($fields[$column]))
-			return array();
+			return [];
 		
 		switch($column) {
-//			case SearchFields_Classifier::EXAMPLE_BOOL:
-//				$counts = $this->_getSubtotalCountForBooleanColumn($context, $column);
-//				break;
+			case SearchFields_ClassifierClass::CLASSIFIER_ID:
+				$classifiers = DAO_Classifier::getAll();
+				$label_map = array_column(json_decode(json_encode($classifiers), true), 'name', 'id');
+				$counts = $this->_getSubtotalCountForNumberColumn($context, $column, $label_map);
+				break;
 
-//			case SearchFields_Classifier::EXAMPLE_STRING:
-//				$counts = $this->_getSubtotalCountForStringColumn($context, $column);
-//				break;
-				
-			case SearchFields_Classifier::VIRTUAL_CONTEXT_LINK:
+			case SearchFields_ClassifierClass::VIRTUAL_CONTEXT_LINK:
 				$counts = $this->_getSubtotalCountForContextLinkColumn($context, $column);
 				break;
 
-			case SearchFields_Classifier::VIRTUAL_HAS_FIELDSET:
+			case SearchFields_ClassifierClass::VIRTUAL_HAS_FIELDSET:
 				$counts = $this->_getSubtotalCountForHasFieldsetColumn($context, $column);
-				break;
-				
-			case SearchFields_Classifier::VIRTUAL_OWNER:
-				$counts = $this->_getSubtotalCountForContextAndIdColumns($context, $column, DAO_Classifier::OWNER_CONTEXT, DAO_Classifier::OWNER_CONTEXT_ID, 'owner_context[]');
 				break;
 				
 			default:
@@ -690,65 +637,65 @@ class View_Classifier extends C4_AbstractView implements IAbstractView_Subtotals
 	}
 	
 	function getQuickSearchFields() {
-		$search_fields = SearchFields_Classifier::getFields();
+		$search_fields = SearchFields_ClassifierClass::getFields();
 	
 		$fields = array(
-			'text' => 
+			'classifier' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Classifier::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => array('param_key' => SearchFields_ClassifierClass::VIRTUAL_CLASSIFIER_SEARCH),
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CLASSIFIER, 'q' => ''],
+					]
 				),
-			'created' => 
+			'classifier.id' => 
 				array(
-					'type' => DevblocksSearchCriteria::TYPE_DATE,
-					'options' => array('param_key' => SearchFields_Classifier::CREATED_AT),
+					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
+					'options' => array('param_key' => SearchFields_ClassifierClass::CLASSIFIER_ID),
+					'examples' => [
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_CLASSIFIER, 'q' => ''],
+					]
 				),
 			'fieldset' =>
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
-					'options' => array('param_key' => SearchFields_Classifier::VIRTUAL_HAS_FIELDSET),
+					'options' => array('param_key' => SearchFields_ClassifierClass::VIRTUAL_HAS_FIELDSET),
 					'examples' => [
-						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_CLASSIFIER],
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . CerberusContexts::CONTEXT_CLASSIFIER_CLASS],
 					]
 				),
 			'id' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
-					'options' => array('param_key' => SearchFields_Classifier::ID),
+					'options' => array('param_key' => SearchFields_ClassifierClass::ID),
 					'examples' => [
-						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_CLASSIFIER, 'q' => ''],
+						['type' => 'chooser', 'context' => CerberusContexts::CONTEXT_CLASSIFIER_CLASS, 'q' => ''],
 					]
+				),
+			'text' => 
+				array(
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => array('param_key' => SearchFields_ClassifierClass::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
 			'name' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => array('param_key' => SearchFields_Classifier::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
-					'score' => 2000,
-					'suggester' => [
-						'type' => 'autocomplete',
-						'query' => 'type:worklist.subtotals of:classifier by:name~25 query:(name:{{term}}*) format:dictionaries',
-						'key' => 'name',
-						'limit' => 25,
-					]
+					'options' => array('param_key' => SearchFields_ClassifierClass::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL),
 				),
 			'updated' => 
 				array(
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
-					'options' => array('param_key' => SearchFields_Classifier::UPDATED_AT),
+					'options' => array('param_key' => SearchFields_ClassifierClass::UPDATED_AT),
 				),
 		);
 		
-		// Add dynamic owner.* fields
-		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('owner', $fields, 'owner', SearchFields_Classifier::VIRTUAL_OWNER);
-		
 		// Add quick search links
 		
-		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_Classifier::VIRTUAL_CONTEXT_LINK);
+		$fields = self::_appendVirtualFiltersFromQuickSearchContexts('links', $fields, 'links', SearchFields_ClassifierClass::VIRTUAL_CONTEXT_LINK);
 		
 		// Add searchable custom fields
 		
-		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_CLASSIFIER, $fields, null);
+		$fields = self::_appendFieldsFromQuickSearchContext(CerberusContexts::CONTEXT_CLASSIFIER_CLASS, $fields, null);
 		
 		// Add is_sortable
 		
@@ -761,20 +708,20 @@ class View_Classifier extends C4_AbstractView implements IAbstractView_Subtotals
 	}	
 	
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
-		$search_fields = $this->getQuickSearchFields();
-		
 		switch($field) {
+			case 'classifier':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_ClassifierClass::VIRTUAL_CLASSIFIER_SEARCH);
+				break;
+				
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
 				break;
-			
-			default:
-				if($field == 'owner' || substr($field, 0, strlen('owner.')) == 'owner.')
-					return DevblocksSearchCriteria::getVirtualContextParamFromTokens($field, $tokens, 'owner', SearchFields_Classifier::VIRTUAL_OWNER);
 				
+			default:
 				if($field == 'links' || substr($field, 0, 6) == 'links.')
 					return DevblocksSearchCriteria::getContextLinksParamFromTokens($field, $tokens);
 				
+				$search_fields = $this->getQuickSearchFields();
 				return DevblocksSearchCriteria::getParamFromQueryFieldTokens($field, $tokens, $search_fields);
 				break;
 		}
@@ -789,18 +736,27 @@ class View_Classifier extends C4_AbstractView implements IAbstractView_Subtotals
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
+		$classifiers = DAO_Classifier::getAll();
+		$tpl->assign('classifiers', $classifiers);
+		
 		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CLASSIFIER);
+		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CLASSIFIER_CLASS);
 		$tpl->assign('custom_fields', $custom_fields);
 
-		$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/classifier/view.tpl');
+		$tpl->assign('view_template', 'devblocks:cerb.classifiers::record_types/classifier/class/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
 	function renderCriteriaParam($param) {
 		$field = $param->field;
+		$values = !is_array($param->value) ? array($param->value) : $param->value;
 
 		switch($field) {
+			case SearchFields_ClassifierClass::CLASSIFIER_ID:
+				$label_map = SearchFields_ClassifierClass::getLabelsForKeyValues($field, $values);
+				parent::_renderCriteriaParamString($param, $label_map);
+				break;
+				
 			default:
 				parent::renderCriteriaParam($param);
 				break;
@@ -811,63 +767,51 @@ class View_Classifier extends C4_AbstractView implements IAbstractView_Subtotals
 		$key = $param->field;
 		
 		switch($key) {
-			case SearchFields_Classifier::VIRTUAL_CONTEXT_LINK:
+			case SearchFields_ClassifierClass::VIRTUAL_CLASSIFIER_SEARCH:
+				echo sprintf("Classifier matches <b>%s</b>", DevblocksPlatform::strEscapeHtml($param->value));
+				break;
+			
+			case SearchFields_ClassifierClass::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
 				break;
 				
-			case SearchFields_Classifier::VIRTUAL_HAS_FIELDSET:
+			case SearchFields_ClassifierClass::VIRTUAL_HAS_FIELDSET:
 				$this->_renderVirtualHasFieldset($param);
-				break;
-				
-			case SearchFields_Classifier::VIRTUAL_OWNER:
-				$this->_renderVirtualContextLinks($param, 'Owner', 'Owners');
 				break;
 		}
 	}
 
 	function getFields() {
-		return SearchFields_Classifier::getFields();
+		return SearchFields_ClassifierClass::getFields();
 	}
 
 	function doSetCriteria($field, $oper, $value) {
 		$criteria = null;
 
 		switch($field) {
-			//case SearchFields_Classifier::OWNER_CONTEXT:
-			//case SearchFields_Classifier::OWNER_CONTEXT_ID:
-			
-			case SearchFields_Classifier::NAME:
+			case SearchFields_ClassifierClass::NAME:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 				
-			case SearchFields_Classifier::DICTIONARY_SIZE:
-			case SearchFields_Classifier::ID:
+			case SearchFields_ClassifierClass::CLASSIFIER_ID:
+			case SearchFields_ClassifierClass::DICTIONARY_SIZE:
+			case SearchFields_ClassifierClass::ID:
+			case SearchFields_ClassifierClass::TRAINING_COUNT:
 				$criteria = new DevblocksSearchCriteria($field,$oper,$value);
 				break;
 				
-			case SearchFields_Classifier::CREATED_AT:
-			case SearchFields_Classifier::UPDATED_AT:
+			case SearchFields_ClassifierClass::UPDATED_AT:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 				
-			case 'placeholder_bool':
-				$bool = DevblocksPlatform::importGPC($_POST['bool'] ?? null, 'integer',1);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$bool);
-				break;
-				
-			case SearchFields_Classifier::VIRTUAL_CONTEXT_LINK:
-				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array', []);
+			case SearchFields_ClassifierClass::VIRTUAL_CONTEXT_LINK:
+				$context_links = DevblocksPlatform::importGPC($_POST['context_link'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$context_links);
 				break;
 				
-			case SearchFields_Classifier::VIRTUAL_HAS_FIELDSET:
-				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array', []);
+			case SearchFields_ClassifierClass::VIRTUAL_HAS_FIELDSET:
+				$options = DevblocksPlatform::importGPC($_POST['options'] ?? null, 'array',[]);
 				$criteria = new DevblocksSearchCriteria($field,DevblocksSearchCriteria::OPER_IN,$options);
-				break;
-				
-			case SearchFields_Classifier::VIRTUAL_OWNER:
-				$owner_contexts = DevblocksPlatform::importGPC($_POST['owner_context'] ?? null, 'array', []);
-				$criteria = new DevblocksSearchCriteria($field,$oper,$owner_contexts);
 				break;
 				
 			default:
@@ -885,16 +829,16 @@ class View_Classifier extends C4_AbstractView implements IAbstractView_Subtotals
 	}
 };
 
-class Context_Classifier extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete { // IDevblocksContextImport
-	const ID = CerberusContexts::CONTEXT_CLASSIFIER;
-	const URI = 'classifier';
+class Context_ClassifierClass extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete { // IDevblocksContextImport
+	const ID = CerberusContexts::CONTEXT_CLASSIFIER_CLASS;
+	const URI = 'classifier_class';
 	
 	static function isReadableByActor($models, $actor) {
-		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CLASSIFIER, $models);
+		return CerberusContexts::isReadableByDelegateOwner($actor, CerberusContexts::CONTEXT_CLASSIFIER_CLASS, $models, 'classifier_owner_');
 	}
 	
 	static function isWriteableByActor($models, $actor) {
-		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_CLASSIFIER, $models);
+		return CerberusContexts::isWriteableByDelegateOwner($actor, CerberusContexts::CONTEXT_CLASSIFIER_CLASS, $models, 'classifier_owner_');
 	}
 	
 	static function isDeletableByActor($models, $actor) {
@@ -902,7 +846,7 @@ class Context_Classifier extends Extension_DevblocksContext implements IDevblock
 	}
 	
 	function getRandom() {
-		return DAO_Classifier::random();
+		return DAO_ClassifierClass::random();
 	}
 	
 	function profileGetUrl($context_id) {
@@ -910,7 +854,7 @@ class Context_Classifier extends Extension_DevblocksContext implements IDevblock
 			return '';
 	
 		$url_writer = DevblocksPlatform::services()->url();
-		$url = $url_writer->writeNoProxy('c=profiles&type=classifier&id='.$context_id, true);
+		$url = $url_writer->writeNoProxy('c=profiles&type=classifier_class&id='.$context_id, true);
 		return $url;
 	}
 	
@@ -919,15 +863,24 @@ class Context_Classifier extends Extension_DevblocksContext implements IDevblock
 		$properties = [];
 		
 		if(is_null($model))
-			$model = new Model_Classifier();
+			$model = new Model_ClassifierClass();
 		
 		$properties['name'] = array(
 			'label' => mb_ucfirst($translate->_('common.name')),
 			'type' => Model_CustomField::TYPE_LINK,
 			'value' => $model->id,
 			'params' => [
-				'context' => CerberusContexts::CONTEXT_CLASSIFIER,
+				'context' => CerberusContexts::CONTEXT_CLASSIFIER_CLASS,
 			],
+		);
+		
+		$properties['classifier_id'] = array(
+			'label' => mb_ucfirst($translate->_('common.classifier')),
+			'type' => Model_CustomField::TYPE_LINK,
+			'value' => $model->classifier_id,
+			'params' => array(
+				'context' => CerberusContexts::CONTEXT_CLASSIFIER,
+			),
 		);
 		
 		$properties['id'] = array(
@@ -936,52 +889,48 @@ class Context_Classifier extends Extension_DevblocksContext implements IDevblock
 			'value' => $model->id,
 		);
 		
-		$properties['owner'] = array(
-			'label' => mb_ucfirst($translate->_('common.owner')),
-			'type' => Model_CustomField::TYPE_LINK,
-			'value' => $model->owner_context_id,
-			'params' => [
-				'context' => $model->owner_context,
-			]
-		);
-		
-		$properties['created'] = array(
-			'label' => mb_ucfirst($translate->_('common.created')),
-			'type' => Model_CustomField::TYPE_DATE,
-			'value' => $model->created_at,
-		);
-		
 		$properties['updated'] = array(
 			'label' => DevblocksPlatform::translateCapitalized('common.updated'),
 			'type' => Model_CustomField::TYPE_DATE,
 			'value' => $model->updated_at,
 		);
 		
+		$properties['training_count'] = array(
+			'label' => mb_ucfirst($translate->_('dao.classifier_class.training_count')),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->training_count,
+		);
+		
+		$properties['dictionary_size'] = array(
+			'label' => mb_ucfirst($translate->_('dao.classifier.dictionary_size')),
+			'type' => Model_CustomField::TYPE_NUMBER,
+			'value' => $model->dictionary_size,
+		);
+		
 		return $properties;
 	}
 	
 	function getMeta($context_id) {
-		if(null == ($classifier = DAO_Classifier::get($context_id)))
+		if(null == ($classifier_class = DAO_ClassifierClass::get($context_id)))
 			return [];
 		
 		$url = $this->profileGetUrl($context_id);
-		$friendly = DevblocksPlatform::strToPermalink($classifier->name);
+		$friendly = DevblocksPlatform::strToPermalink($classifier_class->name);
 		
 		if(!empty($friendly))
 			$url .= '-' . $friendly;
 		
 		return array(
-			'id' => $classifier->id,
-			'name' => $classifier->name,
+			'id' => $classifier_class->id,
+			'name' => $classifier_class->name,
 			'permalink' => $url,
-			'updated' => $classifier->updated_at,
+			'updated' => $classifier_class->updated_at,
 		);
 	}
 	
 	function getDefaultProperties() {
 		return array(
-			'owner__label',
-			'created_at',
+			'classifier__label',
 			'updated_at',
 		);
 	}
@@ -989,44 +938,46 @@ class Context_Classifier extends Extension_DevblocksContext implements IDevblock
 	function autocomplete($term, $query=null) {
 		$list = [];
 		
-		list($results,) = DAO_Classifier::search(
-			array(),
-			array(
-				new DevblocksSearchCriteria(SearchFields_Classifier::NAME,DevblocksSearchCriteria::OPER_LIKE,'%'.$term.'%'),
-			),
-			25,
-			0,
-			SearchFields_Classifier::NAME,
-			true,
-			false
-		);
-
+		$context_ext = Extension_DevblocksContext::get(CerberusContexts::CONTEXT_CLASSIFIER_CLASS);
+		
+		$view = $context_ext->getSearchView('autocomplete_classifier');
+		$view->renderLimit = 25;
+		$view->renderPage = 0;
+		$view->renderSortBy = SearchFields_ClassifierClass::NAME;
+		$view->renderSortAsc = true;
+		$view->is_ephemeral = true;
+		
+		$view->addParamsWithQuickSearch($query, true);
+		$view->addParam(new DevblocksSearchCriteria(SearchFields_ClassifierClass::NAME,DevblocksSearchCriteria::OPER_LIKE,'%'.$term.'%'));
+		
+		list($results,) = $view->getData();
+		
 		foreach($results AS $row){
 			$entry = new stdClass();
-			$entry->label = $row[SearchFields_Classifier::NAME];
-			$entry->value = $row[SearchFields_Classifier::ID];
+			$entry->label = $row[SearchFields_ClassifierClass::NAME];
+			$entry->value = $row[SearchFields_ClassifierClass::ID];
 			$list[] = $entry;
 		}
 		
 		return $list;
 	}
 	
-	function getContext($classifier, &$token_labels, &$token_values, $prefix=null) {
+	function getContext($classifier_class, &$token_labels, &$token_values, $prefix=null) {
 		if(is_null($prefix))
-			$prefix = 'Classifier:';
+			$prefix = 'Classifier:Class:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
-		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CLASSIFIER);
+		$fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CLASSIFIER_CLASS);
 
 		// Polymorph
-		if(is_numeric($classifier)) {
-			$classifier = DAO_Classifier::get($classifier);
-		} elseif($classifier instanceof Model_Classifier) {
+		if(is_numeric($classifier_class)) {
+			$classifier_class = DAO_ClassifierClass::get($classifier_class);
+		} elseif($classifier_class instanceof Model_ClassifierClass) {
 			// It's what we want already.
-		} elseif(is_array($classifier)) {
-			$classifier = Cerb_ORMHelper::recastArrayToModel($classifier, 'Model_Classifier');
+		} elseif(is_array($classifier_class)) {
+			$classifier_class = Cerb_ORMHelper::recastArrayToModel($classifier_class, 'Model_ClassifierClass');
 		} else {
-			$classifier = null;
+			$classifier_class = null;
 		}
 		
 		// Token labels
@@ -1034,23 +985,21 @@ class Context_Classifier extends Extension_DevblocksContext implements IDevblock
 			'_label' => $prefix,
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
-			'created_at' => $prefix.$translate->_('common.created'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 				
-			'owner__label' => $prefix.$translate->_('common.owner'),
+			'classifier__label' => $prefix.$translate->_('common.classifier'),
 		);
 		
 		// Token types
 		$token_types = array(
 			'_label' => 'context_url',
-			'created_at' => Model_CustomField::TYPE_DATE,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
 				
-			'owner__label' => 'context_url',
+			'classifier__label' => 'context_url',
 		);
 		
 		// Custom field/fieldset token labels
@@ -1062,49 +1011,63 @@ class Context_Classifier extends Extension_DevblocksContext implements IDevblock
 			$token_types = array_merge($token_types, $custom_field_types);
 		
 		// Token values
-		$token_values = array();
+		$token_values = [];
 		
-		$token_values['_context'] = Context_Classifier::ID;
-		$token_values['_type'] = Context_Classifier::URI;
+		$token_values['_context'] = Context_ClassifierClass::ID;
+		$token_values['_type'] = Context_ClassifierClass::URI;
 		
 		$token_values['_types'] = $token_types;
 		
-		if($classifier) {
+		if($classifier_class) {
 			$token_values['_loaded'] = true;
-			$token_values['_label'] = $classifier->name;
-			$token_values['id'] = $classifier->id;
-			$token_values['name'] = $classifier->name;
-			$token_values['created_at'] = $classifier->created_at;
-			$token_values['updated_at'] = $classifier->updated_at;
+			$token_values['_label'] = $classifier_class->name;
+			$token_values['id'] = $classifier_class->id;
+			$token_values['name'] = $classifier_class->name;
+			$token_values['updated_at'] = $classifier_class->updated_at;
 			
-			$token_values['owner__context'] = $classifier->owner_context;
-			$token_values['owner_id'] = $classifier->owner_context_id;
+			$token_values['classifier_id'] = $classifier_class->classifier_id;
 			
 			// Custom fields
-			$token_values = $this->_importModelCustomFieldsAsValues($classifier, $token_values);
+			$token_values = $this->_importModelCustomFieldsAsValues($classifier_class, $token_values);
 			
 			// URL
 			$url_writer = DevblocksPlatform::services()->url();
-			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=classifier&id=%d-%s",$classifier->id, DevblocksPlatform::strToPermalink($classifier->name)), true);
+			$token_values['record_url'] = $url_writer->writeNoProxy(sprintf("c=profiles&type=classifier_class&id=%d-%s",$classifier_class->id, DevblocksPlatform::strToPermalink($classifier_class->name)), true);
 		}
+		
+		// Classifier
+		$merge_token_labels = [];
+		$merge_token_values = [];
+		CerberusContexts::getContext(CerberusContexts::CONTEXT_CLASSIFIER, null, $merge_token_labels, $merge_token_values, '', true);
+
+		CerberusContexts::merge(
+			'classifier_',
+			$prefix.'Classifier:',
+			$merge_token_labels,
+			$merge_token_values,
+			$token_labels,
+			$token_values
+		);
 		
 		return true;
 	}
 	
 	function getKeyToDaoFieldMap() {
 		return [
-			'created_at' => DAO_Classifier::CREATED_AT,
-			'id' => DAO_Classifier::ID,
+			'classifier_id' => DAO_ClassifierClass::CLASSIFIER_ID,
+			'id' => DAO_ClassifierClass::ID,
 			'links' => '_links',
-			'name' => DAO_Classifier::NAME,
-			'owner__context' => DAO_Classifier::OWNER_CONTEXT,
-			'owner_id' => DAO_Classifier::OWNER_CONTEXT_ID,
-			'updated_at' => DAO_Classifier::UPDATED_AT,
+			'name' => DAO_ClassifierClass::NAME,
+			'updated_at' => DAO_ClassifierClass::UPDATED_AT,
 		];
 	}
 	
 	function getKeyMeta($with_dao_fields=true) {
-		return parent::getKeyMeta($with_dao_fields);
+		$keys = parent::getKeyMeta($with_dao_fields);
+		
+		$keys['classifier_id']['notes'] = "The ID of the parent [classifier](/docs/records/types/classifier/)";
+		
+		return $keys;
 	}
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
@@ -1118,19 +1081,19 @@ class Context_Classifier extends Extension_DevblocksContext implements IDevblock
 		$lazy_keys = parent::lazyLoadGetKeys();
 		return $lazy_keys;
 	}
-
+	
 	function lazyLoadContextValues($token, $dictionary) {
 		if(!isset($dictionary['id']))
 			return;
 		
-		$context = CerberusContexts::CONTEXT_CLASSIFIER;
+		$context = CerberusContexts::CONTEXT_CLASSIFIER_CLASS;
 		$context_id = $dictionary['id'];
 		
 		$is_loaded = $dictionary['_loaded'] ?? false;
-		$values = array();
+		$values = [];
 		
 		if(!$is_loaded) {
-			$labels = array();
+			$labels = [];
 			CerberusContexts::getContext($context, $context_id, $labels, $values, null, true, true);
 		}
 		
@@ -1154,29 +1117,34 @@ class Context_Classifier extends Extension_DevblocksContext implements IDevblock
 		$defaults->is_ephemeral = true;
 
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		$view->name = 'Classifier';
-		$view->renderSortBy = SearchFields_Classifier::UPDATED_AT;
-		$view->renderSortAsc = false;
+		$view->name = 'Classifier Classes';
+		/*
+		$view->addParams(array(
+			SearchFields_ClassifierClass::UPDATED_AT => new DevblocksSearchCriteria(SearchFields_ClassifierClass::UPDATED_AT,'=',0),
+		), true);
+		*/
+		$view->renderSortBy = SearchFields_ClassifierClass::NAME;
+		$view->renderSortAsc = true;
 		$view->renderLimit = 10;
 		$view->renderTemplate = 'contextlinks_chooser';
 		
 		return $view;
 	}
 	
-	function getView($context=null, $context_id=null, $options=array(), $view_id=null) {
+	function getView($context=null, $context_id=null, $options=[], $view_id=null) {
 		$view_id = !empty($view_id) ? $view_id : str_replace('.','_',$this->id);
 		
 		$defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass());
 		$defaults->id = $view_id;
 
 		$view = C4_AbstractViewLoader::getView($view_id, $defaults);
-		$view->name = 'Classifier';
+		$view->name = 'Classifier Class';
 		
-		$params_req = array();
+		$params_req = [];
 		
 		if(!empty($context) && !empty($context_id)) {
 			$params_req = array(
-				new DevblocksSearchCriteria(SearchFields_Classifier::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
+				new DevblocksSearchCriteria(SearchFields_ClassifierClass::VIRTUAL_CONTEXT_LINK,'in',array($context.':'.$context_id)),
 			);
 		}
 		
@@ -1189,29 +1157,41 @@ class Context_Classifier extends Extension_DevblocksContext implements IDevblock
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
-		$context = CerberusContexts::CONTEXT_CLASSIFIER;
+		$context = CerberusContexts::CONTEXT_CLASSIFIER_CLASS;
 		
 		$tpl->assign('view_id', $view_id);
 		
 		$model = null;
 		
 		if($context_id) {
-			if(false == ($model = DAO_Classifier::get($context_id)))
+			if(false == ($model = DAO_ClassifierClass::get($context_id)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 		
-		if(empty($context_id) || $edit) {
+		if(!$context_id || $edit) {
 			if($model) {
-				if(!Context_Classifier::isWriteableByActor($model, $active_worker))
+				if(!Context_ClassifierClass::isWriteableByActor($model, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);
 				
-				$tpl->assign('model', $model);
+			} else {
+				$model = new Model_ClassifierClass();
+				
+				if(false != ($view = C4_AbstractViewLoader::getView($view_id))) {
+					$filters = $view->findParam(SearchFields_ClassifierClass::CLASSIFIER_ID, $view->getParams());
+					
+					if(!empty($filters)) {
+						$filter = array_shift($filters);
+						if(is_numeric($filter->value))
+							$model->classifier_id = $filter->value;
+					}
+				}
 			}
 			
-			// Owner
-			$owners_menu = Extension_DevblocksContext::getOwnerTree();
-			$tpl->assign('owners_menu', $owners_menu);
+			$tpl->assign('model', $model);
 			
+			$classifiers = DAO_Classifier::getAll();
+			$tpl->assign('classifiers', $classifiers);
+				
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);
 			$tpl->assign('custom_fields', $custom_fields);
@@ -1226,7 +1206,7 @@ class Context_Classifier extends Extension_DevblocksContext implements IDevblock
 			// View
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);
-			$tpl->display('devblocks:cerberusweb.core::internal/classifier/peek_edit.tpl');
+			$tpl->display('devblocks:cerb.classifiers::record_types/classifier/class/peek_edit.tpl');
 			
 		} else {
 			Page_Profiles::renderCard($context, $context_id, $model);

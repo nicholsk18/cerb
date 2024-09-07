@@ -782,22 +782,6 @@ if($results) {
 		$db->qstr('content')
 	));
 	
-	// Classifier training
-	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
-		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
-		$db->qstr('Training'),
-		$db->qstr(CerberusContexts::CONTEXT_CLASSIFIER),
-		$db->qstr('cerb.card.widget.classifier.trainer'),
-		$db->qstr(json_encode([
-			"classifier_id" => "{{record_id}}",
-		])),
-		time(),
-		time(),
-		2,
-		4,
-		$db->qstr('content')
-	));
-	
 	// Comment convo
 	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
 		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",

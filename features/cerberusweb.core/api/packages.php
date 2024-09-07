@@ -506,34 +506,36 @@ class Cerb_Packages {
 			}
 		}
 		
-		$classifiers = $json['classifiers'] ?? [];
-		$bayes = DevblocksPlatform::services()->bayesClassifier();
-		
-		if(is_array($classifiers))
-		foreach($classifiers as $classifier) {
-			$keys_to_require = ['uid','name','params'];
-			$diff = array_diff_key(array_flip($keys_to_require), $classifier);
-			if(count($diff))
-				throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: classifier is missing properties (%s)", implode(', ', array_keys($diff))));
+		if(($plugin = DevblocksPlatform::getPlugin('cerb.classifiers')) && $plugin->enabled) {
+			$classifiers = $json['classifiers'] ?? [];
+			$bayes = DevblocksPlatform::services()->bayesClassifier();
 			
-			$classes = $classifier['classes'] ?? null;
-			$keys_to_require = ['uid','name','expressions'];
-			
-			// Check classifications
-			if(is_array($classes))
-			foreach($classes as $class) {
-				$diff = array_diff_key(array_flip($keys_to_require), $class);
+			if(is_array($classifiers))
+			foreach($classifiers as $classifier) {
+				$keys_to_require = ['uid','name','params'];
+				$diff = array_diff_key(array_flip($keys_to_require), $classifier);
 				if(count($diff))
-					throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: classification is missing properties (%s)", implode(', ', array_keys($diff))));
+					throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: classifier is missing properties (%s)", implode(', ', array_keys($diff))));
 				
-				$expressions = $class['expressions'] ?? null;
+				$classes = $classifier['classes'] ?? null;
+				$keys_to_require = ['uid','name','expressions'];
 				
-				if(!is_array($expressions))
-					continue;
-				
-				foreach($expressions as $expression) {
-					if(!$bayes::verify($expression))
-						throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: invalid training in classifier (%s -> %s): %s", $classifier['name'], $class['name'], $expression));
+				// Check classifications
+				if(is_array($classes))
+				foreach($classes as $class) {
+					$diff = array_diff_key(array_flip($keys_to_require), $class);
+					if(count($diff))
+						throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: classification is missing properties (%s)", implode(', ', array_keys($diff))));
+					
+					$expressions = $class['expressions'] ?? null;
+					
+					if(!is_array($expressions))
+						continue;
+					
+					foreach($expressions as $expression) {
+						if(!$bayes::verify($expression))
+							throw new Exception_DevblocksValidationError(sprintf("Invalid JSON: invalid training in classifier (%s -> %s): %s", $classifier['name'], $class['name'], $expression));
+					}
 				}
 			}
 		}
@@ -1465,66 +1467,68 @@ class Cerb_Packages {
 			}
 		}
 		
-		$classifiers = $json['classifiers'] ?? [];
-		$bayes = DevblocksPlatform::services()->bayesClassifier();
-		
-		if(is_array($classifiers))
-		foreach($classifiers as $classifier) {
-			$uid = $classifier['uid'];
-			$id = $uids[$uid];
-			$classifier_id = $id;
+		if(($plugin = DevblocksPlatform::getPlugin('cerb.classifiers')) && $plugin->enabled) {
+			$classifiers = $json['classifiers'] ?? [];
+			$bayes = DevblocksPlatform::services()->bayesClassifier();
 			
-			$owner_context = @$classifier['owner__context'] ?: CerberusContexts::CONTEXT_APPLICATION;
-			$owner_context_id = @$classifier['owner_id'] ?: 0;
-			
-			DAO_Classifier::update($id, [
-				DAO_Classifier::NAME => $classifier['name'],
-				DAO_Classifier::PARAMS_JSON => isset($classifier['params']) ? json_encode($classifier['params']) : '',
-				DAO_Classifier::UPDATED_AT => time(),
-				DAO_Classifier::OWNER_CONTEXT => $owner_context,
-				DAO_Classifier::OWNER_CONTEXT_ID => $owner_context_id,
-			]);
-			
-			if(!isset($records_created[CerberusContexts::CONTEXT_CLASSIFIER]))
-				$records_created[CerberusContexts::CONTEXT_CLASSIFIER] = [];
-			
-			$records_created[CerberusContexts::CONTEXT_CLASSIFIER][$uid] = [
-				'id' => $id,
-				'label' => $classifier['name'],
-			];
-			
-			$classes = $classifier['classes'] ?? null;
-			
-			if(is_array($classes))
-			foreach($classes as $class) {
-				$uid = $class['uid'];
+			if(is_array($classifiers))
+			foreach($classifiers as $classifier) {
+				$uid = $classifier['uid'];
 				$id = $uids[$uid];
-				$class_id = $id;
+				$classifier_id = $id;
 				
-				DAO_ClassifierClass::update($id, [
-					DAO_ClassifierClass::NAME => $class['name'],
-					DAO_ClassifierClass::CLASSIFIER_ID => $classifier_id,
-					DAO_ClassifierClass::UPDATED_AT => time(),
+				$owner_context = @$classifier['owner__context'] ?: CerberusContexts::CONTEXT_APPLICATION;
+				$owner_context_id = @$classifier['owner_id'] ?: 0;
+				
+				DAO_Classifier::update($id, [
+					DAO_Classifier::NAME => $classifier['name'],
+					DAO_Classifier::PARAMS_JSON => isset($classifier['params']) ? json_encode($classifier['params']) : '',
+					DAO_Classifier::UPDATED_AT => time(),
+					DAO_Classifier::OWNER_CONTEXT => $owner_context,
+					DAO_Classifier::OWNER_CONTEXT_ID => $owner_context_id,
 				]);
 				
-				$expressions = $class['expressions'] ?? null;
+				if(!isset($records_created[CerberusContexts::CONTEXT_CLASSIFIER]))
+					$records_created[CerberusContexts::CONTEXT_CLASSIFIER] = [];
 				
-				if(!is_array($expressions))
-					continue;
+				$records_created[CerberusContexts::CONTEXT_CLASSIFIER][$uid] = [
+					'id' => $id,
+					'label' => $classifier['name'],
+				];
 				
-				foreach($expressions as $expression) {
-					DAO_ClassifierExample::create([
-						DAO_ClassifierExample::CLASSIFIER_ID => $classifier_id,
-						DAO_ClassifierExample::CLASS_ID => $class_id,
-						DAO_ClassifierExample::EXPRESSION => $expression,
-						DAO_ClassifierExample::UPDATED_AT => time(),
+				$classes = $classifier['classes'] ?? null;
+				
+				if(is_array($classes))
+				foreach($classes as $class) {
+					$uid = $class['uid'];
+					$id = $uids[$uid];
+					$class_id = $id;
+					
+					DAO_ClassifierClass::update($id, [
+						DAO_ClassifierClass::NAME => $class['name'],
+						DAO_ClassifierClass::CLASSIFIER_ID => $classifier_id,
+						DAO_ClassifierClass::UPDATED_AT => time(),
 					]);
 					
-					$bayes::train($expression, $classifier_id, $class_id, true);
+					$expressions = $class['expressions'] ?? null;
+					
+					if(!is_array($expressions))
+						continue;
+					
+					foreach($expressions as $expression) {
+						DAO_ClassifierExample::create([
+							DAO_ClassifierExample::CLASSIFIER_ID => $classifier_id,
+							DAO_ClassifierExample::CLASS_ID => $class_id,
+							DAO_ClassifierExample::EXPRESSION => $expression,
+							DAO_ClassifierExample::UPDATED_AT => time(),
+						]);
+						
+						Model_Classifier::train($expression, $classifier_id, $class_id, true);
+					}
 				}
+				
+				Model_Classifier::build($classifier_id);
 			}
-			
-			$bayes::build($classifier_id);
 		}
 		
 		$project_boards = $json['project_boards'] ?? [];

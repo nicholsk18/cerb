@@ -700,7 +700,7 @@ class View_ClassifierEntity extends C4_AbstractView implements IAbstractView_Sub
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_CLASSIFIER_ENTITY);
 		$tpl->assign('custom_fields', $custom_fields);
 
-		$tpl->assign('view_template', 'devblocks:cerberusweb.core::internal/classifier/entity/view.tpl');
+		$tpl->assign('view_template', 'devblocks:cerb.classifiers::record_types/classifier/entity/view.tpl');
 		$tpl->display('devblocks:cerberusweb.core::internal/views/subtotals_and_view.tpl');
 	}
 
@@ -1101,7 +1101,7 @@ class Context_ClassifierEntity extends Extension_DevblocksContext implements IDe
 			// View
 			$tpl->assign('id', $context_id);
 			$tpl->assign('view_id', $view_id);
-			$tpl->display('devblocks:cerberusweb.core::internal/classifier/entity/peek_edit.tpl');
+			$tpl->display('devblocks:cerb.classifiers::record_types/classifier/entity/peek_edit.tpl');
 			
 		} else {
 			Page_Profiles::renderCard($context, $context_id, $model);

@@ -35,25 +35,13 @@ $db->ExecuteMaster(sprintf("INSERT IGNORE INTO devblocks_setting (plugin_id, set
 $db->ExecuteMaster(sprintf("INSERT IGNORE INTO devblocks_setting (plugin_id, setting, value) VALUES (%s, %s, %s)",
 	$db->qstr('cerberusweb.core'),
 	$db->qstr('card:search:cerberusweb.contexts.bot'),
-	$db->qstr('[{"context":"cerberusweb.contexts.behavior","label_singular":"","label_plural":"","query":"bot.id:{{id}}"},{"context":"cerberusweb.contexts.classifier","label_singular":"","label_plural":"","query":"owner.bot:(id:{{id}})"}]')
+	$db->qstr('[{"context":"cerberusweb.contexts.behavior","label_singular":"","label_plural":"","query":"bot.id:{{id}}"}]')
 ));
 
 $db->ExecuteMaster(sprintf("INSERT IGNORE INTO devblocks_setting (plugin_id, setting, value) VALUES (%s, %s, %s)",
 	$db->qstr('cerberusweb.core'),
 	$db->qstr('card:search:cerberusweb.contexts.calendar'),
 	$db->qstr('[{"context":"cerberusweb.contexts.calendar_event","label_singular":"Event","label_plural":"Events","query":"calendar.id:{{id}}"},{"context":"cerberusweb.contexts.calendar_event.recurring","label_singular":"Recurring Event","label_plural":"Recurring Events","query":"calendar.id:{{id}}"}]')
-));
-
-$db->ExecuteMaster(sprintf("INSERT IGNORE INTO devblocks_setting (plugin_id, setting, value) VALUES (%s, %s, %s)",
-	$db->qstr('cerberusweb.core'),
-	$db->qstr('card:search:cerberusweb.contexts.classifier'),
-	$db->qstr('[{"context":"cerberusweb.contexts.classifier.class","label_singular":"Classification","label_plural":"Classifications","query":"classifier.id:{{id}}"},{"context":"cerberusweb.contexts.classifier.example","label_singular":"Example","label_plural":"Examples","query":"classifier.id:{{id}}"}]')
-));
-
-$db->ExecuteMaster(sprintf("INSERT IGNORE INTO devblocks_setting (plugin_id, setting, value) VALUES (%s, %s, %s)",
-	$db->qstr('cerberusweb.core'),
-	$db->qstr('card:search:cerberusweb.contexts.classifier.class'),
-	$db->qstr('[{"context":"cerberusweb.contexts.classifier.example","label_singular":"Example","label_plural":"Examples","query":"classifier.id:{{classifier_id}} class.id:{{id}}"}]')
 ));
 
 $db->ExecuteMaster(sprintf("INSERT IGNORE INTO devblocks_setting (plugin_id, setting, value) VALUES (%s, %s, %s)",

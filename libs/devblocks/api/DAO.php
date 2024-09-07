@@ -788,11 +788,13 @@ abstract class DevblocksORMHelper {
 		));
 		
 		// Merge classifier owners
-		$db->ExecuteMaster(sprintf("UPDATE classifier SET owner_context_id = %d WHERE owner_context = %s AND owner_context_id IN (%s)",
-			$to_id,
-			$db->qstr($context),
-			implode(',', $from_ids)
-		));
+		if(DevblocksPlatform::isPluginEnabled('cerb.classifiers')) {
+			$db->ExecuteMaster(sprintf("UPDATE classifier SET owner_context_id = %d WHERE owner_context = %s AND owner_context_id IN (%s)",
+				$to_id,
+				$db->qstr($context),
+				implode(',', $from_ids)
+			));
+		}
 		
 		// Merge comment targets
 		$db->ExecuteMaster(sprintf("UPDATE comment SET context_id = %d WHERE context = %s AND context_id IN (%s)",

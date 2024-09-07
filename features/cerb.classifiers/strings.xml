@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE tmx PUBLIC "-//LISA OSCAR:1998//DTD for Translation Memory eXchange//EN" "tmx14.dtd">
+<tmx version="1.4">
+	<header creationtool="Cerb" creationtoolversion="6.8.7" srclang="en_US" adminlang="en" datatype="unknown" o-tmf="unknown" segtype="sentence" creationid="" creationdate=""/>
+	<body>
+		<!-- Classifier -->
+
+		<tu tuid='dao.classifier.dictionary_size'>
+			<tuv xml:lang="en_US"><seg>Dictionary Size</seg></tuv>
+		</tu>
+
+		<!-- Classifier Class -->
+
+		<tu tuid='dao.classifier_class.training_count'>
+			<tuv xml:lang="en_US"><seg>Training Count</seg></tuv>
+		</tu>
+
+		<!-- Classifier Example -->
+
+		<tu tuid='dao.classifier_example.expression'>
+			<tuv xml:lang="en_US"><seg>Expression</seg></tuv>
+		</tu>
+	</body>
+</tmx>

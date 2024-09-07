@@ -36,14 +36,14 @@ class CardWidget_ClassifierTrainer extends Extension_CardWidget {
 
 		$tpl->assign('is_writeable', Context_Classifier::isWriteableByActor($classifier, $active_worker));
 		$tpl->assign('widget', $model);
-		$tpl->display('devblocks:cerberusweb.core::internal/cards/widgets/classifier_trainer/render.tpl');
+		$tpl->display('devblocks:cerb.classifiers::cards/widgets/classifier_trainer/render.tpl');
 	}
 	
 	function renderConfig(Model_CardWidget $model) {
 		$tpl = DevblocksPlatform::services()->template();
 		
 		$tpl->assign('widget', $model);
-		$tpl->display('devblocks:cerberusweb.core::internal/cards/widgets/classifier_trainer/config.tpl');
+		$tpl->display('devblocks:cerb.classifiers::cards/widgets/classifier_trainer/config.tpl');
 	}
 	
 	function invokeConfig($action, Model_CardWidget $model) {

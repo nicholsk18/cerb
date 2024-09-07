@@ -34,7 +34,7 @@ class BotAction_ClassifierPrediction extends Extension_DevblocksEventAction {
 		if(!is_null($seq))
 			$tpl->assign('namePrefix', 'action'.$seq);
 		
-		$tpl->display('devblocks:cerberusweb.core::internal/decisions/actions/_action_classifier_prediction.tpl');
+		$tpl->display('devblocks:cerb.classifiers::decisions/actions/_action_classifier_prediction.tpl');
 	}
 	
 	function simulate($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
@@ -73,7 +73,6 @@ class BotAction_ClassifierPrediction extends Extension_DevblocksEventAction {
 	
 	function run($token, Model_TriggerEvent $trigger, $params, DevblocksDictionaryDelegate $dict) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
-		$bayes = DevblocksPlatform::services()->bayesClassifier();
 		
 		$classifier_id = $params['classifier_id'] ?? null;
 		$content = $tpl_builder->build($params['content'] ?? '', $dict);
@@ -87,7 +86,7 @@ class BotAction_ClassifierPrediction extends Extension_DevblocksEventAction {
 		if(false != ($active_worker = CerberusApplication::getActiveWorker()))
 			$environment['me'] = ['context' => CerberusContexts::CONTEXT_WORKER, 'id' => $active_worker->id, 'model' => $active_worker];
 		
-		if(false === ($result = $bayes::predict($content, $classifier_id, $environment)))
+		if(false === ($result = Model_Classifier::predict($content, $classifier_id, $environment)))
 			return;
 		
 		// Set placeholder with object meta

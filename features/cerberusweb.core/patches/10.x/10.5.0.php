@@ -499,6 +499,14 @@ if(($id = $db->GetOneMaster("SELECT id FROM card_widget WHERE name = 'Public Key
 }
 
 // ===========================================================================
+// Enable the new classifiers plugin by default on upgrades
+
+if($revision < 1467) { // 10.5
+	$plugin_classifiers = DevblocksPlatform::getPlugin('cerb.classifiers');
+	$plugin_classifiers->setEnabled(true);
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
