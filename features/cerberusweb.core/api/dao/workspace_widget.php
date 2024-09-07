@@ -1216,6 +1216,7 @@ class Context_WorkspaceWidget extends Extension_DevblocksContext implements IDev
 			'extension_id' => DAO_WorkspaceWidget::EXTENSION_ID,
 			'label' => DAO_WorkspaceWidget::LABEL,
 			'links' => '_links',
+			'options_kata' => DAO_WorkspaceWidget::OPTIONS_KATA,
 			'pos' => DAO_WorkspaceWidget::POS,
 			'tab_id' => DAO_WorkspaceWidget::WORKSPACE_TAB_ID,
 			'updated_at' => DAO_WorkspaceWidget::UPDATED_AT,

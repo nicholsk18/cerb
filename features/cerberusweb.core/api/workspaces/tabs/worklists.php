@@ -99,17 +99,20 @@ class WorkspaceTab_Worklists extends Extension_WorkspaceTab {
 	}
 	
 	function exportTabConfigJson(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
-		$json = array(
-			'tab' => array(
+		$json = [
+			'tab' => [
 				'uid' => 'workspace_tab_' . $tab->id,
 				'_context' => CerberusContexts::CONTEXT_WORKSPACE_TAB,
 				'name' => $tab->name,
 				'extension_id' => $tab->extension_id,
 				'pos' => $tab->pos,
 				'params' => $tab->params,
-				'worklists' => array(),
-			),
-		);
+				'worklists' => [],
+			],
+		];
+		
+		if($tab->options_kata)
+			$json['tab']['options_kata'] = $tab->options_kata;
 		
 		$worklists = DAO_WorkspaceList::getByTab($tab->id);
 		

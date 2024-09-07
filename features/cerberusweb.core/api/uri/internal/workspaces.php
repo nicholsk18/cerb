@@ -87,6 +87,7 @@ class WorkspacePage_Workspace extends Extension_WorkspacePage {
 				DAO_WorkspaceTab::POS => $pos,
 				DAO_WorkspaceTab::WORKSPACE_PAGE_ID => $page->id,
 				DAO_WorkspaceTab::PARAMS_JSON => json_encode($params),
+				DAO_WorkspaceTab::OPTIONS_KATA => $tab_json['options_kata'] ?? '',
 			));
 			
 			if(empty($tab_id) || null == ($tab = DAO_WorkspaceTab::get($tab_id)))

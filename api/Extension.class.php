@@ -462,6 +462,9 @@ abstract class Extension_ProfileWidget extends DevblocksExtension {
 			]
 		];
 		
+		if($widget->options_kata)
+			$widget_json['widget']['options_kata'] = $widget->options_kata;
+		
 		return json_encode($widget_json);
 	}
 };
@@ -594,6 +597,9 @@ abstract class Extension_CardWidget extends DevblocksExtension {
 				'extension_params' => $widget->extension_params,
 			]
 		];
+		
+		if($widget->options_kata)
+			$widget_json['widget']['options_kata'] = $widget->options_kata;
 		
 		return json_encode($widget_json);
 	}
@@ -2174,6 +2180,9 @@ abstract class Extension_WorkspaceWidget extends DevblocksExtension {
 				'params' => $widget->params,
 			]
 		];
+		
+		if($widget->options_kata)
+			$widget_json['widget']['options_kata'] = $widget->options_kata;
 		
 		return json_encode($widget_json);
 	}

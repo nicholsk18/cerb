@@ -119,17 +119,20 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 	}
 	
 	function exportTabConfigJson(Model_WorkspacePage $page, Model_WorkspaceTab $tab) {
-		$json = array(
-			'tab' => array(
+		$json = [
+			'tab' => [
 				'uid' => 'workspace_tab_' . $tab->id,
 				'_context' => CerberusContexts::CONTEXT_WORKSPACE_TAB,
 				'name' => $tab->name,
 				'extension_id' => $tab->extension_id,
 				'pos' => $tab->pos,
 				'params' => $tab->params,
-				'widgets' => array(),
-			),
-		);
+				'widgets' => [],
+			],
+		];
+		
+		if($tab->options_kata)
+			$json['tab']['options_kata'] = $tab->options_kata;
 		
 		$widgets = DAO_WorkspaceWidget::getByTab($tab->id);
 		
@@ -168,6 +171,7 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 				DAO_WorkspaceWidget::EXTENSION_ID => $widget['extension_id'],
 				DAO_WorkspaceWidget::POS => $widget['pos'],
 				DAO_WorkspaceWidget::PARAMS_JSON => json_encode($widget['params']),
+				DAO_WorkspaceWidget::OPTIONS_KATA => $widget['options_kata'] ?? '',
 				DAO_WorkspaceWidget::WORKSPACE_TAB_ID => $tab->id,
 				DAO_WorkspaceWidget::WIDTH_UNITS => @$widget['width_units'] ?: 2,
 				DAO_WorkspaceWidget::ZONE => @$widget['zone'] ?: '',

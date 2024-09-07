@@ -237,6 +237,7 @@ class PageSection_ProfilesWorkspaceTab extends Extension_PageSection {
 							DAO_WorkspaceTab::POS => $index,
 							DAO_WorkspaceTab::EXTENSION_ID => $json['tab']['extension_id'],
 							DAO_WorkspaceTab::PARAMS_JSON => json_encode($json['tab']['params']),
+							DAO_WorkspaceTab::OPTIONS_KATA => $json['tab']['options_kata'] ?? '',
 							DAO_WorkspaceTab::WORKSPACE_PAGE_ID => $workspace_page_id,
 						];
 						

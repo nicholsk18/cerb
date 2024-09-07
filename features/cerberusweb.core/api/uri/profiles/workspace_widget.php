@@ -201,7 +201,8 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 							DAO_WorkspaceWidget::POS => @$widget_json['widget']['pos'] ?: 0,
 							DAO_WorkspaceWidget::WIDTH_UNITS => @$widget_json['widget']['width_units'] ?: 4,
 							DAO_WorkspaceWidget::ZONE => @$widget_json['widget']['zone'] ?: '',
-							DAO_WorkspaceWidget::PARAMS_JSON => json_encode($widget_json['widget']['params'])
+							DAO_WorkspaceWidget::PARAMS_JSON => json_encode($widget_json['widget']['params']),
+							DAO_WorkspaceWidget::OPTIONS_KATA => $widget_json['widget']['options_kata'] ?? '',
 						];
 						
 						$error = null;
