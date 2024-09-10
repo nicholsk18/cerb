@@ -67,7 +67,6 @@ define('STEP_DEFAULTS', 7);
 define('STEP_PACKAGES', 8);
 define('STEP_REGISTER', 9);
 define('STEP_UPGRADE', 10);
-define('STEP_FINISHED', 11);
 
 define('TOTAL_STEPS', 11);
 
@@ -904,26 +903,15 @@ switch($step) {
 		break;
 		
 	case STEP_REGISTER:
-		$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'] ?? null, 'integer');
 		$skip = DevblocksPlatform::importGPC($_POST['skip'] ?? null, 'integer',0);
 		
-		if(!empty($form_submit)) {
-			$tpl->assign('step', STEP_FINISHED);
-			$tpl->display('steps/redirect.tpl');
-			exit;
-		}
+		@unlink(APP_TEMP_PATH . '/setup.json');
 		
 		$tpl->assign('template', 'steps/step_register.tpl');
 		break;
 		
 	case STEP_UPGRADE:
 		$tpl->assign('template', 'steps/step_upgrade.tpl');
-		break;
-		
-	case STEP_FINISHED:
-		@unlink(APP_TEMP_PATH . '/setup.json');
-		
-		$tpl->assign('template', 'steps/step_finished.tpl');
 		break;
 }
 

@@ -4,7 +4,7 @@
 <input type="hidden" name="step" value="{$smarty.const.STEP_LICENSE}">
 <input type="hidden" name="form_submit" value="1">
 
-<div style="width:90%;height:400px;border:1px solid rgb(160,160,160);overflow:auto;margin:5px;padding:5px;">
+<div class="cerb-license-box">
 	<h1 id="devblocks-public-license-1.0-dpl"
 	>Devblocks Public License 1.0 (DPL)</h1
 	><p

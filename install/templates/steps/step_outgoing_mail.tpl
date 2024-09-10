@@ -30,26 +30,26 @@ received.<br>
 
 <h3>Mail Transport</h3>
 
-<b>Type:</b>
+<b>Type:</b> (you can change this later)
 
 <div style="margin:5px 0px 0px 5px;">
 	<div>
 		<label>
-			<input type="radio" name="extension_id" value="core.mail.transport.smtp" {if empty($extension_id) || $extension_id=="core.mail.transport.smtp"}checked="checked"{/if}> <b>SMTP</b>
-			<div style="margin-left:15px;">This sends outgoing mail through a live SMTP server. Use this for production environments.</div>
+			<input type="radio" name="extension_id" value="core.mail.transport.null" {if empty($extension_id) || $extension_id=="core.mail.transport.null"}checked="checked"{/if}> <b>None</b>
+			<div style="margin-left:15px;">This discards all outgoing mail without sending it.  This is often desirable in development, testing, or evaluation environments.</div>
 		</label>
 	</div>
-	
+
 	<div>
 		<label>
-			<input type="radio" name="extension_id" value="core.mail.transport.null" {if $extension_id=="core.mail.transport.null"}checked="checked"{/if}> <b>None</b>
-			<div style="margin-left:15px;">This discards all outgoing mail without sending it.  This is often desirable in development, testing, or evaluation environments.</div>
+			<input type="radio" name="extension_id" value="core.mail.transport.smtp" {if $extension_id=="core.mail.transport.smtp"}checked="checked"{/if}> <b>SMTP</b>
+			<div style="margin-left:15px;">This sends outgoing mail through a live SMTP server. Use this for production environments.</div>
 		</label>
 	</div>
 </div>
 <br>
 
-<div id="cerb-installer-smtp-details" style="{if $extension_id=="core.mail.transport.null"}display:none;{/if}">
+<div id="cerb-installer-smtp-details" style="{if $extension_id != "core.mail.transport.null"}display:none;{/if}">
 	<b>Host:</b><br>
 	<input type="text" name="smtp_host" value="{$smtp_host|default:'localhost'}" size="45"><br>
 	<br>

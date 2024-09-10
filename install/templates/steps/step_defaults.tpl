@@ -6,8 +6,6 @@
 <input type="hidden" name="step" value="{$smarty.const.STEP_DEFAULTS}">
 <input type="hidden" name="form_submit" value="1">
 
-<h3>Your Account</h3>
-
 Next, we'll create your administrator account.<br>
 <br>
 

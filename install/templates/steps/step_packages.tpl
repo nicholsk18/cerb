@@ -15,18 +15,18 @@
 <div style="margin:5px 0px 0px 5px;">
 	<div style="margin-bottom:5px;">
 		<label>
-			<input type="radio" name="package" value="standard" {if !$package || $package=="standard"}checked="checked"{/if}> <b>Production</b>
+			<input type="radio" name="package" value="demo" {if !$package || $package=="demo"}checked="checked"{/if}> <b>Demo</b>
 			<div style="margin-left:25px;">
-				Cerb will be configured for real-world use.
+				Cerb will be configured for demonstration, development, and testing.
 			</div>
 		</label>
 	</div>
 	
 	<div style="margin-bottom:5px;">
 		<label>
-			<input type="radio" name="package" value="demo" {if $package=="demo"}checked="checked"{/if}> <b>Demo</b>
+			<input type="radio" name="package" value="standard" {if $package=="standard"}checked="checked"{/if}> <b>Production</b>
 			<div style="margin-left:25px;">
-				Cerb will be configured for demonstration, development, and testing.
+				Cerb will be configured for real-world use.
 			</div>
 		</label>
 	</div>
