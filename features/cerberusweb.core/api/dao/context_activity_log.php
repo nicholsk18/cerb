@@ -426,11 +426,14 @@ class DAO_ContextActivityLog extends Cerb_ORMHelper {
 			
 		$db = DevblocksPlatform::services()->database();
 		
-		$db->ExecuteMaster(sprintf("DELETE FROM context_activity_log WHERE (actor_context = %s AND actor_context_id IN (%s)) OR (target_context = %s AND target_context_id IN (%s)) ",
+		$db->ExecuteMaster(sprintf("DELETE FROM context_activity_log WHERE actor_context = %s AND actor_context_id IN (%s)",
 			$db->qstr($context),
 			implode(',', $context_ids),
+		));
+		
+		$db->ExecuteMaster(sprintf("DELETE FROM context_activity_log WHERE target_context = %s AND target_context_id IN (%s)",
 			$db->qstr($context),
-			implode(',', $context_ids)
+			implode(',', $context_ids),
 		));
 		
 		return true;

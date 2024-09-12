@@ -518,7 +518,7 @@ class DAO_Message extends Cerb_ORMHelper {
 			return;
 		
 		// Batch delete messages by groups of tickets
-		foreach(array_chunk($ticket_ids, 25) as $batch_ids) {
+		foreach(array_chunk($ticket_ids, 50) as $batch_ids) {
 			if(!($batch_ids = DevblocksPlatform::sanitizeArray($batch_ids, 'int')))
 				continue;
 			
@@ -1601,23 +1601,27 @@ class Storage_MessageContent extends Extension_DevblocksStorageSchema {
 		if(!is_array($ids)) $ids = [$ids];
 		$ids = DevblocksPlatform::sanitizeArray($ids, 'int');
 		
-		$sql = sprintf("SELECT storage_extension, storage_key, storage_profile_id FROM message WHERE id IN (%s)", implode(',',$ids));
-
-		if(!($rs = $db->ExecuteMaster($sql)))
-			return false;
+		// Get distinct storage extensions and run them at once
+		$sql = sprintf("SELECT DISTINCT storage_extension, storage_profile_id FROM message WHERE id IN (%s)", implode(',',$ids));
+		$extension_pairs = $db->GetArrayMaster($sql);
 		
-		// Delete the physical files
-		
-		if(!($rs instanceof mysqli_result))
-			return false;
-		
-		while($row = mysqli_fetch_assoc($rs)) {
-			$profile = !empty($row['storage_profile_id']) ? $row['storage_profile_id'] : $row['storage_extension'];
-			if(null != ($storage = DevblocksPlatform::getStorageService($profile)))
-				$storage->delete('message_content', $row['storage_key']);
+		foreach($extension_pairs as $extension_pair) {
+			$profile = !empty($extension_pair['storage_profile_id']) ? $extension_pair['storage_profile_id'] : $extension_pair['storage_extension'];
+			
+			if(!($storage = DevblocksPlatform::getStorageService($profile)))
+				continue;
+			
+			$sql = sprintf("SELECT storage_key FROM message WHERE storage_extension = %s AND storage_profile_id = %d AND id IN (%s)",
+				$db->qstr($extension_pair['storage_extension']),
+				$extension_pair['storage_profile_id'],
+				implode(',',$ids)
+			);
+			
+			if(!($results = $db->GetArrayMaster($sql)))
+				continue;
+			
+			$storage->batchDelete('message_content', array_column($results, 'storage_key'));
 		}
-		
-		mysqli_free_result($rs);
 		
 		return true;
 	}

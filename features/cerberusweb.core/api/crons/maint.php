@@ -17,7 +17,7 @@ class MaintCron extends CerberusCronPageExtension {
 		// Purge deleted records past the undo window
 		$purge_wait_days = intval($this->getParam('purge_waitdays', 7));
 		$purge_wait_before = time() - ($purge_wait_days * 86400);
-		DAO_Ticket::deleteAfterUndoWait($purge_wait_before, 1_000);
+		DAO_Ticket::deleteAfterUndoWait($purge_wait_before, 1_500);
 		
 		// Give plugins a chance to run maintenance (nuke NULL rows, etc.)
 		$eventMgr = DevblocksPlatform::services()->event();

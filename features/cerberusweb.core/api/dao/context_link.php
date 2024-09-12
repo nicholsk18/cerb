@@ -496,9 +496,13 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 		if(empty($ids))
 			return;
 		
-		$sql = sprintf("DELETE FROM context_link WHERE (from_context = %s AND from_context_id IN (%s)) OR (to_context = %s AND to_context_id IN (%s))",
+		$sql = sprintf("DELETE FROM context_link WHERE from_context = %s AND from_context_id IN (%s)",
 			$db->qstr($context),
-			$ids,
+			$ids
+		);
+		$db->ExecuteMaster($sql);
+		
+		$sql = sprintf("DELETE FROM context_link WHERE to_context = %s AND to_context_id IN (%s)",
 			$db->qstr($context),
 			$ids
 		);

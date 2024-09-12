@@ -438,6 +438,21 @@ class DevblocksStorageEngineDatabase extends Extension_DevblocksStorageEngine {
 		
 		return (bool)$result;
 	}
+	
+	public function batchDelete($namespace, $keys) {
+		if(!is_array($keys) || !$keys)
+			return true;
+		
+		$ids = DevblocksPlatform::sanitizeArray($keys, 'int');
+		
+		$sql = sprintf("DELETE FROM storage_%s WHERE id IN (%s)",
+			$this->escapeNamespace($namespace),
+			implode(',', $ids)
+		);
+		$result = mysqli_query($this->_master_db, $sql);
+		
+		return (bool)$result;
+	}
 };
 
 class DevblocksStorageEngineS3 extends Extension_DevblocksStorageEngine {
