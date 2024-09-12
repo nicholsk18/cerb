@@ -1,9 +1,9 @@
 {
   "package": {
     "name": "Page Wizard: Home Overview",
-    "revision": 1,
+    "revision": 2,
     "requires": {
-      "cerb_version": "9.4.0",
+      "cerb_version": "10.5.0",
       "plugins": [
 
       ]
@@ -183,6 +183,145 @@
       "zone": "content",
       "params": {
         "calendar_id": "{{current_worker_calendar_id}}"
+      }
+    },
+    {
+      "uid": "workspace_tab_open",
+      "_context": "workspace_tab",
+      "name": "Open",
+      "page_id": "{{{uid.workspace_home}}}",
+      "pos": 1,
+      "extension_id": "core.workspace.tab.dashboard",
+      "params": {
+        "layout": ""
+      }
+    },
+    {
+      "uid": "workspace_widget_open_tickets",
+      "_context": "cerberusweb.contexts.workspace.widget",
+      "tab_id": "{{{uid.workspace_tab_open}}}",
+      "label": "Open Tickets",
+      "extension_id": "core.workspace.widget.worklist",
+      "pos": 1,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "context": "cerberusweb.contexts.ticket",
+        "query_required": "status:o",
+        "query": "",
+        "render_limit": "10",
+        "header_color": "#6a87db",
+        "columns": [
+          "t_last_wrote_address_id",
+          "t_group_id",
+          "t_bucket_id",
+          "t_owner_id",
+          "t_updated_date"
+        ]
+      }
+    },
+    {
+      "uid": "workspace_widget_open_tasks",
+      "_context": "cerberusweb.contexts.workspace.widget",
+      "tab_id": "{{{uid.workspace_tab_open}}}",
+      "label": "Open Tasks",
+      "extension_id": "core.workspace.widget.worklist",
+      "pos": 2,
+      "width_units": 2,
+      "zone": "content",
+      "params": {
+        "context": "cerberusweb.contexts.task",
+        "query_required": "status:o",
+        "query": "",
+        "render_limit": "10",
+        "header_color": "#6a87db",
+        "columns": [
+          "t_due_date",
+          "t_importance",
+          "t_updated_date"
+        ]
+      }
+    },
+    {
+      "uid": "workspace_tab_waiting",
+      "_context": "workspace_tab",
+      "name": "Waiting",
+      "page_id": "{{{uid.workspace_home}}}",
+      "pos": 2,
+      "extension_id": "core.workspace.tab.dashboard",
+      "params": {
+        "layout": ""
+      }
+    },
+    {
+      "uid": "workspace_widget_waiting_tasks",
+      "_context": "cerberusweb.contexts.workspace.widget",
+      "tab_id": "{{{uid.workspace_tab_waiting}}}",
+      "label": "Waiting Tasks",
+      "extension_id": "core.workspace.widget.worklist",
+      "pos": 1,
+      "width_units": 2,
+      "zone": "content",
+      "params": {
+        "context": "cerberusweb.contexts.task",
+        "query_required": "status:w",
+        "query": "",
+        "render_limit": "10",
+        "header_color": "#6a87db",
+        "columns": [
+          "t_due_date",
+          "t_owner_id",
+          "t_importance",
+          "t_reopen_at"
+        ]
+      }
+    },
+    {
+      "uid": "workspace_widget_waiting_tickets",
+      "_context": "cerberusweb.contexts.workspace.widget",
+      "tab_id": "{{{uid.workspace_tab_waiting}}}",
+      "label": "Tickets waiting for a client response",
+      "extension_id": "core.workspace.widget.worklist",
+      "pos": 2,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "context": "cerberusweb.contexts.ticket",
+        "query_required": "status:w reopen:0",
+        "query": "",
+        "render_limit": "10",
+        "header_color": "#6a87db",
+        "columns": [
+          "t_last_wrote_address_id",
+          "t_group_id",
+          "t_bucket_id",
+          "t_owner_id",
+          "t_updated_date"
+        ]
+      }
+    },
+    {
+      "uid": "workspace_widget_waiting_tickets_reopen",
+      "_context": "cerberusweb.contexts.workspace.widget",
+      "tab_id": "{{{uid.workspace_tab_waiting}}}",
+      "label": "Tickets waiting for a specific time",
+      "extension_id": "core.workspace.widget.worklist",
+      "pos": 3,
+      "width_units": 4,
+      "zone": "content",
+      "params": {
+        "context": "cerberusweb.contexts.ticket",
+        "query_required": "status:w reopen:\"-10 years to +20 years\"",
+        "query": "",
+        "render_limit": "10",
+        "header_color": "#6a87db",
+        "columns": [
+          "t_last_wrote_address_id",
+          "t_group_id",
+          "t_bucket_id",
+          "t_owner_id",
+          "t_reopen_at"
+        ]
       }
     }
   ]
