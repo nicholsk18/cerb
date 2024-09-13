@@ -2289,7 +2289,6 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		$logger = DevblocksPlatform::services()->log();
 		
 		$deleted_count = 0;
-		$batch_size = 100;
 		
 		do {
 			$sql = sprintf("SELECT id FROM ticket ".
@@ -2298,7 +2297,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 				"LIMIT %d",
 				Model_Ticket::STATUS_DELETED,
 				$purge_wait_before,
-				$batch_size
+				$limit
 			);
 			
 			if(!($delete_ids = $db->GetArrayMaster($sql)))
