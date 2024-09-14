@@ -512,6 +512,12 @@ class DevblocksDictionaryDelegate implements JsonSerializable, IteratorAggregate
 	}
 	
 	public static function instance($values) {
+		if($values instanceof DevblocksDictionaryDelegate)
+			return $values;
+		
+		if(!is_array($values))
+			$values = [];
+		
 		return new DevblocksDictionaryDelegate($values);
 	}
 	

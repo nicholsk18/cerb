@@ -647,7 +647,7 @@ class CerberusApplication extends DevblocksApplication {
 		}
 	}
 	
-	static function sendEmailTemplate($email, $template_id, $values) {
+	static function sendEmailTemplate($email, $template_id, $values) : bool {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$sender_addresses = DAO_Address::getLocalAddresses();
 		
@@ -659,7 +659,7 @@ class CerberusApplication extends DevblocksApplication {
 		
 		$default_template = $default_templates[$template_id] ?? [];
 		
-		if(false == ($template = $templates[$template_id] ?? null))
+		if(!($template = $templates[$template_id] ?? null))
 			$template = $default_template;
 
 		$send_from_id = ($template['send_from_id'] ?? null) ?: ($default_template['send_from_id'] ?? null);
@@ -667,7 +667,7 @@ class CerberusApplication extends DevblocksApplication {
 		$subject = ($template['subject'] ?? null) ?: ($default_template['subject'] ?? null);
 		$body = ($template['body'] ?? null) ?: ($default_template['body'] ?? null);
 		
-		if(!$send_from_id || false == (@$send_from = $sender_addresses[$send_from_id]))
+		if(!$send_from_id || !(@$send_from = $sender_addresses[$send_from_id]))
 			$send_from = DAO_Address::getDefaultLocalAddress();
 		
 		$send_as = $tpl_builder->build($send_as, $values);

@@ -78,7 +78,7 @@ class DevblocksUiEventHandler {
 			return false;
 		
 		foreach($handlers as $handler_key => $handler_data) {
-			if(!$this->_isHandlerEnabled($handler_data))
+			if(!is_array($handler_data) || !$this->_isHandlerEnabled($handler_data))
 				continue;
 			
 			list($handler_type, $handler_name) = array_pad(explode('/', $handler_key, 2), 2, null);

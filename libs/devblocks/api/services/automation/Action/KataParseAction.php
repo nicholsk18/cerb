@@ -55,15 +55,6 @@ class KataParseAction extends AbstractAction {
 			if(false === ($validation->validateAll($inputs, $error)))
 				throw new Exception_DevblocksAutomationError($error);
 			
-			$action_dict = DevblocksDictionaryDelegate::instance([
-				'node' => [
-					'id' => $this->node->getId(),
-					'type' => self::ID,
-				],
-				'inputs' => $inputs,
-				'output' => $output,
-			]);
-			
 			$kata_string = $inputs['kata'] ?? null;
 			$kata_dict = $inputs['dict'] ?? [];
 			$kata_schema = $inputs['schema'] ?? null;

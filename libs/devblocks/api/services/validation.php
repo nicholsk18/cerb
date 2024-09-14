@@ -1077,7 +1077,7 @@ class _DevblocksValidationService {
 				break;
 				
 			case '_DevblocksValidationTypeArray':
-				if(!is_array($value)) {
+				if(!is_array($value) && !($value instanceof DevblocksDictionaryDelegate)) {
 					throw new Exception_DevblocksValidationError(sprintf("'%s' must be an array.", $field_label));
 				}
 				break;
@@ -1178,7 +1178,7 @@ class _DevblocksValidationService {
 				break;
 				
 			case '_DevblocksValidationTypeStringOrArray':
-				if(!is_null($value) && !is_string($value) && !is_numeric($value) && !is_array($value)) {
+				if(!is_null($value) && !is_string($value) && !is_numeric($value) && !is_array($value) && !($value instanceof DevblocksDictionaryDelegate)) {
 					throw new Exception_DevblocksValidationError(sprintf("'%s' must be a string or array (%s).", $field_label, gettype($value)));
 				}
 				

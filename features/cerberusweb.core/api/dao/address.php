@@ -702,15 +702,13 @@ class DAO_Address extends Cerb_ORMHelper {
 	 * @return Model_Address
 	 */
 	static function lookupAddress($email, $create_if_null=false) {
-		$address = null;
-		
-		$email = trim(mb_convert_case($email, MB_CASE_LOWER));
+		$email = trim(mb_convert_case($email ?? '', MB_CASE_LOWER));
 		
 		// Make sure this a valid, normalized, and properly formatted email address
 		
 		$results = CerberusMail::parseRfcAddresses($email);
 		
-		if(!is_array($results) || false == ($email_data = array_shift($results)) || !is_array($email_data))
+		if(!is_array($results) || !($email_data = array_shift($results)) || !is_array($email_data))
 			return false;
 		
 		if(!isset($email_data['email']))
@@ -724,7 +722,7 @@ class DAO_Address extends Cerb_ORMHelper {
 				self::EMAIL => $email_data['email']
 			);
 			
-			if(false == ($id = DAO_Address::create($fields)))
+			if(!($id = DAO_Address::create($fields)))
 				return false;
 			
 			$address = DAO_Address::get($id);
