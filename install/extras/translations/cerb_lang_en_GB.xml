@@ -2508,46 +2508,6 @@
 				<seg>Is Disabled</seg>
 			</tuv>
 		</tu>
-		<tu tuid="dao.twitter_message.account_id">
-			<tuv xml:lang="en_GB">
-				<seg>Account</seg>
-			</tuv>
-		</tu>
-		<tu tuid="dao.twitter_message.is_closed">
-			<tuv xml:lang="en_GB">
-				<seg>Is Closed</seg>
-			</tuv>
-		</tu>
-		<tu tuid="dao.twitter_message.twitter_id">
-			<tuv xml:lang="en_GB">
-				<seg>Twitter ID</seg>
-			</tuv>
-		</tu>
-		<tu tuid="dao.twitter_message.twitter_user_id">
-			<tuv xml:lang="en_GB">
-				<seg>Twitter User ID</seg>
-			</tuv>
-		</tu>
-		<tu tuid="dao.twitter_message.user_followers_count">
-			<tuv xml:lang="en_GB">
-				<seg># Followers</seg>
-			</tuv>
-		</tu>
-		<tu tuid="dao.twitter_message.user_name">
-			<tuv xml:lang="en_GB">
-				<seg>Username</seg>
-			</tuv>
-		</tu>
-		<tu tuid="dao.twitter_message.user_profile_image_url">
-			<tuv xml:lang="en_GB">
-				<seg>Profile Image</seg>
-			</tuv>
-		</tu>
-		<tu tuid="dao.twitter_message.user_screen_name">
-			<tuv xml:lang="en_GB">
-				<seg>Screen Name</seg>
-			</tuv>
-		</tu>
 		<tu tuid="dao.webapi_credentials.access_key">
 			<tuv xml:lang="en_GB">
 				<seg>Access Key</seg>
