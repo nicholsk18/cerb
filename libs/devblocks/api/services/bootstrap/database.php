@@ -264,6 +264,51 @@ class _DevblocksDatabaseManager {
 		return [$columns, $indexes];
 	}
 	
+	function dumpSchemaKata($as_string=true) : string|array {
+		$kata = DevblocksPlatform::services()->kata();
+		$output = ['tables' => []];
+		
+		foreach($this->metaTables() as $table_name) {
+			$table_output = [
+				'columns' => [],
+			];
+			
+			$table_data = $this->metaTable($table_name);
+			
+			$table_output['columns'] = array_map(
+				function($column) {
+					$column['collation'] = strval($column['collation']);
+					$column['default'] = strval($column['default']);
+					$column['null'] = strval($column['null']);
+					
+					return $column;
+				},
+				$table_data[0]
+			);
+			
+			$table_output['indexes'] = array_map(
+				function($index) {
+					foreach(array_keys($index['columns'] ?? []) as $column_name) {
+						$index['columns'][$column_name]['subpart'] = strval($index['columns'][$column_name]['subpart']);
+						$index['columns'][$column_name]['unique'] = strval($index['columns'][$column_name]['unique']);
+						unset($index['columns'][$column_name]['cardinality']);
+					}
+					return $index;
+				},
+				$table_data[1]
+			);
+			
+			ksort($table_output['columns']);
+			ksort($table_output['indexes']);
+			
+			$output['tables'][$table_name] = $table_output;
+		}
+		
+		ksort($output['tables']);
+		
+		return $as_string ? $kata->emit($output) : $output;
+	}
+	
 	/**
 	 * @param string $sql
 	 * @param int $option_bits
