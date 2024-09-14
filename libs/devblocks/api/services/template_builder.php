@@ -271,6 +271,7 @@ class _DevblocksTemplateBuilder {
 				'cerb_plugin_enabled',
 				'cerb_record_readable',
 				'cerb_record_writeable',
+				'cerb_workflow_config',
 				'cerb_url',
 				'clamp_float',
 				'clamp_int',
@@ -1197,6 +1198,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFunction('cerb_plugin_enabled', [$this, 'function_cerb_plugin_enabled']),
 			new \Twig\TwigFunction('cerb_record_readable', [$this, 'function_cerb_record_readable']),
 			new \Twig\TwigFunction('cerb_record_writeable', [$this, 'function_cerb_record_writeable']),
+			new \Twig\TwigFunction('cerb_workflow_config', [$this, 'function_cerb_workflow_config']),
 			new \Twig\TwigFunction('cerb_url', [$this, 'function_cerb_url']),
 			new \Twig\TwigFunction('clamp_float', [$this, 'function_clamp_float']),
 			new \Twig\TwigFunction('clamp_int', [$this, 'function_clamp_int']),
@@ -1495,6 +1497,28 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			return null;
 		
 		return $url_writer->write(sprintf('c=files&id=%d&name=%s', $id, rawurlencode($file->name)), true, true);
+	}
+	
+	function function_cerb_workflow_config($name_or_id, $key=null, $default=null) {
+		if(is_numeric($name_or_id)) {
+			if(!($workflow = DAO_Workflow::get($name_or_id)))
+				return $default;
+			
+		} elseif(is_string($name_or_id)) {
+			if(!($workflow = DAO_Workflow::getByName($name_or_id)))
+				return $default;
+			
+		} else {
+			return $default;
+		}
+		
+		if(!($config = $workflow->getConfig()))
+			return $default;
+		
+		if($key)
+			return $config[$key] ?? $default;
+		
+		return $config;
 	}
 	
 	function function_cerb_url($url, $full=true, $proxy=true) {
