@@ -1123,9 +1123,9 @@ class _DevblocksSheetServiceTypes {
 				$progress = is_numeric($value) ? ($value / $range) * 100 : 0;
 				
 				return sprintf(
-					'<div title="%d" style="width:60px;height:8px;background-color:var(--cerb-color-background-contrast-220);border-radius:8px;text-align:center;">'.
-					'<div style="position:relative;margin-left:5px;width:50px;height:8px;">'.
-					'<div style="position:absolute;margin-left:-5px;top:-1px;left:%d%%;width:10px;height:10px;border-radius:10px;background-color:%s;"></div>'.
+					'<div title="%d" style="width:5em;height:0.75em;background-color:var(--cerb-color-background-contrast-220);border-radius:1em;text-align:center;">'.
+					'<div style="position:relative;width:5em;height:1.2em;">'.
+					'<div style="position:absolute;top:-0.1em;left:%d%%;width:1em;height:1em;border-radius:1em;background-color:%s;"></div>'.
 					'</div>'.
 					'</div>',
 					$value,

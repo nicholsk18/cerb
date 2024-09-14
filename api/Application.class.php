@@ -6998,6 +6998,9 @@ class _CerbApplication_KataSchemas {
                                 min:
                                   types:
                                     number:
+                                text_size:
+                                  types:
+                                    string:
                                 value_key:
                                   types:
                                     string:
