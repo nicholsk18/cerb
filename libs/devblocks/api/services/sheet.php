@@ -242,6 +242,27 @@ class _DevblocksSheetService {
 		return $color;
 	}
 	
+	private function _cellParamTextAlign(string $param_key, array $column, DevblocksDictionaryDelegate $sheet_dict, array $layout, ?array $environment=null) : ?string {
+		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+		$column_params = $column['params'] ?? [];
+		
+		$text_align = null;
+		
+		if(array_key_exists($param_key, $column_params)) {
+			$text_align = $tpl_builder->build($column_params[$param_key], $sheet_dict);
+		}
+		
+		if($text_align) {
+			return match(DevblocksPlatform::strLower($text_align)) {
+				'left' => 'left',
+				'center' => 'center',
+				'right' => 'right',
+			};
+		}
+		
+		return null;
+	}
+	
 	private function _cellParamTextSize(string $param_key, array $column, DevblocksDictionaryDelegate $sheet_dict, array $layout, ?array $environment=null) : ?string {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		$column_params = $column['params'] ?? [];
@@ -322,11 +343,13 @@ class _DevblocksSheetService {
 				$color = $this->_cellParamColor('color', $column, $sheet_dict, $layout, $environment);
 				$text_color = $this->_cellParamColor('text_color', $column, $sheet_dict, $layout, $environment);
 				$text_size = $this->_cellParamTextSize('text_size', $column, $sheet_dict, $layout, $environment);
+				$text_align = $this->_cellParamTextAlign('text_align', $column, $sheet_dict, $layout, $environment);
 				
 				$row[$column_key] = new DevblocksSheetCell(
 					$this->_types[$column_type]($column, $sheet_dict, $environment),
 					[
 						'color' => $color,
+						'text_align' => $text_align,
 						'text_color' => $text_color,
 						'text_size' => $text_size,
 					]

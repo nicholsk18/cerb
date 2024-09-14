@@ -6580,6 +6580,9 @@ class _CerbApplication_KataSchemas {
                                 label:
                                   types:
                                     string:
+                                text_align:
+                                  types:
+                                    string:
                                 text_color:
                                   types:
                                     string:
@@ -6607,6 +6610,9 @@ class _CerbApplication_KataSchemas {
                                   types:
                                     string:
                                 format:
+                                  types:
+                                    string:
+                                text_align:
                                   types:
                                     string:
                                 text_color:
@@ -6657,6 +6663,9 @@ class _CerbApplication_KataSchemas {
                                         data:
                                           types:
                                             string:
+                                text_align:
+                                  types:
+                                    string:
                                 text_color:
                                   types:
                                     string:
@@ -6708,6 +6717,9 @@ class _CerbApplication_KataSchemas {
                                   types:
                                     list:
                                 text:
+                                  types:
+                                    string:
+                                text_align:
                                   types:
                                     string:
                                 text_color:
@@ -6790,6 +6802,9 @@ class _CerbApplication_KataSchemas {
                                 text_key:
                                   types:
                                     string:
+                                text_align:
+                                  types:
+                                    string:
                                 text_color:
                                   types:
                                     string:
@@ -6814,6 +6829,9 @@ class _CerbApplication_KataSchemas {
                             object:
                               attributes:
                                 color:
+                                  types:
+                                    string:
+                                text_align:
                                   types:
                                     string:
                                 text_color:
@@ -6861,6 +6879,9 @@ class _CerbApplication_KataSchemas {
                                   types:
                                     string:
                                 query:
+                                  types:
+                                    string:
+                                text_align:
                                   types:
                                     string:
                                 text_color:
@@ -6937,6 +6958,9 @@ class _CerbApplication_KataSchemas {
                                 query:
                                   types:
                                     string:
+                                text_align:
+                                  types:
+                                    string:
                                 text_color:
                                   types:
                                     string:
@@ -6964,6 +6988,9 @@ class _CerbApplication_KataSchemas {
                                   types:
                                     string:
                                 selectable:
+                                  types:
+                                    string:
+                                text_align:
                                   types:
                                     string:
                                 text_color:
@@ -6998,6 +7025,9 @@ class _CerbApplication_KataSchemas {
                                 min:
                                   types:
                                     number:
+                                text_align:
+                                  types:
+                                    string:
                                 text_size:
                                   types:
                                     string:
@@ -7051,6 +7081,9 @@ class _CerbApplication_KataSchemas {
                                                 data:
                                                   types:
                                                     string:
+                                text_align:
+                                  types:
+                                    string:
                                 text_color:
                                   types:
                                     string:
@@ -7090,6 +7123,9 @@ class _CerbApplication_KataSchemas {
                                 precision:
                                   types:
                                     number:
+                                text_align:
+                                  types:
+                                    string:
                                 text_color:
                                   types:
                                     string:

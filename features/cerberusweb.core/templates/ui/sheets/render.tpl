@@ -39,10 +39,11 @@
 				{$column = $columns[$layout.title_column]}
 				{$cell = $row[$column.key]}
 				{$color = $cell->getAttr('color')}
+				{$text_align = $cell->getAttr('text_align')}
 				{$text_color = $cell->getAttr('text_color')}
 				{$text_size = $cell->getAttr('text_size')}
 				<tr>
-					<td class="cerb-sheet--row-title" colspan="{$columns|count-1}" style="{if $column.params.bold}font-weight:bold;{/if}{if $color}background-color:{$color};{/if}{if $text_color}color:{$text_color};{/if}{if $text_size}font-size:{$text_size}%;{/if}">{$row[$column.key] nofilter}</td>
+					<td class="cerb-sheet--row-title" colspan="{$columns|count-1}" style="{if $column.params.bold}font-weight:bold;{/if}{if $color}background-color:{$color};{/if}{if $text_align}text-align:{$text_align};{/if}{if $text_color}color:{$text_color};{/if}{if $text_size}font-size:{$text_size}%;{/if}">{$row[$column.key] nofilter}</td>
 				</tr>
 				{/if}
 
@@ -53,9 +54,10 @@
 					{else}
 						{$cell = $row[$column.key]}
 						{$color = $cell->getAttr('color')}
+						{$text_align = $cell->getAttr('text_align')}
 						{$text_color = $cell->getAttr('text_color')}
 						{$text_size = $cell->getAttr('text_size')}
-						<td {if $column._type == 'markdown'}class="commentBodyHtml" {/if}style="{if $column.params.bold}font-weight:bold;{/if}{if $color}background-color:{$color};{/if}{if $text_color}color:{$text_color};{/if}{if $text_size}font-size:{$text_size}%;{/if}">{$row[$column.key] nofilter}</td>
+						<td {if $column._type == 'markdown'}class="commentBodyHtml" {/if}style="{if $column.params.bold}font-weight:bold;{/if}{if $color}background-color:{$color};{/if}{if $text_align}text-align:{$text_align};{/if}{if $text_color}color:{$text_color};{/if}{if $text_size}font-size:{$text_size}%;{/if}">{$row[$column.key] nofilter}</td>
 					{/if}
 				{/foreach}
 				</tr>

@@ -788,6 +788,7 @@ var cerbAutocompleteSuggestions = {
 			'bold@bool:',
 			'icon:',
 			'color@raw:',
+			'text_align: center',
 			'text_color@raw:',
 			'text_size@raw: 150%'
 		],
@@ -831,6 +832,7 @@ var cerbAutocompleteSuggestions = {
 			'label_key:',
 			'label_template@raw:',
 			'color@raw:',
+			'text_align: center',
 			'text_color@raw:',
 			'text_size@raw: 150%'
 		],
@@ -875,6 +877,7 @@ var cerbAutocompleteSuggestions = {
 			'value_template@raw:',
 			'bold@bool:',
 			'color@raw:',
+			'text_align: center',
 			'text_color@raw:',
 			'text_size@raw: 150%'
 		],
@@ -905,6 +908,7 @@ var cerbAutocompleteSuggestions = {
 				'snippet': "svg:\n  data: ${1:<svg></svg>}"
 			},
 			'color@raw:',
+			'text_align: center',
 			'text_color@raw:',
 			'text_size@raw: 150%'
 		],
@@ -928,6 +932,7 @@ var cerbAutocompleteSuggestions = {
 			'uri_key:',
 			'uri_template@raw:',
 			'color@raw:',
+			'text_align: center',
 			'text_color@raw:',
 			'text_size@raw: 150%'
 		],
@@ -1013,6 +1018,7 @@ var cerbAutocompleteSuggestions = {
 			'value_key:',
 			'value_template@raw:',
 			'color@raw:',
+			'text_align: center',
 			'text_color@raw:',
 			'text_size@raw: 150%'
 		],
@@ -1035,6 +1041,7 @@ var cerbAutocompleteSuggestions = {
 			'bold@bool:',
 			'color@raw:',
 			'icon:',
+			'text_align: center',
 			'text_color@raw:',
 			'text_size@raw: 150%',
 			'underline@bool:',
@@ -1073,6 +1080,7 @@ var cerbAutocompleteSuggestions = {
 			'query_key:',
 			'query_template@raw:',
 			'color@raw:',
+			'text_align: center',
 			'text_color@raw:',
 			'text_size@raw: 150%'
 		],
@@ -1087,6 +1095,7 @@ var cerbAutocompleteSuggestions = {
 			'value_key:',
 			'value_template@raw: {{id}}',
 			'color@raw:',
+			'text_align: center',
 			'text_color@raw:',
 			'text_size@raw: 150%',
 			'selectable@raw: {{expression}}'
@@ -1108,6 +1117,7 @@ var cerbAutocompleteSuggestions = {
 			'min:',
 			'max:',
 			'color@raw:',
+			'text_align: center',
 			'text_color@raw:',
 			'text_size@raw: 150%'
 		],
@@ -1124,6 +1134,7 @@ var cerbAutocompleteSuggestions = {
 			'precision:',
 			'bold@bool:',
 			'color@raw:',
+			'text_align: center',
 			'text_color@raw:',
 			'text_size@raw: 150%'
 		],
