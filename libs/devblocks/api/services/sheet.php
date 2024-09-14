@@ -1113,6 +1113,7 @@ class _DevblocksSheetServiceTypes {
 			$value_min = intval($column_params['min'] ?? null) ?: 0;
 			$value_max = intval($column_params['max'] ?? null) ?: 100;
 			$value_mid = ($value_max + $value_min)/2;
+			$show_labels = DevblocksPlatform::services()->string()->toBool($column_params['show_labels'] ?? false);
 			
 			if(array_key_exists('value', $column_params)) {
 				$value = $column_params['value'];
@@ -1138,22 +1139,29 @@ class _DevblocksSheetServiceTypes {
 				
 			} else {
 				$range = $value_max - $value_min;
+				$value_pos = $value;
 				
-				// Handle negative scales
-				if($value_min < 0)
-					$value += abs($value_min);
+				if($value < $value_min) $value = $value_min;
+				if($value > $value_max) $value = $value_max;
+				if($value_min < 0) $value_pos += abs($value_min);
+				if($value_min > 0) $value_pos -= $value_min;
 				
-				$progress = is_numeric($value) ? ($value / $range) * 100 : 0;
+				$progress = is_numeric($value) ? ($value_pos / $range) * 5 : 0;
+				
+				$label_min = sprintf('<div style="margin-right:0.7em;width:3em;text-align:right;display:inline-block;">%s</div>', DevblocksPlatform::strEscapeHtml($value_min));
+				$label_max = sprintf('<div style="margin-left:0.7em;width:3em;text-align:left;display:inline-block;">%s</div>', DevblocksPlatform::strEscapeHtml($value_max));
 				
 				return sprintf(
-					'<div title="%d" style="width:5em;height:0.75em;background-color:var(--cerb-color-background-contrast-220);border-radius:1em;text-align:center;">'.
+					'%s<div title="%d" style="display:inline-block;width:5em;height:0.9em;background-color:var(--cerb-color-background-contrast-220);border-radius:1em;text-align:center;">'.
 					'<div style="position:relative;width:5em;height:1.2em;">'.
-					'<div style="position:absolute;top:-0.1em;left:%d%%;width:1em;height:1em;border-radius:1em;background-color:%s;"></div>'.
+					'<div style="margin-left:-0.6em;position:absolute;top:-0.15em;left:%0.1fem;width:1.2em;height:1.2em;border-radius:1em;background-color:%s;"></div>'.
 					'</div>'.
-					'</div>',
-					$value,
+					'</div>%s',
+					$show_labels ? $label_min : '',
+					DevblocksPlatform::strEscapeHtml($value),
 					$progress,
-					DevblocksPlatform::strEscapeHtml($color)
+					DevblocksPlatform::strEscapeHtml($color),
+					$show_labels ? $label_max : ''
 				);
 			}
 		};

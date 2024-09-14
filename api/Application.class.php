@@ -7025,6 +7025,9 @@ class _CerbApplication_KataSchemas {
                                 min:
                                   types:
                                     number:
+                                show_labels:
+                                  types:
+                                    bool:
                                 text_align:
                                   types:
                                     string:

@@ -1117,6 +1117,7 @@ var cerbAutocompleteSuggestions = {
 			'min:',
 			'max:',
 			'color@raw:',
+			'show_labels@bool: yes',
 			'text_align: center',
 			'text_color@raw:',
 			'text_size@raw: 150%'
