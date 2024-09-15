@@ -574,6 +574,8 @@ class Model_WorkspaceTab extends DevblocksRecordModel {
 	public $params=[];
 	public $updated_at;
 	
+	private $_options = null;
+	
 	/**
 	 * @return Model_WorkspacePage
 	 */
@@ -604,20 +606,37 @@ class Model_WorkspaceTab extends DevblocksRecordModel {
 		return DevblocksPlatform::translateCapitalized($extension->manifest->params['label']);
 	}
 	
-	function isHidden(?DevblocksDictionaryDelegate $dict=null) : bool {
+	private function _getOptions(?DevblocksDictionaryDelegate $dict=null) : array {
 		if(!$dict || !$this->options_kata)
-			return false;
+			return [];
 		
 		$kata = DevblocksPlatform::services()->kata();
 		$error = null;
 		
 		if(!($options = $kata->parse($this->options_kata, $error)))
-			return false;
+			return [];
 		
 		if(!($options = $kata->formatTree($options, $dict, $error)))
-			return false;
+			return [];
+		
+		// Cache for subsequent model reads
+		$this->_options = $options;
+		return $this->_options;
+	}
+	
+	function isHidden(?DevblocksDictionaryDelegate $dict=null) : bool {
+		$options = $this->_getOptions($dict);
 		
 		if(array_key_exists('hidden', $options) && $options['hidden'])
+			return true;
+		
+		return false;
+	}
+	
+	function isLocked(?DevblocksDictionaryDelegate $dict=null) : bool {
+		$options = $this->_getOptions($dict);
+		
+		if(array_key_exists('locked', $options) && $options['locked'])
 			return true;
 		
 		return false;

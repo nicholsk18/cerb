@@ -206,9 +206,16 @@ $(function() {
 				.cerbCodeEditorAutocompleteKata({
 					autocomplete_suggestions: {
 						'': [
-							'hidden@bool:'
+							'hidden@bool:',
+							'locked@bool:'
 						],
 						'hidden:': [
+							'yes',
+							'no',
+							'{literal}{{worker_id == 123}}{/literal}',
+							'{literal}{{not worker_is_superuser}}{/literal}'
+						],
+						'locked:': [
 							'yes',
 							'no',
 							'{literal}{{worker_id == 123}}{/literal}',

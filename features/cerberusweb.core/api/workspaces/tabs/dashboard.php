@@ -115,6 +115,8 @@ class WorkspaceTab_Dashboards extends Extension_WorkspaceTab {
 		
 		$tpl->assign('workspace_tab_dict', $workspace_tab_dict);
 		
+		$tpl->assign('is_locked', $tab->isLocked($workspace_tab_dict));
+		
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/widgets/tab.tpl');
 	}
 	
