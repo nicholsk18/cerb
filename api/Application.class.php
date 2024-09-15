@@ -7034,6 +7034,9 @@ class _CerbApplication_KataSchemas {
                                 text_size:
                                   types:
                                     string:
+                                threshold_colors:
+                                  types:
+                                    list:
                                 value_key:
                                   types:
                                     string:

@@ -1120,7 +1120,11 @@ var cerbAutocompleteSuggestions = {
 			'show_labels@bool: yes',
 			'text_align: center',
 			'text_color@raw:',
-			'text_size@raw: 150%'
+			'text_size@raw: 150%',
+			{
+				'caption': 'threshold_colors:',
+				'snippet': 'threshold_colors:\n  0: rgb(230,70,70)\n  50: rgb(175,175,175)\n  51: rgb(0,200,0)'
+			},
 		],
 		
 		// Time elapsed

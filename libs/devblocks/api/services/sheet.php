@@ -1126,12 +1126,17 @@ class _DevblocksSheetServiceTypes {
 				$value = $sheet_dict->get($column['key']);
 			}
 			
-			if($value > $value_mid) {
-				$color = 'rgb(230,70,70)';
-			} else if($value < $value_mid) {
-				$color = 'rgb(0,200,0)';
-			} else {
-				$color = 'rgb(175,175,175)';
+			$threshold_colors = $column_params['threshold_colors'] ?? [
+				$value_min => 'rgb(230,70,70)',
+				$value_mid => 'rgb(175,175,175)',
+				$value_mid+1 => 'rgb(0,200,0)',
+			];
+			
+			$color = reset($threshold_colors);
+			
+			foreach($threshold_colors as $threshold => $threshold_color) {
+				if($value >= $threshold)
+					$color = $threshold_color;
 			}
 			
 			if('text' == ($environment['format'] ?? null)) {
