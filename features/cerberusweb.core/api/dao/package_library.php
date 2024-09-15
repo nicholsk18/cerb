@@ -9,6 +9,8 @@ class DAO_PackageLibrary extends Cerb_ORMHelper {
 	const URI = 'uri';
 	const UPDATED_AT = 'updated_at';
 	
+	const _IMAGE = '_image';
+	
 	private function __construct() {}
 	
 	static function getFields() {
@@ -84,6 +86,11 @@ class DAO_PackageLibrary extends Cerb_ORMHelper {
 			->string()
 			->setMaxLength(65535)
 			;
+		// base64 blob png
+		$validation
+			->addField(self::_IMAGE)
+			->image('image/png', 50, 50, 500, 500, 1000000)
+		;
 		$validation
 			->addField('_links')
 			->string()
@@ -1069,8 +1076,10 @@ class Context_PackageLibrary extends Extension_DevblocksContext implements IDevb
 		return [
 			'id' => DAO_PackageLibrary::ID,
 			'description' => DAO_PackageLibrary::DESCRIPTION,
+			'image' => '_image',
 			'links' => '_links',
 			'name' => DAO_PackageLibrary::NAME,
+			'package_json' => DAO_PackageLibrary::PACKAGE_JSON,
 			'point' => DAO_PackageLibrary::POINT,
 			'updated_at' => DAO_PackageLibrary::UPDATED_AT,
 			'uri' => DAO_PackageLibrary::URI,
@@ -1097,6 +1106,9 @@ class Context_PackageLibrary extends Extension_DevblocksContext implements IDevb
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
 		switch(DevblocksPlatform::strLower($key)) {
+			case 'image':
+				$out_fields[DAO_Worker::_IMAGE] = $value;
+				break;
 		}
 		
 		return true;
