@@ -18,6 +18,8 @@ class CerbMailTransport_Null extends Extension_MailTransport {
 	
 	function send(Model_DevblocksOutboundEmail $email_model, Model_MailTransport $model) : bool {
 		try {
+			$swift_message = CerberusMail::getSwiftMessageFromModel($email_model);
+			
 		} catch(Throwable $e) {
 			DevblocksPlatform::logException($e);
 			$this->_lastErrorMessage = "An unexpected error occurred.";

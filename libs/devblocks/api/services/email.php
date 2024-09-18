@@ -631,6 +631,62 @@ class _DevblocksEmailManager {
 		return new Swift_Message();
 	}
 	
+	public function createComposeModelFromProperties(array $properties, string &$error=null) : Model_DevblocksOutboundEmail|false {
+		/*
+		'group_id'
+		'bucket_id'
+		'worker_id'
+		'owner_id'
+		'watcher_ids'
+		'org_id'
+		'to'
+		'cc'
+		'bcc'
+		'subject'
+		'content'
+		'content_format'
+		'html_template_id'
+		'forward_files'
+		'status_id'
+		'ticket_reopen'
+		'dont_send'
+		'draft_id'
+		'gpg_encrypt'
+		'gpg_sign'
+		'send_at'
+		'token'
+		 */
+		
+		if(!array_key_exists('headers', $properties))
+			$properties['headers'] = [];
+		
+		$properties['outgoing_message_id'] = $this->generateMessageId();
+		
+		$group_id = $properties['group_id'] ?? null;
+		
+		// Invalid or missing group
+		if(!$group_id || !($group = DAO_Group::get($group_id))) {
+			if(!($group = DAO_Group::getDefaultGroup())) {
+				$error = 'No default group';
+				return false;
+			}
+			$properties['group_id'] = $group->id;
+		}
+		
+		$bucket_id = $properties['bucket_id'] ?? null;
+		
+		// Invalid or missing bucket
+		if(!$bucket_id || !(DAO_Bucket::get($bucket_id))) {
+			if(!($bucket = $group->getDefaultBucket())) {
+				$error = 'No default bucket';
+				return false;
+			}
+			$properties['bucket_id'] = $bucket->id;
+		}
+		
+		return new Model_DevblocksOutboundEmail(Model_MailQueue::TYPE_COMPOSE, $properties);
+	}
+	
 	function send(Model_DevblocksOutboundEmail $email_model) : bool {
 		$metrics = DevblocksPlatform::services()->metrics();
 		

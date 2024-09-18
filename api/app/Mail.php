@@ -667,369 +667,134 @@ class CerberusMail {
 	 * @param array $properties
 	 * @return array|false
 	 */
-	static function compose(array $properties) {
-		/*
-		'group_id'
-		'bucket_id'
-		'worker_id'
-		'owner_id'
-		'watcher_ids'
-		'org_id'
-		'to'
-		'cc'
-		'bcc'
-		'subject'
-		'content'
-		'content_format'
-		'html_template_id'
-		'forward_files'
-		'status_id'
-		'ticket_reopen'
-		'dont_send'
-		'draft_id'
-		'gpg_encrypt'
-		'gpg_sign'
-		'send_at'
-		'token'
-		 */
-		
+	static function compose(array $properties) : array|false {
 		$mail_service = DevblocksPlatform::services()->mail();
-		$email = $mail_service->createMessage();
 		
-		$draft_id = $properties['draft_id'] ?? null;
-		$group_id = $properties['group_id'] ?? null;
-		$bucket_id = intval($properties['bucket_id'] ?? 0);
-		$worker_id = $properties['worker_id'] ?? null;
+		$email_model = $mail_service->createComposeModelFromProperties($properties);
+		unset($properties);
 		
-		$worker = null;
-		
-		if(!$worker_id && null != ($worker = CerberusApplication::getActiveWorker()))
-			$worker_id = $worker->id;
-
-		// Worker
-		if($worker_id)
-			$worker = DAO_Worker::get($worker_id);
-		
-		// Group
-		if(null == ($group = DAO_Group::get($group_id))) {
-			if(null == ($group = DAO_Group::getDefaultGroup()))
-				return false;
-			
-			$group_id = $group->id;
-		}
-		
-		// Bucket
-		if(!$bucket_id || !($bucket = DAO_Bucket::get($bucket_id)) || $bucket->group_id != $group->id)
-			$bucket = $group->getDefaultBucket();
-		
-		$from_replyto = $group->getReplyTo($bucket->id);
-		$personal = $group->getReplyPersonal($bucket->id, $worker);
-		
-		// Message-Id
-		$email->generateId();
-		$outgoing_message_id = $email->getHeaders()->get('message-id')->getFieldBody();
-		$properties['outgoing_message_id'] = $outgoing_message_id;
-		
-		// Changing the outgoing message through a VA (global)
-		Event_MailBeforeSent::trigger($properties, null, null, $group_id);
-		
-		// Changing the outgoing message through a VA (group)
-		Event_MailBeforeSentByGroup::trigger($properties, null, null, $group_id);
-		
-		$send_at = @strtotime($properties['send_at'] ?? 0);
-		
-		if($send_at && $send_at >= time()) {
-			// If we're not resuming a draft from the UI, generate a draft
-			if (!($draft = DAO_MailQueue::get($draft_id))) {
-				$change_fields = DAO_MailQueue::getFieldsFromMessageProperties($properties);
-				$change_fields[DAO_MailQueue::TYPE] = Model_MailQueue::TYPE_COMPOSE;
-				$change_fields[DAO_MailQueue::IS_QUEUED] = 1;
-				$change_fields[DAO_MailQueue::QUEUE_DELIVERY_DATE] = $send_at;
-				
-				$draft_id = DAO_MailQueue::create($change_fields);
-				
-				if(array_key_exists('forward_files', $properties)) {
-					DAO_Attachment::addLinks(CerberusContexts::CONTEXT_DRAFT, $draft_id, $properties['forward_files']);
-				}
-				
-			} else {
-				$draft->params['send_at'] = date('r', $send_at);
-				$draft_id = $draft->id;
-				
-				$draft_fields = [
-					DAO_MailQueue::IS_QUEUED => 1,
-					DAO_MailQueue::QUEUE_FAILS => 0,
-					DAO_MailQueue::QUEUE_DELIVERY_DATE => $send_at,
-					DAO_MailQueue::PARAMS_JSON => json_encode($draft->params),
-				];
-				
-				DAO_MailQueue::update($draft_id, $draft_fields);
-			}
-			
-			return [CerberusContexts::CONTEXT_DRAFT, $draft_id];
-		}
-		
-		$mask = CerberusApplication::generateTicketMask();
-		
-		$hash_commands = [];
-		
-		if($worker) {
-			CerberusMail::parseComposeHashCommands($worker, $properties, $hash_commands);
-		}
-		
-		$org_id = $properties['org_id'] ?? null;
-		$toStr = $properties['to'] ?? null;
-		$cc = $properties['cc'] ?? null;
-		$bcc = $properties['bcc'] ?? null;
-		$subject = $properties['subject'] ?? null;
-		$content_format = $properties['content_format'] ?? null;
-		$embedded_files = [];
-		$forward_files = $properties['forward_files'] ?? null;
-		$is_broadcast = intval($properties['is_broadcast'] ?? null);
-		
-		if(empty($subject)) $subject = '(no subject)';
-		
-		// add mask to subject if group setting calls for it
-		@$group_has_subject = intval(DAO_GroupSettings::get($group_id,DAO_GroupSettings::SETTING_SUBJECT_HAS_MASK,0));
-		@$group_subject_prefix = DAO_GroupSettings::get($group_id,DAO_GroupSettings::SETTING_SUBJECT_PREFIX,'');
-		$prefix = sprintf("[%s#%s] ",
-			!empty($group_subject_prefix) ? ($group_subject_prefix.' ') : '',
-			$mask
-		);
-		$subject_mailed = (sprintf('%s%s',
-			$group_has_subject ? $prefix : '',
-			$subject
-		));
-		
-		// [JAS]: Replace any semi-colons with commas (people like using either)
-		$toList = CerberusMail::parseRfcAddresses($toStr);
-		
+		// Attempt to deliver the message before continuing
 		try {
-			// To
-			if(is_array($toList))
-			foreach($toList as $k => $v) {
-				if(!empty($v['personal'])) {
-					$email->addTo($k, $v['personal']);
-				} else {
-					$email->addTo($k);
-				}
+			// Modify with behaviors
+			$email_model->triggerComposeBehaviors();
+			
+			if(($worker = $email_model->getWorker())) {
+				$hash_commands = [];
+				$change_properties = $email_model->getProperties();
+				CerberusMail::parseComposeHashCommands($worker, $change_properties, $hash_commands);
+				$email_model->setProperties($change_properties);
+				$email_model->setResult('hash_commands', $hash_commands);
+				unset($change_properties);
 			}
 			
-			// Cc
-			$ccList = CerberusMail::parseRfcAddresses($cc);
-			if(is_array($ccList) && !empty($ccList)) {
-				foreach($ccList as $k => $v) {
-					if(!empty($v['personal'])) {
-						$email->addCc($k, $v['personal']);
+			// Is this a future draft?
+			if(($send_at = $email_model->getFutureDeliveryTime())) {
+				$draft_id = $email_model->saveQueuedDraft($send_at);
+				return [CerberusContexts::CONTEXT_DRAFT, $draft_id];
+			}
+			
+			// Attempt to deliver via transport extension
+			if($email_model->isDeliverable()) {
+				if(!$mail_service->send($email_model)) {
+					if($mail_service->getLastErrorMessage()) {
+						throw new Exception('Mail failed to send: ' . $mail_service->getLastErrorMessage());
 					} else {
-						$email->addCc($k);
+						throw new Exception('Mail failed to send: unknown reason');
 					}
 				}
 			}
 			
-			// Bcc
-			$bccList = CerberusMail::parseRfcAddresses($bcc);
-			if(is_array($bccList) && !empty($bccList)) {
-				foreach($bccList as $k => $v) {
-					if(!empty($v['personal'])) {
-						$email->addBcc($k, $v['personal']);
-					} else {
-						$email->addBcc($k);
-					}
+		} catch (Throwable $e) {
+			$draft_id = $email_model->saveQueuedDraft(time() + 300, true);
+			
+			if(!($last_error_message = $mail_service->getLastErrorMessage())) {
+				if($e instanceof Swift_TransportException) {
+					$last_error_message = $e->getMessage();
+				} elseif($e instanceof Swift_RfcComplianceException) {
+					$last_error_message = $e->getMessage();
 				}
-			}
-			
-			if(!empty($personal)) {
-				$email->setFrom($from_replyto->email, $personal);
-			} else {
-				$email->setFrom($from_replyto->email);
-			}
-			
-			$email->setSubject($subject_mailed);
-			
-			$headers = $email->getHeaders();
-			
-			$headers->addTextHeader('X-Mailer','Cerb ' . APP_VERSION . ' (Build '.APP_BUILD.')');
-			
-			// Custom headers
-			
-			if(isset($properties['headers']) && is_array($properties['headers']))
-			foreach($properties['headers'] as $header_key => $header_val) {
-				if(!empty($header_key) && is_string($header_key) && is_string($header_val)) {
-					if(NULL == ($header = $headers->get($header_key))) {
-						$headers->addTextHeader($header_key, $header_val);
-					} else {
-						if(method_exists($header, 'setValue'))
-							$header->setValue($header_val);
-					}
-				}
-			}
-			
-			// Body
-			
-			switch($content_format) {
-				case 'markdown':
-				case 'parsedown':
-					$embedded_files = self::_generateMailBodyMarkdown($email, $properties, $group_id, $bucket->id);
-					break;
-					
-				default:
-					$content_sent = CerberusMail::getMailTemplateFromContent($properties, 'sent', 'text');
-					$email->setBody($content_sent);
-					break;
-			}
-			
-			// Forward Attachments
-			if(!empty($forward_files) && is_array($forward_files)) {
-				foreach($forward_files as $file_id) {
-					if(($attachment = DAO_Attachment::get($file_id))) {
-						if(($fp = DevblocksPlatform::getTempFile()) !== false) {
-							if($attachment->getFileContents($fp) !== false) {
-								$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $attachment->mime_type);
-								$attach->setFilename($attachment->name);
-								
-								if('message/rfc822' == $attachment->mime_type)
-									$attach->setContentType('application/octet-stream');
-								
-								$email->attach($attach);
-								fclose($fp);
-							}
-						}
-					}
-				}
-			}
-			
-			$outgoing_mail_headers = $email->getHeaders()->toString();
-			$outgoing_message_id = $email->getHeaders()->get('message-id')->getFieldBody();
-			
-			// Encryption and signing
-			if(($properties['gpg_sign'] ?? null) || ($properties['gpg_encrypt'] ?? null)) {
-				$signer = new Cerb_SwiftPlugin_GPGSigner($properties);
-				$email->attachSigner($signer);
-			}
-			
-			if(!empty($toList) && (!isset($properties['dont_send']) || empty($properties['dont_send']))) {
-				if(!$mail_service->send($email)) {
-					throw new Exception('Mail failed to send: unknown reason');
-				}
-			}
-			
-		} catch (Exception $e) {
-			if(!$draft_id) {
-				$fields = DAO_MailQueue::getFieldsFromMessageProperties($properties);
-				$fields[DAO_MailQueue::TYPE] = Model_MailQueue::TYPE_COMPOSE;
-				$fields[DAO_MailQueue::IS_QUEUED] = 1;
-				$fields[DAO_MailQueue::QUEUE_FAILS] = 1;
-				$fields[DAO_MailQueue::QUEUE_DELIVERY_DATE] = time() + 300;
-				
-				$draft_id = DAO_MailQueue::create($fields);
-				
-			} else {
-				if(($draft = DAO_MailQueue::get($draft_id))) {
-					if($draft->queue_fails < 10) {
-						$fields = [
-							DAO_MailQueue::IS_QUEUED => 1,
-							DAO_MailQueue::QUEUE_FAILS => ++$draft->queue_fails,
-							DAO_MailQueue::QUEUE_DELIVERY_DATE => time() + 300,
-						];
-					} else {
-						$fields = [
-							DAO_MailQueue::IS_QUEUED => 0,
-							DAO_MailQueue::QUEUE_DELIVERY_DATE => 0,
-						];
-					}
-					DAO_MailQueue::update($draft_id, $fields);
-				}
-			}
-			
-			$last_error_message = $mail_service->getLastErrorMessage();
-			
-			if($e instanceof Swift_TransportException && !$last_error_message) {
-				$last_error_message = $e->getMessage();
-			} elseif($e instanceof Swift_RfcComplianceException && !$last_error_message) {
-				$last_error_message = $e->getMessage();
 			}
 			
 			// If we have an error message, log it on the draft
-			if($draft_id && !empty($last_error_message)) {
-				$fields = array(
+			if($draft_id && $last_error_message) {
+				$fields = [
 					DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
 					DAO_Comment::OWNER_CONTEXT_ID => 0,
 					DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_DRAFT,
 					DAO_Comment::CONTEXT_ID => $draft_id,
 					DAO_Comment::COMMENT => 'Error sending message: ' . $last_error_message,
 					DAO_Comment::CREATED => time(),
-				);
+				];
 				DAO_Comment::create($fields);
 			}
 			
 			return false;
 		}
 		
-		$fromAddressInst = DAO_Address::lookupAddress($from_replyto->email, true);
-		$fromAddressId = $fromAddressInst->id;
+		unset($worker);
 		
-		// Organization ID from first requester
-		if(empty($org_id)) {
-			reset($toList);
-			if(null != ($first_req = DAO_Address::lookupAddress(key($toList),true))) {
-				if(!empty($first_req->contact_org_id))
-					$org_id = $first_req->contact_org_id;
-			}
-		}
+		// Use the email model to create the ticket and message
+		
+		$draft_id = $email_model->getProperty('draft_id');
+		$from_address = $email_model->getFromAddressModel();
+		$embedded_files = [];
 		
 		$fields = [
-			DAO_Ticket::MASK => $mask,
-			DAO_Ticket::SUBJECT => $subject,
+			DAO_Ticket::MASK => $email_model->getTicketMask(),
+			DAO_Ticket::SUBJECT => $email_model->getProperty('subject', '(no subject)'),
 			DAO_Ticket::STATUS_ID => 0,
 			DAO_Ticket::OWNER_ID => 0,
 			DAO_Ticket::REOPEN_AT => 0,
 			DAO_Ticket::CREATED_DATE => time(),
-			DAO_Ticket::FIRST_WROTE_ID => $fromAddressId,
-			DAO_Ticket::LAST_WROTE_ID => $fromAddressId,
-			DAO_Ticket::ORG_ID => intval($org_id),
+			DAO_Ticket::FIRST_WROTE_ID => $from_address->id ?? 0,
+			DAO_Ticket::LAST_WROTE_ID => $from_address->id ?? 0,
+			DAO_Ticket::ORG_ID => $email_model->getOrgId(),
 		];
 		
 		$ticket_id = DAO_Ticket::create($fields);
 		
 		// Save a copy of the sent HTML body
-		$html_body_id = 0;
-		if(in_array($content_format, ['markdown','parsedown'])) {
-			if(false !== ($html_saved = CerberusMail::getMailTemplateFromContent($properties, 'saved', 'html'))) {
-				$html_body_id = DAO_Attachment::create([
-					DAO_Attachment::NAME => 'original_message.html',
-					DAO_Attachment::MIME_TYPE => 'text/html',
-					DAO_Attachment::STORAGE_SHA1HASH => sha1($html_saved),
-				]);
-				
-				Storage_Attachments::put($html_body_id, $html_saved);
-				unset($html_saved);
-				
-				$embedded_files[] = $html_body_id;
-			}
-		}
-
 		$fields = [
 			DAO_Message::TICKET_ID => $ticket_id,
 			DAO_Message::CREATED_DATE => time(),
-			DAO_Message::ADDRESS_ID => $fromAddressId,
+			DAO_Message::ADDRESS_ID => $from_address->id ?? 0,
 			DAO_Message::IS_OUTGOING => 1,
-			DAO_Message::WORKER_ID => intval($worker_id),
-			DAO_Message::IS_BROADCAST => $is_broadcast ? 1 : 0,
-			DAO_Message::IS_NOT_SENT => ($properties['dont_send'] ?? null) ? 1 : 0,
-			DAO_Message::HASH_HEADER_MESSAGE_ID => sha1($outgoing_message_id),
-			DAO_Message::WAS_ENCRYPTED => ($properties['gpg_encrypt'] ?? null) ? 1 : 0,
-			DAO_Message::HTML_ATTACHMENT_ID => $html_body_id,
+			DAO_Message::WORKER_ID => $email_model->getProperty('worker_id', 0),
+			DAO_Message::IS_BROADCAST => $email_model->getProperty('is_broadcast') ? 1 : 0,
+			DAO_Message::IS_NOT_SENT => !$email_model->isDeliverable() ? 1 : 0,
+			DAO_Message::HASH_HEADER_MESSAGE_ID => sha1($email_model->getProperty('outgoing_message_id')),
+			DAO_Message::WAS_ENCRYPTED => ($email_model->getProperty('gpg_encrypt')) ? 1 : 0,
 		];
 		
-		if(array_key_exists('gpg_sign', $properties) && $properties['gpg_sign']) {
-			$fields[DAO_Message::SIGNED_AT] = time();
-			// [TODO]
-			//$fields[DAO_Message::SIGNED_KEY_FINGERPRINT] = null;
+		if($email_model->isBodyFormatted()) {
+			if(($html_saved = $email_model->getBodyHtmlSaved($embedded_files))) {
+				$url_writer = DevblocksPlatform::services()->url();
+				$base_url = $url_writer->write('c=files', true);
+				
+				$attachments = DAO_Attachment::getIds($embedded_files);
+				
+				foreach($embedded_files as $cid => $file_id) {
+					if(($file = $attachments[$file_id] ?? null)) {
+						$html_saved = str_replace(
+							$cid,
+							sprintf('%s/%d/%s', $base_url, $file->id, rawurlencode($file->name)),
+							$html_saved
+						);
+					}
+				}
+				
+				$fields[DAO_Message::_CONTENT_HTML] = $html_saved;
+				
+				unset($attachments);
+			}
 		}
 		
-		if(array_key_exists('token', $properties) && $properties['token']) {
-			$fields[DAO_Message::TOKEN] = $properties['token'];
+		if($email_model->getProperty('gpg_sign')) {
+			$fields[DAO_Message::SIGNED_AT] = time();
+		}
+		
+		if(($message_token = $email_model->getProperty('token'))) {
+			$fields[DAO_Message::TOKEN] = $message_token;
 		}
 		
 		// If we fail to create the record, keep the draft
@@ -1042,38 +807,44 @@ class CerberusMail {
 		}
 		
 		// Convert to a plaintext part
-		$plaintext_saved = CerberusMail::getMailTemplateFromContent($properties, 'saved', 'text');
-		
+		$plaintext_saved = $email_model->getBodyTextSaved();
 		Storage_MessageContent::put($message_id, $plaintext_saved);
 		unset($plaintext_saved);
 
 		// Set recipients to requesters
-		foreach(array_keys($toList) as $to_addy) {
+		foreach(array_keys($email_model->getTo()) as $to_addy) {
 			DAO_Ticket::createRequester($to_addy, $ticket_id);
 		}
 		
 		// Headers
-		$email->getHeaders()->addTextHeader('X-CerberusCompose', 1);
-		DAO_MessageHeaders::upsert($message_id, $outgoing_mail_headers);
+		if($outgoing_email_headers = $email_model->getResult('outgoing_email_headers')) {
+			DAO_MessageHeaders::upsert($message_id, $outgoing_email_headers);
+			unset($outgoing_email_headers);
+			
+		} else {
+		}
 		
 		// Forwarded attachments
-		if(isset($properties['link_forward_files']) && !empty($properties['link_forward_files'])) {
+		if($email_model->getProperty('link_forward_files')) {
 			// Attachments
-			if(is_array($forward_files) && !empty($forward_files)) {
+			if(($forward_files = $email_model->getProperty('forward_files')) && is_array($forward_files)) {
 				DAO_Attachment::addLinks(CerberusContexts::CONTEXT_MESSAGE, $message_id, $forward_files);
 			}
+			unset($forward_files);
 		}
 		
 		// Link embedded files
-		if(isset($embedded_files) && is_array($embedded_files) && !empty($embedded_files)) {
+		if($embedded_files) {
 			DAO_Attachment::addLinks(CerberusContexts::CONTEXT_MESSAGE, $message_id, $embedded_files);
+			unset($embedded_files);
 		}
 		
 		// Message custom fields
-		if(array_key_exists('message_custom_fields', $properties)) {
-			if ($message_id && is_array($properties['message_custom_fields'])) {
-				DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_MESSAGE, $message_id, $properties['message_custom_fields'], true, true, false);
+		if(($message_custom_fields = $email_model->getProperty('message_custom_fields'))) {
+			if ($message_id && is_array($message_custom_fields)) {
+				DAO_CustomFieldValue::formatAndSetFieldValues(CerberusContexts::CONTEXT_MESSAGE, $message_id, $message_custom_fields, true, true, false);
 			}
+			unset($message_custom_fields);
 		}
 		
 		// Finalize ticket
@@ -1082,25 +853,29 @@ class CerberusMail {
 			DAO_Ticket::LAST_MESSAGE_ID => $message_id,
 		];
 
-		// Move last, so the event triggers properly
-		$properties['group_id'] = $group->id;
-		$properties['bucket_id'] = $bucket->id;
+		$bucket = $email_model->getBucket();
+		$worker = $email_model->getWorker();
 		
-		if(($ticket = DAO_Ticket::get($ticket_id)))
+		if(($ticket = DAO_Ticket::get($ticket_id))) {
+			$properties = $email_model->getProperties();
 			DAO_Ticket::updateWithMessageProperties($properties, $ticket, $ticket_fields, false);
+			$email_model->setProperties($properties);
+		}
 		
 		// Train as not spam
 		CerberusBayes::markTicketAsNotSpam($ticket_id);
 		
 		if($worker) {
-			DAO_WorkerPref::set($worker->id, 'compose.group_id', $group_id);
-			DAO_WorkerPref::set($worker->id, 'compose.bucket_id', $bucket_id);
+			DAO_WorkerPref::set($worker->id, 'compose.group_id', $bucket->group_id ?? 0);
+			DAO_WorkerPref::set($worker->id, 'compose.bucket_id', $bucket->id ?? 0);
 			
-			if($hash_commands)
+			if(($hash_commands = $email_model->getResult('hash_commands'))) {
 				CerberusMail::handleComposeHashCommands($hash_commands, $ticket->id, $message_id, $worker);
+				unset($hash_commands);
+			}
 		}
 		
-		self::_composeTriggerEvents($message_id, $group_id);
+		self::_composeTriggerEvents($message_id, $bucket->group_id ?? 0);
 		
 		// Remove the draft
 		if($draft_id)
@@ -2893,7 +2668,110 @@ class CerberusMail {
 		}
 	}
 	
+	public static function getSwiftMessageFromModel(Model_DevblocksOutboundEmail $email_model) : Swift_Message {
+		$swift_message = new Swift_Message();
+		
+		$worker = $email_model->getWorker();
+
 		try {
+			// To
+			foreach ($email_model->getTo() as $k => $v) {
+				$swift_message->addTo($k, $v['personal'] ?: null);
+			}
 			
+			// Cc
+			foreach ($email_model->getCc() as $k => $v) {
+				$swift_message->addCc($k, $v['personal'] ?: null);
+			}
+			
+			// Bcc
+			foreach ($email_model->getBcc() as $k => $v) {
+				$swift_message->addBcc($k, $v['personal'] ?: null);
+			}
+			
+			$group = $email_model->getGroup();
+			$bucket = $email_model->getBucket();
+			$group_reply_to = $group->getReplyTo($bucket->id);
+			$group_reply_personal = $group->getReplyPersonal($bucket->id, $worker);
+			
+			$swift_message->setFrom($group_reply_to->email, $group_reply_personal ?: null);
+			$swift_message->setSubject($email_model->getSubject());
+			
+			$headers = $swift_message->getHeaders();
+			
+			// Custom headers
+			if (($email_headers = $email_model->getProperty('headers', [])) && is_array($email_headers)) {
+				foreach ($email_headers as $header_key => $header_val) {
+					if (!empty($header_key) && is_string($header_key) && is_string($header_val)) {
+						if (!($header = $headers->get($header_key))) {
+							$headers->addTextHeader($header_key, $header_val);
+						} else {
+							if (method_exists($header, 'setValue'))
+								$header->setValue($header_val);
+						}
+					}
+				}
+			}
+			
+			// Body
+			
+			if($email_model->isBodyFormatted()) {
+				$content_sent = $email_model->getBodyTextSent();
+				$swift_message->addPart($content_sent, 'text/plain');
+				unset($content_sent);
+				
+				$embedded_files = [];
+				$content_html_sent = $email_model->getBodyHtmlSent($embedded_files);
+				$email_model->setResult('embedded_files', $embedded_files);
+				
+				// Embed content-id images
+				foreach ($embedded_files as $cid => $file_id) {
+					if ($file = DAO_Attachment::get($file_id)) {
+						$embed_cid = $swift_message->embed(new Swift_Image($file->getFileContents(), $file->name, $file->mime_type));
+						$content_html_sent = str_replace($cid, $embed_cid, $content_html_sent);
+					}
+				}
+				
+				$swift_message->addPart($content_html_sent, 'text/html');
+				
+			} else {
+				$content_sent = $email_model->getBodyTextSent();
+				$swift_message->setBody($content_sent);
+			}
+			
+			// Forward Attachments
+			
+			if(($forward_files = $email_model->getProperty('forward_files')) && is_array($forward_files)) {
+				$attachments = DAO_Attachment::getIds($forward_files);
+				
+				foreach ($attachments as $attachment) {
+					if (($fp = DevblocksPlatform::getTempFile())) {
+						if ($attachment->getFileContents($fp) !== false) {
+							$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $attachment->mime_type);
+							$attach->setFilename($attachment->name);
+							
+							if ('message/rfc822' == $attachment->mime_type)
+								$attach->setContentType('application/octet-stream');
+							
+							$swift_message->attach($attach);
+							fclose($fp);
+						}
+					}
+				}
+			}
+			
+			// Encryption and signing
+			if ($email_model->getProperty('gpg_sign') || $email_model->getProperty('gpg_encrypt')) {
+				$signer = new Cerb_SwiftPlugin_GPGSigner($email_model->getProperties());
+				$swift_message->attachSigner($signer);
+			}
+			
+			$email_model->setResult('outgoing_email_headers', $swift_message->getHeaders()->toString());
+			
+		} catch (Exception $e) {
+			throw $e;
+		}
+		
+		return $swift_message;
 	}
 };
