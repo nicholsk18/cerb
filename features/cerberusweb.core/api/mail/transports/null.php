@@ -16,18 +16,41 @@ class CerbMailTransport_Null extends Extension_MailTransport {
 		return true;
 	}
 	
-	/**
-	 * @param Swift_Message $message
-	 * @param Model_MailTransport $model
-	 * @return boolean
-	 */
-	function send(Swift_Message $message, Model_MailTransport $model) {
-		if(false == ($mailer = $this->_getMailer()))
+	function send(Model_DevblocksOutboundEmail $email_model, Model_MailTransport $model) : bool {
+		try {
+		} catch(Throwable $e) {
+			DevblocksPlatform::logException($e);
+			$this->_lastErrorMessage = "An unexpected error occurred.";
+			return false;
+		}
+		
+		if(($outgoing_message_id = $email_model->getProperty('outgoing_message_id'))) {
+			$swift_message->getHeaders()->removeAll('Message-ID');
+			$swift_message->getHeaders()->addIdHeader('Message-ID', $outgoing_message_id);
+			unset($outgoing_message_id);
+		}
+		
+		// X-Mailer
+		$swift_message->getHeaders()->addTextHeader('X-Mailer', 'Cerb ' . APP_VERSION . ' (Build ' . APP_BUILD . ')');
+		
+		$to = $swift_message->getTo();
+		$from = array_keys($swift_message->getFrom());
+		$sender = reset($from);
+
+		if(empty($to)) {
+			$this->_lastErrorMessage = "At least one 'To:' recipient address is required.";
+			return false;
+		}
+		
+		if(empty($sender)) {
+			$this->_lastErrorMessage = "A 'From:' sender address is required.";
+			return false;
+		}
+		
+		if(!($mailer = $this->_getMailer()))
 			return false;
 		
-		//error_log($message->toString());
-		
-		$result = $mailer->send($message);
+		$result = $mailer->send($swift_message);
 		
 		if(!$result) {
 			$this->_lastErrorMessage = $this->_logger->getLastError();
@@ -38,11 +61,11 @@ class CerbMailTransport_Null extends Extension_MailTransport {
 		return $result;
 	}
 	
-	function getLastError() {
+	function getLastError() : ?string {
 		return $this->_lastErrorMessage;
 	}
 	
-	private function _getMailer() {
+	private function _getMailer() : Swift_Mailer {
 		static $mailer = null;
 		
 		if(is_null($mailer)) {

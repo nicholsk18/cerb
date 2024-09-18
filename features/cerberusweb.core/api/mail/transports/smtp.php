@@ -66,12 +66,40 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 		}
 	}
 	
-	/**
-	 * @param Swift_Message $message
-	 * @param Model_MailTransport $model
-	 * @return boolean
-	 */
-	function send(Swift_Message $message, Model_MailTransport $model) {
+	function send(Model_DevblocksOutboundEmail $email_model, Model_MailTransport $model) : bool {
+		try {
+			$swift_message = match($email_model->getType()) {
+			};
+			
+		} catch(Throwable $e) {
+			DevblocksPlatform::logException($e);
+			$this->_lastErrorMessage = "An unexpected error occurred.";
+			return false;
+		}
+		
+		if(($outgoing_message_id = $email_model->getProperty('outgoing_message_id'))) {
+			$swift_message->getHeaders()->removeAll('Message-ID');
+			$swift_message->getHeaders()->addIdHeader('Message-ID', $outgoing_message_id);
+			unset($outgoing_message_id);
+		}
+		
+		// X-Mailer
+		$swift_message->getHeaders()->addTextHeader('X-Mailer', 'Cerb ' . APP_VERSION . ' (Build ' . APP_BUILD . ')');
+		
+		$to = $swift_message->getTo();
+		$from = array_keys($swift_message->getFrom());
+		$sender = reset($from);
+		
+		if(empty($to)) {
+			$this->_lastErrorMessage = "At least one 'To:' recipient address is required.";
+			return false;
+		}
+		
+		if(empty($sender)) {
+			$this->_lastErrorMessage = "A 'From:' sender address is required.";
+			return false;
+		}
+		
 		$options = [
 			'host' => $model->params['host'] ?? null,
 			'port' => $model->params['port'] ?? null,
@@ -83,41 +111,33 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 			'connected_account_id' => $model->params['connected_account_id'] ?? null,
 		];
 		
-		if(false == ($mailer = $this->_getMailer($options)))
+		// Error messages are inherited
+		if(!($mailer = $this->_getMailer($options)))
 			return false;
 		
-		$failed_recipients = [];
-		
-		$result = $mailer->send($message, $failed_recipients);
-		
-		if(!$result) {
+		if(!($result = $mailer->send($swift_message)))
 			$this->_lastErrorMessage = $this->_logger->getLastError();
-		}
 		
 		$this->_logger->clear();
 		
 		return $result;
 	}
 	
-	function getLastError() {
+	function getLastError() : ?string {
 		return $this->_lastErrorMessage;
 	}
 	
-	/**
-	 * @param array $options
-	 * @return Swift_Mailer
-	 */
-	private function _getMailer(array $options) {
+	private function _getMailer(array $options) : ?Swift_Mailer {
 		static $connections = [];
 		
 		// Options
-		$smtp_host = isset($options['host']) ? $options['host'] : '127.0.0.1';
-		$smtp_port = isset($options['port']) ? $options['port'] : '25';
-		$smtp_user = isset($options['auth_user']) ? $options['auth_user'] : null;
-		$smtp_pass = isset($options['auth_pass']) ? $options['auth_pass'] : null;
-		$smtp_enc = isset($options['enc']) ? $options['enc'] : 'None';
-		$smtp_max_sends = isset($options['max_sends']) ? intval($options['max_sends']) : 20;
-		$smtp_timeout = isset($options['timeout']) ? intval($options['timeout']) : 30;
+		$smtp_host = $options['host'] ?? '127.0.0.1';
+		$smtp_port = $options['port'] ?? '25';
+		$smtp_user = $options['auth_user'] ?? null;
+		$smtp_pass = $options['auth_pass'] ?? null;
+		$smtp_enc = $options['enc'] ?? 'None';
+		$smtp_max_sends = intval($options['max_sends'] ?? 20);
+		$smtp_timeout = intval($options['timeout']) ?? 30;
 		$smtp_connected_account_id = intval($options['connected_account_id'] ?? 0);
 		
 		/*
@@ -139,19 +159,11 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 		
 		if(!isset($connections[$hash])) {
 			// Encryption
-			switch($smtp_enc) {
-				case 'TLS':
-					$smtp_enc = 'tls';
-					break;
-					
-				case 'SSL':
-					$smtp_enc = 'ssl';
-					break;
-					
-				default:
-					$smtp_enc = null;
-					break;
-			}
+			$smtp_enc = match ($smtp_enc) {
+				'TLS' => 'tls',
+				'SSL' => 'ssl',
+				default => null,
+			};
 			
 			$smtp = new Swift_SmtpTransport($smtp_host, $smtp_port, $smtp_enc);
 			$smtp->setTimeout($smtp_timeout);
@@ -160,7 +172,7 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 			if($smtp_user && $smtp_connected_account_id) {
 				$connected_account = DAO_ConnectedAccount::get($smtp_connected_account_id);
 				
-				if(false == ($service_extension = $connected_account->getServiceExtension())) {
+				if(!($service_extension = $connected_account->getServiceExtension())) {
 					$this->_lastErrorMessage = "Failed to load the connected service extension";
 					return null;
 				}
@@ -171,7 +183,7 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 				}
 				
 				/** @var $service_extension ServiceProvider_OAuth2 */
-				if(false == ($access_token = $service_extension->getAccessToken($connected_account))) {
+				if(!($access_token = $service_extension->getAccessToken($connected_account))) {
 					$this->_lastErrorMessage = "Failed to load the access token";
 					return null;
 				}

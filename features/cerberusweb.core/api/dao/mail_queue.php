@@ -761,7 +761,7 @@ class Model_MailQueue extends DevblocksRecordModel {
 		
 		$commands = [];
 		
-		if(false != ($worker = $this->getWorker())) {
+		if(($worker = $this->getWorker())) {
 			switch ($this->type) {
 				case Model_MailQueue::TYPE_TICKET_REPLY:
 				case Model_MailQueue::TYPE_TICKET_FORWARD:
@@ -774,16 +774,17 @@ class Model_MailQueue extends DevblocksRecordModel {
 			}
 		}
 		
-		if('parsedown' == $message_properties['content_format']) {
-			$output = CerberusMail::getMailTemplateFromContent($message_properties, 'saved', 'html');
+		$preview_message = new Model_DevblocksOutboundEmail($this->type, $message_properties);
+		
+		if($preview_message->isBodyFormatted()) {
+			$output = $preview_message->getBodyTemplateFromContent('saved', 'html');
 			$output = DevblocksPlatform::parseMarkdown($output);
 			
 			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
-			
 			return DevblocksPlatform::purifyHTML($output, true, true, [$filter]);
 		
 		} else {
-			return CerberusMail::getMailTemplateFromContent($message_properties, 'saved', 'text');
+			return $preview_message->getBodyTemplateFromContent('saved', 'text');
 		}
 	}
 	

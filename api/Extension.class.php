@@ -311,7 +311,7 @@ abstract class Extension_MailTransport extends DevblocksExtension {
 	
 	abstract function renderConfig(Model_MailTransport $model);
 	abstract function testConfig(array $params, &$error=null);
-	abstract function send(Swift_Message $message, Model_MailTransport $model);
+	abstract function send(Model_DevblocksOutboundEmail $email_model, Model_MailTransport $model);
 	abstract function getLastError();
 };
 

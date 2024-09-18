@@ -986,8 +986,10 @@ EOD;
 		
 		// Markdown
 		
-		if('parsedown' == $format) {
-			$output = CerberusMail::getMailTemplateFromContent($message_properties, 'saved', 'html');
+		$preview_message = new Model_DevblocksOutboundEmail(Model_MailQueue::TYPE_TICKET_REPLY, $message_properties);
+		
+		if($preview_message->isBodyFormatted()) {
+			$output = $preview_message->getBodyTemplateFromContent('saved', 'html');
 			
 			// Wrap the reply in a template if we have one
 			
@@ -1008,7 +1010,7 @@ EOD;
 			$output = DevblocksPlatform::purifyHTML($output, true, true, [$filter]);
 			
 		} else {
-			$output = nl2br(DevblocksPlatform::strEscapeHtml(CerberusMail::getMailTemplateFromContent($message_properties, 'saved', 'text')));
+			$output = nl2br(DevblocksPlatform::strEscapeHtml($preview_message->getBodyTemplateFromContent('saved', 'text')));
 		}
 		
 		$tpl->assign('is_inline', true);

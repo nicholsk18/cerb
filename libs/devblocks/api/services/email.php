@@ -5,6 +5,605 @@
  * @static
  * @ingroup services
  */
+
+class Model_DevblocksOutboundEmail {
+	private string $_type = '';
+	private string $_mask = '';
+	private array $_properties = [];
+	private array $_results = [];
+	
+	private ?Model_Bucket $_bucket_model = null;
+	private ?Model_Group $_group_model = null;
+	private ?Model_Message $_message_model = null;
+	private ?Model_Ticket $_ticket_model = null;
+	private ?Model_Worker $_worker_model = null;
+	
+	function __construct(string $type, array $properties=[]) {
+		$this->_type = $type;
+		$this->setProperties($properties);
+	}
+	
+	function clearCache() : void {
+		$this->_bucket_model = null;
+		$this->_group_model = null;
+		$this->_message_model = null;
+		$this->_ticket_model = null;
+		$this->_worker_model = null;
+	}
+	
+	public function getType() : string {
+		return $this->_type;
+	}
+	
+	public function getProperties() : array {
+		return $this->_properties;
+	}
+	
+	public function setProperties(array $new_properties) : void {
+		foreach($this->_properties as $k => $v) {
+			if(!array_key_exists($k, $new_properties)) {
+				unset($this->_properties[$k]);
+			}
+		}
+		
+		foreach($new_properties as $k => $v) {
+			$this->setProperty($k, $v);
+		}
+	}
+	
+	public function getProperty(string $key, mixed $default=null) : mixed {
+		if(!array_key_exists($key, $this->_properties))
+			return $default;
+		
+		return $this->_properties[$key];
+	}
+	
+	public function setProperty(string $key, mixed $value) : void {
+		if ($value === ($this->_properties[$key] ?? null))
+			return;
+		
+		// Clear cached models on change
+		if('bucket_id' == $key) {
+			$this->_bucket_model = null;
+		} else if('group_id' == $key) {
+			$this->_group_model = null;
+		} else if('message_id' == $key) {
+			$this->_message_model = null;
+		} else if('ticket_id' == $key) {
+			$this->_ticket_model = null;
+		} else if('worker_id' == $key) {
+			$this->_worker_model = null;
+		}
+		
+		$this->_properties[$key] = $value;
+	}
+	
+	public function getResult(string $key, mixed $default=null) : mixed {
+		if(!array_key_exists($key, $this->_results))
+			return $default;
+		
+		return $this->_results[$key];
+	}
+	
+	public function setResult(string $key, mixed $value) : void {
+		$this->_results[$key] = $value;
+	}
+	
+	public function getGroup() : ?Model_Group {
+		if(null !== $this->_group_model)
+			return $this->_group_model;
+		
+		$group = DAO_Group::get($this->getProperty('group_id', 0));
+		$bucket_id = $this->getProperty('bucket_id');
+		
+		// If we have a bucket but no group
+		if(!$group && $bucket_id) {
+			if(($bucket = DAO_Bucket::get($bucket_id))) {
+				$this->setProperty('group_id', $bucket->group_id);
+				if(($group = DAO_Group::get($bucket->group_id))) {
+					$this->_group_model = $group;
+					return $this->_group_model;
+				}
+			}
+		}
+		
+		// If we still don't have a group, use default
+		if(!$group && ($group = DAO_Group::getDefaultGroup())) {
+			$this->setProperty('group_id', $group->id);
+			$this->_group_model = $group;
+			
+			if(($bucket = $group->getDefaultBucket()->id ?? null)) {
+				$this->setProperty('bucket_id', $bucket->id);
+				$this->_bucket_model = $bucket;
+			}
+			
+			return $this->_group_model;
+		}
+		
+		$this->_group_model = $group;
+		return $this->_group_model;
+	}
+	
+	public function getBucket() : ?Model_Bucket {
+		if(null !== $this->_bucket_model)
+			return $this->_bucket_model;
+		
+		$bucket = DAO_Bucket::get($this->getProperty('bucket_id'));
+		$group_id = $this->getProperty('group_id');
+		
+		// If we have a bucket/group mismatch
+		if($bucket && $bucket->group_id != $group_id) {
+			$this->setProperty('group_id', $bucket->group_id);
+			$this->_bucket_model = $bucket;
+			return $this->_bucket_model;
+		}
+
+		// If we have a group and no bucket
+		if(!$bucket && $group_id) {
+			if(($group = DAO_Group::get($group_id))) {
+				$bucket = $group->getDefaultBucket();
+				$this->setProperty('bucket_id', $bucket->id);
+				$this->_bucket_model = $bucket;
+				return $this->_bucket_model;
+			}
+		}
+		
+		$this->_bucket_model = $bucket;
+		return $this->_bucket_model;
+	}
+	
+	public function getWorker() : ?Model_Worker {
+		if(null !== $this->_worker_model)
+			return $this->_worker_model;
+		
+		$worker_id = $this->getProperty('worker_id', 0);
+		
+		if($worker_id && ($worker = DAO_Worker::get($worker_id))) {
+			$this->_worker_model = $worker;
+			return $this->_worker_model;
+		}
+		
+		return null;
+	}
+	
+	public function triggerComposeBehaviors() {
+		$group_id = $this->getGroup()->id ?? 0;
+		
+		// Changing the outgoing message through a VA (global)
+		Event_MailBeforeSent::trigger($this->_properties, null, null, $group_id);
+		
+		// Changing the outgoing message through a VA (group)
+		Event_MailBeforeSentByGroup::trigger($this->_properties, null, null, $group_id);
+	}
+	
+	public function isDeliverable() : bool {
+		return(
+			// Has recipients
+			!empty($this->getTo())
+			// The 'dont_send' property isn't set
+			&& !$this->getProperty('dont_send')
+		);
+	}
+	
+	public function getFutureDeliveryTime() : int|false {
+		$send_at = $this->getProperty('send_at', 0);
+		
+		if($send_at) {
+			if(false !== ($send_at = strtotime($send_at)))
+				if($send_at >= time())
+					return $send_at;
+		}
+		
+		return false;
+	}
+	
+	public function saveQueuedDraft(int $send_at, $is_a_failure=false) : int {
+		$draft_id = $this->getProperty('draft_id');
+		
+		// If we're not resuming a draft from the UI, generate a draft
+		if (!($draft = DAO_MailQueue::get($draft_id))) {
+			$change_fields = DAO_MailQueue::getFieldsFromMessageProperties($this->getProperties());
+			$change_fields[DAO_MailQueue::TYPE] = $this->getType();
+			$change_fields[DAO_MailQueue::IS_QUEUED] = 1;
+			$change_fields[DAO_MailQueue::QUEUE_FAILS] = $is_a_failure ? 1 : 0;
+			$change_fields[DAO_MailQueue::QUEUE_DELIVERY_DATE] = $send_at;
+			
+			$draft_id = DAO_MailQueue::create($change_fields);
+			
+			if(($forward_files = $this->getProperty('forward_files')))
+				DAO_Attachment::addLinks(CerberusContexts::CONTEXT_DRAFT, $draft_id, $forward_files);
+			
+			$this->setProperty('draft_id', $draft);
+			
+		} else {
+			// If we're saving due to failure, increment the counters
+			if($is_a_failure) {
+				if($draft->queue_fails < 10) {
+					$fields = [
+						DAO_MailQueue::IS_QUEUED => 1,
+						DAO_MailQueue::QUEUE_FAILS => ++$draft->queue_fails,
+						DAO_MailQueue::QUEUE_DELIVERY_DATE => $send_at,
+					];
+				} else {
+					$fields = [
+						DAO_MailQueue::IS_QUEUED => 0,
+						DAO_MailQueue::QUEUE_DELIVERY_DATE => 0,
+					];
+				}
+				DAO_MailQueue::update($draft_id, $fields);
+			
+			} else {
+				$draft->params['send_at'] = date('r', $send_at);
+				
+				$draft_fields = [
+					DAO_MailQueue::IS_QUEUED => 1,
+					DAO_MailQueue::QUEUE_FAILS => 0,
+					DAO_MailQueue::QUEUE_DELIVERY_DATE => $send_at,
+					DAO_MailQueue::PARAMS_JSON => json_encode($draft->params),
+				];
+				
+				DAO_MailQueue::update($draft->id, $draft_fields);
+			}
+		}
+		
+		return $draft_id;
+	}
+	
+	public function getOrgId() : int {
+		if(($org_id = $this->getProperty('org_id')))
+			return $org_id;
+
+		$to_list = $this->getTo();
+		
+		// Organization ID from first requester
+		reset($to_list);
+		
+		if(null != ($first_req = DAO_Address::lookupAddress(key($to_list),true))) {
+			if(!empty($first_req->contact_org_id))
+				return $first_req->contact_org_id;
+		}
+		
+		return 0;
+	}
+	
+	public function getTicketMask() : string {
+		if(empty($this->_mask))
+			$this->_mask = CerberusApplication::generateTicketMask();
+		
+		return $this->_mask;
+	}
+	
+	public function getMessage() : ?Model_Message {
+		if(!is_null($this->_message_model)) {
+			$message_id = $this->getProperty('message_id');
+			
+			if (!$message_id) {
+				// Default to the last message from the parent ticket_id
+				if(($ticket = $this->getTicket())) {
+					$message_id = $ticket->last_message_id;
+				} else {
+					return null;
+				}
+			}
+			
+			// Worker
+			$this->_message_model = DAO_Message::get($message_id);
+		}
+		
+		return $this->_message_model;
+	}
+	
+	public function getTo() : array {
+		return CerberusMail::parseRfcAddresses($this->getProperty('to')) ?: [];
+	}
+	
+	public function getCc() : array {
+		return CerberusMail::parseRfcAddresses($this->getProperty('cc')) ?: [];
+	}
+	
+	public function getBcc() : array {
+		return CerberusMail::parseRfcAddresses($this->getProperty('bcc')) ?: [];
+	}
+	
+	public function getFromAddressModel() : ?Model_Address {
+		if(null == ($bucket = $this->getBucket()))
+			return null;
+		
+		if(null == ($group = $bucket->getGroup()))
+			return null;
+		
+		return $group->getReplyTo($bucket->id);
+	}
+	
+	public function beforeSend() : void {
+		// X-Mailer
+		$this->_properties['headers']['X-Mailer'] = 'Cerb ' . APP_VERSION . ' (Build ' . APP_BUILD . ')';
+	}
+	
+	public function getSubject() {
+		$subject = $this->getProperty('subject') ?: '(no subject)';
+		
+		$group_id = $this->getProperty('group_id');
+		$mask = $this->getTicketMask();
+		
+		// add mask to subject if group setting calls for it
+		$group_has_subject = intval(DAO_GroupSettings::get($group_id,DAO_GroupSettings::SETTING_SUBJECT_HAS_MASK,0));
+		$group_subject_prefix = DAO_GroupSettings::get($group_id,DAO_GroupSettings::SETTING_SUBJECT_PREFIX,'');
+		
+		$prefix = sprintf("[%s#%s] ",
+			!empty($group_subject_prefix) ? ($group_subject_prefix.' ') : '',
+			$mask
+		);
+		
+		return (sprintf('%s%s',
+			$group_has_subject ? $prefix : '',
+			$subject
+		));
+	}
+	
+	private function _generateBodyContentWithPartModifications(string $part, string $format) : string {
+		$content = $this->_properties['content'] ?? '';
+		
+		// Apply content modifications in FIFO order
+		if(($content_modifications = ($this->_properties['content_modifications'] ?? null)))
+			foreach($content_modifications as $content_modification) {
+				$action = $content_modification['action'] ?? null;
+				$params = $content_modification['params'] ?? null;
+				
+				$params_on = $params['on'] ?? [];
+				
+				$on = [
+					'html' => true,
+					'text' => true,
+					'saved' => true,
+					'sent' => true,
+				];
+				
+				if(is_array($params_on))
+					foreach($params_on as $on_key => $is_on) {
+						if(array_key_exists($on_key, $on) && !$is_on)
+							$on[$on_key] = false;
+					}
+				
+				// Backwards compatibility for bot behaviors. Remove in 11.0
+				// @deprecated ==========
+				if(array_key_exists('replace_on', $params)) {
+					$params['mode'] = $params['replace_on'];
+					unset($params['replace_on']);
+				}
+				
+				if(array_key_exists('mode', $params)) {
+					if ('saved' == $params['mode']) {
+						$on['saved'] = true;
+						$on['sent'] = false;
+					} elseif ('sent' == $params['mode']) {
+						$on['saved'] = false;
+						$on['sent'] = true;
+					}
+				}
+				// ==========@deprecated
+				
+				// If this part or format is disabled, skip it
+				if(!$on[$part] || !$on[$format])
+					continue;
+				
+				// Replacement
+				if($action == 'replace') {
+					$replace = $params['replace'] ?? null;
+					$replace_is_regexp = $params['replace_is_regexp'] ?? null;
+					$with = $params['with'] ?? null;
+					
+					if($replace_is_regexp) {
+						$content = preg_replace($replace, $with, $content);
+					} else {
+						$content = str_replace($replace, $with, $content);
+					}
+					
+					// Prepends
+				} elseif ($action == 'prepend') {
+					$prepend_content = $params['content'] ?? null;
+					
+					$content = $prepend_content . "\n" . $content;
+					
+					// Appends
+				} elseif ($action == 'append') {
+					$append_content = $params['content'] ?? null;
+					
+					$content = $content . "\n" . $append_content;
+				}
+			}
+		
+		return $content;
+	}
+	
+	// Strip some Markdown in the plaintext version
+	private function _generateTextFromMarkdown($markdown) : string {
+		$plaintext = null;
+		
+		$url_writer = DevblocksPlatform::services()->url();
+		$base_url = $url_writer->write('c=files', true) . '/';
+		
+		// Fix references to internal files
+		try {
+			$plaintext = preg_replace_callback(
+				sprintf('|(\!\[(.*?)\]\(%s(.*?)\))|', preg_quote($base_url)),
+				function($matches) use ($base_url) {
+					if(4 == count($matches)) {
+						list($file_id, $file_name) = array_pad(explode('/', $matches[3], 2), 2, null);
+						
+						$file_name = urldecode($file_name);
+						
+						if($file_id && $file_name) {
+							$inline_text = $file_name . ($matches[2] ? (' ' . $matches[2]) : '');
+							return sprintf("[%s]", $inline_text);
+						}
+					}
+					
+					return $matches[0];
+				},
+				$markdown
+			);
+			
+		} catch (Exception $e) {
+			error_log($e->getMessage());
+		}
+		
+		// Images
+		try {
+			$plaintext = preg_replace_callback(
+				'|(\!\[(.*?)\]\((.*?)\))|',
+				function($matches) {
+					if(4 == count($matches)) {
+						$inline_text = $matches[3] . ($matches[2] ? (' ' . $matches[2]) : '');
+						return sprintf("[%s]", $inline_text);
+					}
+					
+					return $matches[0];
+				},
+				$plaintext
+			);
+			
+		} catch (Exception $e) {
+			error_log($e->getMessage());
+		}
+		
+		return $plaintext;
+	}
+	
+	public function getBodyTemplateFromContent(string $part, string $format='text') : string {
+		$output = $this->_generateBodyContentWithPartModifications($part, $format);
+		
+		$output = strtr($output, "\r", '');
+		
+		if('html' == $format) {
+			$output = preg_replace('/^#signature$/m', addcslashes($this->_properties['signature_html'] ?? '', '\\$'), $output);
+			$output = preg_replace('/^#original_message$/m', addcslashes($this->_properties['original_message_html'] ?? '', '\\$'), $output);
+			return DevblocksPlatform::parseMarkdown($output);
+			
+		} else {
+			$output = preg_replace('/^#signature$/m', addcslashes($this->_properties['signature'] ?? '', '\\$'), $output);
+			$output = preg_replace('/^#original_message$/m', addcslashes($this->_properties['original_message'] ?? '', '\\$'), $output);
+			return $this->_generateTextFromMarkdown($output);
+		}
+	}
+	
+	public function isBodyFormatted() : bool {
+		return in_array($this->getProperty('content_format'), ['markdown','parsedown']);
+	}
+	
+	public function getBodyTextSaved() : string {
+		return $this->_getBodyText('saved');
+	}
+	
+	public function getBodyTextSent() : string {
+		return $this->_getBodyText('sent');
+	}
+	
+	private function _getBodyText(string $part) : string {
+		return $this->getBodyTemplateFromContent($part, 'text');
+	}
+	
+	public function getBodyHtmlSaved(&$embedded_files=[]) : string {
+		return $this->_getBodyHtml('saved', $embedded_files);
+	}
+	
+	public function getBodyHtmlSent(&$embedded_files=[]) : string {
+		return $this->_getBodyHtml('sent', $embedded_files);
+	}
+	
+	private function _getBodyHtml(string $part, &$embedded_files=[]) : string {
+		$group = $this->getGroup();
+		$bucket_id = $this->getProperty('bucket_id', 0);
+		$html_template_id = $this->getProperty('html_template_id', 0);
+		
+		// Replace signatures for each part
+		if(!($html_body = $this->getBodyTemplateFromContent($part, 'html')))
+			return '';
+		
+		// We only use HTML templates on the sent version
+		if('sent' == $part) {
+			// Determine if we have an HTML template
+			if (!$html_template_id || !($html_template = DAO_MailHtmlTemplate::get($html_template_id))) {
+				if (!$group || !$bucket_id || !($html_template = $group->getReplyHtmlTemplate($bucket_id)))
+					$html_template = null;
+			}
+			
+			// Use an HTML template wrapper if we have one
+			if ($html_template instanceof Model_MailHtmlTemplate) {
+				$tpl_builder = DevblocksPlatform::services()->templateBuilder();
+				
+				$values = [
+					'message_body' => $html_body,
+				];
+				
+				if ($this->getProperty('outgoing_message_id')) {
+					$values['message_id_header'] = $this->getProperty('outgoing_message_id', '');
+				}
+				
+				if ($this->getProperty('token')) {
+					$values['message_token'] = $this->getProperty('token', '');
+				}
+				
+				if ($this->getProperty('bucket_id')) {
+					$values['bucket__context'] = CerberusContexts::CONTEXT_BUCKET;
+					$values['bucket_id'] = $this->getProperty('bucket_id', 0);
+				}
+				
+				if ($this->getProperty('group_id')) {
+					$values['group__context'] = CerberusContexts::CONTEXT_GROUP;
+					$values['group_id'] = $this->getProperty('group_id', 0);
+				}
+				
+				if ($this->getProperty('ticket_id')) {
+					$values['ticket__context'] = CerberusContexts::CONTEXT_TICKET;
+					$values['ticket_id'] = $this->getProperty('ticket_id', 0);
+				}
+				
+				if ($this->getProperty('worker_id')) {
+					$values['worker__context'] = CerberusContexts::CONTEXT_WORKER;
+					$values['worker_id'] = $this->getProperty('worker_id', 0);
+				}
+				
+				$html_body = $tpl_builder->build(
+					$html_template->content,
+					$values
+				);
+			}
+			
+			// Purify the HTML and inline the CSS
+			$html_body = DevblocksPlatform::purifyHTML($html_body, true, true);
+		}
+			
+		// Replace links with cid: in HTML part
+		try {
+			$url_writer = DevblocksPlatform::services()->url();
+			$base_url = $url_writer->write('c=files', true) . '/';
+			
+			$html_body = preg_replace_callback(
+				sprintf('|(\"%s(.*?)\")|', preg_quote($base_url)),
+				function ($matches) use ($base_url, &$embedded_files) {
+					if (3 == count($matches)) {
+						list($file_id, $file_name) = array_pad(explode('/', $matches[2], 2), 2, null);
+						if ($file_id && $file_name) {
+							$cid = 'cid:' . sha1(random_bytes(32)) . '@cerb';
+							$embedded_files[$cid] = intval($file_id);
+							return sprintf('"%s"', $cid);
+						}
+					}
+					
+					return $matches[0];
+				},
+				$html_body
+			);
+			
+		} catch (Exception $e) {
+			DevblocksPlatform::logException($e);
+		}
+		
+		return $html_body;
+	}
+}
+
 class _DevblocksEmailManager {
 	private static $instance = null;
 	private $_lastErrorMessage = null;
@@ -27,51 +626,33 @@ class _DevblocksEmailManager {
 		return self::$instance;
 	}
 	
-	/**
-	 *
-	 * @return Swift_Message
-	 */
-	function createMessage() : Swift_Message {
+	/* @deprecated */
+	public function createMessage() : Swift_Message {
 		return new Swift_Message();
 	}
 	
-	function send(Swift_Message $message) {
+	function send(Model_DevblocksOutboundEmail $email_model) : bool {
 		$metrics = DevblocksPlatform::services()->metrics();
 		
-		$to = $message->getTo();
-		$from = array_keys($message->getFrom());
-		$sender = reset($from);
-		
-		if(empty($to)) {
-			$this->_lastErrorMessage = "At least one 'To:' recipient address is required.";
+		if(!($sender_address = $email_model->getFromAddressModel())) {
+			$this->_lastErrorMessage = "The 'From:' bucket has no sender address configured.";
 			return false;
 		}
 		
-		if(empty($sender)) {
-			$this->_lastErrorMessage = "A 'From:' sender address is required.";
+		if(!($transport_model = $sender_address->getMailTransport())) {
+			$this->_lastErrorMessage = "The 'From:' sender address has no mail transport.";
 			return false;
 		}
 		
-		if(false == ($replyto = DAO_Address::getByEmail($sender))) {
-			$this->_lastErrorMessage = "The 'From:' sender address does not exist.";
-			return false;
-		}
-		
-		if(!DAO_Address::isLocalAddressId($replyto->id))
-			$replyto = DAO_Address::getDefaultLocalAddress();
-		
-		if(false == ($model = $replyto->getMailTransport())) {
-			$this->_lastErrorMessage = "The 'From:' sender address does not have a mail transport configured.";
-			return false;
-		}
-		
-		if(false == ($transport = $model->getExtension())) {
+		if(!($transport_ext = $transport_model->getExtension())) {
 			$this->_lastErrorMessage = "The 'From:' sender address mail transport is invalid.";
 			return false;
 		}
 		
-		if(false == ($result = $transport->send($message, $model))) {
-			$this->_lastErrorMessage = $transport->getLastError();
+		$email_model->beforeSend();
+		
+		if(!($result = $transport_ext->send($email_model, $transport_model))) {
+			$this->_lastErrorMessage = $transport_ext->getLastError();
 			
 			if(!empty($this->_lastErrorMessage)) {
 				/*
@@ -83,7 +664,15 @@ class _DevblocksEmailManager {
 						'error' => sprintf("%s", $this->_lastErrorMessage),
 					],
 				];
-				CerberusContexts::logActivity('transport.delivery.error', CerberusContexts::CONTEXT_MAIL_TRANSPORT, $model->id, $entry, CerberusContexts::CONTEXT_MAIL_TRANSPORT, $model->id);
+				
+				CerberusContexts::logActivity(
+					'transport.delivery.error',
+					CerberusContexts::CONTEXT_MAIL_TRANSPORT,
+					$transport_model->id,
+					$entry,
+					CerberusContexts::CONTEXT_MAIL_TRANSPORT,
+					$transport_model->id
+				);
 			}
 			
 			// Increment mail transport error metric
@@ -91,8 +680,8 @@ class _DevblocksEmailManager {
 				'cerb.mail.transport.failures',
 				1,
 				[
-					'transport_id' => $model->id,
-					'sender_id' => $replyto->id,
+					'transport_id' => $transport_model->id,
+					'sender_id' => $sender_address->id,
 				]
 			);
 			
@@ -102,8 +691,8 @@ class _DevblocksEmailManager {
 				'cerb.mail.transport.deliveries',
 				1,
 				[
-					'transport_id' => $model->id,
-					'sender_id' => $replyto->id,
+					'transport_id' => $transport_model->id,
+					'sender_id' => $sender_address->id,
 				]
 			);
 			
@@ -112,7 +701,7 @@ class _DevblocksEmailManager {
 		return $result;
 	}
 	
-	function getLastErrorMessage() {
+	function getLastErrorMessage() : ?string {
 		return $this->_lastErrorMessage;
 	}
 	
@@ -515,5 +1104,10 @@ class _DevblocksEmailManager {
 			if(null != ($model->setRouteGroup(DAO_Group::getByName($group_name))))
 				DevblocksPlatform::noop();
 		}
+	}
+	
+	public function generateMessageId() : string {
+		$generator = new Swift_Mime_IdGenerator(DevblocksPlatform::getHostname());
+		return $generator->generateId();
 	}
 };
