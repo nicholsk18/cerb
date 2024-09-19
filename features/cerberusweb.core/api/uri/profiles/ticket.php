@@ -472,10 +472,9 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		if($ticket->reopen_at)
 			$draft_properties['ticket_reopen'] = DevblocksPlatform::services()->date()->formatTime(null, $ticket->reopen_at);
 		
-		$draft_fields = DAO_MailQueue::getFieldsFromMessageProperties($draft_properties);
-			
-		$draft_fields[DAO_MailQueue::TYPE] = $is_forward ? Model_MailQueue::TYPE_TICKET_FORWARD : Model_MailQueue::TYPE_TICKET_REPLY;
-		
+		$draft_type = $is_forward ? Model_MailQueue::TYPE_TICKET_FORWARD : Model_MailQueue::TYPE_TICKET_REPLY;
+		$draft_fields = DAO_MailQueue::getFieldsFromMessageProperties($draft_properties, $draft_type);
+		$draft_fields[DAO_MailQueue::TYPE] = $draft_type;
 		$draft_id = DAO_MailQueue::create($draft_fields);
 		
 		if(!($draft = DAO_MailQueue::get($draft_id)))

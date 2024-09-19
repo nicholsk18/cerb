@@ -1,10 +1,5 @@
 <?php
-/**
- * Email Management Singleton
- *
- * @static
- * @ingroup services
- */
+class Exception_DevblocksEmailDeliveryError extends Exception_Devblocks {}
 
 class Model_DevblocksOutboundEmail {
 	private string $_type = '';
@@ -112,7 +107,7 @@ class Model_DevblocksOutboundEmail {
 			$this->setProperty('group_id', $group->id);
 			$this->_group_model = $group;
 			
-			if(($bucket = $group->getDefaultBucket()->id ?? null)) {
+			if(($bucket = $group->getDefaultBucket() ?? null)) {
 				$this->setProperty('bucket_id', $bucket->id);
 				$this->_bucket_model = $bucket;
 			}
@@ -148,6 +143,17 @@ class Model_DevblocksOutboundEmail {
 			}
 		}
 		
+		// If we still have no bucket, use the default
+		if(!$bucket) {
+			if(($group = DAO_Group::getDefaultGroup())) {
+				$bucket = $group->getDefaultBucket();
+				$this->setProperty('bucket_id', $bucket->id);
+				$this->setProperty('group_id', $bucket->group_id);
+				$this->_bucket_model = $bucket;
+				return $this->_bucket_model;
+			}
+		}
+		
 		$this->_bucket_model = $bucket;
 		return $this->_bucket_model;
 	}
@@ -174,6 +180,68 @@ class Model_DevblocksOutboundEmail {
 		
 		// Changing the outgoing message through a VA (group)
 		Event_MailBeforeSentByGroup::trigger($this->_properties, null, null, $group_id);
+	}
+	
+	public function parseComposeHashCommands() : void {
+		if(($worker = $this->getWorker())) {
+			$hash_commands = [];
+			CerberusMail::parseComposeHashCommands($worker, $this->_properties, $hash_commands);
+			$this->setResult('hash_commands', $hash_commands);
+		}
+	}
+	
+	public function runComposeHashCommands(array $commands) : void {
+		$ticket = $this->getTicket();
+		$message = $this->getMessage();
+		$worker = $this->getWorker();
+		
+		foreach($commands as $command_data) {
+			switch($command_data['command']) {
+				case 'comment':
+					$comment = $command_data['args'] ?? null;
+					
+					if($comment && $ticket && $worker) {
+						$fields = [
+							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_TICKET,
+							DAO_Comment::CONTEXT_ID => $ticket->id,
+							DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+							DAO_Comment::OWNER_CONTEXT_ID => $worker->id,
+							DAO_Comment::CREATED => time()+2,
+							DAO_Comment::COMMENT => $comment,
+						];
+						$comment_id = DAO_Comment::create($fields);
+						DAO_Comment::onUpdateByActor($worker, $fields, $comment_id);
+					}
+					break;
+				
+				case 'note':
+					$comment = $command_data['args'] ?? null;
+					
+					if($comment && $message && $worker) {
+						$fields = [
+							DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_MESSAGE,
+							DAO_Comment::CONTEXT_ID => $message->id,
+							DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_WORKER,
+							DAO_Comment::OWNER_CONTEXT_ID => $worker->id,
+							DAO_Comment::CREATED => time(),
+							DAO_Comment::COMMENT => $comment,
+						];
+						$comment_id = DAO_Comment::create($fields);
+						DAO_Comment::onUpdateByActor($worker, $fields, $comment_id);
+					}
+					break;
+				
+				case 'watch':
+					if($ticket)
+						CerberusContexts::addWatchers(CerberusContexts::CONTEXT_TICKET, $ticket->id, [$worker->id]);
+					break;
+				
+				case 'unwatch':
+					if($ticket)
+						CerberusContexts::removeWatchers(CerberusContexts::CONTEXT_TICKET, $ticket->id, [$worker->id]);
+					break;
+			}
+		}
 	}
 	
 	public function triggerReplyBehaviors() {
@@ -205,9 +273,13 @@ class Model_DevblocksOutboundEmail {
 		$send_at = $this->getProperty('send_at', 0);
 		
 		if($send_at) {
-			if(false !== ($send_at = strtotime($send_at)))
-				if($send_at >= time())
+			if(!is_numeric($send_at))
+				$send_at = strtotime($send_at);
+			
+			if(false !== $send_at) {
+				if ($send_at >= time())
 					return $send_at;
+			}
 		}
 		
 		return false;
@@ -218,7 +290,7 @@ class Model_DevblocksOutboundEmail {
 		
 		// If we're not resuming a draft from the UI, generate a draft
 		if (!($draft = DAO_MailQueue::get($draft_id))) {
-			$change_fields = DAO_MailQueue::getFieldsFromMessageProperties($this->getProperties());
+			$change_fields = DAO_MailQueue::getFieldsFromMessageProperties($this->getProperties(), $this->getType());
 			$change_fields[DAO_MailQueue::TYPE] = $this->getType();
 			$change_fields[DAO_MailQueue::IS_QUEUED] = 1;
 			$change_fields[DAO_MailQueue::QUEUE_FAILS] = $is_a_failure ? 1 : 0;
@@ -229,7 +301,7 @@ class Model_DevblocksOutboundEmail {
 			if(($forward_files = $this->getProperty('forward_files')))
 				DAO_Attachment::addLinks(CerberusContexts::CONTEXT_DRAFT, $draft_id, $forward_files);
 			
-			$this->setProperty('draft_id', $draft);
+			$this->setProperty('draft_id', $draft_id);
 			
 		} else {
 			// If we're saving due to failure, increment the counters
@@ -274,7 +346,7 @@ class Model_DevblocksOutboundEmail {
 		// Organization ID from first requester
 		reset($to_list);
 		
-		if(null != ($first_req = DAO_Address::lookupAddress(key($to_list),true))) {
+		if(null != ($first_req = DAO_Address::lookupAddress(key($to_list) ?? ''))) {
 			if(!empty($first_req->contact_org_id))
 				return $first_req->contact_org_id;
 		}
@@ -313,22 +385,21 @@ class Model_DevblocksOutboundEmail {
 	}
 	
 	public function getMessage() : ?Model_Message {
-		if(!is_null($this->_message_model)) {
-			$message_id = $this->getProperty('message_id');
-			
-			if (!$message_id) {
-				// Default to the last message from the parent ticket_id
-				if(($ticket = $this->getTicket())) {
-					$message_id = $ticket->last_message_id;
-				} else {
-					return null;
-				}
+		if(!is_null($this->_message_model))
+			return $this->_message_model;
+		
+		$message_id = $this->getProperty('message_id');
+		
+		if (!$message_id) {
+			// Default to the last message from the parent ticket_id
+			if(($ticket = $this->getTicket())) {
+				$message_id = $ticket->last_message_id;
+			} else {
+				return null;
 			}
-			
-			// Worker
-			$this->_message_model = DAO_Message::get($message_id);
 		}
 		
+		$this->_message_model = DAO_Message::get($message_id);
 		return $this->_message_model;
 	}
 	
@@ -354,7 +425,10 @@ class Model_DevblocksOutboundEmail {
 			}
 			
 			// Otherwise use the default sender
-			return DAO_Address::getDefaultLocalAddress();
+			if(($default_sender = DAO_Address::getDefaultLocalAddress())) {
+				$this->setProperty('from', $default_sender->email);
+				return $default_sender;
+			}
 		}
 		
 		if(null == ($bucket = $this->getBucket()))
@@ -366,9 +440,15 @@ class Model_DevblocksOutboundEmail {
 		return $group->getReplyTo($bucket->id);
 	}
 	
-	public function beforeSend() : void {
-		// X-Mailer
-		$this->_properties['headers']['X-Mailer'] = 'Cerb ' . APP_VERSION . ' (Build ' . APP_BUILD . ')';
+	public function getFromPersonal() : ?string {
+		if(Model_MailQueue::TYPE_TRANSACTIONAL == $this->getType()) {
+			return $this->getProperty('from_personal');
+		}
+		
+		$worker = $this->getWorker();
+		$group = $this->getGroup();
+		$bucket = $this->getBucket();
+		return $group->getReplyPersonal($bucket->id, $worker);
 	}
 	
 	public function getSubject() {
@@ -657,8 +737,84 @@ class Model_DevblocksOutboundEmail {
 		
 		return $html_body;
 	}
+	
+	public function send(?string &$error=null) : bool {
+		$mail_service = DevblocksPlatform::services()->mail();
+		
+		// Attempt to deliver the message before continuing
+		try {
+			// Is this a future draft?
+			if(($send_at = $this->getFutureDeliveryTime())) {
+				$this->saveQueuedDraft($send_at);
+				return false;
+			}
+			
+			// Attempt to deliver via transport extension
+			if($this->isDeliverable()) {
+				if(!$mail_service->send($this)) {
+					if($mail_service->getLastErrorMessage()) {
+						throw new Exception_DevblocksEmailDeliveryError('Mail failed to send: ' . $mail_service->getLastErrorMessage());
+					} else {
+						throw new Exception_DevblocksEmailDeliveryError('Mail failed to send: unknown reason');
+					}
+				}
+			}
+			
+			return true;
+			
+		} catch (Throwable $e) {
+			DevblocksPlatform::logException($e);
+			
+			if(!$this->isSensitive())
+				$draft_id = $this->saveQueuedDraft(time() + 300, true);
+			
+			if(!($last_error_message = $mail_service->getLastErrorMessage())) {
+				if($e instanceof Swift_TransportException) {
+					$last_error_message = $e->getMessage();
+				} elseif($e instanceof Swift_RfcComplianceException) {
+					$last_error_message = $e->getMessage();
+				} elseif($e instanceof Exception_DevblocksEmailDeliveryError) {
+					$last_error_message = $e->getMessage();
+				}
+			}
+			
+			if($last_error_message)
+				$error = $last_error_message;
+			
+			// If we have an error message, log it on the draft
+			if(isset($draft_id) && $draft_id && $last_error_message) {
+				$fields = [
+					DAO_Comment::OWNER_CONTEXT => CerberusContexts::CONTEXT_APPLICATION,
+					DAO_Comment::OWNER_CONTEXT_ID => 0,
+					DAO_Comment::CONTEXT => CerberusContexts::CONTEXT_DRAFT,
+					DAO_Comment::CONTEXT_ID => $draft_id,
+					DAO_Comment::COMMENT => 'Error sending message: ' . $last_error_message,
+					DAO_Comment::CREATED => time(),
+				];
+				DAO_Comment::create($fields);
+			}
+			
+			return false;
+		}
+	}
+	
+	public function getHeadersText() : string {
+		try {
+			$swift_message = CerberusMail::getSwiftMessageFromModel($this, true);
+			return $swift_message->getHeaders()->toString();
+			
+		} catch(Throwable) {
+			return '';
+		}
+	}
 }
 
+/**
+ * Email Management Singleton
+ *
+ * @static
+ * @ingroup services
+ */
 class _DevblocksEmailManager {
 	private static $instance = null;
 	private $_lastErrorMessage = null;
@@ -695,16 +851,21 @@ class _DevblocksEmailManager {
 		'draft_id'
 		'forward_files'
 		'from'
+		'from_personal'
 		'gpg_encrypt'
 		'gpg_sign'
 		'html_template_id'
+		'is_sensitive'
+		'reply_to'
+		'return_path'
 		'send_at'
 		'subject'
 		'to'
 		'token'
 		 */
 		
-		$properties['outgoing_message_id'] = $this->generateMessageId();
+		if(!array_key_exists('outgoing_message_id', $properties))
+			$properties['outgoing_message_id'] = $this->generateMessageId();
 		
 		$email_model = new Model_DevblocksOutboundEmail(Model_MailQueue::TYPE_TRANSACTIONAL, $properties);
 		
@@ -718,39 +879,47 @@ class _DevblocksEmailManager {
 			return false;
 		}
 		
+		if(!$email_model->getFromAddressModel()) {
+			$error = "`from` is required.";
+			return false;
+		}
+		
 		return $email_model;
 	}
 	
 	public function createComposeModelFromProperties(array $properties, string &$error=null) : Model_DevblocksOutboundEmail|false {
 		/*
-		'group_id'
-		'bucket_id'
-		'worker_id'
-		'owner_id'
-		'watcher_ids'
-		'org_id'
-		'to'
-		'cc'
 		'bcc'
-		'subject'
+		'bucket_id'
+		'cc'
 		'content'
 		'content_format'
-		'html_template_id'
-		'forward_files'
-		'status_id'
-		'ticket_reopen'
+		'custom_fields'
 		'dont_send'
 		'draft_id'
+		'forward_files'
 		'gpg_encrypt'
 		'gpg_sign'
+		'group_id'
+		'html_template_id'
+		'link_forward_files'
+		'org_id'
+		'owner_id'
 		'send_at'
+		'status_id'
+		'subject'
+		'ticket_reopen'
+		'to'
 		'token'
+		'watcher_ids'
+		'worker_id'
 		 */
 		
 		if(!array_key_exists('headers', $properties))
 			$properties['headers'] = [];
 		
-		$properties['outgoing_message_id'] = $this->generateMessageId();
+		if(!array_key_exists('outgoing_message_id', $properties))
+			$properties['outgoing_message_id'] = $this->generateMessageId();
 		
 		$group_id = $properties['group_id'] ?? null;
 		
@@ -813,7 +982,8 @@ class _DevblocksEmailManager {
 		if(!array_key_exists('headers', $properties))
 			$properties['headers'] = [];
 		
-		$properties['outgoing_message_id'] = $this->generateMessageId();
+		if(!array_key_exists('outgoing_message_id', $properties))
+			$properties['outgoing_message_id'] = $this->generateMessageId();
 		
 		$type = ($properties['is_forward'] ?? null) ? Model_MailQueue::TYPE_TICKET_FORWARD : Model_MailQueue::TYPE_TICKET_REPLY;
 		
@@ -918,7 +1088,7 @@ class _DevblocksEmailManager {
 		$metrics = DevblocksPlatform::services()->metrics();
 		
 		if(!($sender_address = $email_model->getFromAddressModel())) {
-			$this->_lastErrorMessage = "The 'From:' bucket has no sender address configured.";
+			$this->_lastErrorMessage = "The 'From:' has no sender address configured.";
 			return false;
 		}
 		
@@ -931,8 +1101,6 @@ class _DevblocksEmailManager {
 			$this->_lastErrorMessage = "The 'From:' sender address mail transport is invalid.";
 			return false;
 		}
-		
-		$email_model->beforeSend();
 		
 		if(!($result = $transport_ext->send($email_model, $transport_model))) {
 			$this->_lastErrorMessage = $transport_ext->getLastError();

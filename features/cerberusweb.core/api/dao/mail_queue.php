@@ -494,7 +494,7 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 	static function maint() {
 	}
 	
-	public static function getFieldsFromMessageProperties($properties) {
+	public static function getFieldsFromMessageProperties($properties, ?string $draft_type=null) {
 		$change_fields = [];
 		$params = [];
 		
@@ -518,6 +518,20 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 		
 		if(array_key_exists('bcc', $properties))
 			$params['bcc'] = $properties['bcc'];
+		
+		if($draft_type == Model_MailQueue::TYPE_TRANSACTIONAL) {
+			if (array_key_exists('from', $properties))
+				$params['from'] = $properties['from'];
+			
+			if (array_key_exists('from_personal', $properties))
+				$params['from_personal'] = $properties['from_personal'];
+			
+			if (array_key_exists('reply_to', $properties))
+				$params['reply_to'] = $properties['reply_to'];
+			
+			if (array_key_exists('return_path', $properties))
+				$params['return_path'] = $properties['return_path'];
+		}
 		
 		if(array_key_exists('subject', $properties)) {
 			$params['subject'] = $properties['subject'];
@@ -556,11 +570,11 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 		if(array_key_exists('ticket_reopen', $properties))
 			$params['ticket_reopen'] = $properties['ticket_reopen'];
 		
-		if(array_key_exists('options_gpg_encrypt', $properties))
-			$params['gpg_encrypt'] = $properties['options_gpg_encrypt'];
+		if(array_key_exists('gpg_encrypt', $properties))
+			$params['options_gpg_encrypt'] = $properties['gpg_encrypt'];
 		
-		if(array_key_exists('options_gpg_sign', $properties))
-			$params['gpg_sign'] = $properties['options_gpg_sign'];
+		if(array_key_exists('gpg_sign', $properties))
+			$params['options_gpg_sign'] = $properties['gpg_sign'];
 		
 		if(array_key_exists('is_forward', $properties))
 			$params['is_forward'] = $properties['is_forward'];
@@ -757,7 +771,7 @@ class Model_MailQueue extends DevblocksRecordModel {
 			'group_id' => $this->getParam('group_id', 0),
 			'content' => $this->getParam('content', ''),
 			'content_format' => $this->getParam('format', ''),
-			'in_reply_message_id' => $this->getParam('in_reply_message_id', 0),
+			'message_id' => $this->getParam('in_reply_message_id', 0),
 		];
 		
 		if($this->hasParam('bucket_id'))
@@ -863,6 +877,15 @@ class Model_MailQueue extends DevblocksRecordModel {
 		if($this->type == self::TYPE_TRANSACTIONAL) {
 			if($this->hasParam('from'))
 				$properties['from'] = $this->getParam('from');
+			
+			if($this->hasParam('from_personal'))
+				$properties['from_personal'] = $this->getParam('from_personal');
+			
+			if($this->hasParam('reply_to'))
+				$properties['reply_to'] = $this->getParam('reply_to');
+			
+			if($this->hasParam('return_path'))
+				$properties['return_path'] = $this->getParam('return_path');
 			
 		} else {
 			if($this->worker_id)
@@ -1794,10 +1817,13 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 					'file_ids' => 'An array of [attachment](/docs/records/types/attachment/) IDs',
 					'format' => '`parsedown` (Markdown), or blank for plaintext',
 					'from' => 'The `From:` sender (uses system default if omitted)',
+					'from_personal' => 'The personal `From:` sender (uses system default if omitted)',
 					'headers' => 'An array of email headers to set, with header names as keys',
 					'html_template_id' => 'An optional [HTML template](/docs/records/types/html_template/) ID if `format` is `parsedown`',
 					'options_gpg_encrypt' => '`1` to enable PGP encryption, `0` (or omit) to disable',
 					'options_gpg_sign' => '`1` to enable PGP signatures, `0` (or omit) to disable',
+					'reply_to' => 'The optional `Reply-To:`',
+					'return_path' => 'The optional `Return-Path:`',
 					'subject' => 'The message `Subject:`',
 					'to' => 'The `To:` recipients',
 				],

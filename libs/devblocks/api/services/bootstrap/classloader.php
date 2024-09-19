@@ -198,6 +198,7 @@ class _DevblocksClassLoadManager {
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/email.php', array(
 			'_DevblocksEmailManager',
+			'Exception_DevblocksEmailDeliveryError',
 			'Model_DevblocksOutboundEmail',
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/encryption.php', array(
