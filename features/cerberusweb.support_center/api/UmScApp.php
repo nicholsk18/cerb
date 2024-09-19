@@ -747,7 +747,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 				"Your confirmation code: %s",
 				urlencode($fields[DAO_ConfirmationCode::CONFIRMATION_CODE])
 			);
-			CerberusMail::quickSend($address_parsed['email'],"Please confirm your email address", $msg);
+			CerberusMail::quickSend($address_parsed['email'],"Please confirm your email address", $msg, is_sensitive: true);
 			
 			// Update the preferred email address
 			$tpl->assign('email', $address_parsed['email']);
@@ -926,7 +926,7 @@ class UmScLoginAuthenticator extends Extension_ScLoginAuthenticator {
 				"Your confirmation code: %s",
 				urlencode($fields[DAO_ConfirmationCode::CONFIRMATION_CODE])
 			);
-			CerberusMail::quickSend($address->email,"Please confirm your email address", $msg);
+			CerberusMail::quickSend($address->email,"Please confirm your email address", $msg, is_sensitive: true);
 			
 			$tpl->assign('email', $address->email);
 			

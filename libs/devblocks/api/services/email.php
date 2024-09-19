@@ -188,6 +188,10 @@ class Model_DevblocksOutboundEmail {
 		Event_MailBeforeSentByGroup::trigger($this->_properties, $message_id, $ticket_id, $group_id);
 	}
 	
+	private function isSensitive() : bool {
+		return $this->getProperty('is_sensitive', 0);
+	}
+	
 	public function isDeliverable() : bool {
 		return(
 			// Has recipients

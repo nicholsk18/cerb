@@ -677,7 +677,7 @@ class CerberusApplication extends DevblocksApplication {
 		if(empty($subject) || empty($body))
 			return false;
 		
-		CerberusMail::quickSend($email, $subject, $body, $send_from->email, $send_as);
+		CerberusMail::quickSend($email, $subject, $body, $send_from->email, $send_as, is_sensitive: true);
 		
 		return true;
 	}

@@ -67,7 +67,7 @@ class WgmNotifEmailerCron extends CerberusCronPageExtension {
 				);
 			}
 			
-			CerberusMail::quickSend($worker->getEmailString(), $subject, $body);
+			CerberusMail::quickSend($worker->getEmailString(), $subject, $body, is_sensitive: true);
 		}
 		
 		// Persist

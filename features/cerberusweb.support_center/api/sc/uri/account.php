@@ -597,7 +597,7 @@ class UmScAccountController extends Extension_UmScController {
 				"Confirmation code: %s",
 				urlencode($fields[DAO_ConfirmationCode::CONFIRMATION_CODE])
 			);
-			CerberusMail::quickSend($add_email,"Please confirm your email address", $msg);
+			CerberusMail::quickSend($add_email,"Please confirm your email address", $msg, is_sensitive: true);
 			
 		} catch (Exception $e) {
 			$tpl->assign('error', $e->getMessage());
