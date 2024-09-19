@@ -509,6 +509,8 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 		if(array_key_exists('to', $properties)) {
 			$params['to'] = $properties['to'];
 			$change_fields[DAO_MailQueue::HINT_TO] = $properties['to'];
+		} else {
+			$change_fields[DAO_MailQueue::HINT_TO] = '(participants)';
 		}
 		
 		if(array_key_exists('cc', $properties))
@@ -522,9 +524,11 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 			$change_fields[DAO_MailQueue::NAME] = $properties['subject'];
 		}
 		
-		if(array_key_exists('content', $properties)) {
+		if(array_key_exists('is_autoreply', $properties))
+			$params['is_autoreply'] = true;
+		
+		if(array_key_exists('content', $properties))
 			$params['content'] = $properties['content'];
-		}
 		
 		if(array_key_exists('content_format', $properties))
 			$params['format'] = $properties['content_format'];
@@ -1009,7 +1013,7 @@ class Model_MailQueue extends DevblocksRecordModel {
 		foreach($automation_properties as $k => $v)
 			$properties[$k] = $v;
 		
-		return CerberusMail::sendTicketMessage($properties);
+		return CerberusMail::sendTicketReply($properties);
 	}
 	
 	public function beforeEditingCustomFields(array &$custom_field_values) {

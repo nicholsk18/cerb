@@ -799,7 +799,7 @@ class ChRest_Tickets extends Extension_RestController implements IExtensionRestC
 		if($has_worker_override)
 			CerberusContexts::pushActivityDefaultActor(CerberusContexts::CONTEXT_WORKER, $properties['worker_id']);
 		
-		if(!(CerberusMail::sendTicketMessage($properties)))
+		if(!(CerberusMail::sendTicketReply($properties)))
 			$this->error(self::ERRNO_CUSTOM, "Failed to create a reply message.");
 		
 		if($has_worker_override)

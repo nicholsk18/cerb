@@ -1134,7 +1134,7 @@ abstract class AbstractEvent_Ticket extends Extension_DevblocksEvent {
 				
 				// Send
 				
-				CerberusMail::sendTicketMessage($properties);
+				CerberusMail::sendTicketReply($properties);
 				break;
 				
 			case 'set_org':

@@ -1149,7 +1149,7 @@ abstract class AbstractEvent_Message extends Extension_DevblocksEvent {
 				
 				// Send
 				
-				CerberusMail::sendTicketMessage($properties);
+				CerberusMail::sendTicketReply($properties);
 				break;
 
 			case 'set_reopen_date':

@@ -176,6 +176,18 @@ class Model_DevblocksOutboundEmail {
 		Event_MailBeforeSentByGroup::trigger($this->_properties, null, null, $group_id);
 	}
 	
+	public function triggerReplyBehaviors() {
+		$message_id = $this->getProperty('message_id');
+		$ticket_id = $this->getProperty('ticket_id');
+		$group_id = $this->getProperty('group_id');
+		
+		// Changing the outgoing message through a VA (global)
+		Event_MailBeforeSent::trigger($this->_properties, $message_id, $ticket_id, $group_id);
+		
+		// Changing the outgoing message through a VA (group)
+		Event_MailBeforeSentByGroup::trigger($this->_properties, $message_id, $ticket_id, $group_id);
+	}
+	
 	public function isDeliverable() : bool {
 		return(
 			// Has recipients
@@ -266,9 +278,32 @@ class Model_DevblocksOutboundEmail {
 		return 0;
 	}
 	
+	public function getTicket() : ?Model_Ticket {
+		if(!is_null($this->_ticket_model))
+			return $this->_ticket_model;
+		
+		$ticket = DAO_Ticket::get($this->getProperty('ticket_id'));
+		$message_id = $this->getProperty('message_id');
+
+		// Default from the parent message_id
+		if (!$ticket && $message_id) {
+			$ticket = DAO_Ticket::getTicketByMessageId($message_id);
+		}
+		
+		$this->_ticket_model = $ticket;
+		return $this->_ticket_model;
+	}
+	
 	public function getTicketMask() : string {
-		if(empty($this->_mask))
-			$this->_mask = CerberusApplication::generateTicketMask();
+		if(empty($this->_mask)) {
+			// If an existing ticket
+			if(($ticket = $this->getTicket())) {
+				$this->_mask = $ticket->mask;
+			} else {
+				// Otherwise generate a new mask
+				$this->_mask = CerberusApplication::generateTicketMask();
+			}
+		}
 		
 		return $this->_mask;
 	}
@@ -323,6 +358,9 @@ class Model_DevblocksOutboundEmail {
 	public function getSubject() {
 		$subject = $this->getProperty('subject') ?: '(no subject)';
 		
+		if($this->getProperty('is_forward'))
+			return $subject;
+		
 		$group_id = $this->getProperty('group_id');
 		$mask = $this->getTicketMask();
 		
@@ -335,7 +373,8 @@ class Model_DevblocksOutboundEmail {
 			$mask
 		);
 		
-		return (sprintf('%s%s',
+		return (sprintf('%s%s%s',
+			$this->getType() == Model_MailQueue::TYPE_TICKET_REPLY ? 'Re: ' : '',
 			$group_has_subject ? $prefix : '',
 			$subject
 		));
@@ -687,6 +726,143 @@ class _DevblocksEmailManager {
 		return new Model_DevblocksOutboundEmail(Model_MailQueue::TYPE_COMPOSE, $properties);
 	}
 	
+	public function createReplyModelFromProperties(array $properties, string &$error=null) : Model_DevblocksOutboundEmail|false {
+		/*
+		'bcc'
+		'bucket_id'
+		'cc'
+		'content'
+		'content_format' // markdown, parsedown, html
+		'custom_fields'
+		'dont_keep_copy'
+		'dont_send'
+		'draft_id'
+		'forward_files'
+		'gpg_encrypt'
+		'gpg_sign'
+		'group_id'
+		'headers'
+		'html_template_id'
+		'is_autoreply'
+		'is_broadcast'
+		'is_forward'
+		'link_forward_files'
+		'message_id'
+		'owner_id'
+		'send_at'
+		'status_id'
+		'subject'
+		'ticket_id'
+		'ticket_reopen'
+		'to'
+		'token'
+		'worker_id'
+		*/
+		
+		if(!array_key_exists('headers', $properties))
+			$properties['headers'] = [];
+		
+		$properties['outgoing_message_id'] = $this->generateMessageId();
+		
+		$type = ($properties['is_forward'] ?? null) ? Model_MailQueue::TYPE_TICKET_FORWARD : Model_MailQueue::TYPE_TICKET_REPLY;
+		
+		$reply_message_id = $properties['message_id'] ?? null;
+		
+		if(null == ($message = DAO_Message::get($reply_message_id))) {
+			if(!($ticket = DAO_Ticket::get($properties['ticket_id'] ?? 0))) {
+				$error = 'A target `message_id` or `ticket_id` to reply to is required.';
+				return false;
+			}
+			
+			if(null != ($message = $ticket->getLastMessage())) {
+				$reply_message_id = $message->id;
+				$properties['message_id'] = $reply_message_id;
+			}
+			
+		} else {
+			// Ticket
+			if(null == ($ticket = $message->getTicket())) {
+				$error = 'A target `message_id` or `ticket_id` to reply to is required.';
+				return false;
+			}
+		}
+		
+		// References (on replies)
+		if(($message_headers = DAO_MessageHeaders::getAll($properties['message_id'] ?? 0))) {
+			if(($in_reply_to = ($message_headers['message-id'] ?? null))) {
+				$properties['headers']['References'] = $in_reply_to;
+				$properties['headers']['In-Reply-To'] = $in_reply_to;
+			}
+		}
+		
+		$properties['ticket_id'] = $ticket->id;
+		
+		$is_forward = $properties['is_forward'] ?? null;
+		
+		// If we have no subject, use the parent ticket's
+		if(!($properties['subject'] ?? null))
+			$properties['subject'] = $ticket->subject ?? '(no subject)';
+		
+		// If we have no 'To:', use the current recipients list
+		if(!($properties['to'] ?? null) && !$is_forward) {
+			// Auto-reply handling (RFC-3834 compliant)
+			if (($is_autoreply = $properties['is_autoreply'] ?? null))
+				$properties['headers']['Auto-Submitted'] = 'auto-replied';
+			
+			// Recipients
+			$requesters = $ticket->getRequesters() ?? [];
+			
+			if (is_array($requesters)) {
+				$new_recipients = [];
+				
+				foreach ($requesters as $requester) {
+					/* @var $requester Model_Address */
+					$first_email = DevblocksPlatform::strLower($requester->email);
+					$first_split = explode('@', $first_email);
+					
+					if (!is_array($first_split) || count($first_split) != 2)
+						continue;
+					
+					// Ourselves?
+					if (DAO_Address::isLocalAddressId($requester->id))
+						continue;
+					
+					if ($is_autoreply) {
+						// If return-path is blank
+						if (isset($message_headers['return-path']) && $message_headers['return-path'] == '<>')
+							continue;
+						
+						// Ignore autoresponses to autoresponses
+						if (isset($message_headers['auto-submitted']) && $message_headers['auto-submitted'] != 'no')
+							continue;
+						
+						// Bulk mail?
+						if (isset($message_headers['precedence']) &&
+							($message_headers['precedence'] == 'list' || $message_headers['precedence'] == 'junk' || $message_headers['precedence'] == 'bulk'))
+							continue;
+					}
+					
+					// Ignore bounces
+					if ($first_split[0] == "postmaster" || $first_split[0] == "mailer-daemon")
+						continue;
+					
+					// Auto-reply just to the initial requester
+					$new_recipients[] = $requester->email;
+				}
+				
+				if($new_recipients)
+					$properties['to'] = implode(',', $new_recipients);
+			}
+		}
+		
+		$email_model = new Model_DevblocksOutboundEmail($type, $properties);
+		
+		// Build the group + bucket keys
+		$email_model->getBucket();
+		
+		return $email_model;
+	}
+	
 	function send(Model_DevblocksOutboundEmail $email_model) : bool {
 		$metrics = DevblocksPlatform::services()->metrics();
 		
@@ -740,6 +916,13 @@ class _DevblocksEmailManager {
 					'sender_id' => $sender_address->id,
 				]
 			);
+			
+			// If we have a ticket, reopen it
+			if(($ticket = $email_model->getTicket())) {
+				DAO_Ticket::update($ticket->id, [
+					DAO_Ticket::STATUS_ID => 0,
+				]);
+			}
 			
 		} else {
 			// Increment mail transport success metric

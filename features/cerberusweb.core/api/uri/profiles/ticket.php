@@ -943,7 +943,10 @@ EOD;
 		
 		if(false !== ($response = $draft->send()) && is_array($response)) {
 			$labels = $values = [];
-			CerberusContexts::getContext($response[0], $response[1], $labels, $values, null, true, true);
+			
+			if(($response[0] ?? null) && ($response[1] ?? null)) {
+				CerberusContexts::getContext($response[0], $response[1], $labels, $values, null, true, true);
+			}
 
 			// Return the new record data
 			echo json_encode($values);

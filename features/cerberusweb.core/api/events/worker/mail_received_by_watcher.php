@@ -676,7 +676,7 @@ class Event_MailReceivedByWatcher extends Extension_DevblocksEvent {
 
 				// Send
 				
-				CerberusMail::sendTicketMessage($properties);
+				CerberusMail::sendTicketReply($properties);
 				break;
 		}
 	}

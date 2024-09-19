@@ -68,9 +68,7 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 	
 	function send(Model_DevblocksOutboundEmail $email_model, Model_MailTransport $model) : bool {
 		try {
-			$swift_message = match($email_model->getType()) {
-				Model_MailQueue::TYPE_COMPOSE => CerberusMail::getSwiftMessageFromComposeModel($email_model),
-			};
+			$swift_message = CerberusMail::getSwiftMessageFromModel($email_model);
 			
 		} catch(Throwable $e) {
 			DevblocksPlatform::logException($e);

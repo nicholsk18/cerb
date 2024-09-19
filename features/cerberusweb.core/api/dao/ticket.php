@@ -1007,7 +1007,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		}
 	}
 	
-	public static function updateWithMessageProperties(array &$properties, Model_Ticket &$ticket, array $change_fields=[], $unset=true) {
+	public static function updateWithMessageProperties(array &$properties, Model_Ticket $ticket, array $change_fields=[], $unset=true) {
 		// Automatically add new 'To:' recipients?
 		if(!array_key_exists('is_forward', $properties) && array_key_exists('to', $properties)) {
 			try {
