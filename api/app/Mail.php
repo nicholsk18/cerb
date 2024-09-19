@@ -531,136 +531,30 @@ class CerberusMail {
 		return $results;
 	}
 	
-	static function quickSend($to, $subject, $body, $from_addy=null, $from_personal=null, $custom_headers=[], $format=null, $html_template_id=null, $file_ids=[], $cc=null, $bcc=null, &$error=null) {
+	static function quickSend($to, $subject, $body, $from_addy=null, $from_personal=null, $custom_headers=[], $format=null, $html_template_id=null, $file_ids=[], $cc=null, $bcc=null, $is_sensitive=false, &$error=null) : bool {
 		$error = null;
 		
-		try {
-			$mail_service = DevblocksPlatform::services()->mail();
-			$mail = $mail_service->createMessage();
-			
-			if(empty($from_addy) || empty($from_personal)) {
-				if(false == ($replyto_default = DAO_Address::getDefaultLocalAddress()))
-					throw new Exception_DevblocksValidationError("There is no default sender address.");
-				
-				if(empty($from_addy))
-					$from_addy = $replyto_default->email;
-			}
-			
-			$mail->setTo(DevblocksPlatform::parseCsvString($to));
-			
-			if(!empty($cc))
-				$mail->setCc(DevblocksPlatform::parseCsvString($cc));
-			
-			if(!empty($bcc))
-				$mail->setBcc(DevblocksPlatform::parseCsvString($bcc));
-
-			$custom_headers = self::_parseCustomHeaders($custom_headers);
-			
-			// If we have a custom from, override the sender info
-			if(isset($custom_headers['from'])) {
-				if(false != ($from = CerberusMail::parseRfcAddress($custom_headers['from']))) {
-					$from_addy = $from['email'];
-					$from_personal = $from['personal'];
-				}
-				
-				unset($custom_headers['from']);
-			}
-			
-			if(!empty($from_personal)) {
-				$mail->setFrom($from_addy, trim($from_personal));
-			} else {
-				$mail->setFrom($from_addy);
-			}
-			
-			// If we have a custom subject, use it instead
-			if(isset($custom_headers['subject'])) {
-				$mail->setSubject($custom_headers['subject']);
-				unset($custom_headers['subject']);
-				
-			} else {
-				$mail->setSubject($subject);
-			}
-			
-			$headers = $mail->getHeaders();
-			
-			$headers->addTextHeader('X-Mailer','Cerb ' . APP_VERSION . ' (Build '.APP_BUILD.')');
-			
-			// Add custom headers
-			
-			if(is_array($custom_headers) && !empty($custom_headers))
-			foreach($custom_headers as $header_key => $header_val) {
-				if(!empty($header_key) && !empty($header_val)) {
-					if($headers->has($header_key))
-						$headers->removeAll($header_key);
-					
-					$headers->addTextHeader(mb_convert_case($header_key, MB_CASE_TITLE), $header_val);
-				}
-			}
-			
-			// Body
-			
-			switch($format) {
-				case 'markdown':
-				case 'parsedown':
-					$properties = [
-						'html_template_id' => $html_template_id,
-						'content' => $body,
-					];
-					self::_generateMailBodyMarkdown($mail, $properties);
-					break;
-					
-				default:
-					$properties = [
-						'content' => $body,
-					];
-					
-					$mail->setBody(self::_generateBodyContentWithPartModifications(
-						$properties,
-						'sent',
-						'text'
-					));
-					break;
-			}
-			
-			// Attachments
-			
-			if(!empty($file_ids) && is_array($file_ids)) {
-				foreach($file_ids as $file_id) {
-					// Attach the file
-					if(false != ($attachment = DAO_Attachment::get($file_id))) {
-						if(false !== ($fp = DevblocksPlatform::getTempFile())) {
-							if(false !== $attachment->getFileContents($fp)) {
-								$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $attachment->mime_type);
-								$attach->setFilename($attachment->name);
-								
-								if('message/rfc822' == $attachment->mime_type)
-									$attach->setContentType('application/octet-stream');
-								
-								$mail->attach($attach);
-								fclose($fp);
-							}
-						}
-					}
-				}
-			}
-			
-			// [TODO] Report when the message wasn't sent.
-			// [TODO] We can use '$failedRecipients' for this
-			if(!$mail_service->send($mail)) {
-				$error = $mail_service->getLastErrorMessage();
-				return false;
-			}
-			
-		} catch (Exception_DevblocksValidationError $e) {
-			$error = $e->getMessage();
-			return false;
-			
-		} catch (Exception $e) {
-			$error = 'An unexpected error occurred.';
-			return false;
+		$properties = [
+			'to' => $to,
+			'subject' => $subject,
+			'content' => $body,
+			'content_format' => $format,
+			'html_template_id' => $html_template_id,
+			'forward_file_ids' => $file_ids,
+			'link_forward_files' => true,
+			'headers' => $custom_headers ?? [],
+			'is_sensitive' => $is_sensitive,
+		];
+		
+		if($bcc) $properties['bcc'] = $bcc;
+		if($cc) $properties['cc'] = $cc;
+		
+		if($from_addy) {
+			$properties['from'] = $from_addy;
+			$properties['from_personal'] = $from_personal;
 		}
 		
-		return true;
+		return (bool) CerberusMail::sendTransactional($properties, $error);
 	}
 	
 	/**
