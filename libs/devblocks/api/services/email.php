@@ -345,6 +345,18 @@ class Model_DevblocksOutboundEmail {
 	}
 	
 	public function getFromAddressModel() : ?Model_Address {
+		if(Model_MailQueue::TYPE_TRANSACTIONAL == $this->getType()) {
+			// If we have an explicit `from` try that
+			if (($from = $this->getProperty('from'))) {
+				// If this is a legitimate email address, and it has a mail transport
+				if (($from_model = DAO_Address::getByEmail($from)) && $from_model->mail_transport_id)
+					return $from_model;
+			}
+			
+			// Otherwise use the default sender
+			return DAO_Address::getDefaultLocalAddress();
+		}
+		
 		if(null == ($bucket = $this->getBucket()))
 			return null;
 		
@@ -672,6 +684,41 @@ class _DevblocksEmailManager {
 	/* @deprecated */
 	public function createMessage() : Swift_Message {
 		return new Swift_Message();
+	}
+	
+	public function createTransactionalModelFromProperties(array $properties, string &$error=null) : Model_DevblocksOutboundEmail|false {
+		/*
+		'bcc'
+		'cc'
+		'content'
+		'content_format'
+		'draft_id'
+		'forward_files'
+		'from'
+		'gpg_encrypt'
+		'gpg_sign'
+		'html_template_id'
+		'send_at'
+		'subject'
+		'to'
+		'token'
+		 */
+		
+		$properties['outgoing_message_id'] = $this->generateMessageId();
+		
+		$email_model = new Model_DevblocksOutboundEmail(Model_MailQueue::TYPE_TRANSACTIONAL, $properties);
+		
+		if(!$email_model->getTo()) {
+			$error = "`to` is required.";
+			return false;
+		}
+		
+		if(!$email_model->getProperty('subject')) {
+			$error = "`subject` is required.";
+			return false;
+		}
+		
+		return $email_model;
 	}
 	
 	public function createComposeModelFromProperties(array $properties, string &$error=null) : Model_DevblocksOutboundEmail|false {
