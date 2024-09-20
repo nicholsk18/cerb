@@ -2258,10 +2258,11 @@ class CerberusParser {
 		
 		$properties['content'] = ltrim($body);
 		
-		$draft_fields = DAO_MailQueue::getFieldsFromMessageProperties($properties);
+		$draft_type = Model_MailQueue::TYPE_TICKET_REPLY;
+		$draft_fields = DAO_MailQueue::getFieldsFromMessageProperties($properties, $draft_type);
 		$draft_fields[DAO_MailQueue::NAME] = sprintf('Watcher reply by %s on [#%s] %s', $proxy_worker->getName(), $proxy_ticket->mask, $proxy_ticket->subject);
 		$draft_fields[DAO_MailQueue::HINT_TO] = '(participants)';
-		$draft_fields[DAO_MailQueue::TYPE] = Model_MailQueue::TYPE_TICKET_REPLY;
+		$draft_fields[DAO_MailQueue::TYPE] = $draft_type;
 		$draft_fields[DAO_MailQueue::IS_QUEUED] = 1;
 		$draft_fields[DAO_MailQueue::QUEUE_DELIVERY_DATE] = time() + 300;
 		

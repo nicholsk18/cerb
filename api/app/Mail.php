@@ -1465,27 +1465,27 @@ class CerberusMail {
 		}
 	}
 	
-	static function relay($message_id, $emails, $include_attachments = false, $content = null, $actor_context = null, $actor_context_id = null) {
+	static function relay($message_id, $emails, $include_attachments = false, $content = null, $actor_context = null, $actor_context_id = null) : bool {
 		$mail_service = DevblocksPlatform::services()->mail();
 		$settings = DevblocksPlatform::services()->pluginSettings();
 
 		$relay_spoof_from = $settings->get('cerberusweb.core', CerberusSettings::RELAY_SPOOF_FROM, CerberusSettingsDefaults::RELAY_SPOOF_FROM);
 		
-		if(false == ($message = DAO_Message::get($message_id)))
-			return;
+		if(!($message = DAO_Message::get($message_id)))
+			return false;
 		
-		if(false == ($ticket = DAO_Ticket::get($message->ticket_id)))
-			return;
+		if(!($ticket = DAO_Ticket::get($message->ticket_id)))
+			return false;
 
-		if(false == ($group = DAO_Group::get($ticket->group_id)))
-			return;
+		if(!($group = DAO_Group::get($ticket->group_id)))
+			return false;
 		
-		if(false == ($sender = $message->getSender()))
-			return;
+		if(!($sender = $message->getSender()))
+			return false;
 		
 		if($actor_context) {
 			if (!Context_Ticket::isWriteableByActor($ticket, [$actor_context, $actor_context_id]))
-				return;
+				return false;
 		}
 
 		$sender_name = $sender->getName();
@@ -1522,63 +1522,43 @@ class CerberusMail {
 		if(is_array($emails))
 		foreach($emails as $to) {
 			try {
-				if(false == ($to_model = DAO_Address::getByEmail($to)))
+				if(!($to_model = DAO_Address::getByEmail($to)))
 					continue;
 				
-				if(false == ($worker = $to_model->getWorker()))
+				if(!($worker = $to_model->getWorker()))
 					continue;
 				
-				$mail = $mail_service->createMessage();
+				$properties = [
+					'is_sensitive' => true,
+					'headers' => [],
+				];
 				
-				$mail->setTo(array($to));
-	
-				$headers = $mail->getHeaders(); /* @var $headers Swift_Mime_Header */
-	
+				$properties['to'] = $to;
+				
 				if($relay_spoof_from) {
-					$mail->setFrom($sender->email, !empty($sender_name) ? $sender_name : null);
-					$mail->setReplyTo($replyto->email);
-					
+					$properties['from'] = $sender->email;
+					$properties['from_personal'] = $sender_name ?? null;
+					$properties['reply_to'] = $replyto->email;
 				} else {
-					$mail->setFrom($replyto->email);
-					$mail->setReplyTo($replyto->email);
+					$properties['from'] = $replyto->email;
+					$properties['reply_to'] = $replyto->email;
 				}
 
 				// Subject
-				$subject = sprintf("[relay #%s] %s", $ticket->mask, $ticket->subject);
-				$mail->setSubject($subject);
-				
-				$headers->removeAll('message-id');
+				$properties['subject'] = sprintf("[relay #%s] %s", $ticket->mask, $ticket->subject);;
 				
 				$signed_message_id = CerberusMail::relaySign($message->id, $worker->id);
-				$headers->addTextHeader('Message-Id', $signed_message_id);
+				$properties['outgoing_message_id'] = $signed_message_id;
 				
-				$headers->addTextHeader('X-CerberusRedirect','1');
+				$properties['headers']['X-CerberusRedirect'] = '1';
 				
-				// [TODO] HTML body?
+				$properties['content'] = $content;
 				
-				$mail->setBody($content);
+				$properties['forward_files'] = array_keys($attachments);
 				
-				// Files
-				if(!empty($attachments) && is_array($attachments))
-				foreach($attachments as $file) { /* @var $file Model_Attachment */
-					//if('original_message.html' == $file->name)
-					//	continue;
-					
-					if(false !== ($fp = DevblocksPlatform::getTempFile())) {
-						if(false !== $file->getFileContents($fp)) {
-							$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $file->mime_type);
-							$attach->setFilename($file->name);
-							
-							if('message/rfc822' == $file->mime_type)
-								$attach->setContentType('application/octet-stream');
-							
-							$mail->attach($attach);
-							fclose($fp);
-						}
-					}
-				}
+				$email_model = $mail_service->createTransactionalModelFromProperties($properties);
 				
-				$result = $mail_service->send($mail);
+				$result = $mail_service->send($email_model);
 				unset($mail);
 				
 				/*
@@ -1600,6 +1580,7 @@ class CerberusMail {
 					return false;
 				
 			} catch (Exception $e) {
+				DevblocksPlatform::logException($e);
 				return false;
 				
 			}
@@ -1613,7 +1594,6 @@ class CerberusMail {
 	 * 
 	 * @param integer $message_id
 	 * @param integer $worker_id
-	 * @param integer $time
 	 * @return string
 	 */
 	static function relaySign($message_id, $worker_id) {
@@ -1626,12 +1606,10 @@ class CerberusMail {
 		
 		$encrypted_header = $encrypt->encrypt($string_to_encrypt);
 		
-		$header_value = sprintf("<%s.%s@cerb>",
+		return sprintf("%s.%s@cerb",
 			rtrim($encrypted_header,'='),
 			base_convert(time(), 10, 16)
 		);
-		
-		return $header_value;
 	}
 	
 	static function relayVerify($auth_header, $worker_id) {
@@ -1656,20 +1634,6 @@ class CerberusMail {
 				return false;
 			
 			return $in_message_id;
-			
-		// Traditional signing format
-		// @deprecated (Remove in 9.2)
-		} else if(@preg_match('#\<([a-f0-9]+)\@cerb\d{0,1}\>#', $auth_header, $hits)) {
-			@$hash = $hits[1];
-			@$signed = substr($hash, 4, 40);
-			@$message_id = hexdec(substr($hash, 44));
-			
-			$signed_compare = sha1($message_id . $worker_id . APP_DB_PASS);
-			
-			$is_authenticated = ($signed_compare == $signed);
-			
-			if($is_authenticated)
-				return $message_id;
 		}
 		
 		return false;

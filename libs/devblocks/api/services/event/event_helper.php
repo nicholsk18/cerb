@@ -4991,14 +4991,14 @@ class DevblocksEventHelper {
 			return;
 		}
 		
-		if(!($replyto = $group->getReplyTo($bucket_id))) {
-			$replyto = DAO_Address::getDefaultLocalAddress();
+		if(!($reply_to = $group->getReplyTo($bucket_id))) {
+			$reply_to = DAO_Address::getDefaultLocalAddress();
 		}
 		
 		// Attachments
 		$attachments = [];
 		
-		if(isset($params['include_attachments']) && !empty($params['include_attachments'])) {
+		if($params['include_attachments'] ?? null) {
 			// If our main record is a comment, use those attachments instead
 			if($comment_id) {
 				$attachments = DAO_Attachment::getByContextIds(CerberusContexts::CONTEXT_COMMENT, $comment_id);
@@ -5013,55 +5013,47 @@ class DevblocksEventHelper {
 		if(is_array($to_list))
 		foreach($to_list as $to => $worker) {
 			try {
-				$mail = $mail_service->createMessage();
+				$properties = [
+					'to' => $to,
+					'headers' => [],
+					'is_sensitive' => true,
+				];
 				
-				$mail->setTo(array($to));
-	
-				$headers = $mail->getHeaders(); /* @var $headers Swift_Mime_Header */
-
 				if($relay_spoof_from) {
-					$mail->setFrom($sender_email, !empty($sender_name) ? $sender_name : null);
-					$mail->setReplyTo($replyto->email, $replyto->getName());
+					$properties['from'] = $sender_email;
+					$properties['from_personal'] = $sender_name ?: '';
+					$properties['reply_to'] = $reply_to->email;
 					
 				} else {
-					$mail->setFrom($replyto->email, $replyto->getName());
-					$mail->setReplyTo($replyto->email, $replyto->getName());
+					$properties['from'] = $reply_to->email;
+					$properties['from_personal'] = $reply_to->getName() ?: '';
+					$properties['reply_to'] = $reply_to->email;
 				}
 				
 				if(!isset($params['subject']) || empty($params['subject'])) {
-					$mail->setSubject($subject);
+					$properties['subject'] = $subject;
 				} else {
 					$subject = $tpl_builder->build($params['subject'], $dict);
-					$mail->setSubject($subject);
+					$properties['subject'] = $subject;
 				}
 	
-				$headers->removeAll('message-id');
-				
 				// Sign the message so that we can verify a future relay response
 				$auth_header = CerberusMail::relaySign($message_id, $worker->id);
-				$headers->addTextHeader('Message-Id', $auth_header);
+				$properties['outgoing_message_id'] = $auth_header;
 				
-				$headers->addTextHeader('X-CerberusRedirect','1');
+				$properties['headers']['X-CerberusRedirect'] = '1';
 	
 				$content = $tpl_builder->build($params['content'], $dict);
+			
+				$properties['content'] = $content;
 				
-				$mail->setBody($content);
+				$properties['forward_files'] = array_keys($attachments);
+
+				$email_model = $mail_service->createTransactionalModelFromProperties($properties);
 				
-				// Files
-				if(!empty($attachments) && is_array($attachments))
-				foreach($attachments as $file) { /* @var $file Model_Attachment */
-					if(false !== ($fp = DevblocksPlatform::getTempFile())) {
-						if(false !== $file->getFileContents($fp)) {
-							$attach = Swift_Attachment::fromPath(DevblocksPlatform::getTempFileInfo($fp), $file->mime_type);
-							$attach->setFilename($file->name);
-							$mail->attach($attach);
-							fclose($fp);
-						}
-					}
+				if(!$mail_service->send($email_model)) {
+					return false;
 				}
-				
-				$result = $mail_service->send($mail);
-				unset($mail);
 				
 				/*
 				 * Log activity (ticket.message.relay)
@@ -5079,9 +5071,6 @@ class DevblocksEventHelper {
 					];
 					CerberusContexts::logActivity('ticket.message.relay', CerberusContexts::CONTEXT_TICKET, $context_id, $entry);
 				}
-				
-				if(!$result)
-					return false;
 				
 			} catch (Exception) {}
 		}
