@@ -1675,108 +1675,70 @@ class CerberusMail {
 		return false;
 	}
 	
-	// [TODO] Encryption?
-	static function resend(Model_Message $message, &$error=null, $only_return_source=false) {
+	static function resend(Model_Message $message, &$error=null, $only_return_source=false) : string|bool {
 		try {
 			$mail_service = DevblocksPlatform::services()->mail();
 			
-			$mail = $mail_service->createMessage();
-			$mail_headers = $mail->getHeaders();
+			$properties = [
+				'headers' => [],
+			];
 			
-			$headers = $message->getHeaders();
-			$content = $message->getContent();
+			$current_headers = $message->getHeaders();
 			$attachments = $message->getAttachments();
 			
-			$from = CerberusMail::parseRfcAddresses($headers['from']);
+			$from = CerberusMail::parseRfcAddresses($current_headers['from']);
 			$from = array_shift($from);
-			$mail->setFrom($from['email'], $from['personal']);
 			
-			$tos = CerberusMail::parseRfcAddresses($headers['to']);
-			foreach($tos as $to => $to_data)
-				$mail->addTo($to, $to_data['personal']);
+			$properties['from'] = $from['email'];
+			$properties['from_personal'] = $from['personal'] ?: '';
 			
-			if(isset($headers['cc'])) {
-				$ccs = CerberusMail::parseRfcAddresses($headers['cc']);
-				foreach($ccs as $cc => $cc_data)
-					$mail->addCc($cc, $cc_data['personal']);
-			}
+			if(($tos = CerberusMail::parseRfcAddresses($current_headers['to'] ?? '')))
+				$properties['to'] = implode(', ', array_keys($tos));
 			
-			if(isset($headers['bcc'])) {
-				$bccs = CerberusMail::parseRfcAddresses($headers['bcc']);
-				foreach($bccs as $bcc => $bcc_data)
-					$mail->addBcc($bcc, $bcc_data['personal']);
-			}
+			if(($ccs = CerberusMail::parseRfcAddresses($current_headers['cc'] ?? '')))
+				$properties['cc'] = implode(', ', array_keys($ccs));
 			
-			$mail->setDate(new DateTime('now'));
-			$mail->setSubject($headers['subject']);
+			if(($bccs = CerberusMail::parseRfcAddresses($current_headers['bcc'] ?? '')))
+				$properties['bcc'] = implode(', ', array_keys($bccs));
 			
-			// Message-ID
-			$mail->generateId();
+			$properties['subject'] = $current_headers['subject'] ?? '(no subject)';
 			
-			// Reuse message-id ?
-			//if(isset($headers['message-id']))
-			//	$mail_headers->get('message-id')->setFieldBodyModel(trim($headers['message-id'],'<>'));
+			if(isset($current_headers['in-reply-to']))
+				$properties['headers']['In-Reply-To'] = $current_headers['in-reply-to'];
 			
-			// Add some headers
+			if(isset($current_headers['references']))
+				$properties['headers']['References'] = $current_headers['references'] . ' ' . $current_headers['message-id'];
 			
-			if(isset($headers['in-reply-to']))
-				$mail_headers->addTextHeader('In-Reply-To',$headers['in-reply-to']);
-			
-			if(isset($headers['references']))
-				$mail_headers->addTextHeader('References', $headers['references'] . ' ' . $headers['message-id']);
-			
-			if(isset($headers['x-mailer']))
-				$mail_headers->addTextHeader('X-Mailer', $headers['x-mailer']);
-			
-			$mail_headers->addTextHeader('X-Cerb-Resend','true');
+			$properties['headers']['X-Cerb-Resend'] = 'true';
 			
 			// Set the plaintext body
 
-			$mail->setBody($content);
+			$properties['content'] = $message->getContent();
 			
 			// Attachments
 			
-			if(is_array($attachments))
-			foreach($attachments as $file) { /* @var $file Model_Attachment */
-				
-				// If HTML, include as a text/html part
-				if($file->name == 'original_message.html') {
-					$mail->addPart($file->getFileContents(), 'text/html');
-					
-				} else {
-					$fp = DevblocksPlatform::getTempFile();
-					$fp_path = DevblocksPlatform::getTempFileInfo($fp);
-					$file->getFileContents($fp);
-					
-					$attach = Swift_Attachment::fromPath($fp_path)
-						->setFilename($file->name)
-						->setContentType($file->mime_type)
-						;
-					
-					if('message/rfc822' == $file->mime_type)
-						$attach->setContentType('application/octet-stream');
-					
-					$mail->attach($attach);
-				}
-			}
+			if(array_filter($attachments, fn(Model_Attachment $attachment) => $attachment->name == 'original_message.html'))
+				$properties['content_format'] = 'markdown';
+			
+			$properties['forward_files'] = array_keys(array_filter($attachments, fn(Model_Attachment $attachment) => $attachment->name != 'original_message.html'));
+			
+			$email_model = $mail_service->createTransactionalModelFromProperties($properties);
 			
 			if($only_return_source) {
-				$mime = $mail->toString();
-				return $mime;
+				$smtp_message = CerberusMail::getSmtpMessageFromModel($email_model);
+				return $smtp_message->toString();
 				
 			} else {
-				$result = $mail_service->send($mail);
-				
-				if(!$result) {
+				if(!$mail_service->send($email_model)) {
+					$error = $mail_service->getLastErrorMessage();
 					return false;
 				}
 				
 				return true;
 			}
 			
-		} catch (Exception $e) {
-			$error = $e->getMessage();
-			error_log($error);
+		} catch (Throwable $e) {
+			DevblocksPlatform::logException($e);
 			return false;
 		}
 	}
