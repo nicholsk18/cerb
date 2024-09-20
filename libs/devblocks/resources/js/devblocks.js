@@ -2048,6 +2048,7 @@ function genericAjaxPost(formRef,divRef,args,cb,options) {
 	
 	$ajax.fail(function(err) {
 		Devblocks.clearAlerts();
+		hideLoadingPanel();
 		
 		if(null != div) {
 			div.html('').fadeIn();
