@@ -167,6 +167,10 @@ function DevblocksClass() {
 		if(undefined == duration)
 			duration = 2500;
 		
+		message = message
+			.replaceAll('&quot;', '"')
+		;
+		
 		var $alerts = $('#cerb-alerts');
 		
 		var $alert = $('<div/>')

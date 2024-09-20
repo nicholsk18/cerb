@@ -1039,25 +1039,38 @@ $(function() {
 			$button.closest('div').hide();
 			disableAutoSaveDraft();
 
+			var hookError = function(message) {
+				Devblocks.clearAlerts();
+				Devblocks.createAlertError(message);
+				$button.closest('div').show();
+				enableAutoSaveDraft();
+			};
+
 			var hookSuccess = function() {
 				showLoadingPanel();
 
 				$frm.find('input:hidden[name=compose_mode]').val('');
 
-				genericAjaxPost($frm, '', null, function(json) {
+				let cb = function(json) {
+					hideLoadingPanel();
+
 					$popup.trigger('popup_saved');
 
 					var post_event = $.Event('cerb-compose-sent', {
 						record: json
 					});
 					genericAjaxPopupClose($popup, post_event);
-				});
-			};
+				}
 
-			var hookError = function(message) {
-				Devblocks.createAlertError(message);
-				$button.closest('div').show();
-				enableAutoSaveDraft();
+				genericAjaxPost($frm, '', null, cb, {
+					error: function(err) {
+						hideLoadingPanel();
+
+						if(err.responseText) {
+							hookError(err.responseText);
+						}
+					}
+				});
 			};
 
 			var formData = new FormData($frm[0]);

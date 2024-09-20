@@ -691,15 +691,17 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		$error = null;
 		
 		/* @var $drafts_ext PageSection_ProfilesDraft */
-		if(false == ($draft_id = $drafts_ext->saveDraftCompose($error))) {
+		if(!($draft_id = $drafts_ext->saveDraftCompose($error))) {
 			DAO_MailQueue::delete($draft_id);
 			return false;
 		}
 		
-		if(false == ($draft = DAO_MailQueue::get($draft_id)))
+		if(!($draft = DAO_MailQueue::get($draft_id)))
 			return false;
 		
-		if(false !== ($response = $draft->send()) && is_array($response)) {
+		$error = null;
+		
+		if(false !== ($response = $draft->send($error)) && is_array($response)) {
 			// View marquee
 			if($view_id) {
 				C4_AbstractView::setMarqueeContextCreated($view_id, $response[0], $response[1]);
@@ -710,6 +712,13 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 			
 			// Return the new record data
 			echo json_encode($values);
+			
+		} else {
+			if($error) {
+				DevblocksPlatform::dieWithHttpError($error, 500);
+			} else {
+				DevblocksPlatform::dieWithHttpError('There was an error while trying to send the message.', 500);
+			}
 		}
 		DevblocksPlatform::exit();
 	}

@@ -969,32 +969,29 @@ class Model_MailQueue extends DevblocksRecordModel {
 		return $properties;
 	}
 	
-	/**
-	 * @return boolean
-	 */
-	public function send() {
+	public function send(?string &$error=null) : array|false {
 		$success = false;
 		
 		// Determine the type of message
 		switch($this->type) {
 			case Model_MailQueue::TYPE_COMPOSE:
-				$success = $this->_sendCompose();
+				$success = $this->_sendCompose($error);
 				break;
 				
 			case Model_MailQueue::TYPE_TRANSACTIONAL:
-				$success = $this->_sendTransactional();
+				$success = $this->_sendTransactional($error);
 				break;
 				
 			case Model_MailQueue::TYPE_TICKET_FORWARD:
 			case Model_MailQueue::TYPE_TICKET_REPLY:
-				$success = $this->_sendTicketReply();
+				$success = $this->_sendTicketReply($error);
 				break;
 		}
 		
 		return $success;
 	}
 	
-	private function _sendCompose() {
+	private function _sendCompose(?string &$error=null) : array|false {
 		$automation_properties = [];
 		
 		// Changing the outgoing message through an automation
@@ -1005,10 +1002,10 @@ class Model_MailQueue extends DevblocksRecordModel {
 		foreach($automation_properties as $k => $v)
 			$properties[$k] = $v;
 		
-		return CerberusMail::compose($properties);
+		return CerberusMail::compose($properties, $error);
 	}
 	
-	private function _sendTransactional() {
+	private function _sendTransactional(?string &$error=null) : array|false {
 		$automation_properties = [];
 		
 		// Changing the outgoing message through an automation
@@ -1019,10 +1016,10 @@ class Model_MailQueue extends DevblocksRecordModel {
 		foreach($automation_properties as $k => $v)
 			$properties[$k] = $v;
 		
-		return CerberusMail::sendTransactional($properties);
+		return CerberusMail::sendTransactional($properties, $error);
 	}
 	
-	private function _sendTicketReply() {
+	private function _sendTicketReply(?string &$error=null) : array|false {
 		$automation_properties = [];
 		
 		// Changing the outgoing message through an automation
@@ -1036,7 +1033,7 @@ class Model_MailQueue extends DevblocksRecordModel {
 		foreach($automation_properties as $k => $v)
 			$properties[$k] = $v;
 		
-		return CerberusMail::sendTicketReply($properties);
+		return CerberusMail::sendTicketReply($properties, $error);
 	}
 	
 	public function beforeEditingCustomFields(array &$custom_field_values) {

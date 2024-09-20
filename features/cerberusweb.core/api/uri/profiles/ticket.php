@@ -940,7 +940,9 @@ EOD;
 		if(!Context_Draft::isWriteableByActor($draft, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		if(false !== ($response = $draft->send()) && is_array($response)) {
+		$error = null;
+		
+		if(false !== ($response = $draft->send($error)) && is_array($response)) {
 			$labels = $values = [];
 			
 			if(($response[0] ?? null) && ($response[1] ?? null)) {
@@ -949,7 +951,15 @@ EOD;
 
 			// Return the new record data
 			echo json_encode($values);
+			
+		} else {
+			if($error) {
+				DevblocksPlatform::dieWithHttpError($error, 500);
+			} else {
+				DevblocksPlatform::dieWithHttpError('There was an error while trying to send the message.', 500);
+			}
 		}
+		DevblocksPlatform::exit();
 	}
 	
 	private function _profileAction_previewReplyMessage() {
