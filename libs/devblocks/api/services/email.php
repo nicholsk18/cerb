@@ -1,4 +1,9 @@
 <?php
+
+use Symfony\Component\Mailer\Exception\TransportException;
+use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\Exception\RfcComplianceException;
+
 class Exception_DevblocksEmailDeliveryError extends Exception_Devblocks {}
 
 class Model_DevblocksOutboundEmail {
@@ -769,9 +774,9 @@ class Model_DevblocksOutboundEmail {
 				$draft_id = $this->saveQueuedDraft(time() + 300, true);
 			
 			if(!($last_error_message = $mail_service->getLastErrorMessage())) {
-				if($e instanceof Swift_TransportException) {
+				if($e instanceof TransportException) {
 					$last_error_message = $e->getMessage();
-				} elseif($e instanceof Swift_RfcComplianceException) {
+				} elseif($e instanceof RfcComplianceException) {
 					$last_error_message = $e->getMessage();
 				} elseif($e instanceof Exception_DevblocksEmailDeliveryError) {
 					$last_error_message = $e->getMessage();
@@ -800,8 +805,12 @@ class Model_DevblocksOutboundEmail {
 	
 	public function getHeadersText() : string {
 		try {
-			$swift_message = CerberusMail::getSwiftMessageFromModel($this, true);
-			return $swift_message->getHeaders()->toString();
+			$smtp_model = CerberusMail::getSmtpMessageFromModel($this, true);
+			
+			if(($message_id = $this->getProperty('outgoing_message_id')))
+				$smtp_model->getHeaders()->addIdHeader('Message-ID', $message_id);
+			
+			return $smtp_model->getPreparedHeaders()->toString();
 			
 		} catch(Throwable) {
 			return '';
@@ -837,9 +846,8 @@ class _DevblocksEmailManager {
 		return self::$instance;
 	}
 	
-	/* @deprecated */
-	public function createMessage() : Swift_Message {
-		return new Swift_Message();
+	public function createMessage() : Email {
+		return new Email();
 	}
 	
 	public function createTransactionalModelFromProperties(array $properties, string &$error=null) : Model_DevblocksOutboundEmail|false {
@@ -1565,7 +1573,7 @@ class _DevblocksEmailManager {
 	}
 	
 	public function generateMessageId() : string {
-		$generator = new Swift_Mime_IdGenerator(DevblocksPlatform::getHostname());
-		return $generator->generateId();
+		$left_id = bin2hex(random_bytes(16));
+		return sprintf('%s@%s', $left_id, DevblocksPlatform::getHostname());
 	}
 };

@@ -1,9 +1,15 @@
 <?php
+
+use Symfony\Component\Mailer\Exception\TransportException;
+use Symfony\Component\Mailer\Mailer;
+use Symfony\Component\Mailer\Transport\Smtp\Auth\XOAuth2Authenticator;
+use Symfony\Component\Mailer\Transport\Smtp\EsmtpTransport;
+use Symfony\Component\Mime\Exception\RfcComplianceException;
+
 class CerbMailTransport_Smtp extends Extension_MailTransport {
 	const ID = 'core.mail.transport.smtp';
 	
-	private $_lastErrorMessage = null;
-	private $_logger = null;
+	private ?string $_lastErrorMessage = null;
 	
 	function renderConfig(Model_MailTransport $model) {
 		$tpl = DevblocksPlatform::services()->template();
@@ -50,14 +56,11 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 		}
 		
 		try {
-			if(null == ($mailer = $this->_getMailer($options)))
-				throw new Exception("Failed to start mailer");
-			
-			if(null == ($transport = $mailer->getTransport()))
+			if(null == ($smtp = $this->_getTransport($options)))
 				throw new Exception("Failed to start mailer transport");
 			
-			$transport->start();
-			$transport->stop();
+			$smtp->start();
+			$smtp->stop();
 			return true;
 			
 		} catch(Exception $e) {
@@ -68,7 +71,7 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 	
 	function send(Model_DevblocksOutboundEmail $email_model, Model_MailTransport $model) : bool {
 		try {
-			$swift_message = CerberusMail::getSwiftMessageFromModel($email_model);
+			$smtp_message = CerberusMail::getSmtpMessageFromModel($email_model);
 			
 		} catch(Throwable $e) {
 			DevblocksPlatform::logException($e);
@@ -77,24 +80,22 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 		}
 		
 		if(($outgoing_message_id = $email_model->getProperty('outgoing_message_id'))) {
-			$swift_message->getHeaders()->removeAll('Message-ID');
-			$swift_message->getHeaders()->addIdHeader('Message-ID', $outgoing_message_id);
+			$smtp_message->getHeaders()->addIdHeader('Message-ID', $outgoing_message_id);
 			unset($outgoing_message_id);
 		}
 		
 		// X-Mailer
-		$swift_message->getHeaders()->addTextHeader('X-Mailer', 'Cerb ' . APP_VERSION . ' (Build ' . APP_BUILD . ')');
+		$smtp_message->getHeaders()->addTextHeader('X-Mailer', 'Cerb ' . APP_VERSION . ' (Build ' . APP_BUILD . ')');
 		
-		$to = $swift_message->getTo();
-		$from = array_keys($swift_message->getFrom());
-		$sender = reset($from);
+		$to = $smtp_message->getTo();
+		$from = $smtp_message->getFrom();
 		
-		if(empty($to)) {
+		if(!$to) {
 			$this->_lastErrorMessage = "At least one 'To:' recipient address is required.";
 			return false;
 		}
 		
-		if(empty($sender)) {
+		if(!$from) {
 			$this->_lastErrorMessage = "A 'From:' sender address is required.";
 			return false;
 		}
@@ -114,19 +115,35 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 		if(!($mailer = $this->_getMailer($options)))
 			return false;
 		
-		if(!($result = $mailer->send($swift_message)))
-			$this->_lastErrorMessage = $this->_logger->getLastError();
-		
-		$this->_logger->clear();
-		
-		return $result;
+		try {
+			$mailer->send($smtp_message);
+			
+			$email_model->setResult('outgoing_email_headers', $smtp_message->getPreparedHeaders()->toString());
+			
+			return true;
+			
+		} catch(TransportException | RfcComplianceException $e) {
+			DevblocksPlatform::logException($e);
+			$this->_lastErrorMessage = $e->getMessage();
+			return false;
+			
+		} catch(Throwable $e) {
+			DevblocksPlatform::logException($e);
+			$this->_lastErrorMessage = "There was an error while trying to send the message.";
+			return false;
+		}
 	}
 	
 	function getLastError() : ?string {
 		return $this->_lastErrorMessage;
 	}
 	
-	private function _getMailer(array $options) : ?Swift_Mailer {
+	private function _getMailer(array $options) : ?Mailer {
+		$smtp = $this->_getTransport($options);
+		return new Mailer($smtp);
+	}
+	
+	private function _getTransport(array $options) : ? EsmtpTransport {
 		static $connections = [];
 		
 		// Options
@@ -157,15 +174,7 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 		]));
 		
 		if(!isset($connections[$hash])) {
-			// Encryption
-			$smtp_enc = match ($smtp_enc) {
-				'TLS' => 'tls',
-				'SSL' => 'ssl',
-				default => null,
-			};
-			
-			$smtp = new Swift_SmtpTransport($smtp_host, $smtp_port, $smtp_enc);
-			$smtp->setTimeout($smtp_timeout);
+			$smtp = new EsmtpTransport($smtp_host, $smtp_port, $smtp_enc == 'SSL');
 			
 			// Is XOAUTH2 enabled?
 			if($smtp_user && $smtp_connected_account_id) {
@@ -187,7 +196,7 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 					return null;
 				}
 				
-				$smtp->setAuthMode('XOAUTH2');
+				$smtp->addAuthenticator(new XOAuth2Authenticator());
 				$smtp->setUsername($smtp_user);
 				$smtp->setPassword($access_token->getToken());
 				
@@ -196,13 +205,11 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 				$smtp->setPassword($smtp_pass);
 			}
 			
-			$mailer = new Swift_Mailer($smtp);
-			$mailer->registerPlugin(new Swift_Plugins_AntiFloodPlugin($smtp_max_sends, 1));
+			$smtp->setRestartThreshold($smtp_max_sends, 1);
 			
-			$this->_logger = new Cerb_SwiftPlugin_TransportExceptionLogger();
-			$mailer->registerPlugin($this->_logger);
+			@ini_set('default_socket_timeout', $smtp_timeout);
 			
-			$connections[$hash] = $mailer;
+			$connections[$hash] = $smtp;
 		}
 		
 		if($connections[$hash])

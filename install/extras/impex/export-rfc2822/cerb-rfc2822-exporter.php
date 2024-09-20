@@ -1,6 +1,10 @@
 <?php
 namespace Cerb\Impex\Exporters {
 	use Cerb\Impex\CerbImpex;
+	use Symfony\Component\Mime\Address;
+	use Symfony\Component\Mime\Email;
+	use Symfony\Component\Mime\Part\DataPart;
+	
 	require('vendor/autoload.php');
 	
 	if(!extension_loaded('imap'))
