@@ -846,10 +846,6 @@ class _DevblocksEmailManager {
 		return self::$instance;
 	}
 	
-	public function createMessage() : Email {
-		return new Email();
-	}
-	
 	public function createTransactionalModelFromProperties(array $properties, string &$error=null) : Model_DevblocksOutboundEmail|false {
 		/*
 		'bcc'

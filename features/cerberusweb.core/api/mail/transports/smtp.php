@@ -1,5 +1,7 @@
 <?php
 
+use Cerb\Email\Crypto\PgpEncrypter;
+use Cerb\Email\Crypto\PgpSigner;
 use Symfony\Component\Mailer\Exception\TransportException;
 use Symfony\Component\Mailer\Mailer;
 use Symfony\Component\Mailer\Transport\Smtp\Auth\XOAuth2Authenticator;
@@ -116,13 +118,23 @@ class CerbMailTransport_Smtp extends Extension_MailTransport {
 			return false;
 		
 		try {
+			if($email_model->getProperty('gpg_sign')) {
+				$pgp_signer = new PgpSigner();
+				$smtp_message = $pgp_signer->sign($smtp_message, $email_model);
+			}
+			
+			if($email_model->getProperty('gpg_encrypt')) {
+				$pgp_encrypter = new PgpEncrypter();
+				$smtp_message = $pgp_encrypter->encrypt($smtp_message, $email_model);
+			}
+			
 			$mailer->send($smtp_message);
 			
 			$email_model->setResult('outgoing_email_headers', $smtp_message->getPreparedHeaders()->toString());
 			
 			return true;
 			
-		} catch(TransportException | RfcComplianceException $e) {
+		} catch(TransportException | RfcComplianceException | Exception_DevblocksEmailDeliveryError $e) {
 			DevblocksPlatform::logException($e);
 			$this->_lastErrorMessage = $e->getMessage();
 			return false;

@@ -88,6 +88,7 @@
 	
 	<class_loader>
 		<dir path="api/Automation/Builder/" namespace="Cerb\Automation\Builder\" />
+		<dir path="api/Email/" namespace="Cerb\Email\" />
 
 		<file path="api/packages.php">
 			<class name="Cerb_Packages" />
