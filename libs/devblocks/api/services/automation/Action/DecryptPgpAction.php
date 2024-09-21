@@ -68,6 +68,7 @@ class DecryptPgpAction extends AbstractAction {
 				if(false === ($decrypted_text = $gpg->decrypt($inputs['message'])))
 					throw new Exception_DevblocksAutomationError("Failed to decrypt message.");
 			} catch (\Exception $e) {
+				DevblocksPlatform::logException($e);
 				throw new Exception_DevblocksAutomationError(sprintf("Failed to decrypt message (%s).", get_class($e)));
 			}
 			

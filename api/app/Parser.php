@@ -804,7 +804,7 @@ class CerberusParser {
 				$signature = $part_signature->extract_body(MAILPARSE_EXTRACT_RETURN);
 				
 				// Denote valid signature on saved message
-				if(false != ($info = $gpg->verify($signed_content, $signature))) {
+				if(($info = $gpg->verify($signed_content, $signature))) {
 					$mime_meta['gpg_verified_signatures'] = $info;
 				}
 				break;

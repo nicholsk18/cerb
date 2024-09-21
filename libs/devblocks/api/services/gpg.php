@@ -482,7 +482,7 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 		if(is_object($msg))
 		foreach($msg->packets as $p) {
 			if($p instanceof OpenPGP_AsymmetricSessionKeyPacket) { /* @var $p OpenPGP_AsymmetricSessionKeyPacket */
-				if(false == ($private_key = DAO_GpgPrivateKey::getByFingerprint($p->keyid)))
+				if(!($private_key = DAO_GpgPrivateKey::getByFingerprint($p->keyid)))
 					continue;
 				
 				// [TODO] Cache the raw bytes?
@@ -494,7 +494,9 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 					
 					// Get the encrypted password from the private key record
 					if($key_packet->encrypted_data) {
-						$key_passphrase = DevblocksPlatform::services()->encryption()->decrypt($private_key->passphrase_encrypted);
+						if(false === ($key_passphrase = DevblocksPlatform::services()->encryption()->decrypt($private_key->passphrase_encrypted)))
+							continue;
+						
 						$key_packet = OpenPGP_Crypt_Symmetric::decryptSecretKey($key_passphrase, $key_packet);
 					}
 					
@@ -502,11 +504,16 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 					if(!DevblocksPlatform::strEndsWith($key_packet->fingerprint(), $p->keyid))
 						continue;
 					
-					$decryptor = new OpenPGP_Crypt_RSA($key_packet);
-					$decrypted = $decryptor->decrypt($msg);
-					
-					if(false == $decrypted)
-						return false;
+					try {
+						$decryptor = new OpenPGP_Crypt_RSA($key_packet);
+						
+						if(false === ($decrypted = $decryptor->decrypt($msg)))
+							continue;
+						
+					} catch (Throwable $e) {
+						DevblocksPlatform::logException($e);
+						continue;
+					}
 					
 					$decrypted_data = '';
 					$verified_signatures = [];
@@ -598,7 +605,7 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 		
 		foreach($signature->packets as $s) {
 			if($s instanceof OpenPGP_SignaturePacket) { /* @var OpenPGP_SignaturePacket $s */
-				if (false == ($public_key = DAO_GpgPublicKey::getByFingerprint($s->issuer())))
+				if (!($public_key = DAO_GpgPublicKey::getByFingerprint($s->issuer())))
 					continue;
 				
 				$pub_key = OpenPGP_Message::parse(OpenPGP::unarmor($public_key->key_text, 'PGP PUBLIC KEY BLOCK'));
@@ -612,7 +619,7 @@ class DevblocksGpgEngine_OpenPGP extends Extension_DevblocksGpgEngine {
 				
 				$results = $verify->verify($msg);
 				
-				if(false == ($verified_signatures = @$results[0][1]) || !is_array($verified_signatures) || 1 != count($verified_signatures))
+				if(!($verified_signatures = @$results[0][1]) || !is_array($verified_signatures) || 1 != count($verified_signatures))
 					return false;
 				
 				$verified_signature = $verified_signatures[0]; /* @var OpenPGP_SignaturePacket $verified_signature */
