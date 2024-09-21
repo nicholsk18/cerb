@@ -1712,65 +1712,86 @@ class CerberusMail {
 			$message = $model->getMessage(); /* @var $message CerberusParserMessage */
 			
 			$mail_service = DevblocksPlatform::services()->mail();
-			$mail = $mail_service->createMessage();
-	
-			$mail->setTo(array($to));
-
-			$headers = $mail->getHeaders();
-
+			
+			$properties = [
+				'to' => $to,
+				'headers' => [],
+			];
+			
 			if(isset($message->headers['subject'])) {
 				if(is_array($message->headers['subject']))
 					$subject = array_shift($message->headers['subject']);
 				else
 					$subject = $message->headers['subject'];
-				$mail->setSubject($subject);
+				$properties['subject'] = $subject;
 			}
 			if(isset($message->headers['message-id']))
-				$headers->addTextHeader('Message-Id', $message->headers['message-id']);
+				$properties['outgoing_message_id'] = $message->headers['message-id'];
 			if(isset($message->headers['in-reply-to']))
-				$headers->addTextHeader('In-Reply-To', $message->headers['in-reply-to']);
+				$properties['headers']['In-Reply-To'] = $message->headers['in-reply-to'];
 			if(isset($message->headers['references']))
-				$headers->addTextHeader('References', $message->headers['references']);
+				$properties['headers']['References'] = $message->headers['references'];
 			if(isset($message->headers['from'])) {
 				$sender_addy = $model->getSenderAddressModel(); /* @var $sender_addy Model_Address */
-				$sender_name = $sender_addy->getName();
-				$mail->setFrom($sender_addy->email, !empty($sender_name) ? $sender_name : null);
+				
+				if($message->headers['reply-to'] ?? null) {
+					$properties['from_personal'] = $message->headers['reply-to'];
+					$properties['reply_to'] = $message->headers['reply-to'];
+				} else {
+					$properties['from_personal'] = $sender_addy->email;
+					$properties['reply_to'] = $sender_addy->email;
+				}
 			}
 			if(isset($message->headers['return-path'])) {
 				$return_path = is_array($message->headers['return-path'])
 					? array_shift($message->headers['return-path'])
 					: $message->headers['return-path'];
 				$return_path = trim($return_path,'<>');
-				$mail->setReturnPath($return_path);
+				$properties['return_path'] = $return_path;
 			}
-			if(isset($message->headers['reply-to']))
-				$mail->setReplyTo($message->headers['reply-to']);
-				
-			$headers->addTextHeader('X-CerberusRedirect','1');
-
-			$mail->setBody($message->body);
 			
-			// Files
+			$properties['headers']['X-CerberusRedirect'] = '1';
+			
+			$properties['content'] = $message->body;
+			
+			$properties['forward_files'] = [];
+			
 			if(is_array($message->files))
 			foreach($message->files as $file_name => $file) { /* @var $file ParserFile */
-				$attach = Swift_Attachment::fromPath($file->tmpname)
-					->setFilename($file_name)
-					->setContentType($file->mime_type)
-					;
+				$storage_sha1hash = sha1_file($file->tmpname);
 				
-				if('message/rfc822' == $file->mime_type)
-					$attach->setContentType('application/octet-stream');
+				if(($attachment = DAO_Attachment::getBySha1Hash($storage_sha1hash))) {
+					$file_id = $attachment->id;
+					
+				} else {
+					if('message/rfc822' == $file->mime_type)
+						$file->mime_type = 'application/octet-stream';
+					
+					$file_id = DAO_Attachment::create([
+						DAO_Attachment::NAME => $file_name,
+						DAO_Attachment::MIME_TYPE => $file->mime_type,
+						DAO_Attachment::STORAGE_SHA1HASH => $storage_sha1hash,
+					]);
+					
+					// Store the content in the new file
+					if(null !== ($fp = fopen($file->getTempFile(), 'rb'))) {
+						Storage_Attachments::put($file_id, $fp);
+						fclose($fp);
+					}
+				}
 				
-				$mail->attach($attach);
+				if($file_id)
+					$properties['forward_files'][] = $file_id;
 			}
-		
-			$result = $mail_service->send($mail);
 			
-			if(!$result) {
+			$email_model = $mail_service->createTransactionalModelFromProperties($properties);
+		
+			if(!$mail_service->send($email_model)) {
 				return false;
 			}
 			
 		} catch (Exception $e) {
+			DevblocksPlatform::logException($e);
 			return false;
 		}
 	}
