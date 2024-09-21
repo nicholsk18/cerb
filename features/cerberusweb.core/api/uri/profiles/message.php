@@ -229,9 +229,6 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 		
 		$tpl->assign('sender', $sender);
 		
-		$workers_with_relays = DAO_Address::getByWorkers();
-		$tpl->assign('workers_with_relays', $workers_with_relays);
-		
 		$tpl->display('devblocks:cerberusweb.core::display/rpc/relay_message.tpl');
 	}
 	
@@ -239,7 +236,7 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
 		$message_id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer',0);
-		$emails = DevblocksPlatform::importGPC($_POST['emails'] ?? null, 'array',[]);
+		$address_ids = DevblocksPlatform::importGPC($_POST['address_ids'] ?? null, 'array',[]);
 		$content = DevblocksPlatform::importGPC($_POST['content'] ?? null, 'string', '');
 		$include_attachments = DevblocksPlatform::importGPC($_POST['include_attachments'] ?? null, 'integer', 0);
 		
@@ -249,7 +246,13 @@ class PageSection_ProfilesMessage extends Extension_PageSection {
 		if(!Context_Message::isReadableByActor($message_id, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		CerberusMail::relay($message_id, $emails, $include_attachments, $content, CerberusContexts::CONTEXT_WORKER, $active_worker->id);
+		$addresses = array_filter(
+			DAO_Address::getIds($address_ids),
+			fn(Model_Address $address) => $address->worker_id,
+		);
+		
+		if(($emails = array_column($addresses, 'email')))
+			CerberusMail::relay($message_id, $emails, $include_attachments, $content, CerberusContexts::CONTEXT_WORKER, $active_worker->id);
 	}
 	
 	private function _profileAction_renderImagesPopup() {

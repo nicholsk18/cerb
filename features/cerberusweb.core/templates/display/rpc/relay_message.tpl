@@ -30,30 +30,8 @@
 
 <fieldset class="peek">
 	<legend>Relay to:</legend>
-
-	<ul class="bubbles" style="display:block;"></ul>
-	
-	<input type="text" size="64" class="input_search filter" style="width:90%;">
-
-
-	<ul class="cerb-popupmenu" id="{$menu_divid}" style="display:block;margin-bottom:5px;max-height:200px;overflow-x:hidden;overflow-y:auto;">
-		{foreach from=$workers_with_relays item=worker}
-			{if !empty($worker->relay_emails)}
-				{$object_addys = DAO_Address::getIds($worker->relay_emails)}
-			
-				{foreach from=$object_addys item=addy}
-				<li email="{$addy->email}" label="{$addy->email}">
-					<div class="item">
-						<a>{$addy->email}</a><br>
-						<div style="margin-left:10px;">{$worker->getName()}</div>
-					</div>
-				</li>
-				{/foreach}
-				
-			{/if}
-		{/foreach}
-	</ul>
-	
+	<button type="button" class="chooser-abstract" data-field-name="address_ids[]" data-context="{CerberusContexts::CONTEXT_ADDRESS}" data-query-required="worker.id:!0" data-query="" data-autocomplete="worker.id:!0"><span class="glyphicons glyphicons-search"></span></button>
+	<ul class="bubbles chooser-container"></ul>
 </fieldset>
 
 <button type="button" class="ok"><span class="glyphicons glyphicons-circle-ok"></span> {'common.ok'|devblocks_translate|capitalize}</button>
@@ -63,10 +41,10 @@
 
 <script nonce="{DevblocksPlatform::getRequestNonce()}" type="text/javascript">
 $(function() {
-	var $popup = genericAjaxPopupFetch('relay');
+	let $popup = genericAjaxPopupFetch('relay');
 	
 	$popup.one('popup_open',function() {
-		var $this = $(this);
+		let $this = $(this);
 		
 		$this.dialog('option','title','Relay message to external worker email');
 		
@@ -86,71 +64,9 @@ $(function() {
 		$this.find('button.cancel').click(function() {
 			genericAjaxPopupClose('relay');
 		});
-		
-		var $menu = $('#{$menu_divid}');
-		var $input = $menu.prevAll('input.filter');
-		$input.focus();
 
-		$input.keypress(
-			function(e) {
-				var code = e.keyCode || e.which;
-				if(code == 13) {
-					e.preventDefault();
-					e.stopPropagation();
-					$(this).select().focus();
-					return false;
-				}
-			}
-		);
-			
-		$input.keyup(
-			function(e) {
-				var term = $(this).val().toLowerCase();
-				var $menu = $(this).nextAll('ul.cerb-popupmenu');
-				$menu.find('> li > div.item').each(function(e) {
-					if(-1 != $(this).html().toLowerCase().indexOf(term)) {
-						$(this).parent().show();
-					} else {
-						$(this).parent().hide();
-					}
-				});
-			}
-		);
-
-		$menu.find('> li').click(function(e) {
-			e.stopPropagation();
-			if($(e.target).is('a'))
-				return;
-
-			$(this).find('a').trigger('click');
-		});
-
-		$menu.find('> li > div.item a').click(function() {
-			var $li = $(this).closest('li');
-			var $frm = $(this).closest('form');
-			
-			var $ul = $li.closest('ul');
-			var $bubbles = $ul.siblings('ul.bubbles');
-			
-			var email = $li.attr('email');
-			var label = $li.attr('label');
-
-			// Check for dupe context pair
-			if($bubbles.find('li input:hidden[value="'+email+'"]').length > 0)
-				return;
-			
-			let $bubble = $('<li/>').text(label);
-			$bubble.append($('<input type="hidden">').attr('name','emails[]').attr('value',email));
-			let $a = $('<a><span class="glyphicons glyphicons-circle-remove"></span></a>').appendTo($bubble);
-			$a.on('click', function(e) {
-				e.stopPropagation();
-				let $li = $(this).closest('li');
-				$li.remove();
-			});
-
-			$bubbles.append($bubble);
-		});
-		
+		// Chooser
+		$popup.find('.chooser-abstract').cerbChooserTrigger();
 	});
 });
 </script>

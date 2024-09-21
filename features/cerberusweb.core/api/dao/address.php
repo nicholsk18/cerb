@@ -567,23 +567,6 @@ class DAO_Address extends Cerb_ORMHelper {
 		return $results;
 	}
 	
-	static function getByWorkers($with_disabled=false) {
-		$addys = self::getAllWithWorker();
-		$workers = DAO_Worker::getAll(false, $with_disabled);
-		
-		array_walk($addys, function($addy) use ($workers) {
-			if(!isset($workers[$addy->worker_id]))
-				return;
-			
-			if(!isset($workers[$addy->worker_id]->relay_emails))
-				$workers[$addy->worker_id]->relay_emails = [];
-				
-			$workers[$addy->worker_id]->relay_emails[] = $addy->id;
-		});
-		
-		return $workers;
-	}
-	
 	static function countByTicketId($ticket_id) {
 		$db = DevblocksPlatform::services()->database();
 		
