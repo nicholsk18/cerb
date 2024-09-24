@@ -69,7 +69,7 @@ class UmScContactController extends Extension_UmScController {
 				$tpl->assign('last_followup_a', $aLastFollowupA);
 				$tpl->assign('last_error', $sError);
 				
-				$dispatch = DAO_CommunityToolProperty::getJson(ChPortalHelper::getCode(),self::PARAM_SITUATIONS, []);
+				$dispatch = DAO_CommunityToolProperty::getJson(ChPortalHelper::getCode(),self::PARAM_SITUATIONS, '[]');
 				
 				// Remove hidden contact situations
 				if(is_array($dispatch))
@@ -164,7 +164,7 @@ class UmScContactController extends Extension_UmScController {
 				$attachments_mode = DAO_CommunityToolProperty::get($portal->code, self::PARAM_ATTACHMENTS_MODE, 0);
 				$tpl->assign('attachments_mode', $attachments_mode);
 		
-				$dispatch = DAO_CommunityToolProperty::getJson($portal->code,self::PARAM_SITUATIONS, []);
+				$dispatch = DAO_CommunityToolProperty::getJson($portal->code,self::PARAM_SITUATIONS, '[]');
 				$tpl->assign('dispatch', $dispatch);
 				
 				$groups = DAO_Group::getAll();
@@ -263,7 +263,7 @@ class UmScContactController extends Extension_UmScController {
 		$umsession->setProperty('support.write.last_error', null);
 		$umsession->setProperty('support.write.last_followup_a', null);
 		
-		$dispatch = DAO_CommunityToolProperty::getJson(ChPortalHelper::getCode(),self::PARAM_SITUATIONS, []);
+		$dispatch = DAO_CommunityToolProperty::getJson(ChPortalHelper::getCode(),self::PARAM_SITUATIONS, '[]');
 		
 		// Check if this nature has followups, if not skip to send
 		if(is_array($dispatch))
@@ -381,7 +381,7 @@ class UmScContactController extends Extension_UmScController {
 		$to = $replyto_default->email;
 		$subject = 'Contact me: Other';
 		
-		$dispatch = DAO_CommunityToolProperty::getJson(ChPortalHelper::getCode(),self::PARAM_SITUATIONS, []);
+		$dispatch = DAO_CommunityToolProperty::getJson(ChPortalHelper::getCode(),self::PARAM_SITUATIONS, '[]');
 		
 		foreach($dispatch as $k => $v) {
 			if(md5($k)==$sNature) {

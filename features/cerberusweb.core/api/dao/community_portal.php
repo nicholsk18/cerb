@@ -623,7 +623,7 @@ class DAO_CommunityToolProperty extends Cerb_ORMHelper {
 			if(false === ($rs = $db->QueryReader($sql)))
 				return false;
 			
-			$props = array();
+			$props = [];
 			
 			if(!($rs instanceof mysqli_result))
 				return false;

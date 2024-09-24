@@ -152,7 +152,7 @@ class UmScAccountController extends Extension_UmScController {
 		if(null == $active_contact)
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		if(null != ($show_fields = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), 'account.fields', [])))
+		if(null != ($show_fields = DAO_CommunityToolProperty::get(ChPortalHelper::getCode(), 'account.fields', '[]')))
 			@$show_fields = json_decode($show_fields, true);
 		
 		$fields = array();
