@@ -138,7 +138,7 @@ class AutomationTrigger_DataQuery extends Extension_AutomationTrigger {
 	}
 	
 	public function getEditorToolbarItems(array $toolbar): array {
-		return [];
+		return $toolbar;
 	}
 	
 	public function getAutocompleteSuggestions() : array {
