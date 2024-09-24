@@ -1132,7 +1132,7 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		
 		// Group
 		if($group_id) {
-			if (false == ($group = DAO_Group::get($group_id))) {
+			if (!($group = DAO_Group::get($group_id))) {
 				$error = "The given 'Group' is invalid.";
 				return false;
 			}
@@ -1145,13 +1145,13 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		
 		// Owner
 		if($owner_id) {
-			if (false == ($owner = DAO_Worker::get($owner_id))) {
+			if (!($owner = DAO_Worker::get($owner_id))) {
 				$error = "The given 'Owner' is invalid.";
 				return false;
 			}
 			
 			if(!$group && $id) {
-				if(false == ($ticket = DAO_Ticket::get($id))) {
+				if(!($ticket = DAO_Ticket::get($id))) {
 					$error = sprintf("Invalid ticket #%d", $id);
 					return false;
 				}
@@ -1167,14 +1167,14 @@ class DAO_Ticket extends Cerb_ORMHelper {
 		
 		// Find the default bucket for this group
 		if($group_id && !$bucket_id) {
-			if(false != ($default_bucket = DAO_Bucket::getDefaultForGroup($fields[self::GROUP_ID]))) {
+			if(($default_bucket = DAO_Bucket::getDefaultForGroup($fields[self::GROUP_ID]))) {
 				$bucket_id = $default_bucket->id;
 				$fields[self::BUCKET_ID] = $bucket_id;
 			}
 			
 		// If we have only a bucket_id and no group_id then figure it out
 		} else if (!$group_id && $bucket_id) {
-			if(false == ($bucket = DAO_Bucket::get($bucket_id))) {
+			if(!($bucket = DAO_Bucket::get($bucket_id))) {
 				$error = "Invalid 'bucket_id' value.";
 				return false;
 			}

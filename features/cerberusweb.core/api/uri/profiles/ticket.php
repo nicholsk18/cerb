@@ -151,6 +151,154 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		}
 	}
 	
+	private function _peekEditorToRecordFields($post_fields, $record_type) : array {
+		$id = DevblocksPlatform::importGPC($post_fields['id'] ?? null,'integer',0);
+		$subject = DevblocksPlatform::importGPC($post_fields['subject'] ?? null, 'string', '');
+		$org_id = DevblocksPlatform::importGPC($post_fields['org_id'] ?? null, 'integer', 0);
+		$status_id = DevblocksPlatform::importGPC($post_fields['status_id'] ?? null, 'integer', 0);
+		$importance = DevblocksPlatform::importGPC($post_fields['importance'] ?? null, 'integer', 0);
+		$owner_id = DevblocksPlatform::importGPC($post_fields['owner_id'] ?? null, 'integer', 0);
+		$participants = DevblocksPlatform::importGPC($post_fields['participants'] ?? null, 'array', []);
+		$group_id = DevblocksPlatform::importGPC($post_fields['group_id'] ?? null, 'integer', 0);
+		$bucket_id = DevblocksPlatform::importGPC($post_fields['bucket_id'] ?? null, 'integer', 0);
+		$ticket_reopen = DevblocksPlatform::importGPC($post_fields['ticket_reopen'] ?? null, 'string', '');
+		
+		$fields = [];
+		
+		$fields['bucket_id'] = $bucket_id;
+		$fields['group_id'] = $group_id;
+		$fields['importance'] = $importance;
+		$fields['org_id'] = $org_id;
+		$fields['owner_id'] = $owner_id;
+		$fields['reopen_date'] = 0;
+		$fields['status_id'] = $status_id;
+		$fields['subject'] = $subject;
+		$fields['updated'] = time();
+		
+		// Reopen at
+		if(
+			in_array($status_id, [Model_Ticket::STATUS_WAITING, Model_Ticket::STATUS_CLOSED])
+			&& $ticket_reopen
+			&& ($ticket_reopen_at = @strtotime($ticket_reopen))
+		) {
+			$fields['reopen_date'] = $ticket_reopen_at;
+		}
+		
+		// Participants
+		if($participants) {
+			$participant_ids = [];
+			
+			if($id) {
+				$requesters = DAO_Ticket::getRequestersByTicket($id);
+			} else {
+				$requesters = [];
+			}
+			
+			// Delete requesters we've removed
+			foreach(array_diff(array_keys($requesters), $participants) as $participant_id)
+				$participant_ids[] = -$participant_id;
+			
+			// Add chooser requesters
+			foreach(array_diff($participants, array_keys($requesters)) as $participant_id)
+				$participant_ids[] = $participant_id;
+			
+			if($participant_ids)
+				$fields['participant_ids'] = implode(',', $participant_ids);
+		}
+		
+		// Custom fields
+		$field_ids = DevblocksPlatform::importGPC($post_fields['field_ids'] ?? null, 'array', []);
+		$custom_fields = DAO_CustomField::getByContext($record_type);
+		$custom_field_values = DAO_CustomFieldValue::parseFormPost($record_type, $field_ids);
+		
+		// Replace custom field IDs with URIs
+		$custom_field_values = array_combine(
+			array_map(fn($field_id) => $custom_fields[$field_id]->uri ?? ('custom_' . $field_id), array_keys($custom_field_values)),
+			$custom_field_values
+		);
+		
+		return $fields + $custom_field_values;
+	}
+	
+	/**
+	 * @param $record_type
+	 * @param $record_id
+	 * @param array $fields
+	 * @param Model_Worker|null $active_worker
+	 * @return mixed|null
+	 * @throws Exception_DevblocksAjaxValidationError
+	 */
+	private function _createOrUpdate($record_type, $record_id, array $fields, ?Model_Worker $active_worker=null) {
+		if(!($context_ext = Extension_DevblocksContext::get($record_type, true)))
+			throw new Exception_DevblocksAjaxValidationError("Record type not found");
+		
+		$dao_class = $context_ext->getDaoClass();
+		$dao_fields = $custom_fields = [];
+		$model = null;
+		
+		if ($record_id) {
+			if (!($model = $context_ext->getModelObject($record_id)))
+				throw new Exception_DevblocksAjaxValidationError(sprintf("%s #%d not found", $context_ext->name, $record_id));
+		} else {
+			$record_id = null;
+		}
+		
+		if (!method_exists($context_ext, 'getDaoFieldsFromKeysAndValues'))
+			throw new Exception_DevblocksAjaxValidationError("Not implemented.");
+		
+		if (!$context_ext->getDaoFieldsFromKeysAndValues($fields, $dao_fields, $custom_fields, $error))
+			throw new Exception_DevblocksAjaxValidationError($error);
+		
+		if (method_exists($dao_class, 'validate')) {
+			if (is_array($dao_fields) && !$dao_class::validate($dao_fields, $error, $record_id))
+				throw new Exception_DevblocksAjaxValidationError($error);
+		}
+		
+		if ($custom_fields) {
+			// Only return non-empty values
+			$custom_fields_to_validate = array_filter($custom_fields, function ($value) {
+				return (is_array($value) || 0 != strlen($value));
+			});
+			
+			// Format values before validation
+			$custom_fields_to_validate = DAO_CustomFieldValue::preValidateFieldValues($custom_fields_to_validate);
+			
+			if (!DAO_CustomField::validateCustomFields($custom_fields_to_validate, $context_ext->id, $error, $record_id))
+				throw new Exception_DevblocksAjaxValidationError($error);
+		}
+		
+		if ($model)
+			$dao_fields = Cerb_ORMHelper::uniqueFields($dao_fields, $model);
+		
+		if (method_exists($dao_class, 'onBeforeUpdateByActor') && !$dao_class::onBeforeUpdateByActor($active_worker, $dao_fields, $record_id, $error))
+			throw new Exception_DevblocksAjaxValidationError($error);
+		
+		if (!method_exists($dao_class, 'get'))
+			throw new Exception_DevblocksAjaxValidationError("Get not implemented for record type.");
+		
+		if($record_id) {
+			if (!method_exists($dao_class, 'update'))
+				throw new Exception_DevblocksAjaxValidationError("Update not implemented for record type.");
+			
+			$dao_class::update($record_id, $dao_fields);
+			
+		} else {
+			if (!method_exists($dao_class, 'create'))
+				throw new Exception_DevblocksAjaxValidationError("Create not implemented for record type.");
+			
+			$record_id = $dao_class::create($dao_fields);
+			$model = $dao_class::get($record_id);
+		}
+		
+		if(method_exists($dao_class, 'onUpdateByActor'))
+			$dao_class::onUpdateByActor($active_worker, $dao_fields, $record_id);
+		
+		if ($custom_fields)
+			DAO_CustomFieldValue::formatAndSetFieldValues($context_ext->id, $record_id, $custom_fields);
+		
+		return $model;
+	}
+	
 	private function _profileAction_savePeekJson() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -162,137 +310,37 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
+		$record_context = CerberusContexts::CONTEXT_TICKET;
+		
 		try {
-			$subject = DevblocksPlatform::importGPC($_POST['subject'] ?? null,'string','');
-			$org_id = DevblocksPlatform::importGPC($_POST['org_id'] ?? null,'integer',0);
-			$status_id = DevblocksPlatform::importGPC($_POST['status_id'] ?? null,'integer',0);
-			$importance = DevblocksPlatform::importGPC($_POST['importance'] ?? null,'integer',0);
-			$owner_id = DevblocksPlatform::importGPC($_POST['owner_id'] ?? null,'integer',0);
-			$participants = DevblocksPlatform::importGPC($_POST['participants'] ?? null,'array',[]);
-			$group_id = DevblocksPlatform::importGPC($_POST['group_id'] ?? null,'integer',0);
-			$bucket_id = DevblocksPlatform::importGPC($_POST['bucket_id'] ?? null,'integer',0);
-			$spam_training = DevblocksPlatform::importGPC($_POST['spam_training'] ?? null,'string','');
-			$ticket_reopen = DevblocksPlatform::importGPC($_POST['ticket_reopen'] ?? null,'string','');
-			
-			if(!$active_worker->hasPriv(sprintf('contexts.%s.update', CerberusContexts::CONTEXT_TICKET)))
-				throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.edit'));
-			
-			// Load the existing model so we can detect changes
-			if(false == ($ticket = DAO_Ticket::get($id)))
-				throw new Exception_DevblocksAjaxValidationError("There was an unexpected error when loading this record.");
-			
-			$fields = array(
-				DAO_Ticket::SUBJECT => $subject,
-				DAO_Ticket::UPDATED_DATE => time(),
-			);
-			
-			// Group
-			if(!$group_id || false == ($group = DAO_Group::get($group_id)))
-				throw new Exception_DevblocksAjaxValidationError("The given 'Group' is invalid.", 'group_id');
-			
-			// Owner
-			if(!empty($owner_id)) {
-				if(false == ($owner = DAO_Worker::get($owner_id)))
-					throw new Exception_DevblocksAjaxValidationError("The given 'Owner' is invalid.", 'owner_id');
-				
-				if(!$owner->isGroupMember($group->id))
-					throw new Exception_DevblocksAjaxValidationError(
-						sprintf("%s can't own this ticket because they are not a member of the %s group.", $owner->getName(), $group->name),
-						'owner_id'
-					);
-			}
-			
-			$fields[DAO_Ticket::OWNER_ID] = $owner_id;
-			
-			// Status
-			switch($status_id) {
-				case Model_Ticket::STATUS_OPEN:
-					$fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_OPEN;
-					$fields[DAO_Ticket::REOPEN_AT] = 0;
-					break;
-				case Model_Ticket::STATUS_CLOSED:
-					$fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_CLOSED;
-					break;
-				case Model_Ticket::STATUS_WAITING:
-					$fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_WAITING;
-					break;
-				case Model_Ticket::STATUS_DELETED:
-					$fields[DAO_Ticket::STATUS_ID] = Model_Ticket::STATUS_DELETED;
-					$fields[DAO_Ticket::REOPEN_AT] = 0;
-					break;
-			}
-			
-			if(in_array($status_id, array(Model_Ticket::STATUS_WAITING, Model_Ticket::STATUS_CLOSED))) {
-				if(!empty($ticket_reopen) && false !== ($due = strtotime($ticket_reopen))) {
-					$fields[DAO_Ticket::REOPEN_AT] = $due;
-				} else {
-					$fields[DAO_Ticket::REOPEN_AT] = 0;
-				}
-			}
-			
-			// Group/Bucket
-			if(!empty($group_id)) {
-				$fields[DAO_Ticket::GROUP_ID] = $group_id;
-				$fields[DAO_Ticket::BUCKET_ID] = $bucket_id;
-			}
-			
-			// Org
-			$fields[DAO_Ticket::ORG_ID] = $org_id;
-			
-			// Importance
-			$importance = DevblocksPlatform::intClamp($importance, 0, 100);
-			$fields[DAO_Ticket::IMPORTANCE] = $importance;
+			$fields = $this->_peekEditorToRecordFields($_POST ?? [], $record_context);
+		
+			if(!($model = $this->_createOrUpdate($record_context, $id, $fields, $active_worker)))
+				throw new Exception_DevblocksAjaxValidationError('An unexpected error occurred while modifying the record.');
 			
 			// Spam Training
-			if(!empty($spam_training)) {
+			
+			$spam_training = DevblocksPlatform::importGPC($_POST['spam_training'] ?? null, 'string', '');
+			
+			if($spam_training) {
 				if('S'==$spam_training)
-					CerberusBayes::markTicketAsSpam($id);
+					CerberusBayes::markTicketAsSpam($model->id);
 				elseif('N'==$spam_training)
-					CerberusBayes::markTicketAsNotSpam($id);
+					CerberusBayes::markTicketAsNotSpam($model->id);
 			}
-			
-			// Participants
-			$requesters = DAO_Ticket::getRequestersByTicket($id);
-			
-			// Delete requesters we've removed
-			$requesters_removed = array_diff(array_keys($requesters), $participants);
-			DAO_Ticket::removeParticipantIds($id, $requesters_removed);
-			
-			// Add chooser requesters
-			$requesters_new = array_diff($participants, array_keys($requesters));
-			DAO_Ticket::addParticipantIds($id, $requesters_new);
-			
-			// Only update fields that changed
-			$fields = Cerb_ORMHelper::uniqueFields($fields, $ticket);
-			$error = null;
-			
-			if(!DAO_Ticket::validate($fields, $error, $id))
-				throw new Exception_DevblocksAjaxValidationError($error);
-			
-			if(!DAO_Ticket::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
-				throw new Exception_DevblocksAjaxValidationError($error);
-			
-			// Do it
-			DAO_Ticket::update($id, $fields);
-			DAO_Ticket::onUpdateByActor($active_worker, $fields, $id);
 			
 			// Log the ticket deletion, even though we have an undo window
 			if(array_key_exists(DAO_Ticket::STATUS_ID, $fields) && Model_Ticket::STATUS_DELETED == $fields[DAO_Ticket::STATUS_ID]) {
-				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_TICKET, $ticket->id, sprintf("#%s: %s", $ticket->mask, $ticket->subject));
+				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_TICKET, $model->id, sprintf("#%s: %s", $model->mask, $model->subject));
 			}
 			
-			// Custom field saves
-			$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
-			if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_TICKET, $id, $field_ids, $error))
-				throw new Exception_DevblocksAjaxValidationError($error);
-			
 			// Comments
-			DAO_Comment::handleFormPost(CerberusContexts::CONTEXT_TICKET, $id);
+			DAO_Comment::handleFormPost(CerberusContexts::CONTEXT_TICKET, $model->id);
 			
 			echo json_encode(array(
 				'status' => true,
-				'id' => $id,
-				'label' => $subject, // [TODO] Mask?
+				'id' => $model->id,
+				'label' => $model->subject,
 				'view_id' => $view_id,
 			));
 			return;
