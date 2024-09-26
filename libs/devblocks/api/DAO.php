@@ -603,14 +603,9 @@ abstract class DevblocksORMHelper {
 			return;
 		
 		foreach($fields as $k => $v) {
-			if(is_null($v))
-				$value = 'NULL';
-			else
-				$value = $db->qstr($v);
-			
-			$sets[] = sprintf("%s = %s",
-				$k,
-				$value
+			$sets[] = sprintf("`%s` = %s",
+				$db->escape($k),
+				is_null($v) ? 'NULL' : $db->qstr($v)
 			);
 		}
 			
@@ -618,7 +613,7 @@ abstract class DevblocksORMHelper {
 		
 		/** @noinspection SqlDialectInspection */
 		$sql = sprintf(/** @lang text */"UPDATE %s SET %s WHERE %s IN (%s)",
-			$table,
+			$db->escape($table),
 			implode(', ', $sets),
 			$idcol,
 			implode(',', $ids)
