@@ -378,6 +378,9 @@ class _DevblocksKataService {
 						} else if(is_string($v) && 0 == strlen($v)) {
 							$output .= str_repeat('  ', $indent) . $k . "@text:" . "\n";
 							
+						} else if(is_bool($v)) {
+							$output .= str_repeat('  ', $indent) . strval($k) . "@bool: " . ($v ? 'yes' : 'no') . "\n";
+							
 						} else if(is_integer($v)) {
 							$output .= str_repeat('  ', $indent) . strval($k) . "@int: " . intval($v) . "\n";
 							
