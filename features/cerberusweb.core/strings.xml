@@ -3593,7 +3593,20 @@
 		<tu tuid='dao.mailbox.ssl_ignore_validation'>
 			<tuv xml:lang="en_US"><seg>SSL Ignore Validation</seg></tuv>
 		</tu>
-		
+
+		<!-- Mail Inbound/Delivery Logs -->
+
+		<tu tuid='dao.mail_log.header_message_id'>
+			<tuv xml:lang="en_US">
+				<seg>Header Message-Id</seg>
+			</tuv>
+		</tu>
+		<tu tuid='dao.mail_log.status_message'>
+			<tuv xml:lang="en_US">
+				<seg>Status Message</seg>
+			</tuv>
+		</tu>
+
 		<!-- Metric -->
 
 		<tu tuid='dao.metric.dimension'>

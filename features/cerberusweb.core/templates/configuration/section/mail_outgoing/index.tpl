@@ -7,6 +7,7 @@
 		<li data-alias="settings"><a href="#tabsSetupMailOutgoingSettings">{'common.settings'|devblocks_translate|capitalize}</a></li>
 		<li data-alias="templates"><a href="#tabsSetupMailOutgoingTemplates">Automated Email Templates</a></li>
 		<li data-alias="queue"><a href="{devblocks_url}ajax.php?c=config&a=invoke&module=mail_outgoing&action=renderTabMailQueue{/devblocks_url}">{'common.queue'|devblocks_translate|capitalize}</a></li>
+		<li data-alias="log"><a href="{devblocks_url}ajax.php?c=config&a=invoke&module=mail_outgoing&action=renderTabMailDeliveryLog{/devblocks_url}">{'common.log'|devblocks_translate|capitalize}</a></li>
 	</ul>
 	
 	<div id="tabsSetupMailOutgoingSettings">

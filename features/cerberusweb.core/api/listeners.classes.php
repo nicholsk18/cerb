@@ -363,6 +363,7 @@ class ChCoreEventListener extends DevblocksEventListenerExtension {
 		DAO_BotSession::maint();
 		DAO_ConfirmationCode::maint();
 		DAO_ExplorerSet::maint();
+		DAO_MailDeliveryLog::maint();
 		DAO_OAuthToken::maint();
 		DAO_Ticket::maint();
 		DAO_Worker::maint();

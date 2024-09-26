@@ -46,6 +46,8 @@ class PageSection_SetupMailOutgoing extends Extension_PageSection {
 	function handleActionForPage(string $action, string $scope=null) {
 		if('configAction' == $scope) {
 			switch ($action) {
+				case 'renderTabMailDeliveryLog':
+					return $this->_configAction_renderTabMailDeliveryLog();
 				case 'renderTabMailQueue':
 					return $this->_configAction_renderTabMailQueue();
 				case 'renderTabMailSenderAddresses':
@@ -191,6 +193,34 @@ class PageSection_SetupMailOutgoing extends Extension_PageSection {
 			]);
 			return;
 		}
+	}
+	
+	private function _configAction_renderTabMailDeliveryLog() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$defaults = C4_AbstractViewModel::loadFromClass('View_MailDeliveryLog');
+		$defaults->id = 'config_mail_delivery_log';
+		$defaults->name = 'Mail Delivery Log';
+		$defaults->view_columns = [
+			SearchFields_MailDeliveryLog::STATUS_ID,
+			SearchFields_MailDeliveryLog::TYPE,
+			SearchFields_MailDeliveryLog::TO,
+			SearchFields_MailDeliveryLog::FROM_ID,
+			SearchFields_MailDeliveryLog::STATUS_MESSAGE,
+			SearchFields_MailDeliveryLog::MAIL_TRANSPORT_ID,
+			SearchFields_MailDeliveryLog::CREATED_AT,
+		];
+		$defaults->renderSort = [SearchFields_MailDeliveryLog::CREATED_AT => false];
+		
+		if(null != ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults))) {
+			$tpl->assign('view', $view);
+		}
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
 	}
 	
 	private function _configAction_renderTabMailQueue() {

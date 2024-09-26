@@ -512,7 +512,15 @@
 			<class name="SearchFields_MailHtmlTemplate" />
 			<class name="View_MailHtmlTemplate" />
 		</file>
-		
+
+		<file path="api/dao/mail_delivery_log.php">
+			<class name="Context_MailDeliveryLog" />
+			<class name="DAO_MailDeliveryLog" />
+			<class name="Model_MailDeliveryLog" />
+			<class name="SearchFields_MailDeliveryLog" />
+			<class name="View_MailDeliveryLog" />
+		</file>
+
 		<file path="api/dao/mail_queue.php">
 			<class name="Context_Draft" />
 			<class name="DAO_MailQueue" />
@@ -2812,6 +2820,45 @@
 					<value>
 						<data key="comment" />
 						<data key="export" />
+						<data key="update" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="devblocks.context">
+			<id>cerb.contexts.mail.delivery.log</id>
+			<name>Email Delivery Log</name>
+			<class>
+				<file>api/dao/mail_delivery_log.php</file>
+				<name>Context_MailDeliveryLog</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="email delivery log" value="singular" />
+						<data key="email delivery logs" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="mail_delivery_log" />
+				<param key="dao_class" value="DAO_MailDeliveryLog" />
+				<param key="view_class" value="View_MailDeliveryLog" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="comments" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="va_variable" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
 						<data key="update" />
 					</value>
 				</param>
@@ -7617,6 +7664,19 @@
 				<params>
 					<param key="page_id" value="core.page.profiles" />
 					<param key="uri" value="mailbox" />
+				</params>
+			</extension>
+
+			<extension point="cerberusweb.ui.page.section">
+				<id>cerb.page.profiles.mail_delivery_log</id>
+				<name>Mail Delivery Log Section</name>
+				<class>
+					<file>api/uri/profiles/mail_delivery_log.php</file>
+					<name>PageSection_ProfilesMailDeliveryLog</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="mail_delivery_log" />
 				</params>
 			</extension>
 

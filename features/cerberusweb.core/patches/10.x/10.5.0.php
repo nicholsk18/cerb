@@ -499,6 +499,86 @@ if(($id = $db->GetOneMaster("SELECT id FROM card_widget WHERE name = 'Public Key
 }
 
 // ===========================================================================
+// Mail Delivery Log
+
+if(!isset($tables['mail_delivery_log'])) {
+	$sql = sprintf("
+		CREATE TABLE `mail_delivery_log` (
+		`id` int unsigned NOT NULL AUTO_INCREMENT,
+		`type` varchar(32) NOT NULL DEFAULT '',
+		`status_id` tinyint unsigned NOT NULL DEFAULT 0,
+		`status_message` varchar(255) NOT NULL DEFAULT '',
+		`created_at` int unsigned NOT NULL DEFAULT 0,
+		`to` varchar(255) NOT NULL DEFAULT '',
+		`from_id` int unsigned NOT NULL DEFAULT 0,
+		`subject` varchar(255) NOT NULL DEFAULT '' COLLATE utf8mb4_unicode_ci,
+		`header_message_id` varchar(255) NOT NULL DEFAULT '',
+		`mail_transport_id` int unsigned NOT NULL DEFAULT 0,
+		`properties_json` mediumtext,
+		PRIMARY KEY (id),
+		INDEX (type),
+		INDEX (created_at),
+		INDEX header_message_id (header_message_id(8))
+		) ENGINE=%s
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	$tables['mail_delivery_log'] = 'mail_delivery_log';
+	
+	// Default card widgets
+	
+	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('Properties'),
+		$db->qstr('cerb.contexts.mail.delivery.log'),
+		$db->qstr('cerb.card.widget.fields'),
+		$db->qstr(json_encode([
+            "context" => "cerb.contexts.mail.delivery.log",
+            "context_id" => "{{record_id}}",
+            "properties" => [
+				[
+					"id",
+					"to",
+					"created",
+					"mail_transport_id",
+					"from_id",
+					"status_id",
+					"header_message_id",
+					"type",
+					"status_message"
+				]
+			],
+            "toolbar_kata" => "",
+		])),
+		time(),
+		time(),
+		1,
+		4,
+		$db->qstr('content')
+	));
+	
+	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone, options_kata) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s, %s)",
+		$db->qstr('Raw Message'),
+		$db->qstr('cerb.contexts.mail.delivery.log'),
+		$db->qstr('cerb.card.widget.sheet'),
+		$db->qstr(json_encode([
+			"data_query" => "type:worklist.records\r\nof:mail_delivery_log\r\nexpand:[properties]\r\nquery:(\r\n  limit:1\r\n  id:{{record_id}}\r\n  sort:[id]\r\n)\r\nformat:dictionaries",
+            "cache_secs" => "",
+            "placeholder_simulator_kata" => "",
+            "sheet_kata" => "layout:\r\n  style: fieldsets\r\n  headings@bool: no\r\n  paging@bool: no\r\n\r\ncolumns:\r\n  markdown/properties:\r\n    label: Properties\r\n    params:\r\n      value_template@raw:\r\n        ```\r\n        {{properties|kata_encode|raw}}\r\n        ```\r\n  ",
+            "toolbar_kata" => "",
+		])),
+		time(),
+		time(),
+		2,
+		4,
+		$db->qstr('content'),
+		$db->qstr('hidden@bool: {{not worker_is_superuser}}')
+	));
+}
+
+// ===========================================================================
 // Enable the new classifiers plugin by default on upgrades
 
 if($revision < 1467) { // 10.5

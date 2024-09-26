@@ -1,7 +1,6 @@
 <?php
 
 use Symfony\Component\Mailer\Exception\TransportException;
-use Symfony\Component\Mime\Email;
 use Symfony\Component\Mime\Exception\RfcComplianceException;
 
 class Exception_DevblocksEmailDeliveryError extends Exception_Devblocks {}
@@ -1130,6 +1129,8 @@ class _DevblocksEmailManager {
 				);
 			}
 			
+			DAO_MailDeliveryLog::createFromEmailDeliveryFailure($email_model, $transport_model, $this->_lastErrorMessage ?: 'An unexpected error occurred.');
+			
 			// Increment mail transport error metric
 			$metrics->increment(
 				'cerb.mail.transport.failures',
@@ -1148,6 +1149,8 @@ class _DevblocksEmailManager {
 			}
 			
 		} else {
+			DAO_MailDeliveryLog::createFromEmailDeliverySuccess($email_model, $transport_model);
+			
 			// Increment mail transport success metric
 			$metrics->increment(
 				'cerb.mail.transport.deliveries',
