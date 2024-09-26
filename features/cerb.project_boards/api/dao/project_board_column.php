@@ -461,12 +461,10 @@ class SearchFields_ProjectBoardColumn extends DevblocksSearchFields {
 			case SearchFields_ProjectBoardColumn::ID:
 				$models = DAO_ProjectBoardColumn::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
-				break;
 				
 			case SearchFields_ProjectBoardColumn::BOARD_ID:
 				$models = DAO_ProjectBoard::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
-				break;
 		}
 		
 		return parent::getLabelsForKeyValues($key, $values);

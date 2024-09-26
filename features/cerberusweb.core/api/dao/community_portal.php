@@ -521,12 +521,10 @@ class SearchFields_CommunityTool extends DevblocksSearchFields {
 		switch($key) {
 			case SearchFields_CommunityTool::EXTENSION_ID:
 				return parent::_getLabelsForKeyExtensionValues(Extension_CommunityPortal::ID);
-				break;
 				
 			case SearchFields_CommunityTool::ID:
 				$models = DAO_CommunityTool::getIds($values);
 				return array_column(DevblocksPlatform::objectsToArrays($models), 'name', 'id');
-				break;
 		}
 		
 		return parent::getLabelsForKeyValues($key, $values);
