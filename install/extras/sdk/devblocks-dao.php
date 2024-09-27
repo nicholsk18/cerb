@@ -123,7 +123,7 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 		if(!isset($fields[self::UPDATED_AT]))
 			$fields[self::UPDATED_AT] = time();
 			
-		$context = '<?php echo $ctx_ext_id; ?>';
+		$context = Context_<?php echo $class_name; ?>::ID;
 		self::_updateAbstract($context, $ids, $fields);
 		
 		// Make a diff for the requested objects in batches
@@ -165,7 +165,7 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 	}
 	
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
-		$context = '<?php echo $ctx_ext_id; ?>';
+		$context = Context_<?php echo $class_name; ?>::ID;
 		
 		if(!self::_onBeforeUpdateByActorCheckContextPrivs($actor, $context, $id, $error))
 			return false;
@@ -286,7 +286,7 @@ class DAO_<?php echo $class_name; ?> extends Cerb_ORMHelper {
 
 		if(empty($ids)) return false;
 		
-        $context = '<?php echo $ctx_ext_id; ?>';
+        $context = Context_<?php echo $class_name; ?>::ID;
 		$ids_list = implode(',', self::qstrArray($ids));
 		
         parent::_deleteAbstractBefore($context, $ids);
@@ -391,22 +391,21 @@ class SearchFields_<?php echo $class_name; ?> extends DevblocksSearchFields {
 	}
 	
 	static function getCustomFieldContextKeys() {
-		// [TODO] Context
 		return [
-			'' => new DevblocksSearchFieldContextKeys('<?php echo $table_name; ?>.id', self::ID),
+			Context_<?php echo $class_name; ?>::ID => new DevblocksSearchFieldContextKeys('<?php echo $table_name; ?>.id', self::ID),
 		];
 	}
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
 			case self::VIRTUAL_CONTEXT_LINK:
-				return self::_getWhereSQLFromContextLinksField($param, '<?php echo $ctx_ext_id; ?>', self::getPrimaryKey());
+				return self::_getWhereSQLFromContextLinksField($param, Context_<?php echo $class_name; ?>::ID, self::getPrimaryKey());
 			
 			case self::VIRTUAL_HAS_FIELDSET:
-				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr('<?php echo $ctx_ext_id; ?>'), '%s'), self::getPrimaryKey());
+				return self::_getWhereSQLFromVirtualSearchSqlField($param, CerberusContexts::CONTEXT_CUSTOM_FIELDSET, sprintf('SELECT context_id FROM context_to_custom_fieldset WHERE context = %s AND custom_fieldset_id IN (%s)', Cerb_ORMHelper::qstr(Context_<?php echo $class_name; ?>::ID), '%s'), self::getPrimaryKey());
 			
 			case self::VIRTUAL_WATCHERS:
-				return self::_getWhereSQLFromWatchersField($param, '<?php echo $ctx_ext_id; ?>', self::getPrimaryKey());
+				return self::_getWhereSQLFromWatchersField($param, Context_<?php echo $class_name; ?>::ID, self::getPrimaryKey());
 			
 			default:
 				if(DevblocksPlatform::strStartsWith($param->field, 'cf_')) {
@@ -589,7 +588,7 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 	function getSubtotalCounts($column) {
 		$counts = [];
 		$fields = $this->getFields();
-		$context = '<?php echo $ctx_ext_id; ?>';
+		$context = Context_<?php echo $class_name; ?>::ID;
 
 		if(!isset($fields[$column]))
 			return [];
@@ -647,7 +646,7 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
 					'options' => ['param_key' => SearchFields_<?php echo $class_name; ?>::VIRTUAL_HAS_FIELDSET],
 					'examples' => [
-						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . '<?php echo $ctx_ext_id; ?>'],
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_CUSTOM_FIELDSET, 'qr' => 'context:' . Context_<?php echo $class_name; ?>::ID],
 					]
 				],
 			'id' => 
@@ -655,7 +654,7 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 					'type' => DevblocksSearchCriteria::TYPE_NUMBER,
 					'options' => ['param_key' => SearchFields_<?php echo $class_name; ?>::ID],
 					'examples' => [
-						['type' => 'chooser', 'context' => '<?php echo $ctx_ext_id; ?>', 'q' => ''],
+						['type' => 'chooser', 'context' => Context_<?php echo $class_name; ?>::ID, 'q' => ''],
 					]
 				],
 			'name' => 
@@ -684,7 +683,7 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 		
 		// Add searchable custom fields
 		
-		$fields = self::_appendFieldsFromQuickSearchContext('<?php echo $ctx_ext_id; ?>', $fields, null);
+		$fields = self::_appendFieldsFromQuickSearchContext(Context_<?php echo $class_name; ?>::ID, $fields, null);
 		
 		// Add is_sortable
 		
@@ -722,7 +721,7 @@ class View_<?php echo $class_name; ?> extends C4_AbstractView implements IAbstra
 		$tpl->assign('view', $this);
 
 		// Custom fields
-		$custom_fields = DAO_CustomField::getByContext('<?php echo $ctx_ext_id; ?>');
+		$custom_fields = DAO_CustomField::getByContext(Context_<?php echo $class_name; ?>::ID);
 		$tpl->assign('custom_fields', $custom_fields);
 
 		$tpl->assign('view_template', 'devblocks:<?php echo $plugin_id; ?>::records/types/<?php echo $table_name; ?>/view.tpl');
@@ -928,7 +927,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 			$prefix = '<?php echo $object_name; ?>:';
 		
 		$translate = DevblocksPlatform::getTranslationService();
-		$fields = DAO_CustomField::getByContext('<?php echo $ctx_ext_id; ?>');
+		$fields = DAO_CustomField::getByContext(Context_<?php echo $class_name; ?>::ID);
 
 		// Polymorph
 		if(is_numeric($<?php echo $ctx_var_model; ?>)) {
@@ -971,7 +970,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		// Token values
 		$token_values = [];
 		
-		$token_values['_context'] = '<?php echo $ctx_ext_id; ?>';
+		$token_values['_context'] = Context_<?php echo $class_name; ?>::ID;
 		$token_values['_type'] = '<?php echo $table_name; ?>';
 		$token_values['_types'] = $token_types;
 		
@@ -1025,7 +1024,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 		if(!isset($dictionary['id']))
 			return;
 		
-		$context = '<?php echo $ctx_ext_id; ?>';
+		$context = Context_<?php echo $class_name; ?>::ID;
 		$context_id = $dictionary['id'];
 		
 		$is_loaded = $dictionary['_loaded'] ?? false;
@@ -1096,7 +1095,7 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
         $active_worker = CerberusApplication::getActiveWorker();
-		$context = '<?php echo $ctx_ext_id; ?>';
+		$context = Context_<?php echo $class_name; ?>::ID;
   
 		$tpl->assign('view_id', $view_id);
 		
@@ -1243,7 +1242,6 @@ class Context_<?php echo $class_name;?> extends Extension_DevblocksContext imple
 	{include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
 	{/if}
 </table>
-
 
 {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
 
@@ -1504,7 +1502,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		@array_shift($stack); // <?php echo $table_name; ?> 
 		@$context_id = intval(array_shift($stack)); // 123
 		
-		$context = '<?php echo $ctx_ext_id; ?>';
+		$context = Context_<?php echo $class_name; ?>::ID;
 		
 		Page_Profiles::renderProfile($context, $context_id, $stack);
 	}
@@ -1528,7 +1526,9 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		$do_delete = DevblocksPlatform::importGPC($_POST['do_delete'] ?? null, 'string', '');
 		
 		$active_worker = CerberusApplication::getActiveWorker();
-  
+
+        $context = Context_<?php echo $class_name; ?>::ID;
+
 		if('POST' != DevblocksPlatform::getHttpMethod())
 			DevblocksPlatform::dieWithHttpError(null, 405);
 		
@@ -1536,7 +1536,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 		
 		try {
 			if(!empty($id) && !empty($do_delete)) { // Delete
-				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", '<?php echo $ctx_ext_id; ?>')))
+				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", $context)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
     
 				if(!($model = DAO_<?php echo $class_name; ?>::get($id)))
@@ -1545,7 +1545,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 				if(!Context_<?php echo $class_name; ?>::isDeletableByActor($model, $active_worker))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
     
-                CerberusContexts::logActivityRecordDelete(Context_<?php echo $class_name; ?>::ID, $model->id, $model->name);
+                CerberusContexts::logActivityRecordDelete($context, $model->id, $model->name);
     
 				DAO_<?php echo $class_name; ?>::delete($id);
 				
@@ -1577,7 +1577,7 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 					DAO_<?php echo $class_name; ?>::onUpdateByActor($active_worker, $fields, $id);
 					
 					if(!empty($view_id) && !empty($id))
-						C4_AbstractView::setMarqueeContextCreated($view_id, '<?php echo $ctx_ext_id; ?>', $id);
+						C4_AbstractView::setMarqueeContextCreated($view_id, $context, $id);
 					
 				} else { // Edit
 					$fields = [
@@ -1599,13 +1599,13 @@ class PageSection_Profiles<?php echo $class_name; ?> extends Extension_PageSecti
 				if($id) {
 					// Custom field saves
 					$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
-					if(!DAO_CustomFieldValue::handleFormPost('<?php echo $ctx_ext_id; ?>', $id, $field_ids, $error))
+					if(!DAO_CustomFieldValue::handleFormPost($context, $id, $field_ids, $error))
 						throw new Exception_DevblocksAjaxValidationError($error);
 				}
 				
 				echo json_encode([
 					'status' => true,
-					'context' => '<?php echo $ctx_ext_id; ?>',
+					'context' => $context,
 					'id' => $id,
 					'label' => $name,
 					'view_id' => $view_id,
