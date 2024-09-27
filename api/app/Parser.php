@@ -101,9 +101,16 @@ class CerberusParserMessage {
 }
 
 class CerberusParserModel {
+	const STATE_FAILED = 0;
+	const STATE_PARSED = 1;
+	const STATE_REJECTED = 2;
+	
 	private $_message = null;
 	
-	private $_pre_actions = [];
+	private array $_pre_actions = [];
+	private array $_log_event_results = [];
+	private ?int $_exit_state = null;
+	private int $_parse_time_ms = 0;
 	
 	private $_is_new = true;
 	private ?Model_Address $_sender_address_model = null;
@@ -115,6 +122,7 @@ class CerberusParserModel {
 	private $_message_id = 0;
 	private $_route_group = null;
 	private $_route_bucket = null;
+	private string $_status_message = '';
 	
 	public function __construct(CerberusParserMessage $message) {
 		$this->setMessage($message);
@@ -125,19 +133,70 @@ class CerberusParserModel {
 		$this->_parseHeadersIsNew();
 	}
 	
+	public function setExitState(int $exit_state, string $message='') : CerberusParserModel {
+		$this->_exit_state = $exit_state;
+		$this->_status_message = $message;
+		return $this;
+	}
+	
+	public function getExitState() : int {
+		return $this->_exit_state;
+	}
+	
+	public function getStatusMessage() : ?string {
+		return $this->_status_message;
+	}
+	
+	public function setParseTimeMs(int $parse_time_ms) : CerberusParserModel {
+		$this->_parse_time_ms = $parse_time_ms;
+		return $this;
+	}
+	
+	public function getParseTimeMs() : int {
+		return $this->_parse_time_ms;
+	}
+	
+	public function logEventResults($event, array $results=[]) : void {
+		foreach($results as $dict) {
+			if(!($dict instanceof DevblocksDictionaryDelegate))
+				continue;
+			
+			$handler_id = $dict->getKeyPath('__handler');
+			$handler_uri = $dict->getKeyPath('__handler_uri');
+			$handler_duration_ms = $dict->getKeyPath('__handler_duration_ms', 0);
+			$return = $dict->getKeyPath('__return');
+			
+			if(!$handler_id || !$handler_uri)
+				return;
+			
+			if(!array_key_exists($event, $this->_log_event_results))
+				$this->_log_event_results[$event] = [];
+			
+			$this->_log_event_results[$event][$handler_id] = [
+				'uri' => $handler_uri,
+				'duration_ms' => $handler_duration_ms,
+				'return' => $return,
+			];
+		}
+	}
+	
+	public function getEventResults() : array {
+		return $this->_log_event_results;
+	}
+	
 	public function validate() {
 		$logger = DevblocksPlatform::services()->log('Parser');
 		
-		// [TODO] Try...Catch
-		
 		// Is valid sender?
 		if(null == $this->_sender_address_model) {
-			$logger->error("From address could not be created.");
+			$this->setExitState(CerberusParserModel::STATE_FAILED, "From address could not be created");
+			$logger->error($this->getStatusMessage());
 			return false;
 		}
 		
 		// Is banned?
 		if($this->_sender_address_model->is_banned) {
+			$this->setExitState(CerberusParserModel::STATE_REJECTED, "Ignoring banned sender");
 			$logger->warn("Ignoring ticket from banned address: " . $this->_sender_address_model->email);
 			return null;
 		}
@@ -1084,7 +1143,7 @@ class CerberusParser {
 				$text = self::convertEncoding($text, $section->data['charset']);
 				
 			} catch (Error $e) {
-				DevblocksPlatform::logError($e->getMessage());
+				DevblocksPlatform::logException($e);
 			}
 		}
 		
@@ -1192,6 +1251,8 @@ class CerberusParser {
 				$behavior_callback
 			);
 			
+			$model->logEventResults('mail.filter', $results);
+			
 			foreach($results as $result) { /** @var DevblocksDictionaryDelegate $result */
 				if(null != ($result->getKeyPath('__return.reject'))) {
 					$model->addPreAction('reject');
@@ -1267,7 +1328,7 @@ class CerberusParser {
 	/**
 	 * @param CerberusParserMessage $message
 	 * @param array $options
-	 * @return integer
+	 * @return int|null|false
 	 */
 	static public function parseMessage(CerberusParserMessage $message, array $options=[]) {
 		// Make sure the object is well-formatted and ready to send
@@ -1276,22 +1337,24 @@ class CerberusParser {
 		// Parse headers into $model
 		$model = new CerberusParserModel($message);
 		
+		$started_at = microtime(true);
+		
 		try {
-			$result = self::_parseMessage($model, $options);
+			$model = self::_parseMessage($model, $options);
 			
 		} catch(Throwable $e) {
-			$result = false;
+			$model->setExitState(CerberusParserModel::STATE_FAILED, 'An unexpected error occurred. ' . get_class($e));
+			DevblocksPlatform::logException($e);
 		}
 		
-		return $result;
+		return match($model->getExitState()) {
+			$model::STATE_PARSED => $model->getTicketId(),
+			$model::STATE_REJECTED => null,
+			default => false,
+		};
 	}
 	
-	/**
-	 * @param CerberusParserMessage $message
-	 * @param array $options
-	 * @return integer
-	 */
-	static private function _parseMessage(CerberusParserModel $model, array $options=[]) {
+	static private function _parseMessage(CerberusParserModel $model, array $options=[]) : CerberusParserModel {
 		/*
 		 * options:
 		 * 'no_autoreply'
@@ -1305,17 +1368,23 @@ class CerberusParser {
 		
 		// Log headers after bots run
 		
-		$log_headers = [
-			'from' => 'From',
-			'to' => 'To',
-			'delivered-to' => 'Delivered-To',
-			'envelope-to' => 'Envelope-To',
-			'subject' => 'Subject',
-			'date' => 'Date',
-			'message-id' => 'Message-Id',
-			'in-reply-to' => 'In-Reply-To',
-			'references' => 'References',
-		];
+		if(DEVELOPMENT_MODE) {
+			$log_headers = [
+				'from' => 'From',
+				'to' => 'To',
+				'delivered-to' => 'Delivered-To',
+				'envelope-to' => 'Envelope-To',
+				'subject' => 'Subject',
+				'date' => 'Date',
+				'message-id' => 'Message-Id',
+				'in-reply-to' => 'In-Reply-To',
+				'references' => 'References',
+			];
+		} else {
+			$log_headers = [
+				'message-id' => 'Message-Id',
+			];
+		}
 		
 		foreach($log_headers as $log_header => $log_label) {
 			if(null === ($vals = $model->getParserMessage()->headers[$log_header] ?? null))
@@ -1332,8 +1401,9 @@ class CerberusParser {
 		
 		// Reject?
 		if(isset($pre_actions['reject'])) {
+			$model->setExitState($model::STATE_REJECTED, 'Rejected based on automated filtering');
 			$logger->warn('Rejecting based on bot filtering.');
-			return null;
+			return $model;
 		}
 		
 		// Filter attachments?
@@ -1387,15 +1457,18 @@ class CerberusParser {
 			}
 		}
 		
-		if(!($validated = $model->validate()))
-			return $validated; // false or null
+		if(!$model->validate())
+			return $model;
 		
 		// Is it a worker reply from an external client?  If so, proxy
 		if(false === ($relay_result = self::_checkRelayReply($model)))
-			return false;
+			return $model;
 		
-		if($relay_result)
-			return $relay_result;
+		if($relay_result) {
+			$model->setTicketId($relay_result);
+			$model->setExitState($model::STATE_PARSED, 'Relayed an external watcher reply');
+			return $model;
+		}
 		
 		// New Ticket
 		if($model->getIsNew()) {
@@ -1407,8 +1480,9 @@ class CerberusParser {
 			$model->setTicketId(DAO_Ticket::create($fields));
 			
 			if(null == $model->getTicketId()) {
-				$logger->error("Problem saving ticket...");
-				return false;
+				$model->setExitState(CerberusParserModel::STATE_FAILED, "Failed to create a ticket record");
+				$logger->error($model->getStatusMessage());
+				return $model;
 			}
 			
 			// [JAS]: Add requesters to the ticket
@@ -1455,8 +1529,9 @@ class CerberusParser {
 
 			// Bounce if we can't set the group id
 			if(null == $model->getRouteGroup()) {
-				$logger->error("[Parser] Can't determine a default group to deliver to.");
-				return false;
+				$model->setExitState(CerberusParserModel::STATE_FAILED, "No default group for deliveries");
+				$logger->error('[Parser] ' . $model->getStatusMessage());
+				return $model;
 			}
 
 		} // endif ($model->getIsNew())
@@ -1473,7 +1548,7 @@ class CerberusParser {
 		
 		// Add a default message-id header if one didn't exist
 		if(is_null($model->getHeader('message-id'))) {
-			$new_message_id = DevblocksPlatform::services()->mail()->generateMessageId();
+			$new_message_id = '<' . DevblocksPlatform::services()->mail()->generateMessageId() . '>';
 			$model->setHeader('message-id', $new_message_id);
 			$model->getParserMessage()->raw_headers = sprintf("Message-Id: %s\r\n%s",
 				$new_message_id,
@@ -1485,10 +1560,10 @@ class CerberusParser {
 		
 		$model->setMessageId(DAO_Message::create($fields));
 
-		$message_id = $model->getMessageId();
-		if(empty($message_id)) {
-			$logger->error("Problem saving message to database...");
-			return false;
+		if(!($message_id = $model->getMessageId())) {
+			$model->setExitState(CerberusParserModel::STATE_FAILED, "Failed to create a message record");
+			$logger->error($model->getStatusMessage());
+			return $model;
 		}
 		
 		// Save message content
@@ -1771,7 +1846,7 @@ class CerberusParser {
 			Event_MailReceivedByWatcher::trigger($model->getMessageId(), $watcher_id);
 		}
 		
-		return $model->getTicketId();
+		return $model->setExitState($model::STATE_PARSED);
 	}
 	
 	static private function _parseMessageRoutingAutomations(CerberusParserModel $model) : bool {
@@ -1808,6 +1883,9 @@ class CerberusParser {
 			$initial_state,
 			$error
 		);
+		
+		if($automation_results)
+			$model->logEventResults('mail.route', [$automation_results]);
 		
 		if($automation_results instanceof DevblocksDictionaryDelegate) {
 			if('return' == $automation_results->getKeyPath('__exit')) {
@@ -1884,15 +1962,31 @@ class CerberusParser {
 		}
 		
 		if($routing && ($route_actions = $mail->runRoutingKata($routing, $routing_dict, $routing_match))) {
+			$rule_id = $routing_keys_to_ids[$routing_match[0]]['id'];
+			$rule_key = $routing_keys_to_ids[$routing_match[0]]['key'];
+			$node_key = $routing_match[1] ?? '';
+			
 			if(array_key_exists($routing_match[0] ?? '', $routing_keys_to_ids)) {
+				$event_results = DevblocksDictionaryDelegate::instance([
+					'__handler' => $rule_key,
+					'__handler_uri' => sprintf('cerb:cerb_routing_rule:%d-%s',
+						$rule_id,
+						DevblocksPlatform::strToPermalink(DAO_MailRoutingRule::get($rule_id)->name ?? '')
+					),
+					'__return' => [
+						$route_actions
+					],
+				]);
+				$model->logEventResults('mail.routing.kata', [$event_results]);
+				
 				// Increment routing rule usage
 				$metrics->increment(
 					'cerb.mail.routing.matches',
 					1,
 					[
-						'rule_id' => $routing_keys_to_ids[$routing_match[0]]['id'],
-						'rule_key' => $routing_keys_to_ids[$routing_match[0]]['key'],
-						'node_key' => $routing_match[1] ?? '',
+						'rule_id' => $rule_id,
+						'rule_key' => $rule_key,
+						'node_key' => $node_key,
 					]
 				);
 			}
@@ -1919,6 +2013,18 @@ class CerberusParser {
 			
 			if($bucket_routing && ($bucket_route_actions = $mail->runRoutingKata($bucket_routing, $routing_dict, $routing_match))) {
 				if($routing_match[0] ?? null) {
+					$event_results = DevblocksDictionaryDelegate::instance([
+						'__handler' => $routing_match[0] ?? '',
+						'__handler_uri' => sprintf('cerb:group:%d-%s',
+							$model->getRouteGroup()->id,
+							DevblocksPlatform::strToPermalink($model->getRouteGroup()->name)
+						),
+						'__return' => [
+							$bucket_route_actions
+						],
+					]);
+					$model->logEventResults('mail.routing.group.kata', [$event_results]);
+					
 					// Increment group routing rule usage
 					$metrics->increment(
 						'cerb.mail.routing.group.matches',
@@ -2073,8 +2179,8 @@ class CerberusParser {
 			}
 			
 		} else { // failed worker auth
-			// [TODO] Bounce
-			$logger->error("[Worker Relay] Worker authentication failed. Ignoring.");
+			$model->setExitState(CerberusParserModel::STATE_FAILED, "Worker relay authentication failed");
+			$logger->error('[Worker Relay] ' . $model->getStatusMessage());
 			return false;
 		}
 		
@@ -2254,6 +2360,14 @@ class CerberusParser {
 		
 		// If successful, run post actions
 		if(false !== ($response = $draft->send())) {
+			// Link the new message to the model
+			if(
+				CerberusContexts::CONTEXT_MESSAGE == ($response[0] ?? null)
+				&& null !== ($response[1] ?? null)
+			) {
+				$model->setMessageId($response[1]);
+			}
+			
 			// Comments
 			if (is_array($comments)) {
 				foreach ($comments as $comment) {

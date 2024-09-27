@@ -83,7 +83,7 @@ class AutomationTrigger_MailReceived extends Extension_AutomationTrigger {
 			$handlers = [];
 		}
 		
-		DevblocksPlatform::services()->ui()->eventHandler()->handleEach(
+		return DevblocksPlatform::services()->ui()->eventHandler()->handleEach(
 			AutomationTrigger_MailReceived::ID,
 			$handlers,
 			$initial_state,

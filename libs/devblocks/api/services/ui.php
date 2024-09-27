@@ -130,8 +130,10 @@ class DevblocksUiEventHandler {
 		$automator = DevblocksPlatform::services()->automation();
 		
 		foreach($handlers as $handler) {
-			if('automation' == @$handler['type']) {
-				$automation_uri = @$handler['data']['uri'];
+			$started_ms = microtime(true);
+			
+			if('automation' == ($handler['type'] ?? null)) {
+				$automation_uri = $handler['data']['uri'] ?? null;
 				
 				// Handle `uri:`
 				if(DevblocksPlatform::strStartsWith($automation_uri, 'cerb:')) {
@@ -149,6 +151,10 @@ class DevblocksUiEventHandler {
 				
 				if(!($automation_results = $automator->executeScript($automation, $initial_state, $error)))
 					return null;
+				
+				$automation_results->setKeyPath('__handler', $handler['id'] ?? null);
+				$automation_results->setKeyPath('__handler_uri', $handler['data']['uri'] ?? null);
+				$automation_results->setKeyPath('__handler_duration_ms', (microtime(true) - $started_ms) * 1000);
 				
 				$handler = $automation;
 				
@@ -175,7 +181,15 @@ class DevblocksUiEventHandler {
 					}
 					
 					if($behavior instanceof Model_TriggerEvent) {
-						return $behavior_callback($behavior, $handler);
+						$behavior_results = $behavior_callback($behavior, $handler);
+						
+						if($behavior_results instanceof DevblocksDictionaryDelegate) {
+							$behavior_results->setKeyPath('__handler', $handler['id'] ?? null);
+							$behavior_results->setKeyPath('__handler_uri', $handler['data']['uri'] ?? null);
+							$behavior_results->setKeyPath('__handler_duration_ms', (microtime(true) - $started_ms) * 1000);
+						}
+						
+						return $behavior_results;
 					}
 					
 					return false;
