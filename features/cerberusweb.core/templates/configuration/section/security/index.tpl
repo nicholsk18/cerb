@@ -57,9 +57,8 @@ $(function() {
 	
 	$frm.find('BUTTON.submit')
 		.click(function(e) {
-			genericAjaxPost('frmSetupSecurity','',null,function(json) {
-				Devblocks.saveAjaxForm($frm);
-			});
+			e.stopPropagation();
+            Devblocks.saveAjaxForm($frm);
 		})
 	;
 });

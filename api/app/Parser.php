@@ -624,7 +624,7 @@ class CerberusParserModel {
 			$this->_route_group = $id;
 			$this->_route_bucket = $this->_route_group->getDefaultBucket();
 		
-		} elseif (is_numeric($id) && false != ($to_group = DAO_Group::get($id))) {
+		} elseif (is_numeric($id) && ($to_group = DAO_Group::get($id))) {
 			$this->_route_group = $to_group;
 			$this->_route_bucket = $to_group->getDefaultBucket();
 		}
@@ -773,8 +773,6 @@ class CerberusParser {
 				@unlink($file);
 			throw $e;
 		}
-		
-		return false;
 	}
 	
 	static public function parseMimeFile($full_filename) {
@@ -1063,10 +1061,10 @@ class CerberusParser {
 				continue;
 			}
 			
-			$content_type = DevblocksPlatform::strLower(isset($section->data['content-type']) ? $section->data['content-type'] : '');
+			$content_type = DevblocksPlatform::strLower($section->data['content-type'] ?? '');
 			$content_filename = self::_getMimePartFilename($section);
 			
-			if(DevblocksPlatform::strLower(@$section->data['content-type']) == 'multipart/signed') {
+			if($content_type == 'multipart/signed') {
 				$content_filename = sprintf('signed_message_source_%s.txt', uniqid());
 				continue;
 			}
@@ -2140,13 +2138,13 @@ class CerberusParser {
 		if(!$model->isSenderWorker())
 			return null;
 		
-		if(false == ($relay_auth_header = $model->isWorkerRelayReply()))
+		if(!($relay_auth_header = $model->isWorkerRelayReply()))
 			return null;
 		
-		if(false == ($proxy_ticket = $model->getTicketModel()))
+		if(!($proxy_ticket = $model->getTicketModel()))
 			return null;
 		
-		if(false == ($proxy_worker = $model->getSenderWorkerModel()))
+		if(!($proxy_worker = $model->getSenderWorkerModel()))
 			return null;
 		
 		if($proxy_worker->is_disabled)
@@ -2202,7 +2200,7 @@ class CerberusParser {
 			// Dupe detection
 			$sha1_hash = sha1_file($file->tmpname, false);
 			
-			if(false == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $file->file_size, $file->mime_type))) {
+			if(!($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, $file->file_size, $file->mime_type))) {
 				$fields = [
 					DAO_Attachment::NAME => $filename,
 					DAO_Attachment::MIME_TYPE => $file->mime_type,

@@ -326,7 +326,7 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 	}
 
 	static function count() {
-		if(false == ($mailboxes = DAO_Mailbox::getAll()) || !is_array($mailboxes))
+		if(!($mailboxes = DAO_Mailbox::getAll()) || !is_array($mailboxes))
 			return 0;
 
 		return count($mailboxes);

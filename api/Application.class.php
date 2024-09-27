@@ -3808,7 +3808,7 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 			if(!($results = static::getAll()) || !is_array($results))
 				$results = [];
 			
-			$results = array_intersect_key($results, array_flip($ids));
+			$results = array_intersect_key($results, array_fill_keys($ids, true));
 			
 		} else {
 			if(!method_exists(get_called_class(), 'getWhere'))

@@ -1061,6 +1061,8 @@ class View_Task extends C4_AbstractView implements IAbstractView_Subtotals, IAbs
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Task::VIRTUAL_OWNER_SEARCH);
 				
 			case 'isCompleted':
+				return DevblocksSearchCriteria::getBooleanParamFromTokens($field, $tokens);
+				
 			case 'status':
 				$field_key = SearchFields_Task::STATUS_ID;
 				$oper = null;

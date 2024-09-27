@@ -1712,12 +1712,12 @@ class DevblocksSearchCriteria {
 		
 		switch($search_field['type']) {
 			case DevblocksSearchCriteria::TYPE_BOOL:
-				if($param_key && false != ($param = DevblocksSearchCriteria::getBooleanParamFromTokens($param_key, $tokens)))
+				if($param_key && ($param = DevblocksSearchCriteria::getBooleanParamFromTokens($param_key, $tokens)))
 					return $param;
 				break;
 				
 			case DevblocksSearchCriteria::TYPE_DATE:
-				if($param_key && false != ($param = DevblocksSearchCriteria::getDateParamFromTokens($param_key, $tokens)))
+				if($param_key && ($param = DevblocksSearchCriteria::getDateParamFromTokens($param_key, $tokens)))
 					return $param;
 				break;
 				
@@ -1726,18 +1726,18 @@ class DevblocksSearchCriteria {
 				return DevblocksSearchCriteria::getNumberParamFromTokens($param_key, $tokens);
 				
 			case DevblocksSearchCriteria::TYPE_FULLTEXT:
-				if($param_key && false != ($param = DevblocksSearchCriteria::getFulltextParamFromTokens($param_key, $tokens)))
+				if($param_key && ($param = DevblocksSearchCriteria::getFulltextParamFromTokens($param_key, $tokens)))
 					return $param;
 				break;
 				
 			case DevblocksSearchCriteria::TYPE_GEO_POINT:
-				if($param_key && false != ($param = DevblocksSearchCriteria::getGeoPointParamFromTokens($param_key, $tokens, $search_field)))
+				if($param_key && ($param = DevblocksSearchCriteria::getGeoPointParamFromTokens($param_key, $tokens, $search_field)))
 					return $param;
 				break;
 				
 			case DevblocksSearchCriteria::TYPE_CONTEXT:
 			case DevblocksSearchCriteria::TYPE_NUMBER:
-				if($param_key && false != ($param = DevblocksSearchCriteria::getNumberParamFromTokens($param_key, $tokens)))
+				if($param_key && ($param = DevblocksSearchCriteria::getNumberParamFromTokens($param_key, $tokens)))
 					return $param;
 				break;
 				
@@ -1748,14 +1748,14 @@ class DevblocksSearchCriteria {
 			case DevblocksSearchCriteria::TYPE_TEXT:
 				$match_type = $search_field['options']['match'] ?? null;
 				
-				if($param_key && false != ($param = DevblocksSearchCriteria::getTextParamFromTokens($param_key, $tokens, $match_type)))
+				if($param_key && ($param = DevblocksSearchCriteria::getTextParamFromTokens($param_key, $tokens, $match_type)))
 					return $param;
 				break;
 			
 			case DevblocksSearchCriteria::TYPE_VIRTUAL:
 				$cf_id = $search_fields[$field]['options']['cf_id'] ?? null;
 				
-				if(!$cf_id || false == ($custom_field = DAO_CustomField::get($cf_id)))
+				if(!$cf_id || !($custom_field = DAO_CustomField::get($cf_id)))
 					break;
 				
 				switch($custom_field->type) {
@@ -1763,13 +1763,13 @@ class DevblocksSearchCriteria {
 					case Model_CustomField::TYPE_FILE:
 					case Model_CustomField::TYPE_FILES:
 					case Model_CustomField::TYPE_LINK:
-						if($param_key && false != $param = DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, $param_key))
+						if($param_key && $param = DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, $param_key))
 							return $param;
 						break;
 						
 					default:
-						if(false != ($field_ext = $custom_field->getTypeExtension())) {
-							if($param_key && false != ($param = $field_ext->getParamFromQueryFieldTokens($field, $tokens, $param_key)))
+						if(($field_ext = $custom_field->getTypeExtension())) {
+							if($param_key && ($param = $field_ext->getParamFromQueryFieldTokens($field, $tokens, $param_key)))
 								return $param;
 						}
 						break;
@@ -1777,7 +1777,7 @@ class DevblocksSearchCriteria {
 				break;
 			
 			case DevblocksSearchCriteria::TYPE_WORKER:
-				if($param_key && false != ($param = DevblocksSearchCriteria::getWorkerParamFromTokens($param_key, $tokens, $search_field)))
+				if($param_key && ($param = DevblocksSearchCriteria::getWorkerParamFromTokens($param_key, $tokens, $search_field)))
 					return $param;
 				break;
 		}

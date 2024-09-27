@@ -859,16 +859,16 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 			
 			// Resolve any symbolic links
 			
-			if(false == ($full_path = realpath(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $file)))
+			if(!($full_path = realpath(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . $file)))
 				return false;
 	
 			// Make sure our requested file is in the same directory
 			
-			if(false == (dirname(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . 'test.msg') == dirname($full_path)))
+			if(!(dirname(APP_MAIL_PATH . 'fail' . DIRECTORY_SEPARATOR . 'test.msg') == dirname($full_path)))
 				return false;
 			
 			// If the extension isn't .msg, abort.
-			if(false == ($pathinfo = pathinfo($file)) || !isset($pathinfo['extension']) && $pathinfo['extension'] != 'msg')
+			if(!($pathinfo = pathinfo($file)) || !isset($pathinfo['extension']) && $pathinfo['extension'] != 'msg')
 				return false;
 			
 			// Parse

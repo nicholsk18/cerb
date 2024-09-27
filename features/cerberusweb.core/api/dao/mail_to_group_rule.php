@@ -598,7 +598,7 @@ class Model_MailToGroupRule {
 					
 				default:
 					// Custom fields
-					if(substr($action,0,3)=="cf_") {
+					if(str_starts_with($action, 'cf_')) {
 						$field_id = intval(substr($action,3));
 						
 						if(!isset($custom_fields[$field_id]) || !isset($params['value']))

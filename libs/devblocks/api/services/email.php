@@ -1566,8 +1566,7 @@ class _DevblocksEmailManager {
 			}
 			
 		} elseif ($group_name) {
-			if(null != ($model->setRouteGroup(DAO_Group::getByName($group_name))))
-				DevblocksPlatform::noop();
+			$model->setRouteGroup(DAO_Group::getByName($group_name));
 		}
 	}
 	

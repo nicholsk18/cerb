@@ -143,7 +143,7 @@ class DevblocksUiEventHandler {
 					$automation_uri = $uri_parts['context_id'];
 				}
 				
-				if(false == ($automation = DAO_Automation::getByNameAndTrigger($automation_uri, $triggers)))
+				if(!($automation = DAO_Automation::getByNameAndTrigger($automation_uri, $triggers)))
 					continue;
 				
 				if(array_key_exists('inputs', $handler['data'] ?? []))
@@ -166,7 +166,7 @@ class DevblocksUiEventHandler {
 					$behavior_uri = $handler['data']['uri'] ?? null;
 					
 					if(DevblocksPlatform::strStartsWith($behavior_uri, 'cerb:')) {
-						if(false == ($uri_parts = DevblocksPlatform::services()->ui()->parseURI($behavior_uri)))
+						if(!($uri_parts = DevblocksPlatform::services()->ui()->parseURI($behavior_uri)))
 							continue;
 						
 						$behavior_uri = $uri_parts['context_id'];
