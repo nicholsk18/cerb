@@ -121,15 +121,15 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 
 		if(!empty($parser_model)) {
 			$values['_parser_model'] = $parser_model;
-			$values['body'] =& $parser_model->getMessage()->body;
-			$values['body_html'] =& $parser_model->getMessage()->htmlbody;
-			$values['encoding'] =& $parser_model->getMessage()->encoding;
+			$values['body'] =& $parser_model->getParserMessage()->body;
+			$values['body_html'] =& $parser_model->getParserMessage()->htmlbody;
+			$values['encoding'] =& $parser_model->getParserMessage()->encoding;
 			$values['headers'] =& $parser_model->getHeaders();
 			$values['subject'] =& $parser_model->getSubject();
 			$values['pre_actions'] =& $parser_model->getPreActions();
 			$values['is_new'] = $parser_model->getIsNew();
 			$values['recipients'] = $parser_model->getRecipients();
-			$values['attachments'] = $parser_model->getMessage()->files;
+			$values['attachments'] = $parser_model->getParserMessage()->files;
 			$values['attachment_count'] = count($values['attachments']);
 			$values['sender_is_worker'] = $parser_model->isSenderWorker();
 		}
@@ -158,7 +158,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 		 * Routing Group
 		 */
 		
-		$group = !empty($parser_model) ? $parser_model->getRoutingGroup() : null;
+		$group = !empty($parser_model) ? $parser_model->getRouteGroup() : null;
 		
 		$group_labels = $group_values = [];
 		CerberusContexts::getContext(CerberusContexts::CONTEXT_GROUP, $group, $group_labels, $group_values, '', true);

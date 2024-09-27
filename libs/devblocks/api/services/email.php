@@ -1528,7 +1528,7 @@ class _DevblocksEmailManager {
 			
 			if(is_array($watchers)) {
 				if(($watcher_workers = DAO_Worker::getByAtMentions($watchers)))
-					$model->getMessage()->watcher_ids = array_keys($watcher_workers);
+					$model->getParserMessage()->watcher_ids = array_keys($watcher_workers);
 			}
 		}
 		

@@ -605,7 +605,7 @@ class Model_MailToGroupRule {
 							break;
 
 						// Persist in the model
-						$model->getMessage()->custom_fields[] = array(
+						$model->getParserMessage()->custom_fields[] = array(
 							'field_id' => $field_id,
 							'context' => CerberusContexts::CONTEXT_TICKET,
 							'context_id' => $model->getTicketId(),

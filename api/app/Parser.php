@@ -106,12 +106,12 @@ class CerberusParserModel {
 	private $_pre_actions = [];
 	
 	private $_is_new = true;
-	private $_sender_address_model = null;
-	private $_sender_worker_model = null;
+	private ?Model_Address $_sender_address_model = null;
+	private ?Model_Worker $_sender_worker_model = null;
 	private $_subject = '';
 	private $_date = 0;
 	private $_ticket_id = 0;
-	private $_ticket_model = null;
+	private ?Model_Ticket $_ticket_model = null;
 	private $_message_id = 0;
 	private $_route_group = null;
 	private $_route_bucket = null;
@@ -441,7 +441,7 @@ class CerberusParserModel {
 	/**
 	 * @return CerberusParserMessage
 	 */
-	public function &getMessage() {
+	public function &getParserMessage() {
 		return $this->_message;
 	}
 	
@@ -451,6 +451,15 @@ class CerberusParserModel {
 	
 	public function &getHeaders() {
 		return $this->_message->headers;
+	}
+	
+	public function getHeader($name) {
+		return $this->_message->headers[$name] ?? null;
+	}
+	
+	public function setHeader($name, $value) : CerberusParserModel {
+		$this->_message->headers[$name] = $value;
+		return $this;
 	}
 	
 	public function &getPreActions() {
@@ -465,26 +474,26 @@ class CerberusParserModel {
 		return $this->_is_new;
 	}
 	
-	public function setIsNew($bool) {
+	public function setIsNew($bool) : void {
 		$this->_is_new = $bool;
 	}
 	
-	public function &getSenderAddressModel() {
+	public function &getSenderAddressModel() : ?Model_Address {
 		return $this->_sender_address_model;
 	}
 	
-	public function setSenderAddressModel($model) {
+	public function setSenderAddressModel(?Model_Address $model) {
 		$this->_sender_address_model = $model;
 	}
 	
 	/**
 	 * @return null|Model_Worker
 	 */
-	public function &getSenderWorkerModel() {
+	public function &getSenderWorkerModel() : ?Model_Worker {
 		return $this->_sender_worker_model;
 	}
 	
-	public function setSenderWorkerModel($model) {
+	public function setSenderWorkerModel(?Model_Worker $model) {
 		$this->_sender_worker_model = $model;
 	}
 	
@@ -519,7 +528,7 @@ class CerberusParserModel {
 	/**
 	 * @return Model_Ticket
 	 */
-	public function getTicketModel() {
+	public function getTicketModel() : ?Model_Ticket {
 		if(!empty($this->_ticket_model))
 			return $this->_ticket_model;
 
@@ -535,7 +544,8 @@ class CerberusParserModel {
 		return $ticket;
 	}
 	
-	public function setTicketModel($model) {
+	public function setTicketModel(?Model_Ticket $model) {
+		$this->_ticket_id = $model->id ?? 0;
 		$this->_ticket_model = $model;
 	}
 	
@@ -563,7 +573,7 @@ class CerberusParserModel {
 		return $this->_route_group;
 	}
 	
-	public function getRouteGroup() {
+	public function getRouteGroup() : ?Model_Group {
 		if($this->_route_group)
 			return $this->_route_group;
 			
@@ -607,47 +617,6 @@ class CerberusParserModel {
 		}
 		
 		return $this->_route_bucket;
-	}
-	
-	/**
-	 * 
-	 * @return Model_Group|null
-	 */
-	public function getRoutingGroup() {
-		$model = clone $this; /* @var $model CerberusParserModel */
-		$group_id = 0;
-		
-		if(false == ($sender_address = $model->getSenderAddressModel())) {
-			$sender_address = new Model_Address();
-			$sender_address->email = 'missing-sender@example.com';
-		}
-		
-		if(false == ($sender_message = $model->getMessage()))
-			return null;
-		
-		// Routing new tickets
-		if(null != ($routing_rules = Model_MailToGroupRule::getMatches(
-			$sender_address,
-			$sender_message
-		))) {
-			
-			// Update our model with the results of the routing rules
-			if(is_array($routing_rules))
-			foreach($routing_rules as $rule) {
-				if(array_key_exists('move', $rule->actions)) {
-					if(false != ($move_group_id = $rule->actions['move']['group_id']))
-						$group_id = $move_group_id;
-				}
-			}
-		}
-		
-		if($group_id && false != ($group = DAO_Group::get($group_id)))
-			return $group;
-		
-		if(false != ($group = DAO_Group::getDefaultGroup()))
-			return $group;
-		
-		return null;
 	}
 };
 
@@ -1147,8 +1116,8 @@ class CerberusParser {
 			'email_sender_id' => ($model->getSenderAddressModel()->id ?? null) ?: 0,
 			'email_subject' => $model->getSubject(),
 			'email_headers' => $model->getHeaders(),
-			'email_body' => $model->getMessage()->body,
-			'email_body_html' => $model->getMessage()->htmlbody,
+			'email_body' => $model->getParserMessage()->body,
+			'email_body_html' => $model->getParserMessage()->htmlbody,
 			'email_recipients' => $model->getRecipients(),
 			'parent_ticket__context' => CerberusContexts::CONTEXT_TICKET,
 			'parent_ticket_id' => $model->getTicketId(),
@@ -1231,17 +1200,17 @@ class CerberusParser {
 				
 				if(null != ($subject = $result->getKeyPath('__return.set.email_subject'))) {
 					$model->setSubject($subject);
-					$model->getMessage()->headers['subject'] = $subject;
+					$model->getParserMessage()->headers['subject'] = $subject;
 					$model->updateThreadHeaders();
 				}
 				
 				if(null != ($body = $result->getKeyPath('__return.set.email_body'))) {
-					$model->getMessage()->body = $body;
+					$model->getParserMessage()->body = $body;
 					unset($body);
 				}
 				
 				if(null != ($html_body = $result->getKeyPath('__return.set.email_body_html'))) {
-					$model->getMessage()->htmlbody = $html_body;
+					$model->getParserMessage()->htmlbody = $html_body;
 					unset($html_body);
 				}
 				
@@ -1251,15 +1220,15 @@ class CerberusParser {
 							$k = DevblocksPlatform::strLower($k);
 							
 							if('' === $v) {
-								unset($model->getMessage()->headers[$k]);
+								unset($model->getParserMessage()->headers[$k]);
 							} else {
-								$model->getMessage()->headers[$k] = $v;
+								$model->getParserMessage()->headers[$k] = $v;
 							}
 							
 						}
 						
-						$model->getMessage()->raw_headers = '';
-						$model->getMessage()->build();
+						$model->getParserMessage()->raw_headers = '';
+						$model->getParserMessage()->build();
 						$model->updateThreadHeaders();
 					}
 				}
@@ -1281,7 +1250,7 @@ class CerberusParser {
 				if(null != ($custom_fields = $result->getKeyPath('__return.set.custom_fields'))) {
 					if(is_array($custom_fields)) {
 						foreach($custom_fields as $cf_key => $cf_value) {
-							$model->getMessage()->custom_fields[] = [
+							$model->getParserMessage()->custom_fields[] = [
 								'field_id' => $cf_key,
 								'context' => CerberusContexts::CONTEXT_TICKET,
 								'value' => $cf_value,
@@ -1297,9 +1266,32 @@ class CerberusParser {
 	
 	/**
 	 * @param CerberusParserMessage $message
+	 * @param array $options
 	 * @return integer
 	 */
-	static public function parseMessage(CerberusParserMessage $message, $options=[]) {
+	static public function parseMessage(CerberusParserMessage $message, array $options=[]) {
+		// Make sure the object is well-formatted and ready to send
+		$message->build();
+		
+		// Parse headers into $model
+		$model = new CerberusParserModel($message);
+		
+		try {
+			$result = self::_parseMessage($model, $options);
+			
+		} catch(Throwable $e) {
+			$result = false;
+		}
+		
+		return $result;
+	}
+	
+	/**
+	 * @param CerberusParserMessage $message
+	 * @param array $options
+	 * @return integer
+	 */
+	static private function _parseMessage(CerberusParserModel $model, array $options=[]) {
 		/*
 		 * options:
 		 * 'no_autoreply'
@@ -1307,12 +1299,6 @@ class CerberusParser {
 		$logger = DevblocksPlatform::services()->log();
 		$url_writer = DevblocksPlatform::services()->url();
 
-		// Make sure the object is well-formatted and ready to send
-		$message->build();
-		
-		// Parse headers into $model
-		$model = new CerberusParserModel($message);
-		
 		// Pre-parse mail filters
 		// Changing the incoming message through a VA
 		self::_handleMailFilteringAutomations($model);
@@ -1332,10 +1318,8 @@ class CerberusParser {
 		];
 		
 		foreach($log_headers as $log_header => $log_label) {
-			if(!isset($message->headers[$log_header]))
+			if(null === ($vals = $model->getParserMessage()->headers[$log_header] ?? null))
 				continue;
-			
-			$vals = $message->headers[$log_header];
 			
 			if(!is_array($vals))
 				$vals = array($vals);
@@ -1352,10 +1336,9 @@ class CerberusParser {
 			return null;
 		}
 		
-		
 		// Filter attachments?
-		if(isset($pre_actions['attachment_filters']) && !empty($message->files)) {
-			foreach($message->files as $filename => $file) {
+		if(isset($pre_actions['attachment_filters']) && !empty($model->getParserMessage()->files)) {
+			foreach($model->getParserMessage()->files as $filename => $file) {
 				$matched = false;
 				
 				foreach($pre_actions['attachment_filters'] as $filter) {
@@ -1396,7 +1379,7 @@ class CerberusParser {
 					if($matched) {
 						$logger->info(sprintf("Removing attachment '%s' based on bot filtering.", $filename));
 						@unlink($file->tmpname);
-						unset($message->files[$filename]);
+						unset($model->getParserMessage()->files[$filename]);
 						/** @noinspection PhpUnnecessaryStopStatementInspection */
 						continue;
 					}
@@ -1408,7 +1391,7 @@ class CerberusParser {
 			return $validated; // false or null
 		
 		// Is it a worker reply from an external client?  If so, proxy
-		if(false === ($relay_result = self::_checkRelayReply($model, $message)))
+		if(false === ($relay_result = self::_checkRelayReply($model)))
 			return false;
 		
 		if($relay_result)
@@ -1446,7 +1429,7 @@ class CerberusParser {
 			}
 			
 			// Compute the spam score before routing rules
-			if(($spam_data = CerberusBayes::calculateContentSpamProbability($model->getSubject() . ' ' . $message->body))) {
+			if(($spam_data = CerberusBayes::calculateContentSpamProbability($model->getSubject() . ' ' . $model->getParserMessage()->body))) {
 				$model->getTicketModel()->spam_score = $spam_data['probability'];
 				$model->getTicketModel()->interesting_words = $spam_data['interesting_words'];
 			}
@@ -1460,7 +1443,7 @@ class CerberusParser {
 			
 			// Only run legacy routing rules if no automations matched above
 			if(null == $model->getRouteGroup())
-				self::_parseMessageRoutingLegacy($model, $message);
+				self::_parseMessageRoutingLegacy($model);
 			
 			// Last ditch effort to check for a default group to deliver to
 			if(null == $model->getRouteGroup()) {
@@ -1483,25 +1466,22 @@ class CerberusParser {
 			DAO_Message::CREATED_DATE => $model->getDate(),
 			DAO_Message::ADDRESS_ID => $model->getSenderAddressModel()->id,
 			DAO_Message::WORKER_ID => $model->isSenderWorker() ? $model->getSenderWorkerModel()->id : 0,
-			DAO_Message::WAS_ENCRYPTED => $message->was_encrypted ? 1 : 0,
-			DAO_Message::SIGNED_KEY_FINGERPRINT => $message->signed_key_fingerprint,
-			DAO_Message::SIGNED_AT => $message->signed_at,
+			DAO_Message::WAS_ENCRYPTED => $model->getParserMessage()->was_encrypted ? 1 : 0,
+			DAO_Message::SIGNED_KEY_FINGERPRINT => $model->getParserMessage()->signed_key_fingerprint,
+			DAO_Message::SIGNED_AT => $model->getParserMessage()->signed_at,
 		];
 		
-		if(!isset($message->headers['message-id'])) {
-			$new_message_id = sprintf("<%s.%s@%s>", 
-				base_convert(intval(microtime(true))*1000, 10, 36),
-				base_convert(bin2hex(openssl_random_pseudo_bytes(8)), 16, 36),
-				DevblocksPlatform::getHostname()
-			);
-			$message->headers['message-id'] = $new_message_id;
-			$message->raw_headers = sprintf("Message-Id: %s\r\n%s",
+		// Add a default message-id header if one didn't exist
+		if(is_null($model->getHeader('message-id'))) {
+			$new_message_id = DevblocksPlatform::services()->mail()->generateMessageId();
+			$model->setHeader('message-id', $new_message_id);
+			$model->getParserMessage()->raw_headers = sprintf("Message-Id: %s\r\n%s",
 				$new_message_id,
-				$message->raw_headers
+				$model->getParserMessage()->raw_headers
 			);
 		}
 		
-		$fields[DAO_Message::HASH_HEADER_MESSAGE_ID] = sha1($message->headers['message-id']);
+		$fields[DAO_Message::HASH_HEADER_MESSAGE_ID] = sha1($model->getHeader('message-id'));
 		
 		$model->setMessageId(DAO_Message::create($fields));
 
@@ -1512,13 +1492,13 @@ class CerberusParser {
 		}
 		
 		// Save message content
-		Storage_MessageContent::put($model->getMessageId(), $message->body);
+		Storage_MessageContent::put($model->getMessageId(), $model->getParserMessage()->body);
 		
 		// Save headers
-		DAO_MessageHeaders::upsert($model->getMessageId(), $message->raw_headers);
+		DAO_MessageHeaders::upsert($model->getMessageId(), $model->getParserMessage()->raw_headers);
 		
 		// [mdf] Loop through files to insert attachment records in the db, and move temporary files
-		foreach ($message->files as $filename => $file) { /* @var $file ParserFile */
+		foreach ($model->getParserMessage()->files as $filename => $file) { /* @var $file ParserFile */
 			$handled = false;
 			
 			switch($file->mime_type) {
@@ -1600,7 +1580,7 @@ class CerberusParser {
 				// Rewrite any inline content-id images in the HTML part
 				if(isset($file->info) && isset($file->info['content-id'])) {
 					$inline_cid_url = $url_writer->write('c=files&id=' . $file_id . '&name=' . urlencode($filename), true);
-					$message->htmlbody = str_replace('cid:' . $file->info['content-id'], $inline_cid_url, $message->htmlbody);
+					$model->getParserMessage()->htmlbody = str_replace('cid:' . $file->info['content-id'], $inline_cid_url, $model->getParserMessage()->htmlbody);
 				}
 			}
 			
@@ -1724,11 +1704,11 @@ class CerberusParser {
 				$change_fields[DAO_Ticket::INTERESTING_WORDS] = $model->getTicketModel()->interesting_words;
 			
 			// Watchers
-			if($model->getMessage()->watcher_ids) {
+			if($model->getParserMessage()->watcher_ids) {
 				CerberusContexts::addWatchers(
 					CerberusContexts::CONTEXT_TICKET,
 					$model->getTicketId(),
-					$model->getMessage()->watcher_ids
+					$model->getParserMessage()->watcher_ids
 				);
 			}
 		
@@ -1802,8 +1782,8 @@ class CerberusParser {
 			'email_sender_id' => @$model->getSenderAddressModel()->id ?: 0,
 			'email_subject' => $model->getSubject(),
 			'email_headers' => $model->getHeaders(),
-			'email_body' => $model->getMessage()->body,
-			'email_body_html' => $model->getMessage()->htmlbody,
+			'email_body' => $model->getParserMessage()->body,
+			'email_body_html' => $model->getParserMessage()->htmlbody,
 			'email_recipients' => $model->getRecipients(),
 			'parent_ticket__context' => CerberusContexts::CONTEXT_TICKET,
 			'parent_ticket_id' => $model->getTicketId(),
@@ -1885,7 +1865,7 @@ class CerberusParser {
 		
 		$routing_dict = DevblocksDictionaryDelegate::instance([
 			'subject' => $model->getSubject(),
-			'body' => $model->getMessage()->body,
+			'body' => $model->getParserMessage()->body,
 			'recipients' => $model->getRecipients(),
 			'spam_score' => $model->getTicketModel()->spam_score ?? 0,
 			'headers' => $model->getHeaders(),
@@ -1958,10 +1938,10 @@ class CerberusParser {
 		return false;
 	}
 	
-	static private function _parseMessageRoutingLegacy(CerberusParserModel $model, CerberusParserMessage $message) {
+	static private function _parseMessageRoutingLegacy(CerberusParserModel $model) {
 		if(null != ($routing_rules = Model_MailToGroupRule::getMatches(
 			$model->getSenderAddressModel(),
-			$message
+			$model->getParserMessage()
 		))) {
 			// Update our model with the results of the routing rules
 			if(is_array($routing_rules))
@@ -2002,7 +1982,7 @@ class CerberusParser {
 				if(false !== ($out = mb_convert_encoding($text, LANG_CHARSET_CODE)))
 					return $out;
 			}
-		} catch (Throwable $e) {
+		} catch (Throwable) {
 			DevblocksPlatform::noop();
 		}
 		
@@ -2043,7 +2023,7 @@ class CerberusParser {
 	/**
 	 * @return false|null|int
 	 */
-	private static function _checkRelayReply(CerberusParserModel $model, CerberusParserMessage $message) {
+	private static function _checkRelayReply(CerberusParserModel $model) {
 		$logger = DevblocksPlatform::services()->log();
 		
 		$relay_disabled = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::RELAY_DISABLE, CerberusSettingsDefaults::RELAY_DISABLE);
@@ -2087,7 +2067,7 @@ class CerberusParser {
 			
 			if(!empty($proxy_ticket)) {
 				$in_reply_message_id = is_numeric($is_authenticated) ? $is_authenticated : $proxy_ticket->last_message_id;
-				self::_createRelayReply($model, $message, $proxy_ticket, $proxy_worker, $in_reply_message_id);
+				self::_createRelayReply($model, $proxy_ticket, $proxy_worker, $in_reply_message_id);
 				
 				return $proxy_ticket->id;
 			}
@@ -2101,11 +2081,11 @@ class CerberusParser {
 		return null;
 	}
 	
-	private static function _createRelayReply(CerberusParserModel $model, CerberusParserMessage $message, Model_Ticket $proxy_ticket, Model_Worker $proxy_worker, $in_reply_message_id) {
+	private static function _createRelayReply(CerberusParserModel $model, Model_Ticket $proxy_ticket, Model_Worker $proxy_worker, $in_reply_message_id) {
 		// Log activity as the worker
 		CerberusContexts::pushActivityDefaultActor(CerberusContexts::CONTEXT_WORKER, $proxy_worker->id);
 		
-		$parser_message = $model->getMessage();
+		$parser_message = $model->getParserMessage();
 		$attachment_file_ids = [];
 		
 		foreach($parser_message->files as $filename => $file) {
@@ -2149,7 +2129,7 @@ class CerberusParser {
 		
 		// Clean the reply body
 		$body = '';
-		$lines = DevblocksPlatform::parseCrlfString($message->body, true);
+		$lines = DevblocksPlatform::parseCrlfString($parser_message->body, true);
 		
 		$state = '';
 		$comments = [];

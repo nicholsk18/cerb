@@ -1461,7 +1461,7 @@ class CerberusMail {
 	
 	static function reflect(CerberusParserModel $model, $to) {
 		try {
-			$message = $model->getMessage(); /* @var $message CerberusParserMessage */
+			$message = $model->getParserMessage(); /* @var $message CerberusParserMessage */
 			
 			$mail_service = DevblocksPlatform::services()->mail();
 			

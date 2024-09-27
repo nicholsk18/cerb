@@ -63,7 +63,7 @@ class AutomationTrigger_MailReceived extends Extension_AutomationTrigger {
 		return [];
 	}
 	
-	public static function trigger(string $message_id, bool $is_new) {
+	public static function trigger(string $message_id, bool $is_new)  : array {
 		$initial_state = [
 			'message__context' => CerberusContexts::CONTEXT_MESSAGE,
 			'message_id' => intval($message_id),
