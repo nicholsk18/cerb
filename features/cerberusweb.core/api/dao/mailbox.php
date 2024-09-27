@@ -31,6 +31,8 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 	const TIMEOUT_SECS = 'timeout_secs';
 	const UPDATED_AT = 'updated_at';
 	const USERNAME = 'username';
+	
+	const _CACHE_ALL = '_mailboxes_all';
 
 	private function __construct() {}
 
@@ -192,10 +194,13 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 				DevblocksPlatform::markContextChanged(CerberusContexts::CONTEXT_MAILBOX, $batch_ids);
 			}
 		}
+		
+		self::clearCache();
 	}
 	
 	static function updateWhere($fields, $where) {
 		parent::_updateWhere('mailbox', $fields, $where);
+		self::clearCache();
 	}
 	
 	static public function onBeforeUpdateByActor($actor, &$fields, $id=null, &$error=null) {
@@ -246,8 +251,17 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 	 * @param bool $nocache
 	 * @return Model_Mailbox[]
 	 */
-	static function getAll($nocache=false) {
-		$objects = self::getWhere(null, DAO_Mailbox::NAME, true, null, Cerb_ORMHelper::OPT_GET_MASTER_ONLY);
+	static function getAll(bool $nocache=false) : array {
+		$cache = DevblocksPlatform::services()->cache();
+		
+		if(($objects = $cache->load(self::_CACHE_ALL, $nocache, true)))
+			return $objects;
+		
+		if(!($objects = self::getWhere(null, DAO_Mailbox::NAME, true, null, DevblocksORMHelper::OPT_GET_MASTER_ONLY)))
+			return [];
+		
+		$cache->save($objects, self::_CACHE_ALL, [], 0, true);
+		
 		return $objects;
 	}
 
@@ -258,12 +272,9 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 	static function get($id) {
 		if(empty($id))
 			return null;
-
-		$objects = self::getWhere(sprintf("%s = %d",
-			self::ID,
-			$id
-		));
-
+		
+		$objects = self::getAll();
+		
 		if(array_key_exists($id, $objects))
 			return $objects[$id];
 
@@ -324,6 +335,11 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 	static function random() {
 		return self::_getRandom('mailbox');
 	}
+	
+	static function clearCache() : void {
+		$cache = DevblocksPlatform::services()->cache();
+		$cache->remove(self::_CACHE_ALL, true);
+	}
 
 	static function delete($ids) {
 		$db = DevblocksPlatform::services()->database();
@@ -342,6 +358,8 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 
 		parent::_deleteAbstractAfter($context, $ids);
 
+		self::clearCache();
+		
 		return true;
 	}
 
