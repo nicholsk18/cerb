@@ -1571,7 +1571,10 @@ class _DevblocksEmailManager {
 	}
 	
 	public function generateMessageId() : string {
-		$left_id = bin2hex(random_bytes(16));
-		return sprintf('%s@%s', $left_id, DevblocksPlatform::getHostname());
+		return sprintf("%s.%s@%s",
+			base_convert(intval(microtime(true))*1000, 10, 36),
+			base_convert(bin2hex(random_bytes(16)), 16, 36),
+			'cerb'
+		);
 	}
 };
