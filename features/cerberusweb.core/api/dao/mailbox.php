@@ -289,7 +289,18 @@ class DAO_Mailbox extends Cerb_ORMHelper {
 	static function getIds(array $ids) : array {
 		return parent::getIds($ids);
 	}
-
+	
+	public static function getByName($mailbox_name) : ?Model_Mailbox {
+		$mailboxes = self::getAll();
+		
+		foreach($mailboxes as $mailbox) {
+			if(0 == strcasecmp($mailbox->name, $mailbox_name))
+				return $mailbox;
+		}
+		
+		return null;
+	}
+	
 	/**
 	 * @param mysqli_result|false $rs
 	 * @return Model_Mailbox[]

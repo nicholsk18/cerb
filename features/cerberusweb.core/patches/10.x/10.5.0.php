@@ -579,6 +579,91 @@ if(!isset($tables['mail_delivery_log'])) {
 }
 
 // ===========================================================================
+// Mail Inbound Log
+
+if(!isset($tables['mail_inbound_log'])) {
+	$sql = sprintf("
+		CREATE TABLE `mail_inbound_log` (
+		`id` int unsigned NOT NULL AUTO_INCREMENT,
+		`status_id` tinyint unsigned NOT NULL DEFAULT 0,
+		`status_message` varchar(255) NOT NULL DEFAULT '',
+		`created_at` int unsigned NOT NULL DEFAULT 0,
+		`to` varchar(255) NOT NULL DEFAULT '',
+		`from_id` int unsigned NOT NULL DEFAULT 0,
+		`subject` varchar(255) NOT NULL DEFAULT '' COLLATE utf8mb4_unicode_ci,
+		`header_message_id` varchar(255) NOT NULL DEFAULT '',
+		`ticket_id` int unsigned NOT NULL DEFAULT 0,
+		`message_id` int unsigned NOT NULL DEFAULT 0,
+		`mailbox_id` int unsigned NOT NULL DEFAULT 0,
+		`parse_time_ms` int unsigned NOT NULL DEFAULT 0,
+		`events_log_json` mediumtext,
+		PRIMARY KEY (id),
+		INDEX (created_at),
+		INDEX (parse_time_ms),
+		INDEX (from_id),
+		INDEX (message_id),
+		INDEX header_message_id (header_message_id(8))
+		) ENGINE=%s
+	", APP_DB_ENGINE);
+	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
+	
+	$tables['mail_inbound_log'] = 'mail_inbound_log';
+	
+	// Default card widgets
+	
+	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s)",
+		$db->qstr('Properties'),
+		$db->qstr('cerb.contexts.mail.inbound.log'),
+		$db->qstr('cerb.card.widget.fields'),
+		$db->qstr(json_encode([
+			"context" => "cerb.contexts.mail.inbound.log",
+			"context_id" => "{{record_id}}",
+			"properties" => [
+				[
+					"id",
+					"created",
+					"to",
+					"from_id",
+					"status_id",
+					"status_message",
+					"parse_time_ms",
+					"header_message_id",
+					"message_id",
+					"mailbox_id",
+				],
+			],
+			"toolbar_kata" => "",
+		])),
+		time(),
+		time(),
+		1,
+		4,
+		$db->qstr('content')
+	));
+	
+	$db->ExecuteMaster(sprintf("INSERT INTO card_widget (name, record_type, extension_id, extension_params_json, created_at, updated_at, pos, width_units, zone, options_kata) ".
+		"VALUES (%s, %s, %s, %s, %d, %d, %d, %d, %s, %s)",
+		$db->qstr('Events Log'),
+		$db->qstr('cerb.contexts.mail.inbound.log'),
+		$db->qstr('cerb.card.widget.sheet'),
+		$db->qstr(json_encode([
+			"data_query" => "type:worklist.records\r\nof:mail_inbound_log\r\nexpand:[events_log]\r\nquery:(\r\n  limit:1\r\n  id:{{record_id}}\r\n  sort:[id]\r\n)\r\nformat:dictionaries",
+            "cache_secs" => "",
+            "placeholder_simulator_kata" => "",
+            "sheet_kata" => "layout:\r\n  style: fieldsets\r\n  headings@bool: no\r\n  paging@bool: no\r\n\r\ncolumns:\r\n  markdown/properties:\r\n    label: Events Log\r\n    params:\r\n      value_template@raw:\r\n        ```\r\n        {{events_log|kata_encode|raw}}\r\n        ```\r\n  ",
+            "toolbar_kata" => "",
+		])),
+		time(),
+		time(),
+		2,
+		4,
+		$db->qstr('content'),
+		$db->qstr('')
+	));
+}
+
+// ===========================================================================
 // Enable the new classifiers plugin by default on upgrades
 
 if($revision < 1467) { // 10.5

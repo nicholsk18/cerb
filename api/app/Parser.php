@@ -1345,6 +1345,10 @@ class CerberusParser {
 			DevblocksPlatform::logException($e);
 		}
 		
+		$model->setParseTimeMs(intval(1000 * (microtime(true) - $started_at)));
+		
+		DAO_MailInboundLog::createFromModel($model);
+		
 		return match($model->getExitState()) {
 			$model::STATE_PARSED => $model->getTicketId(),
 			$model::STATE_REJECTED => null,

@@ -10,6 +10,7 @@
 		<li data-alias="import"><a href="{devblocks_url}ajax.php?c=config&a=invoke&module=mail_incoming&action=renderTabMailImport{/devblocks_url}">{'common.import'|devblocks_translate|capitalize}</a></li>
 		<li data-alias="failed"><a href="{devblocks_url}ajax.php?c=config&a=invoke&module=mail_incoming&action=renderTabMailFailed{/devblocks_url}">Failed Messages</a></li>
 		<li data-alias="relay"><a href="{devblocks_url}ajax.php?c=config&a=invoke&module=mail_incoming&action=renderTabMailRelay{/devblocks_url}">External Relay</a></li>
+		<li data-alias="log"><a href="{devblocks_url}ajax.php?c=config&a=invoke&module=mail_incoming&action=renderTabMailLog{/devblocks_url}">{'common.log'|devblocks_translate|capitalize}</a></li>
 	</ul>
 	
 	<div id="tabsSetupMailIncomingSettings">

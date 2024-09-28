@@ -59,6 +59,8 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 					return $this->_configAction_saveMailHtmlJson();
 				case 'renderTabMailImport':
 					return $this->_configAction_renderTabMailImport();
+				case 'renderTabMailLog':
+					return $this->_configAction_renderTabMailLog();
 				case 'renderTabMailRelay':
 					return $this->_configAction_renderTabMailRelay();
 				case 'saveMailRelayJson':
@@ -678,6 +680,36 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 		$tpl->display('devblocks:cerberusweb.core::configuration/section/mail_incoming/tabs/mail_import.tpl');
 	}
 	
+	private function _configAction_renderTabMailLog() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$defaults = C4_AbstractViewModel::loadFromClass('View_MailInboundLog');
+		$defaults->id = 'config_mail_inbound_log';
+		$defaults->name = 'Mail Inbound Log';
+		$defaults->view_columns = [
+			SearchFields_MailInboundLog::STATUS_ID,
+			SearchFields_MailInboundLog::FROM_ID,
+			SearchFields_MailInboundLog::TO,
+			SearchFields_MailInboundLog::STATUS_MESSAGE,
+			SearchFields_MailInboundLog::MESSAGE_ID,
+			SearchFields_MailInboundLog::TICKET_ID,
+			SearchFields_MailInboundLog::MAILBOX_ID,
+			SearchFields_MailInboundLog::PARSE_TIME_MS,
+			SearchFields_MailInboundLog::CREATED_AT,
+		];
+		$defaults->renderSort = [SearchFields_MailInboundLog::CREATED_AT => false];
+		
+		if(null != ($view = C4_AbstractViewLoader::getView($defaults->id, $defaults))) {
+			$tpl->assign('view', $view);
+		}
+		
+		$tpl->display('devblocks:cerberusweb.core::internal/views/search_and_view.tpl');
+	}
+	
 	private function _configAction_parseMessageJson() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		
@@ -872,6 +904,8 @@ class PageSection_SetupMailIncoming extends Extension_PageSection {
 				return false;
 			
 			// Parse
+			
+			// [TODO] Don't send paths, just base filenames
 			
 			if(false === ($dict = CerberusParser::parseMessageSource("file://" . $full_path, true, false)))
 				throw new Exception("Failed to parse the message.");

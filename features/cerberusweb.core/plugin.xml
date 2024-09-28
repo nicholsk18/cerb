@@ -521,6 +521,14 @@
 			<class name="View_MailDeliveryLog" />
 		</file>
 
+		<file path="api/dao/mail_inbound_log.php">
+			<class name="Context_MailInboundLog" />
+			<class name="DAO_MailInboundLog" />
+			<class name="Model_MailInboundLog" />
+			<class name="SearchFields_MailInboundLog" />
+			<class name="View_MailInboundLog" />
+		</file>
+
 		<file path="api/dao/mail_queue.php">
 			<class name="Context_Draft" />
 			<class name="DAO_MailQueue" />
@@ -2843,6 +2851,45 @@
 				<param key="alias" value="mail_delivery_log" />
 				<param key="dao_class" value="DAO_MailDeliveryLog" />
 				<param key="view_class" value="View_MailDeliveryLog" />
+				<param key="options">
+					<value>
+						<data key="cards" />
+						<data key="comments" />
+						<data key="custom_fields" />
+						<data key="links" />
+						<data key="records" />
+						<data key="va_variable" />
+						<data key="workspace" />
+					</value>
+				</param>
+				<param key="acl">
+					<value>
+						<data key="comment" />
+						<data key="create" />
+						<data key="delete" />
+						<data key="update" />
+					</value>
+				</param>
+			</params>
+		</extension>
+
+		<extension point="devblocks.context">
+			<id>cerb.contexts.mail.inbound.log</id>
+			<name>Email Inbound Log</name>
+			<class>
+				<file>api/dao/mail_inbound_log.php</file>
+				<name>Context_MailInboundLog</name>
+			</class>
+			<params>
+				<param key="names">
+					<value>
+						<data key="email inbound log" value="singular" />
+						<data key="email inbound logs" value="plural" />
+					</value>
+				</param>
+				<param key="alias" value="mail_inbound_log" />
+				<param key="dao_class" value="DAO_MailInboundLog" />
+				<param key="view_class" value="View_MailInboundLog" />
 				<param key="options">
 					<value>
 						<data key="cards" />
@@ -7677,6 +7724,19 @@
 				<params>
 					<param key="page_id" value="core.page.profiles" />
 					<param key="uri" value="mail_delivery_log" />
+				</params>
+			</extension>
+
+			<extension point="cerberusweb.ui.page.section">
+				<id>cerb.page.profiles.mail_inbound_log</id>
+				<name>Mail Inbound Log Section</name>
+				<class>
+					<file>api/uri/profiles/mail_inbound_log.php</file>
+					<name>PageSection_ProfilesMailInboundLog</name>
+				</class>
+				<params>
+					<param key="page_id" value="core.page.profiles" />
+					<param key="uri" value="mail_inbound_log" />
 				</params>
 			</extension>
 
