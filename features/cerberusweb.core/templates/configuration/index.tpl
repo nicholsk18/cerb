@@ -61,6 +61,7 @@
 			<div>
 				<a class="menu">{'common.team'|devblocks_translate|capitalize} <span class="glyphicons glyphicons-chevron-down" style="color:white;"></span></a>
 				<ul class="cerb-popupmenu cerb-float">
+					<li><a href="{devblocks_url}c=config&a=team&w=config{/devblocks_url}">{'common.configure'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=team&w=roles{/devblocks_url}">{'common.roles'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=team&w=groups{/devblocks_url}">{'common.groups'|devblocks_translate|capitalize}</a></li>
 					<li><a href="{devblocks_url}c=config&a=team&w=workers{/devblocks_url}">{'common.workers'|devblocks_translate|capitalize}</a></li>

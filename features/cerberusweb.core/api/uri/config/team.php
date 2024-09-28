@@ -38,16 +38,52 @@ class PageSection_SetupTeam extends Extension_PageSection {
 	
 	function handleActionForPage(string $action, string $scope=null) {
 		if('configAction' == $scope) {
-			switch ($action) {
-				case 'renderTabRoles':
-					return $this->_configAction_renderTabRoles();
-				case 'renderTabGroups':
-					return $this->_configAction_renderTabGroups();
-				case 'renderTabWorkers':
-					return $this->_configAction_renderTabWorkers();
-			}
+			return match ($action) {
+				'renderTabRoles' => $this->_configAction_renderTabRoles(),
+				'renderTabGroups' => $this->_configAction_renderTabGroups(),
+				'renderTabWorkers' => $this->_configAction_renderTabWorkers(),
+				'saveConfigJson' => $this->_configAction_saveConfigJson(),
+				default => $this->_configAction_renderTabConfig(),
+			};
 		}
 		return false;
+	}
+	
+	private function _configAction_renderTabConfig() {
+		$tpl = DevblocksPlatform::services()->template();
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		$default_page_ids = explode(',', DevblocksPlatform::getPluginSetting('cerberusweb.core', 'new_worker_default_page_ids', ''));
+		
+		if($default_page_ids) {
+			$default_workspaces = DAO_WorkspacePage::getIds($default_page_ids);
+			$tpl->assign('default_workspaces', $default_workspaces);
+		}
+		
+		$tpl->display('devblocks:cerberusweb.core::configuration/section/team/tab_config.tpl');
+	}
+
+	private function _configAction_saveConfigJson() {
+		$active_worker = CerberusApplication::getActiveWorker();
+		
+		header('Content-Type: application/json; charset=utf-8');
+		
+		if(!$active_worker || !$active_worker->is_superuser)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		try {
+			// Default pages
+			$default_page_ids = DevblocksPlatform::importGPC($_POST['default_pages'] ?? null, 'array', []);
+			DevblocksPlatform::setPluginSetting('cerberusweb.core', 'new_worker_default_page_ids', implode(',', $default_page_ids));
+		
+		} catch (Throwable $e) {
+			DevblocksPlatform::logException($e);
+		}
+		
+		echo json_encode([]);
 	}
 	
 	private function _configAction_renderTabRoles() {
