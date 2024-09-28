@@ -257,6 +257,9 @@ class DAO_Worker extends Cerb_ORMHelper {
 
 		self::update($id, $fields);
 		
+		// Default to dark mode
+		DAO_WorkerPref::set($id, 'dark_mode', '1');
+		
 		DAO_WorkerPref::setAsJson($id, 'search_favorites_json', [
 			"cerberusweb.contexts.contact",
 			"cerberusweb.contexts.address",
