@@ -78,7 +78,7 @@ class _DevblocksWorkflowService {
 		return $results;
 	}
 	
-	public function import(Model_Workflow $new_workflow, ?Model_Worker $as_worker, string &$error = null) : bool {
+	public function import(Model_Workflow $new_workflow, ?Model_Worker $as_worker, string &$error = null) : Model_Workflow|false {
 		$kata = DevblocksPlatform::services()->kata();
 		
 		// Modify a copy of the model, not the original
@@ -88,6 +88,8 @@ class _DevblocksWorkflowService {
 			$was_workflow_id = DAO_Workflow::create([
 				DAO_Workflow::NAME => $changed_workflow->name,
 			]);
+			
+			$changed_workflow->id = $was_workflow_id;
 			
 			$was_workflow = DAO_Workflow::get($was_workflow_id);
 		}
@@ -143,6 +145,6 @@ class _DevblocksWorkflowService {
 		if($has_extensions & Model_Workflow::HAS_TRANSLATIONS)
 			DevblocksPlatform::services()->cache()->removeByTags(['translations']);
 		
-		return true;
+		return $changed_workflow;
 	}
 }
