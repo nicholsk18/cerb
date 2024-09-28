@@ -871,6 +871,15 @@ switch($step) {
 			$json = file_get_contents(APP_PATH . '/install/packages/install_base_package.json');
 			CerberusApplication::packages()->import($json, $prompts, $records_created);
 			
+			// Init tutorial
+			$error = null;
+			$new_workflow = new Model_Workflow();
+			$new_workflow->name = 'cerb.tutorial';
+			$new_workflow->description = "A workspace with detailed descriptions and examples of Cerb functionality";
+			$new_workflow->workflow_kata = file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.tutorial.kata');
+			$new_workflow->config_kata = '';
+			$new_workflow = DevblocksPlatform::services()->workflow()->import($new_workflow, null, $error);
+			
 			// Import quickstart checklist
 			$error = null;
 			$new_workflow = new Model_Workflow();

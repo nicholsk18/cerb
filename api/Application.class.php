@@ -632,17 +632,6 @@ class CerberusApplication extends DevblocksApplication {
 				unset($resource_data);
 			}
 		}
-		
-		// Init tutorial
-		if($force || !DAO_Workflow::getByName('cerb.tutorial')) {
-			$error = null;
-			$new_workflow = new Model_Workflow();
-			$new_workflow->name = 'cerb.tutorial';
-			$new_workflow->description = "A workspace with detailed descriptions and examples of Cerb functionality";
-			$new_workflow->workflow_kata = file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.tutorial.kata');
-			$new_workflow->config_kata = '';
-			DevblocksPlatform::services()->workflow()->import($new_workflow, null, $error);
-		}
 	}
 	
 	static function sendEmailTemplate($email, $template_id, $values) : bool {
