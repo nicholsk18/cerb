@@ -871,6 +871,9 @@ switch($step) {
 			$json = file_get_contents(APP_PATH . '/install/packages/install_base_package.json');
 			CerberusApplication::packages()->import($json, $prompts, $records_created);
 			
+			$default_worker_page_ids = [];
+			$default_admin_page_ids = [];
+			
 			// Init tutorial
 			$error = null;
 			$new_workflow = new Model_Workflow();
@@ -880,6 +883,14 @@ switch($step) {
 			$new_workflow->config_kata = '';
 			$new_workflow = DevblocksPlatform::services()->workflow()->import($new_workflow, null, $error);
 			
+			// If the tutorial is installed, add it to the worker default pages
+			if($new_workflow && ($resources = $new_workflow->getResources())) {
+				if(($tutorial_page_id = $resources['records']['workspace_page/page_tutorial'] ?? null)) {
+					$default_worker_page_ids[] = $tutorial_page_id;
+					$default_admin_page_ids[] = $tutorial_page_id;
+				}
+			}
+			
 			// Import quickstart checklist
 			$error = null;
 			$new_workflow = new Model_Workflow();
@@ -887,8 +898,15 @@ switch($step) {
 			$new_workflow->description = "A workspace with a quickstart checklist for initial configuration of Cerb";
 			$new_workflow->workflow_kata = file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.quickstart.kata');
 			$new_workflow->config_kata = '';
-			DevblocksPlatform::services()->workflow()->import($new_workflow, null, $error);
+			$new_workflow = DevblocksPlatform::services()->workflow()->import($new_workflow, null, $error);
 			
+			if($new_workflow && ($resources = $new_workflow->getResources())) {
+				if(($checklist_page_id = $resources['records']['workspace_page/workspace_demo'] ?? null)) {
+					$default_admin_page_ids[] = $checklist_page_id;
+				}
+			}
+			
+			// Demo data
 			if($package == 'demo') {
 				$error = null;
 				$new_workflow = new Model_Workflow();
@@ -897,6 +915,22 @@ switch($step) {
 				$new_workflow->workflow_kata = file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.demo.data.kata');
 				$new_workflow->config_kata = '';
 				DevblocksPlatform::services()->workflow()->import($new_workflow, null, $error);
+			}
+
+			// Initialize the default page ids
+			if($default_worker_page_ids) {
+				DevblocksPlatform::setPluginSetting('cerberusweb.core', 'new_worker_default_page_ids', implode(',', $default_worker_page_ids));
+			}
+			
+			// Add default pages to all workers
+			if($default_admin_page_ids) {
+				foreach(DAO_Worker::getAll() as $worker) {
+					if($worker->is_superuser) {
+						DAO_WorkerPref::setAsJson($worker->id, 'menu_json', $default_admin_page_ids);
+					} else {
+						DAO_WorkerPref::setAsJson($worker->id, 'menu_json', $default_worker_page_ids);
+					}
+				}
 			}
 			
 			// Index initial content
