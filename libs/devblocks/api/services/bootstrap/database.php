@@ -269,9 +269,7 @@ class _DevblocksDatabaseManager {
 		$output = ['tables' => []];
 		
 		foreach($this->metaTables() as $table_name) {
-			$table_output = [
-				'columns' => [],
-			];
+			$table_output = [];
 			
 			$table_data = $this->metaTable($table_name);
 			

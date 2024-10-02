@@ -43,7 +43,7 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
             type: int unsigned
             collation@text:
             null: NO
-            key@text:
+            key: MUL
             default: 0
             extra@text:
           id:
@@ -57,7 +57,7 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
           name:
             field: name
             type: varchar(255)
-            collation: utf8mb3_general_ci
+            collation: utf8mb4_general_ci
             null: YES
             key: MUL
             default@text:
@@ -65,7 +65,7 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
           owner_context:
             field: owner_context
             type: varchar(255)
-            collation: utf8mb3_general_ci
+            collation: utf8mb4_general_ci
             null: YES
             key: MUL
             default@text:
@@ -94,6 +94,13 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
                 index_type: BTREE
                 subpart@text:
                 unique: 1
+          created_at:
+            columns:
+              created_at:
+                column_name: created_at
+                index_type: BTREE
+                subpart@text:
+                unique@text:
           name:
             columns:
               name:
@@ -129,6 +136,20 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
 		$existing_tables = [];
 		$diff_tables = [];
 		
+		$funcTheirsOurs = function($diff, $table_name, $reference_kata) {
+			// Rewrite with theirs/ours
+			foreach($diff['columns'] ?? [] as $column_name => $column_attrs) {
+				foreach($column_attrs as $column_attr_key => $column_attr_value) {
+					$diff['columns'][$column_name][$column_attr_key] = [
+						'ours' => $column_attr_value ?? '',
+						'theirs' => $reference_kata['columns'][$column_name][$column_attr_key] ?? '',
+					];
+				}
+			}
+			
+			return $diff;
+		};
+		
 		foreach(array_keys($reference_kata['tables'] ?? []) as $table_name) {
 			if(!array_key_exists($table_name, $schema_kata['tables'])) {
 				$missing_tables[$table_name] = $reference_kata['tables'][$table_name];
@@ -143,7 +164,7 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
 				$diff = $kata->treeDiff($reference_kata_custom_record, $schema_kata['tables'][$table_name]);
 				
 				if ($diff) {
-					$diff_tables[$table_name] = $diff;
+					$diff_tables[$table_name] = $funcTheirsOurs($diff, $table_name, $reference_kata_custom_record);
 				}
 				
 			} else if(!array_key_exists($table_name, $reference_kata['tables'])) {
@@ -155,7 +176,7 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
 				$diff = $kata->treeDiff($reference_kata['tables'][$table_name], $schema_kata['tables'][$table_name]);
 				
 				if($diff) {
-					$diff_tables[$table_name] = $diff;
+					$diff_tables[$table_name] = $funcTheirsOurs($diff, $table_name, $reference_kata['tables'][$table_name]);
 				}
 			}
 		}
@@ -185,7 +206,8 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
 						'text_color' => '{% if __diff.type %}warning{% endif %}',
 						'icon' => [
 							'image_template' => '{% if __diff.type %}warning-sign{% endif %}'
-						]
+						],
+						'value_template' => '{% if __diff.type %}{{__diff.type.theirs|default(\'null\')}} -> {{__diff.type.ours|default(\'null\')}}{% else %}{{type}}{% endif %}',
 					]
 				],
 				'text/collation' => [
@@ -194,7 +216,8 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
 						'text_color' => '{% if __diff.collation %}warning{% endif %}',
 						'icon' => [
 							'image_template' => '{% if __diff.collation %}warning-sign{% endif %}'
-						]
+						],
+						'value_template' => '{% if __diff.collation %}{{__diff.collation.theirs|default(\'null\')}} -> {{__diff.collation.ours|default(\'null\')}}{% else %}{{collation}}{% endif %}',
 					]
 				],
 				'text/null' => [
@@ -202,7 +225,8 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
 						'text_color' => '{% if __diff.null %}warning{% endif %}',
 						'icon' => [
 							'image_template' => '{% if __diff.null %}warning-sign{% endif %}'
-						]
+						],
+						'value_template' => '{% if __diff.null %}{{__diff.null.theirs|default(\'null\')}} -> {{__diff.null.ours|default(\'null\')}}{% else %}{{null}}{% endif %}',
 					]
 				],
 				'text/key' => [
@@ -210,7 +234,8 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
 						'text_color' => '{% if __diff.key %}warning{% endif %}',
 						'icon' => [
 							'image_template' => '{% if __diff.key %}warning-sign{% endif %}'
-						]
+						],
+						'value_template' => '{% if __diff.key %}{{__diff.key.theirs|default(\'null\')}} -> {{__diff.key.ours|default(\'null\')}}{% else %}{{key}}{% endif %}',
 					]
 				],
 				'text/default' => [
@@ -218,7 +243,8 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
 						'text_color' => '{% if __diff.default %}warning{% endif %}',
 						'icon' => [
 							'image_template' => '{% if __diff.default %}warning-sign{% endif %}'
-						]
+						],
+						'value_template' => '{% if __diff.default %}{{__diff.default.theirs|default(\'null\')}} -> {{__diff.default.ours|default(\'null\')}}{% else %}{{default}}{% endif %}',
 					]
 				],
 				'text/extra' => [
@@ -226,7 +252,8 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
 						'text_color' => '{% if __diff.extra %}warning{% endif %}',
 						'icon' => [
 							'image_template' => '{% if __diff.extra %}warning-sign{% endif %}'
-						]
+						],
+						'value_template' => '{% if __diff.extra %}{{__diff.extra.theirs|default(\'null\')}} -> {{__diff.extra.ours|default(\'null\')}}{% else %}{{extra}}{% endif %}',
 					]
 				],
 			],
