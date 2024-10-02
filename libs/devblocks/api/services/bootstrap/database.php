@@ -281,6 +281,11 @@ class _DevblocksDatabaseManager {
 					$column['default'] = strval($column['default']);
 					$column['null'] = strval($column['null']);
 					
+					// Normalize ints by removing length (MySQL 8+)
+					if(DevblocksPlatform::strStartsWith($column['type'], ['tinyint(','int(','mediumint(','bigint('])) {
+						$column['type'] = preg_replace('#\(\d+\)#', '', $column['type']);
+					}
+					
 					return $column;
 				},
 				$table_data[0]
