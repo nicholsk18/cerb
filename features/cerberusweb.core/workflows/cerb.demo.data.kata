@@ -821,7 +821,6 @@ records:
   group/group_demo:
     fields:
       name: Demo
-      is_default@int: 1
       is_private@int: 0
       reply_address_id: {{records.address_demo_at_cerb_dot_example.id}}
       reply_signature_id: {{records.signature_demo.id}}
