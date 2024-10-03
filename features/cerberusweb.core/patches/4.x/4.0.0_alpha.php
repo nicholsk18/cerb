@@ -233,8 +233,8 @@ if(!isset($tables['bayes_words'])) {
 		CREATE TABLE IF NOT EXISTS bayes_words (
 			id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 			word VARCHAR(64) DEFAULT '' NOT NULL,
-			spam INT UNSIGNED DEFAULT 0,
-			nonspam INT UNSIGNED DEFAULT 0,
+			spam INT UNSIGNED NOT NULL DEFAULT 0,
+			nonspam INT UNSIGNED NOT NULL DEFAULT 0,
 			PRIMARY KEY (id),
 			INDEX word (word)
 		) ENGINE=%s;
@@ -246,8 +246,8 @@ if(!isset($tables['bayes_words'])) {
 if(!isset($tables['bayes_stats'])) {
 	$sql = sprintf("
 		CREATE TABLE IF NOT EXISTS bayes_stats (
-			spam INT UNSIGNED DEFAULT 0,
-			nonspam INT UNSIGNED DEFAULT 0
+			spam INT UNSIGNED NOT NULL DEFAULT 0,
+			nonspam INT UNSIGNED NOT NULL DEFAULT 0
 		) ENGINE=%s;
 	", APP_DB_ENGINE);
 	$db->ExecuteMaster($sql);	

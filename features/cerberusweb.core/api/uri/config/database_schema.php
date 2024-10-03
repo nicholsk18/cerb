@@ -42,7 +42,7 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
             field: created_at
             type: int unsigned
             collation@text:
-            null: NO
+            nullable: NOT NULL
             key: MUL
             default: 0
             extra@text:
@@ -50,7 +50,7 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
             field: id
             type: int unsigned
             collation@text:
-            null: NO
+            nullable: NOT NULL
             key: PRI
             default@text:
             extra: auto_increment
@@ -58,7 +58,7 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
             field: name
             type: varchar(255)
             collation: utf8mb4_general_ci
-            null: YES
+            nullable: NULL
             key: MUL
             default@text:
             extra@text:
@@ -66,7 +66,7 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
             field: owner_context
             type: varchar(255)
             collation: utf8mb4_general_ci
-            null: YES
+            nullable: NULL
             key: MUL
             default@text:
             extra@text:
@@ -74,7 +74,7 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
             field: owner_context_id
             type: int unsigned
             collation@text:
-            null: NO
+            nullable: NOT NULL
             key@text:
             default: 0
             extra@text:
@@ -82,7 +82,7 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
             field: updated_at
             type: int unsigned
             collation@text:
-            null: NO
+            nullable: NOT NULL
             key: MUL
             default: 0
             extra@text:
@@ -220,13 +220,13 @@ class PageSection_SetupDevelopersDatabaseSchema extends Extension_PageSection {
 						'value_template' => '{% if __diff.collation %}{{__diff.collation.theirs|default(\'null\')}} -> {{__diff.collation.ours|default(\'null\')}}{% else %}{{collation}}{% endif %}',
 					]
 				],
-				'text/null' => [
+				'text/nullable' => [
 					'params' => [
-						'text_color' => '{% if __diff.null %}warning{% endif %}',
+						'text_color' => '{% if __diff.nullable %}warning{% endif %}',
 						'icon' => [
-							'image_template' => '{% if __diff.null %}warning-sign{% endif %}'
+							'image_template' => '{% if __diff.nullable %}warning-sign{% endif %}'
 						],
-						'value_template' => '{% if __diff.null %}{{__diff.null.theirs|default(\'null\')}} -> {{__diff.null.ours|default(\'null\')}}{% else %}{{null}}{% endif %}',
+						'value_template' => '{% if __diff.nullable %}{{__diff.nullable.theirs|default(\'null\')}} -> {{__diff.nullable.ours|default(\'null\')}}{% else %}{{nullable}}{% endif %}',
 					]
 				],
 				'text/key' => [

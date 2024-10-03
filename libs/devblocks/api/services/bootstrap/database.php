@@ -277,7 +277,7 @@ class _DevblocksDatabaseManager {
 				function($column) {
 					$column['collation'] = strval($column['collation']);
 					$column['default'] = strval($column['default']);
-					$column['null'] = strval($column['null']);
+					$column['nullable'] = strval($column['null']) == 'NO' ? 'NOT NULL' : 'NULL';
 					
 					// Normalize ints by removing length (MySQL 8+)
 					if(DevblocksPlatform::strStartsWith($column['type'], ['tinyint(','smallint(','int(','mediumint(','bigint('])) {
