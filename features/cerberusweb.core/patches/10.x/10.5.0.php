@@ -672,6 +672,29 @@ if($revision < 1467) { // 10.5
 }
 
 // ===========================================================================
+// Drop old unused tables
+
+if(array_key_exists('rssexp_feed', $tables)) {
+	$db->ExecuteMaster('DROP TABLE rssexp_feed');
+}
+
+if(array_key_exists('rssexp_item', $tables)) {
+	$db->ExecuteMaster('DROP TABLE rssexp_item');
+}
+
+if(array_key_exists('watcher_mail_filter', $tables)) {
+	$db->ExecuteMaster('DROP TABLE watcher_mail_filter');
+}
+
+if(array_key_exists('webapi_key', $tables)) {
+	$db->ExecuteMaster('DROP TABLE webapi_key');
+}
+
+if(array_key_exists('wgm_google_cse', $tables)) {
+	$db->ExecuteMaster('DROP TABLE wgm_google_cse');
+}
+
+// ===========================================================================
 // Finish up
 
 return TRUE;
