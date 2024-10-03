@@ -1666,10 +1666,10 @@ class CerberusParser {
 		}
 		
 		// Save the HTML part as an 'original_message.html' attachment
-		if(!empty($message->htmlbody)) {
-			$sha1_hash = sha1($message->htmlbody, false);
+		if(!empty($model->getParserMessage()->htmlbody)) {
+			$sha1_hash = sha1($model->getParserMessage()->htmlbody, false);
 			
-			if(null == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, strlen($message->htmlbody), 'text/html'))) {
+			if(null == ($file_id = DAO_Attachment::getBySha1Hash($sha1_hash, strlen($model->getParserMessage()->htmlbody), 'text/html'))) {
 				$fields = array(
 					DAO_Attachment::NAME => 'original_message.html',
 					DAO_Attachment::MIME_TYPE => 'text/html',
@@ -1677,7 +1677,7 @@ class CerberusParser {
 				);
 				
 				if(($file_id = DAO_Attachment::create($fields))) {
-					Storage_Attachments::put($file_id, $message->htmlbody);
+					Storage_Attachments::put($file_id, $model->getParserMessage()->htmlbody);
 				}
 			}
 			
@@ -1698,8 +1698,8 @@ class CerberusParser {
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_TICKET);
 		$custom_field_uris = array_column($custom_fields, 'id', 'uri');
 		
-		if(isset($message->custom_fields) && !empty($message->custom_fields))
-		foreach($message->custom_fields as $cf_data) {
+		if(isset($model->getParserMessage()->custom_fields) && !empty($model->getParserMessage()->custom_fields))
+		foreach($model->getParserMessage()->custom_fields as $cf_data) {
 			if(!is_array($cf_data))
 				continue;
 			
