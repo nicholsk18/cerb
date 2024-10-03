@@ -5761,7 +5761,81 @@ tables:
             index_type: FULLTEXT
             subpart@text:
             unique@text:
+  fulltext_comment_content:
+    columns:
+      content:
+        field: content
+        type: longtext
+        collation: utf8mb3_general_ci
+        nullable: NULL
+        key: MUL
+        default@text:
+        extra@text:
+      context_crc32:
+        field: context_crc32
+        type: int unsigned
+        collation@text:
+        nullable: NULL
+        key@text:
+        default: 0
+        extra@text:
+      id:
+        field: id
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: PRI
+        default: 0
+        extra@text:
+    indexes:
+      PRIMARY:
+        columns:
+          id:
+            column_name: id
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+      content:
+        columns:
+          content:
+            column_name: content
+            index_type: FULLTEXT
+            subpart@text:
+            unique@text:
   fulltext_contact:
+    columns:
+      content:
+        field: content
+        type: longtext
+        collation: utf8mb3_general_ci
+        nullable: NULL
+        key: MUL
+        default@text:
+        extra@text:
+      id:
+        field: id
+        type: int unsigned
+        collation@text:
+        nullable: NOT NULL
+        key: PRI
+        default: 0
+        extra@text:
+    indexes:
+      PRIMARY:
+        columns:
+          id:
+            column_name: id
+            index_type: BTREE
+            subpart@text:
+            unique: 1
+      content:
+        columns:
+          content:
+            column_name: content
+            index_type: FULLTEXT
+            subpart@text:
+            unique@text:
+  fulltext_kb_article:
     columns:
       content:
         field: content
