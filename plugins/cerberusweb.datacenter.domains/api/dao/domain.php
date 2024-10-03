@@ -1380,9 +1380,21 @@ class View_Domain extends C4_AbstractView implements IAbstractView_Subtotals, IA
 		$tpl->assign('id', $this->id);
 		$tpl->assign('view', $this);
 
+		$results = $this->getData();
+		list($data, $total) = $results;
+		
 		// Custom fields
 		$custom_fields = DAO_CustomField::getByContext(CerberusContexts::CONTEXT_DOMAIN);
 		$tpl->assign('custom_fields', $custom_fields);
+		
+		// Servers
+		$server_ids = array_unique(array_column($data, SearchFields_Domain::SERVER_ID));
+		$servers = DAO_Server::getIds($server_ids);
+		$tpl->assign('servers', $servers);
+		unset($server_ids);
+		
+		$tpl->assign('data', $data);
+		$tpl->assign('total', $total);
 		
 		switch($this->renderTemplate) {
 			case 'contextlinks_chooser':

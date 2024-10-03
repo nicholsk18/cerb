@@ -1,8 +1,5 @@
 {$view_context = CerberusContexts::CONTEXT_DOMAIN}
 {$view_fields = $view->getColumnsAvailable()}
-{$results = $view->getData()}
-{$total = $results[1]}
-{$data = $results[0]}
 
 {include file="devblocks:cerberusweb.core::internal/views/view_marquee.tpl" view=$view}
 
@@ -91,7 +88,7 @@
 				{include file="devblocks:cerberusweb.core::internal/custom_fields/view/cell_renderer.tpl"}
 			{elseif $column=="w_server_id"}
 				<td data-column="{$column}">
-					{if !empty($result.$column) && isset($servers.{$result.$column})}
+					{if $result.$column && is_array($servers) && array_key_exists($result.$column, $servers)}
 						<a class="cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_SERVER}" data-context-id="{$servers.{$result.$column}->id}">{$servers.{$result.$column}->name}</a>
 					{/if}
 				</td>
