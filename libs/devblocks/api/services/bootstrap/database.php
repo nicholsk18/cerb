@@ -280,7 +280,7 @@ class _DevblocksDatabaseManager {
 					$column['null'] = strval($column['null']);
 					
 					// Normalize ints by removing length (MySQL 8+)
-					if(DevblocksPlatform::strStartsWith($column['type'], ['tinyint(','int(','mediumint(','bigint('])) {
+					if(DevblocksPlatform::strStartsWith($column['type'], ['tinyint(','smallint(','int(','mediumint(','bigint('])) {
 						$column['type'] = preg_replace('#\(\d+\)#', '', $column['type']);
 					}
 					
