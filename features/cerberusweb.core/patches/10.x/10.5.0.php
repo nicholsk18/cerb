@@ -576,6 +576,73 @@ if(!isset($tables['mail_delivery_log'])) {
 		$db->qstr('content'),
 		$db->qstr('hidden@bool: {{not worker_is_superuser}}')
 	));
+	
+	
+	// Default profile page
+	
+	$db->ExecuteMaster(sprintf("INSERT INTO profile_tab (name, context, extension_id, updated_at, extension_params_json, pos) ".
+		"VALUES (%s, %s, %s, %d, %s, %d)",
+		$db->qstr('Overview'),
+		$db->qstr('cerb.contexts.mail.delivery.log'),
+		$db->qstr('cerb.profile.tab.dashboard'),
+		time(),
+		$db->qstr(json_encode([
+			"layout" => "sidebar_left",
+		])),
+		1
+	));
+	
+	$new_profile_tab_id = $db->LastInsertId();
+	
+	$db->ExecuteMaster(sprintf("INSERT INTO profile_widget (name, profile_tab_id, extension_id, extension_params_json, updated_at, pos, width_units, zone, options_kata) ".
+		"VALUES (%s, %d, %s, %s, %d, %d, %d, %s, %s)",
+		$db->qstr('Email Delivery Log'),
+		$new_profile_tab_id,
+		$db->qstr('cerb.profile.tab.widget.fields'),
+		$db->qstr(json_encode([
+			"context" => "cerb.contexts.mail.delivery.log",
+            "context_id" => "{{record_id}}",
+            "properties" => [
+				[
+					"created",
+					"from_id",
+					"mail_transport_id",
+					"subject",
+					"id",
+					"header_message_id",
+					"status_id",
+					"status_message",
+					"to",
+					"type"
+				]
+			],
+            "toolbar_kata" => "",
+		])),
+		time(),
+		1,
+		4,
+		$db->qstr('sidebar'),
+		$db->qstr('')
+	));
+	
+	$db->ExecuteMaster(sprintf("INSERT INTO profile_widget (name, profile_tab_id, extension_id, extension_params_json, updated_at, pos, width_units, zone, options_kata) ".
+		"VALUES (%s, %d, %s, %s, %d, %d, %d, %s, %s)",
+		$db->qstr('Raw Message'),
+		$new_profile_tab_id,
+		$db->qstr('cerb.profile.tab.widget.sheet'),
+		$db->qstr(json_encode([
+			"data_query" => "type:worklist.records\r\nof:mail_delivery_log\r\nexpand:[properties]\r\nquery:(\r\n  limit:1\r\n  id:{{record_id}}\r\n  sort:[id]\r\n)\r\nformat:dictionaries",
+            "cache_secs" => "",
+            "placeholder_simulator_kata" => "",
+            "sheet_kata" => "layout:\r\n  style: fieldsets\r\n  headings@bool: no\r\n  paging@bool: no\r\n\r\ncolumns:\r\n  markdown/properties:\r\n    label: Properties\r\n    params:\r\n      value_template@raw:\r\n        ```\r\n        {{properties|kata_encode|raw}}\r\n        ```\r\n  ",
+            "toolbar_kata" => ""
+		])),
+		time(),
+		1,
+		4,
+		$db->qstr('content'),
+		$db->qstr('')
+	));
 }
 
 // ===========================================================================
@@ -657,6 +724,73 @@ if(!isset($tables['mail_inbound_log'])) {
 		time(),
 		time(),
 		2,
+		4,
+		$db->qstr('content'),
+		$db->qstr('')
+	));
+	
+	// Default profile page
+	
+	$db->ExecuteMaster(sprintf("INSERT INTO profile_tab (name, context, extension_id, updated_at, extension_params_json, pos) ".
+		"VALUES (%s, %s, %s, %d, %s, %d)",
+		$db->qstr('Overview'),
+		$db->qstr('cerb.contexts.mail.inbound.log'),
+		$db->qstr('cerb.profile.tab.dashboard'),
+		time(),
+		$db->qstr(json_encode([
+			"layout" => "sidebar_left",
+		])),
+		1
+	));
+	
+	$new_profile_tab_id = $db->LastInsertId();
+	
+	$db->ExecuteMaster(sprintf("INSERT INTO profile_widget (name, profile_tab_id, extension_id, extension_params_json, updated_at, pos, width_units, zone, options_kata) ".
+		"VALUES (%s, %d, %s, %s, %d, %d, %d, %s, %s)",
+		$db->qstr('Email Inbound Log'),
+		$new_profile_tab_id,
+		$db->qstr('cerb.profile.tab.widget.fields'),
+		$db->qstr(json_encode([
+			"context" => "cerb.contexts.mail.inbound.log",
+            "context_id" => "{{record_id}}",
+            "properties" => [
+				[
+					"id",
+					"from_id",
+					"status_id",
+					"status_message",
+					"created",
+					"header_message_id",
+					"mailbox_id",
+					"message_id",
+					"parse_time_ms",
+					"ticket_id",
+					"to"
+				]
+			],
+            "toolbar_kata" => "",
+		])),
+		time(),
+		1,
+		4,
+		$db->qstr('sidebar'),
+		$db->qstr('')
+	));
+	
+	$db->ExecuteMaster(sprintf("INSERT INTO profile_widget (name, profile_tab_id, extension_id, extension_params_json, updated_at, pos, width_units, zone, options_kata) ".
+		"VALUES (%s, %d, %s, %s, %d, %d, %d, %s, %s)",
+		$db->qstr('Events Log'),
+		$new_profile_tab_id,
+		$db->qstr('cerb.profile.tab.widget.sheet'),
+		$db->qstr(json_encode([
+			"data_query" => "type:worklist.records\r\nof:mail_inbound_log\r\nexpand:[events_log]\r\nquery:(\r\n  limit:1\r\n  id:{{record_id}}\r\n  sort:[id]\r\n)\r\nformat:dictionaries",
+            "cache_secs" => "",
+            "placeholder_simulator_kata" => "",
+            "sheet_kata" => "layout:\r\n  style: fieldsets\r\n  headings@bool: no\r\n  paging@bool: no\r\n\r\ncolumns:\r\n  markdown/properties:\r\n    label: Events Log\r\n    params:\r\n      value_template@raw:\r\n        ```\r\n        {{events_log|kata_encode|raw}}\r\n        ```\r\n  ",
+            "toolbar_kata" => ""
+		])),
+		time(),
+		1,
 		4,
 		$db->qstr('content'),
 		$db->qstr('')
