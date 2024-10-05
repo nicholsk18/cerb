@@ -7253,56 +7253,6 @@ class _CerbApplication_KataSchemas {
 		return <<< EOD
     schema:
       attributes:
-        config:
-          multiple@bool: no
-          types:
-            object:
-              attributes:
-                chooser:
-                  multiple@bool: yes
-                  types:
-                    object:
-                      attributes:
-                        default:
-                          multiple@bool: no
-                          types:
-                            list:
-                            string:
-                        label:
-                          multiple@bool: no
-                          types:
-                            string:
-                        multiple:
-                          multiple@bool: no
-                          types:
-                            string:
-                        record_query:
-                          multiple@bool: no
-                          types:
-                            string:
-                        record_type:
-                          required@bool: yes
-                          multiple@bool: no
-                          types:
-                            string:
-                text:
-                  multiple@bool: yes
-                  types:
-                    object:
-                      attributes:
-                        default:
-                          multiple@bool: no
-                          types:
-                            string:
-                        label:
-                          multiple@bool: no
-                          types:
-                            string:
-                        multiple:
-                          multiple@bool: no
-                          types:
-                            bit:
-                            bool:
         extensions:
           multiple@bool: no
           types:
@@ -7381,6 +7331,61 @@ class _CerbApplication_KataSchemas {
                           fields:
                             types:
                               list:
+        workflow:
+          multiple@bool: no
+          types:
+            object:
+              attributes:
+                config:
+                  multiple@bool: no
+                  types:
+                    object:
+                      attributes:
+                        chooser:
+                          multiple@bool: yes
+                          types:
+                            object:
+                              attributes:
+                                default:
+                                  multiple@bool: no
+                                  types:
+                                    list:
+                                    string:
+                                label:
+                                  multiple@bool: no
+                                  types:
+                                    string:
+                                multiple:
+                                  multiple@bool: no
+                                  types:
+                                    string:
+                                record_query:
+                                  multiple@bool: no
+                                  types:
+                                    string:
+                                record_type:
+                                  required@bool: yes
+                                  multiple@bool: no
+                                  types:
+                                    string:
+                        text:
+                          multiple@bool: yes
+                          types:
+                            object:
+                              attributes:
+                                default:
+                                  multiple@bool: no
+                                  types:
+                                    string:
+                                label:
+                                  multiple@bool: no
+                                  types:
+                                    string:
+                                multiple:
+                                  multiple@bool: no
+                                  types:
+                                    bit:
+                                    bool:
     EOD;
 	}
 	

@@ -518,7 +518,7 @@ class Model_Workflow extends DevblocksRecordModel {
 		if(!($workflow_template = $this->getKata($error)))
 			return false;
 		
-		$workflow_config = $workflow_template['config'] ?? [];
+		$workflow_config = $workflow_template['workflow']['config'] ?? [];
 		$config_dict = new DevblocksDictionaryDelegate([]);
 		
 		if(!($workflow_config = $kata->formatTree($workflow_config, $config_dict, $error)))
@@ -536,7 +536,7 @@ class Model_Workflow extends DevblocksRecordModel {
 			$option_name = DevblocksPlatform::services()->string()->strAfter($option_key, '/') ?: $option_type;
 			
 			if(!in_array($option_type, $possible_types)) {
-				$error = sprintf('`config:%s` is not a valid type: %s',
+				$error = sprintf('`workflow:config:%s` is not a valid type: %s',
 					$option_key,
 					implode(', ', $possible_types)
 				);
@@ -863,7 +863,7 @@ class Model_Workflow extends DevblocksRecordModel {
 							'inputs' => [
 								'record_type' => $record_type,
 								'record_id' => $was_record_id,
-								'fields' => $delta['fields'],
+								'fields' => $delta['fields'] ?? [],
 							],
 						];
 						
@@ -872,7 +872,7 @@ class Model_Workflow extends DevblocksRecordModel {
 								'action' => 'update',
 								'record_type' => $record_type,
 								'record_id' => $was_record_id,
-								'fields' => $delta['fields'],
+								'fields' => $delta['fields'] ?? [],
 							];
 							$script['start']['record.update/' . $record_name] = $action;
 							continue;

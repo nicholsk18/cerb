@@ -190,25 +190,9 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 			
 			$autocomplete_suggestions = [
 				'' => [
-					'config:',
 					'extensions:',
 					'records:',
-				],
-				'config:' => [
-					'chooser/key:',
-					'text/key:',
-				],
-				'config:chooser:' => [
-					'default:',
-					'label:',
-					'record_query:',
-					'record_type:',
-					'multiple@bool: no',
-				],
-				'config:text:' => [
-					'default:',
-					'label:',
-					'multiple@bool: yes',
+					'workflow:',
 				],
 				'extensions:' => [
 					'activity:',
@@ -233,11 +217,32 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 					'en_US@raw: This is a translated string with {{placeholders}}',
 				],
 				'records:' => [],
+				'workflow:' => [
+					'config:',
+					'description: A description of the workflow',
+					'name: example.workflow.id',
+				],
+				'workflow:config:' => [
+					'chooser/key:',
+					'text/key:',
+				],
+				'workflow:config:chooser:' => [
+					'default:',
+					'label:',
+					'record_query:',
+					'record_type:',
+					'multiple@bool: no',
+				],
+				'workflow:config:text:' => [
+					'default:',
+					'label:',
+					'multiple@bool: yes',
+				],
 			];
 			
 			$record_types = Extension_DevblocksContext::getAll(true, ['records']);
 			
-			$autocomplete_suggestions['config:chooser:record_type:'] = array_values(array_map(
+			$autocomplete_suggestions['workflow:config:chooser:record_type:'] = array_values(array_map(
 				fn($record_type) => $record_type->manifest->params['alias'],
 				$record_types
 			));
