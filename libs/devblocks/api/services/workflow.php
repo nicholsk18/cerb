@@ -83,8 +83,15 @@ class _DevblocksWorkflowService {
 		
 		// Modify a copy of the model, not the original
 		$changed_workflow = clone $new_workflow;
+		$was_workflow = null;
 		
-		if(null == ($was_workflow = DAO_Workflow::getByName($changed_workflow->name))) {
+		if($changed_workflow->id)
+			$was_workflow = DAO_Workflow::get($changed_workflow->id);
+			
+		if(!$was_workflow && $changed_workflow->name)
+			$was_workflow = DAO_Workflow::getByName($changed_workflow->name);
+		
+		if(!$was_workflow) {
 			$was_workflow_id = DAO_Workflow::create([
 				DAO_Workflow::NAME => $changed_workflow->name,
 			]);
@@ -103,6 +110,7 @@ class _DevblocksWorkflowService {
 		if($results->state == CerbWorkflowResults::STATE_ERROR) {
 			// On error, store the partial resource changes
 			DAO_Workflow::update($changed_workflow->id, [
+				DAO_Workflow::NAME => $changed_workflow->name,
 				DAO_Workflow::RESOURCES_KATA => $changed_workflow->resources_kata,
 			]);
 			
@@ -116,6 +124,7 @@ class _DevblocksWorkflowService {
 			DAO_Workflow::CONFIG_KATA => $changed_workflow->config_kata,
 			DAO_Workflow::DESCRIPTION => $changed_workflow->description,
 			DAO_Workflow::HAS_EXTENSIONS => $has_extensions,
+			DAO_Workflow::NAME => $changed_workflow->name,
 			DAO_Workflow::RESOURCES_KATA => $changed_workflow->resources_kata,
 			DAO_Workflow::UPDATED_AT => time(),
 			DAO_Workflow::WORKFLOW_KATA => $changed_workflow->workflow_kata,

@@ -1,6 +1,6 @@
 {$popup_id = uniqid('popup')}
 
-<h1>{$model->name}</h1>
+<h1 data-cerb-workflow-name>{$model->name}</h1>
 
 <form id="{$popup_id}">
     <input type="hidden" name="id" value="{$model->id}">
@@ -127,6 +127,11 @@ $(function() {
 
             genericAjaxPost(formData, null, null, function(json) {
                 if('object' == typeof json && json.hasOwnProperty('html')) {
+                    // Update the workflow name
+                    if(json.hasOwnProperty('workflow_name')) {
+                        $popup.find('h1[data-cerb-workflow-name]').text(json.workflow_name);
+                    }
+
                     $tab_config.find('[data-cerb-content]').html(json.html);
                     $tabs.tabs('option', 'active', 1);
                 } else {

@@ -1208,7 +1208,7 @@ class Model_Workflow extends DevblocksRecordModel {
 		if(false === ($workflow_template = $this->getKata($error)))
 			return false;
 		
-		if(!($workflow_template = $kata->formatTree($workflow_template, null, $error, true)))
+		if(false === ($workflow_template = $kata->formatTree($workflow_template, null, $error, true)))
 			return false;
 		
 		return $workflow_template;

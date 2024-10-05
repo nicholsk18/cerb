@@ -526,8 +526,10 @@ class _DevblocksKataService {
 	function formatTree($tree, DevblocksDictionaryDelegate $dict=null, &$error=null, $wrap_raw=false) {
 		$tpl_builder = DevblocksPlatform::services()->templateBuilder();
 		
-		if(!is_array($tree))
+		if(!is_array($tree)) {
+			$error = "The KATA template is not an array";
 			return false;
+		}
 		
 		$parsed_tree = [];
 		$this->_formatTreeStack = [];

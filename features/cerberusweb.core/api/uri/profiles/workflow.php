@@ -438,6 +438,29 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 			
 			// Update template changes
 			$workflow->workflow_kata = $template;
+			
+			if(false === ($new_template = $workflow->getParsedTemplate($error)))
+				throw new Exception_DevblocksValidationError($error);
+			
+			$update_fields = [];
+			
+			if(($new_template['workflow']['name'] ?? null) && $new_template['workflow']['name'] != $workflow->name) {
+				$workflow->name = $new_template['workflow']['name'] ?? uniqid('workflow_');
+				$update_fields[DAO_Workflow::NAME] = $workflow->name;
+			}
+			
+			if(($new_template['workflow']['description'] ?? null) && $new_template['workflow']['description'] != $workflow->description) {
+				$workflow->description = $new_template['workflow']['description'] ?? '';
+				$update_fields[DAO_Workflow::DESCRIPTION] = $workflow->description;
+			}
+			
+			if($workflow->id && $update_fields) {
+				if(!DAO_Workflow::validate($update_fields, $error, $workflow->id)) {
+					throw new Exception_DevblocksValidationError($error);
+				}
+				
+				DAO_Workflow::update($workflow->id, $update_fields);
+			}
 
 			// Load config options
 			if(false === ($workflow_config = $workflow->getConfig($error)))
@@ -454,6 +477,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 			$html = $tpl->fetch('devblocks:cerberusweb.core::records/types/workflow/update_template/params.tpl');
 			
 			echo json_encode([
+				'workflow_name' => $workflow->name,
 				'html' => $html,
 			]);
 			

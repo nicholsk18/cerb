@@ -7386,6 +7386,14 @@ class _CerbApplication_KataSchemas {
                                   types:
                                     bit:
                                     bool:
+                name:
+                  multiple@bool: no
+                  types:
+                    string:
+                description:
+                  multiple@bool: no
+                  types:
+                    string:
     EOD;
 	}
 	
