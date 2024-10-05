@@ -85,6 +85,12 @@ class _DevblocksWorkflowService {
 		$changed_workflow = clone $new_workflow;
 		$was_workflow = null;
 		
+		if(false === ($metadata = $new_workflow->getParsedTemplate($error)))
+			return false;
+		
+		$changed_workflow->name = $metadata['workflow']['name'] ?? $changed_workflow->name ?: uniqid('workflow_');
+		$changed_workflow->description = $metadata['workflow']['description'] ?? $changed_workflow->description ?: '';
+		
 		if($changed_workflow->id)
 			$was_workflow = DAO_Workflow::get($changed_workflow->id);
 			
@@ -94,6 +100,7 @@ class _DevblocksWorkflowService {
 		if(!$was_workflow) {
 			$was_workflow_id = DAO_Workflow::create([
 				DAO_Workflow::NAME => $changed_workflow->name,
+				DAO_Workflow::DESCRIPTION => $changed_workflow->description,
 			]);
 			
 			$changed_workflow->id = $was_workflow_id;
@@ -111,6 +118,7 @@ class _DevblocksWorkflowService {
 			// On error, store the partial resource changes
 			DAO_Workflow::update($changed_workflow->id, [
 				DAO_Workflow::NAME => $changed_workflow->name,
+				DAO_Workflow::DESCRIPTION => $changed_workflow->description,
 				DAO_Workflow::RESOURCES_KATA => $changed_workflow->resources_kata,
 			]);
 			

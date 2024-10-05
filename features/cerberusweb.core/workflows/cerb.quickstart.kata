@@ -1,4 +1,10 @@
-# [TODO] Requires plugin cerb.project_boards
+workflow:
+  name: cerb.quickstart
+  description: A workspace with a quickstart checklist for initial configuration of Cerb
+  requirements:
+    cerb_version: >=10.5 <11.0
+    cerb_plugins: cerberusweb.core, cerb.project_boards
+
 records:
   task/card_task_welcome:
     fields:

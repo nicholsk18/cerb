@@ -877,10 +877,7 @@ switch($step) {
 			// Init tutorial
 			$error = null;
 			$new_workflow = new Model_Workflow();
-			$new_workflow->name = 'cerb.tutorial';
-			$new_workflow->description = "A workspace with detailed descriptions and examples of Cerb functionality";
 			$new_workflow->workflow_kata = file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.tutorial.kata');
-			$new_workflow->config_kata = '';
 			$new_workflow = DevblocksPlatform::services()->workflow()->import($new_workflow, null, $error);
 			
 			// If the tutorial is installed, add it to the worker default pages
@@ -894,10 +891,7 @@ switch($step) {
 			// Import quickstart checklist
 			$error = null;
 			$new_workflow = new Model_Workflow();
-			$new_workflow->name = 'cerb.quickstart';
-			$new_workflow->description = "A workspace with a quickstart checklist for initial configuration of Cerb";
 			$new_workflow->workflow_kata = file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.quickstart.kata');
-			$new_workflow->config_kata = '';
 			$new_workflow = DevblocksPlatform::services()->workflow()->import($new_workflow, null, $error);
 			
 			if($new_workflow && ($resources = $new_workflow->getResources())) {
@@ -910,10 +904,7 @@ switch($step) {
 			if($package == 'demo') {
 				$error = null;
 				$new_workflow = new Model_Workflow();
-				$new_workflow->name = 'cerb.demo.data';
-				$new_workflow->description = "Sample data for demonstration, testing, and development";
 				$new_workflow->workflow_kata = file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.demo.data.kata');
-				$new_workflow->config_kata = '';
 				DevblocksPlatform::services()->workflow()->import($new_workflow, null, $error);
 			}
 

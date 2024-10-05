@@ -1202,7 +1202,7 @@ class Model_Workflow extends DevblocksRecordModel {
 	}
 	*/
 	
-	public function getParsedTemplate(?string $error=null): array|false {
+	public function getParsedTemplate(?string &$error=null): array|false {
 		$kata = DevblocksPlatform::services()->kata();
 		
 		if(false === ($workflow_template = $this->getKata($error)))
