@@ -246,6 +246,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 					'config:',
 					'description: A description of the workflow',
 					'name: example.workflow.id',
+					'requirements:',
 				],
 				'workflow:config:' => [
 					'chooser/key:',
@@ -263,6 +264,10 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 					'label:',
 					'multiple@bool: yes',
 				],
+				'workflow:requirements:' => [
+					'cerb_version: >=10.5 <11.0',
+					'cerb_plugins: cerberusweb.core, ',
+				]
 			];
 			
 			$record_types = Extension_DevblocksContext::getAll(true, ['records']);
@@ -441,6 +446,11 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 			
 			if(false === ($new_template = $workflow->getParsedTemplate($error)))
 				throw new Exception_DevblocksValidationError($error);
+			
+			// Check requirements or error out
+			if(is_array($new_template['workflow']['requirements'] ?? null))
+				if(!$workflow->checkRequirements($new_template['workflow']['requirements'], $error))
+					throw new Exception_DevblocksValidationError($error);
 			
 			$update_fields = [];
 			

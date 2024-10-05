@@ -1221,6 +1221,57 @@ class Model_Workflow extends DevblocksRecordModel {
 			+ (str_contains($this->workflow_kata, 'translation/') ? Model_Workflow::HAS_TRANSLATIONS : 0)
 			;
 	}
+	
+	public function checkRequirements(array $requirements, &$error=null) : bool {
+		// Test version requirements
+		if($requirements['cerb_version'] ?? null) {
+			if(!is_string($requirements['cerb_version'])) {
+				$error = '`workflow:requirements:cerb_version:` must be a version comparison string.';
+				return false;
+			}
+			
+			$cerb_versions = preg_split('/\s+/', $requirements['cerb_version']);
+			
+			$current_version = DevblocksPlatform::strVersionToInt(APP_VERSION, 3);
+			
+			// Compare version bounds
+			foreach($cerb_versions as $cerb_version) {
+				$target_version = ltrim($cerb_version, '><=');
+				$oper = substr($cerb_version, 0, strlen($cerb_version) - strlen($target_version));
+				$target_version = DevblocksPlatform::strVersionToInt($target_version, 3);
+				
+				if(!match(true) {
+					$oper == '>=' && ($current_version >= $target_version),
+					$oper == '>' && ($current_version > $target_version),
+					$oper == '<' && ($current_version < $target_version),
+					$oper == '<=' && ($current_version <= $target_version) => true,
+					default => false,
+				}) {
+					$error = sprintf('This workflow requires a different Cerb version (%s %s %s %s %s)', APP_VERSION, $cerb_version, $target_version, $oper, $current_version);
+					return false;
+				}
+			}
+		}
+		
+		// Test plugin requirements
+		if($requirements['cerb_plugins'] ?? null) {
+			if(!is_string($requirements['cerb_plugins'])) {
+				$error = '`workflow:requirements:cerb_plugins:` must be a comma-delimited string of plugin IDs.';
+				return false;
+			}
+			
+			$cerb_plugins = DevblocksPlatform::parseCsvString($requirements['cerb_plugins']);
+			
+			foreach($cerb_plugins as $cerb_plugin) {
+				if(!DevblocksPlatform::isPluginEnabled(trim($cerb_plugin))) {
+					$error = sprintf('The `%s` Cerb plugin is required and not installed or enabled.', $cerb_plugin);
+					return false;
+				}
+			}
+		}
+		
+		return true;
+	}
 };
 
 class View_Workflow extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {

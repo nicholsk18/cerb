@@ -7394,6 +7394,19 @@ class _CerbApplication_KataSchemas {
                   multiple@bool: no
                   types:
                     string:
+                requirements:
+                  multiple@bool: no
+                  types:
+                    object:
+                      attributes:
+                        cerb_version:
+                          multiple@bool: no
+                          types:
+                            string:
+                        cerb_plugins:
+                          multiple@bool: no
+                          types:
+                            string:
     EOD;
 	}
 	
