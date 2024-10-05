@@ -18,8 +18,17 @@ class DAO_Workflow extends Cerb_ORMHelper {
 		$validation = DevblocksPlatform::services()->validation();
 		
 		$validation
+			->addField(self::CONFIG_KATA)
+			->string()
+			->setMaxLength('24 bits')
+		;
+		$validation
 			->addField(self::CREATED_AT)
 			->timestamp()
+		;
+		$validation
+			->addField(self::DESCRIPTION)
+			->string()
 		;
 		$validation
 			->addField(self::HAS_EXTENSIONS)
@@ -38,6 +47,16 @@ class DAO_Workflow extends Cerb_ORMHelper {
 			->string()
 			->setUnique(__CLASS__)
 			->setRequired(true)
+		;
+		$validation
+			->addField(self::RESOURCES_KATA)
+			->string()
+			->setMaxLength('24 bits')
+		;
+		$validation
+			->addField(self::WORKFLOW_KATA)
+			->string()
+			->setMaxLength('24 bits')
 		;
 		$validation
 			->addField(self::UPDATED_AT)
@@ -1183,10 +1202,8 @@ class Model_Workflow extends DevblocksRecordModel {
 	}
 	*/
 	
-	public function getParsedTemplate(): array|false {
+	public function getParsedTemplate(?string $error=null): array|false {
 		$kata = DevblocksPlatform::services()->kata();
-		
-		$error = null;
 		
 		if(false === ($workflow_template = $this->getKata($error)))
 			return false;
@@ -1700,17 +1717,20 @@ function getContextIdFromAlias($alias) {
 		return true;
 	}
 	
-	// [TODO]
 	function getKeyToDaoFieldMap() {
 		return [
+			'config_kata' => DAO_Workflow::CONFIG_KATA,
+			'created_at' => DAO_Workflow::CREATED_AT,
+			'description' => DAO_Workflow::DESCRIPTION,
 			'id' => DAO_Workflow::ID,
 			'links' => '_links',
 			'name' => DAO_Workflow::NAME,
+			'resources_kata' => DAO_Workflow::RESOURCES_KATA,
 			'updated_at' => DAO_Workflow::UPDATED_AT,
+			'workflow_kata' => DAO_Workflow::WORKFLOW_KATA,
 		];
 	}
 	
-	// [TODO]
 	function getKeyMeta($with_dao_fields=true) {
 		$keys = parent::getKeyMeta($with_dao_fields);
 		return $keys;
@@ -1837,6 +1857,12 @@ function getContextIdFromAlias($alias) {
 			
 			// Summary
 			if(!$model->populateTemplateSummary($tpl, $error)) {
+			}
+			
+			// Library
+			if(!$context_id) {
+				$packages = DAO_PackageLibrary::getByPoint('workflow');
+				$tpl->assign('packages', $packages);
 			}
 			
 			// View

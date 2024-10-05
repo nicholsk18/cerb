@@ -1,49 +1,65 @@
 {$peek_context = CerberusContexts::CONTEXT_WORKFLOW}
 {$peek_context_id = $model->id}
 {$form_id = uniqid('form')}
+{$tabset_id = uniqid('tabs')}
+
 <form action="{devblocks_url}{/devblocks_url}" method="post" id="{$form_id}">
     <input type="hidden" name="c" value="profiles">
     <input type="hidden" name="a" value="invoke">
     <input type="hidden" name="module" value="workflow">
     <input type="hidden" name="action" value="savePeekJson">
     <input type="hidden" name="view_id" value="{$view_id}">
-    {if !empty($model) && !empty($model->id)}<input type="hidden" name="id" value="{$model->id}">{/if}
+    <input type="hidden" name="id" value="{if $model}{$model->id}{/if}">
     <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-    <table cellspacing="0" cellpadding="2" border="0" width="98%">
-        <tr>
-            <td width="1%" nowrap="nowrap"><b>{'common.name'|devblocks_translate|capitalize}:</b></td>
-            <td width="99%">
-                <input type="text" name="name" value="{$model->name}" style="width:98%;" autofocus="autofocus" spellcheck="false">
-            </td>
-        </tr>
-
-        {if !empty($custom_fields)}
-            {include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
+    <div id="{$tabset_id}" class="cerb-tabs">
+        {if !$model->id && $packages}
+            <ul>
+                <li><a href="#workflow-library">{'common.library'|devblocks_translate|capitalize}</a></li>
+                <li><a href="#workflow-builder">{'common.build'|devblocks_translate|capitalize}</a></li>
+            </ul>
         {/if}
-    </table>
 
-    {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
+        {if !$model->id && $packages}
+            <div id="workflow-library" class="package-library">
+                {include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.tpl"}
+            </div>
+        {/if}
 
-    {if $model->id}
-    <div class="cerb-code-editor-toolbar" style="margin:0.5em 0;">
-        <button type="button" data-cerb-button-template-update><span class="glyphicons glyphicons-file-import"></span> Update Template</button>
-    </div>
-    {/if}
+        <div id="workflow-builder">
+        <table cellspacing="0" cellpadding="2" border="0" width="98%">
+            {if $model->name}
+                <h1>{$model->name}</h1>
+                <div>{$model->description}</div>
+            {/if}
 
-    <div data-cerb-summary>
-    {include file="devblocks:cerberusweb.core::records/types/workflow/peek_edit/summary.tpl"}
-    </div>
+            {if !empty($custom_fields)}
+                {include file="devblocks:cerberusweb.core::internal/custom_fields/bulk/form.tpl" bulk=false tbody=true}
+            {/if}
+        </table>
 
-    <div class="buttons" style="margin-top:10px;">
+        {include file="devblocks:cerberusweb.core::internal/custom_fieldsets/peek_custom_fieldsets.tpl" context=$peek_context context_id=$model->id}
+
         {if $model->id}
-            <button type="button" class="save"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
-            <button type="button" class="save-continue"><span class="glyphicons glyphicons-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
-            {if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
-        {else}
-            {*<button type="button" class="save"><span class="glyphicons glyphicons-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>*}
-            <button type="button" class="create-continue"><span class="glyphicons glyphicons-circle-arrow-right"></span> {'common.create_and_continue'|devblocks_translate|capitalize}</button>
+        <div class="cerb-code-editor-toolbar" style="margin:0.5em 0;">
+            <button type="button" data-cerb-button-template-update><span class="glyphicons glyphicons-file-import"></span> Update Template</button>
+        </div>
         {/if}
+
+        <div data-cerb-summary>
+        {include file="devblocks:cerberusweb.core::records/types/workflow/peek_edit/summary.tpl"}
+        </div>
+
+        <div class="buttons" style="margin-top:10px;">
+            {if $model->id}
+                <button type="button" class="save"><span class="glyphicons glyphicons-circle-ok"></span> {'common.save_changes'|devblocks_translate|capitalize}</button>
+                <button type="button" class="save-continue"><span class="glyphicons glyphicons-circle-arrow-right"></span> {'common.save_and_continue'|devblocks_translate|capitalize}</button>
+                {if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
+            {else}
+                <button type="button" class="create-library" style="display:none;"><span class="glyphicons glyphicons-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
+                <button type="button" class="create-continue"><span class="glyphicons glyphicons-circle-arrow-right"></span> {'common.create_and_continue'|devblocks_translate|capitalize}</button>
+            {/if}
+        </div>
     </div>
 </form>
 
@@ -55,46 +71,54 @@
         Devblocks.formDisableSubmit($frm);
 
         $popup.one('popup_open', function() {
-            $popup.dialog('option','title',"{'Workflow'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
+            $popup.dialog('option','title',"{'common.workflow'|devblocks_translate|capitalize|escape:'javascript' nofilter}");
             $popup.find('[autofocus]:first').focus();
             $popup.css('overflow', 'inherit');
 
+            let $tab_builder = $popup.find('#workflow-builder');
+
             // Buttons
+            $tab_builder.find('button.save').click(Devblocks.callbackPeekEditSave);
+            $tab_builder.find('button.save-continue').click({ mode: 'continue' }, Devblocks.callbackPeekEditSave);
+            $tab_builder.find('button.create-continue').click({ mode: 'create_continue' }, Devblocks.callbackPeekEditSave);
 
-            $popup.find('button.save').click(Devblocks.callbackPeekEditSave);
-            $popup.find('button.save-continue').click({ mode: 'continue' }, Devblocks.callbackPeekEditSave);
-            $popup.find('button.create-continue').click({ mode: 'create_continue' }, Devblocks.callbackPeekEditSave);
-
-            {if $model->id}
-            $popup.find('button[data-cerb-button-template-update').on('click', function(e) {
+            let onButtonTemplateUpdate = function(e) {
                 e.preventDefault();
                 e.stopPropagation();
+
+                let model_id = $frm.find('input[name=id]').val();
+                if(!model_id) return;
 
                 let formData = new FormData();
                 formData.set('c', 'profiles');
                 formData.set('a', 'invoke');
                 formData.set('module', 'workflow');
                 formData.set('action', 'showTemplateUpdatePopup');
-                formData.set('id', '{$model->id}');
+                formData.set('id', model_id);
 
                 let $update_popup = genericAjaxPopup('workflowTemplate', formData, '', '', '80%');
-                let $summary = $popup.find('[data-cerb-summary]');
 
                 $update_popup.on('template_updated', function(evt) {
                     evt.stopPropagation();
 
-                    let formData = new FormData();
-                    formData.set('c', 'profiles');
-                    formData.set('a', 'invoke');
-                    formData.set('module', 'workflow');
-                    formData.set('action', 'refreshSummary');
-                    formData.set('id', '{$model->id}');
+                    var layer = $popup.attr('data-layer');
+                    var popup_url = 'c=internal&a=invoke&module=records&action=showPeekPopup' +
+                        '&context=' + encodeURIComponent('workflow') +
+                        '&context_id=' + encodeURIComponent(model_id) +
+                        '&view_id=' + encodeURIComponent("{$view_id}") +
+                        '&edit=true'
+                    ;
 
-                    genericAjaxPost(formData, $summary);
+                    // Body snatch
+                    var $new_popup = genericAjaxPopup(layer, popup_url, 'reuse', false);
+                    $new_popup.focus();
                 });
-            });
+            };
 
-            $popup.find('button.delete-prompt').on('click', function(e) {
+            $tab_builder.find('button[data-cerb-button-template-update').on('click', onButtonTemplateUpdate);
+
+            {if $model->id}
+            $tab_builder.find('button.delete-prompt').on('click', function(e) {
                 e.preventDefault();
                 e.stopPropagation();
 
@@ -116,6 +140,53 @@
 
                     genericAjaxPopupClose($popup, 'peek_deleted');
                 });
+            });
+            {/if}
+
+            // Package Library
+
+            {if !$model->id && $packages}
+            let tabOptions = Devblocks.getDefaultjQueryUiTabOptions();
+            tabOptions.active = Devblocks.getjQueryUiTabSelected('{$tabset_id}');
+
+            let $tabs = $popup.find('.cerb-tabs').tabs(tabOptions);
+
+            let $library_container = $tabs;
+            {include file="devblocks:cerberusweb.core::internal/package_library/editor_chooser.js.tpl"}
+
+            $library_container.on('cerb-package-library-form-submit', function(e) {
+                e.stopPropagation();
+
+                $tab_builder.find('button.create-library')
+                    .off('click')
+                    .click(
+                        {
+                            mode: 'continue',
+                            after: function(evt) {
+                                $library_container.triggerHandler('cerb-package-library-form-submit--done');
+
+                                if(evt.hasOwnProperty('error')) {
+                                    return;
+                                }
+
+                                let layer = $popup.attr('data-layer');
+                                let popup_url = 'c=internal&a=invoke&module=records&action=showPeekPopup' +
+                                    '&context=' + encodeURIComponent(evt.context) +
+                                    '&context_id=' + encodeURIComponent(evt.id) +
+                                    '&view_id=' + encodeURIComponent(evt.view_id) +
+                                    '&edit=true'
+                                ;
+                                let $new_popup = genericAjaxPopup(layer, popup_url, 'reuse', false);
+
+                                setTimeout(function() {
+                                    $new_popup.find('button[data-cerb-button-template-update]').click();
+                                }, 50);
+                            }
+                        },
+                        Devblocks.callbackPeekEditSave
+                    )
+                    .click()
+                ;
             });
             {/if}
         });

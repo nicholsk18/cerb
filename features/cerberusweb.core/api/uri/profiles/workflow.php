@@ -31,8 +31,6 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 	function handleActionForPage(string $action, string $scope=null) {
 		if('profileAction' == $scope) {
 			switch($action) {
-				case 'refreshSummary':
-					return $this->_profileAction_refreshSummary();
 				case 'savePeekJson':
 					return $this->_profileAction_savePeekJson();
 				case 'showTemplateUpdatePopup':
@@ -65,60 +63,119 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
 		
 		try {
-			$name = DevblocksPlatform::importGPC($_POST['name'] ?? null, 'string', '');
+			$package_uri = DevblocksPlatform::importGPC($_POST['package'] ?? null, 'string', '');
 			
-			$error = null;
+			$mode = 'build';
 			
-			if(empty($id)) { // New
-				$fields = [
-					DAO_Workflow::NAME => $name,
-					DAO_Workflow::CREATED_AT => time(),
-					DAO_Workflow::UPDATED_AT => time(),
-				];
-				
-				if(!DAO_Workflow::validate($fields, $error))
-					throw new Exception_DevblocksAjaxValidationError($error);
-				
-				if(!DAO_Workflow::onBeforeUpdateByActor($active_worker, $fields, null, $error))
-					throw new Exception_DevblocksAjaxValidationError($error);
-				
-				$id = DAO_Workflow::create($fields);
-				DAO_Workflow::onUpdateByActor($active_worker, $fields, $id);
-				
-				if(!empty($view_id) && !empty($id))
-					C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_WORKFLOW, $id);
-				
-			} else { // Edit
-				$fields = [
-					DAO_Workflow::NAME => $name,
-					DAO_Workflow::UPDATED_AT => time(),
-				];
-				
-				if(!DAO_Workflow::validate($fields, $error, $id))
-					throw new Exception_DevblocksAjaxValidationError($error);
-				
-				if(!DAO_Workflow::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
-					throw new Exception_DevblocksAjaxValidationError($error);
-				
-				DAO_Workflow::update($id, $fields);
-				DAO_Workflow::onUpdateByActor($active_worker, $fields, $id);
+			if(!$id && $package_uri)
+				$mode = 'library';
+			
+			switch($mode) {
+				case 'library':
+					$prompts = DevblocksPlatform::importGPC($_POST['prompts'] ?? null, 'array', []);
+					
+					if (empty($package_uri))
+						throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
+					
+					if (!($package = DAO_PackageLibrary::getByUri($package_uri)))
+						throw new Exception_DevblocksAjaxValidationError("You selected an invalid package.");
+					
+					if ($package->point != 'workflow')
+						throw new Exception_DevblocksAjaxValidationError("The selected package is not for this extension point.");
+					
+					$package_json = $package->getPackageJson();
+					$records_created = [];
+					
+					$prompts['current_worker_id'] = $active_worker->id;
+					
+					try {
+						CerberusApplication::packages()->import($package_json, $prompts, $records_created);
+						
+					} catch (Exception_DevblocksValidationError $e) {
+						throw new Exception_DevblocksAjaxValidationError($e->getMessage());
+						
+					} catch (Exception) {
+						throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred.");
+					}
+					
+					if (!array_key_exists(CerberusContexts::CONTEXT_WORKFLOW, $records_created))
+						throw new Exception_DevblocksAjaxValidationError("There was an issue creating the record.");
+					
+					$new_workflow = reset($records_created[CerberusContexts::CONTEXT_WORKFLOW]);
+					
+					if ($view_id)
+						C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_WORKFLOW, $new_workflow['id']);
+					
+					echo json_encode([
+						'status' => true,
+						'context' => CerberusContexts::CONTEXT_WORKFLOW,
+						'id' => $new_workflow['id'],
+						'label' => $new_workflow['label'],
+						'view_id' => $view_id,
+					]);
+					return;
+					
+				case 'build':
+					$error = null;
+					
+					if (empty($id)) { // New
+						$name = uniqid('workflow_');
+						
+						$fields = [
+							DAO_Workflow::NAME => $name,
+							DAO_Workflow::CREATED_AT => time(),
+							DAO_Workflow::UPDATED_AT => time(),
+							DAO_Workflow::WORKFLOW_KATA => sprintf("workflow:\n  name: %s\n  description: A description of the workflow\n  requirements:\n    cerb_version: >=10.5 <11.0\n    cerb_plugins: cerberusweb.core, \n\nrecords:\n", $name),
+						];
+						
+						if (!DAO_Workflow::validate($fields, $error))
+							throw new Exception_DevblocksAjaxValidationError($error);
+						
+						if (!DAO_Workflow::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+							throw new Exception_DevblocksAjaxValidationError($error);
+						
+						$id = DAO_Workflow::create($fields);
+						DAO_Workflow::onUpdateByActor($active_worker, $fields, $id);
+						
+						if (!empty($view_id) && !empty($id))
+							C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_WORKFLOW, $id);
+						
+					} else { // Edit
+						$fields = [
+							DAO_Workflow::UPDATED_AT => time(),
+						];
+						
+						if(!($model = DAO_Workflow::get($id)))
+							DevblocksPlatform::dieWithHttpError(null, 404);
+						
+						$name = $model->name;
+						
+						if (!DAO_Workflow::validate($fields, $error, $id))
+							throw new Exception_DevblocksAjaxValidationError($error);
+						
+						if (!DAO_Workflow::onBeforeUpdateByActor($active_worker, $fields, $id, $error))
+							throw new Exception_DevblocksAjaxValidationError($error);
+						
+						DAO_Workflow::update($id, $fields);
+						DAO_Workflow::onUpdateByActor($active_worker, $fields, $id);
+					}
+					
+					if ($id) {
+						// Custom field saves
+						$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
+						if (!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_WORKFLOW, $id, $field_ids, $error))
+							throw new Exception_DevblocksAjaxValidationError($error);
+					}
+					
+					echo json_encode([
+						'status' => true,
+						'context' => CerberusContexts::CONTEXT_WORKFLOW,
+						'id' => $id,
+						'label' => $name,
+						'view_id' => $view_id,
+					]);
+					return;
 			}
-			
-			if($id) {
-				// Custom field saves
-				$field_ids = DevblocksPlatform::importGPC($_POST['field_ids'] ?? null, 'array', []);
-				if(!DAO_CustomFieldValue::handleFormPost(CerberusContexts::CONTEXT_WORKFLOW, $id, $field_ids, $error))
-					throw new Exception_DevblocksAjaxValidationError($error);
-			}
-			
-			echo json_encode([
-				'status' => true,
-				'context' => CerberusContexts::CONTEXT_WORKFLOW,
-				'id' => $id,
-				'label' => $name,
-				'view_id' => $view_id,
-			]);
-			return;
 			
 		} catch (Exception_DevblocksAjaxValidationError $e) {
 			echo json_encode([
@@ -138,38 +195,6 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 		}
 	}
 	
-	private function _profileAction_refreshSummary() {
-		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
-		
-		$tpl = DevblocksPlatform::services()->template();
-		
-		$error = null;
-		
-		try {
-			if(!($active_worker = CerberusApplication::getActiveWorker()))
-				DevblocksPlatform::dieWithHttpError(null, 403);
-			
-			if('POST' != DevblocksPlatform::getHttpMethod())
-				DevblocksPlatform::dieWithHttpError(null, 405);
-			
-			if(!$active_worker->is_superuser)
-				DevblocksPlatform::dieWithHttpError(null, 403);
-			
-			if(!($workflow = DAO_Workflow::get($id)))
-				DevblocksPlatform::dieWithHttpError(null, 404);
-			
-			$tpl->assign('model', $workflow);
-			
-			if(!$workflow->populateTemplateSummary($tpl, $error))
-				throw new Exception_DevblocksAjaxValidationError($error);
-			
-			$tpl->display('devblocks:cerberusweb.core::records/types/workflow/peek_edit/summary.tpl');
-			
-		} catch (Exception_DevblocksAjaxValidationError $e) {
-			DevblocksPlatform::dieWithHttpError(null, 500);
-		}
-	}
-
 	private function _profileAction_showTemplateUpdatePopup() {
 		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
 		
@@ -438,6 +463,8 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 			]);
 			
 		} catch (Exception $e) {
+			DevblocksPlatform::logException($e);
+			
 			echo json_encode([
 				'error' => 'An unexpected error occurred.',
 			]);
