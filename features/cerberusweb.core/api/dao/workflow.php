@@ -389,6 +389,15 @@ class DAO_Workflow extends Cerb_ORMHelper {
 			$withCounts
 		);
 	}
+	
+	public static function getNames() : array {
+		$db = DevblocksPlatform::services()->database();
+		
+		if(!($results = $db->GetArrayReader("SELECT name FROM workflow")))
+			return [];
+		
+		return array_column($results, 'name');
+	}
 };
 
 class SearchFields_Workflow extends DevblocksSearchFields {
@@ -1937,6 +1946,7 @@ function getContextIdFromAlias($alias) {
 	function renderPeekPopup($context_id=0, $view_id='', $edit=false) {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
+		$sheets = DevblocksPlatform::services()->sheet()->withDefaultTypes();
 		$context = CerberusContexts::CONTEXT_WORKFLOW;
 		
 		$tpl->assign('view_id', $view_id);
@@ -1977,6 +1987,77 @@ function getContextIdFromAlias($alias) {
 			if(!$context_id) {
 				$packages = DAO_PackageLibrary::getByPoint('workflow');
 				$tpl->assign('packages', $packages);
+				
+				$sheet_schema = [
+					'layout' => [
+						'style' => 'grid',
+						'params' => [
+							'width' => 300,
+						],
+						'paging' => 'false',
+						'titleColumn' => 'name',
+					],
+					'columns' => [
+						'selection/id' => [
+							'params' => [
+								'mode' => 'single',
+							],
+						],
+						'text/name' => [
+							'params' => [
+								'bold' =>  true,
+								'text_size' => '150%',
+							],
+						],
+						'text/description' => [],
+					],
+				];
+				
+				$layout = $sheets->getLayout($sheet_schema);
+				$tpl->assign('templates_layout', $layout);
+				
+				$columns = $sheets->getColumns($sheet_schema);
+				$tpl->assign('templates_columns', $columns);
+				
+				$templates_data = [
+					'workflow.empty' => [
+						'id' => 'workflow.empty',
+						'name' => '(Empty)',
+						'description' => 'Build a new workflow',
+					],
+					'cerb.tutorial' => [
+						'id' => 'cerb.tutorial',
+						'name' => 'Tutorial',
+						'description' => 'A workspace with detailed descriptions and examples of Cerb functionality',
+					],
+					'cerb.auto_responder' => [
+						'id' => 'cerb.auto_responder',
+						'name' => 'Auto Responder',
+						'description' => 'Send an automatic response when new tickets are opened',
+					],
+					'cerb.auto_dispatcher' => [
+						'id' => 'cerb.auto_dispatcher',
+						'name' => 'Auto Dispatcher',
+						'description' => 'Automatically assign tickets to workers based on priority',
+					],
+					'cerb.surveys.csat' => [
+						'id' => 'cerb.surveys.csat',
+						'name' => 'Customer Satisfaction Surveys',
+						'description' => 'Gather and monitor customer satisfaction metrics like NPS, CSAT, and CES.',
+					],
+					'cerb.quickstart' => [
+						'id' => 'cerb.quickstart',
+						'name' => 'Quickstart Checklist',
+						'description' => 'A workspace with a quickstart checklist for initial configuration of Cerb',
+					],
+				];
+				
+				// Hide workflows that are already installed
+				$installed_workflows = DAO_Workflow::getNames();
+				$templates_data = array_diff_key($templates_data, array_fill_keys($installed_workflows, true));
+				
+				$rows = $sheets->getRows($sheet_schema, $templates_data);
+				$tpl->assign('templates_rows', $rows);
 			}
 			
 			// View

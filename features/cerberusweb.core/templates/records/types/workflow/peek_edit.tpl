@@ -44,6 +44,18 @@
         <div class="cerb-code-editor-toolbar" style="margin:0.5em 0;">
             <button type="button" data-cerb-button-template-update><span class="glyphicons glyphicons-file-import"></span> Update Template</button>
         </div>
+        {else}
+            {if templates_layout && $templates_rows}
+                <div>
+                    {if 'fieldsets' == $templates_layout.style}
+                        {include file="devblocks:cerberusweb.core::ui/sheets/render_fieldsets.tpl" layout=$templates_layout columns=$templates_columns rows=$templates_rows}
+                    {elseif in_array($templates_layout.style, ['columns','grid'])}
+                        {include file="devblocks:cerberusweb.core::ui/sheets/render_grid.tpl" layout=$templates_layout columns=$templates_columns rows=$templates_rows}
+                    {else}
+                        {include file="devblocks:cerberusweb.core::ui/sheets/render.tpl" layout=$templates_layout columns=$templates_columns rows=$templates_rows}
+                    {/if}
+                </div>
+            {/if}
         {/if}
 
         <div data-cerb-summary>

@@ -636,8 +636,11 @@ class CerberusApplication extends DevblocksApplication {
 		// Workflows
 		
 		$bundled_workflows = [
+			'cerb.auto_dispatcher',
+			'cerb.auto_responder',
 			'cerb.demo.data',
 			'cerb.quickstart',
+			'cerb.surveys.csat',
 			'cerb.tutorial',
 		];
 		

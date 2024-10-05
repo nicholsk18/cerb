@@ -119,22 +119,72 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 					$error = null;
 					
 					if (empty($id)) { // New
-						$name = uniqid('workflow_');
+						$name = DevblocksPlatform::strAlphaNum(
+							DevblocksPlatform::importGPC($_POST['_selection'] ?? null, 'string', 'workflow.empty'),
+							'._'
+						);
+						
+						$available_templates = [
+							'cerb.auto_dispatcher',
+							'cerb.auto_responder',
+							'cerb.quickstart',
+							'cerb.surveys.csat',
+							'cerb.tutorial',
+							'workflow.empty',
+						];
+						
+						if(!in_array($name, $available_templates)) {
+							$error = sprintf("Unknown workflow template `%s`", $name);
+							throw new Exception_DevblocksAjaxValidationError($error);
+						}
+						
+						// Check if this workflow is already installed
+						if(DAO_Workflow::getByName($name)) {
+							$error = sprintf("This workflow `%s` is already created.", $name);
+							throw new Exception_DevblocksAjaxValidationError($error);
+						}
 						
 						$fields = [
 							DAO_Workflow::NAME => $name,
 							DAO_Workflow::CREATED_AT => time(),
 							DAO_Workflow::UPDATED_AT => time(),
-							DAO_Workflow::WORKFLOW_KATA => sprintf("workflow:\n  name: %s\n  description: A description of the workflow\n  requirements:\n    cerb_version: >=10.5 <11.0\n    cerb_plugins: cerberusweb.core, \n\nrecords:\n", $name),
 						];
 						
-						if (!DAO_Workflow::validate($fields, $error))
-							throw new Exception_DevblocksAjaxValidationError($error);
+						if('workflow.empty' == $name) {
+							$name = uniqid('new_workflow.');
+							$fields[DAO_Workflow::NAME] = $name;
+							$fields[DAO_Workflow::WORKFLOW_KATA] = sprintf("workflow:\n  name: %s\n  version: %s\n  description: A description of the workflow\n  requirements:\n    cerb_version: >=10.5 <11.0\n    cerb_plugins: cerberusweb.core, \n\nrecords:\n", $name, gmdate('Y-m-d\T00:00:00\Z'));
+							
+							if (!DAO_Workflow::validate($fields, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							if (!DAO_Workflow::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							$id = DAO_Workflow::create($fields);
+							
+						} else {
+							$new_workflow = new Model_Workflow();
+							$new_workflow->name = $name;
+							$new_workflow->workflow_kata = match($name) {
+								'cerb.auto_dispatcher' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.auto_dispatcher.kata'),
+								'cerb.auto_responder' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.auto_responder.kata'),
+								'cerb.quickstart' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.quickstart.kata'),
+								'cerb.surveys.csat' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.surveys.csat.kata'),
+								'cerb.tutorial' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.tutorial.kata'),
+							};
+							
+							// Use the default config values until an admin configures it
+							if(($config_options = $new_workflow->getConfigOptions()) && is_array($config_options)) {
+								$new_workflow->setConfigValues(array_column($config_options, 'value', 'key'));
+							}
+							
+							if(false === ($new_workflow = DevblocksPlatform::services()->workflow()->import($new_workflow, null, $error)))
+								throw new Exception_DevblocksAjaxValidationError($error);
+							
+							$id = $new_workflow->id;
+						}
 						
-						if (!DAO_Workflow::onBeforeUpdateByActor($active_worker, $fields, null, $error))
-							throw new Exception_DevblocksAjaxValidationError($error);
-						
-						$id = DAO_Workflow::create($fields);
 						DAO_Workflow::onUpdateByActor($active_worker, $fields, $id);
 						
 						if (!empty($view_id) && !empty($id))
