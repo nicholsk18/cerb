@@ -88,7 +88,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		
 		$draft_id = DevblocksPlatform::importGPC($_REQUEST['draft_id'] ?? null, 'integer', 0);
 		
-		if(false == ($draft = DAO_MailQueue::get($draft_id)))
+		if(!($draft = DAO_MailQueue::get($draft_id)))
 			DevblocksPlatform::dieWithHttpError(null,404);
 		
 		if(!Context_Draft::isReadableByActor($draft, $active_worker))
@@ -460,14 +460,14 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		}
 		
 		// Fields
-		$fields = array(
+		$fields = [
 			DAO_MailQueue::UPDATED => time(),
 			DAO_MailQueue::HINT_TO => $hint_to,
 			DAO_MailQueue::NAME => $subject,
 			DAO_MailQueue::PARAMS_JSON => json_encode($params),
 			DAO_MailQueue::IS_QUEUED => 0,
 			DAO_MailQueue::QUEUE_DELIVERY_DATE => time(),
-		);
+		];
 		
 		// Make sure the current worker is the draft author
 		if(!empty($draft_id)) {
@@ -479,7 +479,7 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 			}
 			
 			// If the given draft ID is invalid, ignore
-			if(false == ($draft = DAO_MailQueue::get($draft_id)))
+			if(!($draft = DAO_MailQueue::get($draft_id)))
 				return false;
 			
 			// If the draft isn't owned by this worker, save a new one

@@ -110,7 +110,7 @@ class PageSection_ProfilesTask extends Extension_PageSection {
 						try {
 							CerberusApplication::packages()->import($package_json, $prompts, $records_created);
 							
-						} catch(Exception_DevblocksValidationError) {
+						} catch(Exception_DevblocksValidationError $e) {
 							throw new Exception_DevblocksAjaxValidationError($e->getMessage());
 							
 						} catch (Exception) {

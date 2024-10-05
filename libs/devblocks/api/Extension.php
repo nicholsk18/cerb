@@ -124,8 +124,8 @@ class Exception_DevblocksAjaxError extends Exception_Devblocks {};
 class Exception_DevblocksAjaxValidationError extends Exception_Devblocks {
 	private $_field_name = null;
 	
-	function __construct($message=null, $field_name=null) {
-		parent::__construct($message);
+	function __construct($message='', $field_name=null) {
+		parent::__construct(strval($message) ?: 'An unexpected error occurred.');
 		$this->_field_name = $field_name;
 	}
 	

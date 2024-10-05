@@ -260,6 +260,7 @@ class PageSection_ProfilesMailbox extends Extension_PageSection {
 			return;
 			
 		} catch(Exception $e) {
+			DevblocksPlatform::logException($e);
 			echo json_encode(array('status'=>false,'error'=>$e->getMessage()));
 			return;
 			

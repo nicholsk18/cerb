@@ -1423,14 +1423,14 @@ class Context_Draft extends Extension_DevblocksContext implements IDevblocksCont
 	static function isWriteableByActor($models, $actor) {
 		// Admins and owner can modify
 		
-		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+		if(!($actor = CerberusContexts::polymorphActorToDictionary($actor)))
 			return CerberusContexts::denyEverything($models);
 		
 		// Admins can do whatever they want
 		if(CerberusContexts::isActorAnAdmin($actor))
 			return CerberusContexts::allowEverything($models);
 		
-		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_DRAFT)))
+		if(!($dicts = CerberusContexts::polymorphModelsToDictionaries($models, CerberusContexts::CONTEXT_DRAFT)))
 			return CerberusContexts::denyEverything($models);
 		
 		$results = [];

@@ -67,7 +67,7 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_PROFILE_TAB)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
-				if(false == ($model = DAO_ProfileTab::get($id)))
+				if(!($model = DAO_ProfileTab::get($id)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
 				
 				if(!Context_ProfileTab::isDeletableByActor($model, $active_worker))
@@ -104,10 +104,10 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 						if(!$active_worker->is_superuser)
 							throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.admin'));
 						
-						if(false == ($package = DAO_PackageLibrary::getByUri($package_uri)))
+						if(!($package = DAO_PackageLibrary::getByUri($package_uri)))
 							throw new Exception_DevblocksAjaxValidationError("You selected an invalid package.");
 						
-						if(false == ($package_context_mft = Extension_DevblocksContext::get($package_context, false))) {
+						if(!($package_context_mft = Extension_DevblocksContext::get($package_context, false))) {
 							/* @var $package_context_mft DevblocksExtensionManifest */
 							throw new Exception_DevblocksAjaxValidationError("Invalid profile type.");
 						}
@@ -159,14 +159,14 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 						$error = null;
 						
 						if(empty($id)) { // New
-							$fields = array(
+							$fields = [
 								DAO_ProfileTab::CONTEXT => $context,
 								DAO_ProfileTab::EXTENSION_ID => $extension_id,
 								DAO_ProfileTab::EXTENSION_PARAMS_JSON => json_encode($extension_params),
 								DAO_ProfileTab::NAME => $name,
 								DAO_ProfileTab::OPTIONS_KATA => $options_kata,
 								DAO_ProfileTab::UPDATED_AT => time(),
-							);
+							];
 							
 							if(!DAO_ProfileTab::validate($fields, $error))
 								throw new Exception_DevblocksAjaxValidationError($error);
@@ -181,12 +181,12 @@ class PageSection_ProfilesProfileTab extends Extension_PageSection {
 								C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_PROFILE_TAB, $id);
 							
 						} else { // Edit
-							$fields = array(
+							$fields = [
 								DAO_ProfileTab::NAME => $name,
 								DAO_ProfileTab::EXTENSION_PARAMS_JSON => json_encode($extension_params),
 								DAO_ProfileTab::OPTIONS_KATA => $options_kata,
 								DAO_ProfileTab::UPDATED_AT => time(),
-							);
+							];
 							
 							if(!DAO_ProfileTab::validate($fields, $error, $id))
 								throw new Exception_DevblocksAjaxValidationError($error);

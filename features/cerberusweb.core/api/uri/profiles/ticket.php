@@ -610,14 +610,14 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		
 		// Load records
 		
-		if(false == ($ticket = $draft->getTicket()))
+		if(!($ticket = $draft->getTicket()))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
 		if(!Context_Ticket::isWriteableByActor($ticket, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		if(false == ($message = $draft->getMessage())) {
-			if(false != ($message = $ticket->getLastMessage()))
+		if(!($message = $draft->getMessage())) {
+			if(($message = $ticket->getLastMessage()))
 				$draft->setMessage($message);
 		}
 		
@@ -626,7 +626,7 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 			$message->ticket_id = $ticket->id;
 		}
 		
-		if(false == ($bucket = $ticket->getBucket()))
+		if(!($bucket = $ticket->getBucket()))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		// Form variables
