@@ -247,6 +247,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 					'description: A description of the workflow',
 					'name: example.workflow.id',
 					'requirements:',
+					'version: ' . gmdate('Y-m-d\T00:00:00\Z'),
 				],
 				'workflow:config:' => [
 					'chooser/key:',
@@ -267,6 +268,9 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 				'workflow:requirements:' => [
 					'cerb_version: >=10.5 <11.0',
 					'cerb_plugins: cerberusweb.core, ',
+				],
+				'workflow:version:' => [
+					'2025-12-31T00:00:00Z',
 				]
 			];
 			

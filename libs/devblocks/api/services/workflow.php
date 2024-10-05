@@ -91,6 +91,9 @@ class _DevblocksWorkflowService {
 		$changed_workflow->name = $metadata['workflow']['name'] ?? $changed_workflow->name ?: uniqid('workflow_');
 		$changed_workflow->description = $metadata['workflow']['description'] ?? $changed_workflow->description ?: '';
 		
+		$version = $metadata['workflow']['version'] ?? $changed_workflow->version ?: 0;
+		$changed_workflow->version = is_numeric($version) ? $version : intval(strtotime($version));
+		
 		if($changed_workflow->id)
 			$was_workflow = DAO_Workflow::get($changed_workflow->id);
 			
@@ -101,6 +104,7 @@ class _DevblocksWorkflowService {
 			$was_workflow_id = DAO_Workflow::create([
 				DAO_Workflow::NAME => $changed_workflow->name,
 				DAO_Workflow::DESCRIPTION => $changed_workflow->description,
+				DAO_Workflow::VERSION => $changed_workflow->version,
 			]);
 			
 			$changed_workflow->id = $was_workflow_id;
@@ -120,6 +124,7 @@ class _DevblocksWorkflowService {
 				DAO_Workflow::NAME => $changed_workflow->name,
 				DAO_Workflow::DESCRIPTION => $changed_workflow->description,
 				DAO_Workflow::RESOURCES_KATA => $changed_workflow->resources_kata,
+				DAO_Workflow::VERSION => $changed_workflow->version,
 			]);
 			
 			$error = $results->error;
@@ -136,6 +141,7 @@ class _DevblocksWorkflowService {
 			DAO_Workflow::RESOURCES_KATA => $changed_workflow->resources_kata,
 			DAO_Workflow::UPDATED_AT => time(),
 			DAO_Workflow::WORKFLOW_KATA => $changed_workflow->workflow_kata,
+			DAO_Workflow::VERSION => $changed_workflow->version,
 		];
 		DAO_Workflow::update($changed_workflow->id, $fields);
 		

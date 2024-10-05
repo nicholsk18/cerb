@@ -7407,6 +7407,10 @@ class _CerbApplication_KataSchemas {
                           multiple@bool: no
                           types:
                             string:
+                version:
+                  multiple@bool: no
+                  types:
+                    number:
     EOD;
 	}
 	

@@ -3686,7 +3686,30 @@
 				<seg>Reader Query</seg>
 			</tuv>
 		</tu>
-		
+
+		<!-- Workflow -->
+
+		<tu tuid="dao.workflow.config_kata">
+			<tuv xml:lang="en_US">
+				<seg>Config KATA</seg>
+			</tuv>
+		</tu>
+		<tu tuid="dao.workflow.has_extensions">
+			<tuv xml:lang="en_US">
+				<seg>Has Extensions</seg>
+			</tuv>
+		</tu>
+		<tu tuid="dao.workflow.resources_kata">
+			<tuv xml:lang="en_US">
+				<seg>Resources KATA</seg>
+			</tuv>
+		</tu>
+		<tu tuid="dao.workflow.workflow_kata">
+			<tuv xml:lang="en_US">
+				<seg>Workflow KATA</seg>
+			</tuv>
+		</tu>
+
 		<!-- Success -->
 
 		<tu tuid="success.imported">

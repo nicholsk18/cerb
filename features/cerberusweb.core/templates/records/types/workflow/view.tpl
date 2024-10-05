@@ -92,6 +92,12 @@
                                 <abbr title="{$result.$column|devblocks_date}">{$result.$column|devblocks_prettytime}</abbr>
                             {/if}
                         </td>
+                    {elseif in_array($column, ["a_version"])}
+                        <td>
+                            {if !empty($result.$column)}
+                                {$result.$column|devblocks_date:'Y-m-d\TH:i:s\Z':true}
+                            {/if}
+                        </td>
                     {else}
                         <td data-column="{$column}">{$result.$column}</td>
                     {/if}

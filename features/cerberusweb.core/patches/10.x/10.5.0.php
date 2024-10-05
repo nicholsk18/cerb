@@ -351,6 +351,7 @@ if(!isset($tables['workflow'])) {
 		`description` varchar(255) NOT NULL DEFAULT '',
 		`created_at` int(10) unsigned NOT NULL DEFAULT 0,
 		`updated_at` int(10) unsigned NOT NULL DEFAULT 0,
+		`version` bigint unsigned NOT NULL DEFAULT 0,
 		`workflow_kata` mediumtext,
 		`config_kata` mediumtext,
 		`resources_kata` mediumtext,
@@ -363,6 +364,12 @@ if(!isset($tables['workflow'])) {
 	$db->ExecuteMaster($sql) or die("[MySQL Error] " . $db->ErrorMsgMaster());
 	
 	$tables['workflow'] = 'workflow';
+}
+
+list($columns, ) = $db->metaTable('workflow');
+
+if(!array_key_exists('version', $columns)) {
+	$db->ExecuteMaster("ALTER TABLE workflow ADD COLUMN version bigint unsigned NOT NULL DEFAULT 0");
 }
 
 // ===========================================================================

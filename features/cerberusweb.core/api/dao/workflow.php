@@ -8,6 +8,7 @@ class DAO_Workflow extends Cerb_ORMHelper {
 	const NAME = 'name';
 	const RESOURCES_KATA = 'resources_kata';
 	const UPDATED_AT = 'updated_at';
+	const VERSION = 'version';
 	const WORKFLOW_KATA = 'workflow_kata';
 	
 	const _CACHE_ALL = 'workflows_all';
@@ -54,13 +55,17 @@ class DAO_Workflow extends Cerb_ORMHelper {
 			->setMaxLength('24 bits')
 		;
 		$validation
+			->addField(self::UPDATED_AT)
+			->timestamp()
+		;
+		$validation
+			->addField(self::VERSION)
+			->uint(8)
+		;
+		$validation
 			->addField(self::WORKFLOW_KATA)
 			->string()
 			->setMaxLength('24 bits')
-		;
-		$validation
-			->addField(self::UPDATED_AT)
-			->timestamp()
 		;
 		$validation
 			->addField('_fieldsets')
@@ -166,7 +171,7 @@ class DAO_Workflow extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, description, created_at, updated_at, workflow_kata, config_kata, resources_kata, has_extensions ".
+		$sql = "SELECT id, name, description, created_at, updated_at, version, workflow_kata, config_kata, resources_kata, has_extensions ".
 			"FROM workflow ".
 			$where_sql.
 			$sort_sql.
@@ -270,6 +275,7 @@ class DAO_Workflow extends Cerb_ORMHelper {
 			$object->name = $row['name'] ?? '';
 			$object->resources_kata = $row['resources_kata'] ?? '';
 			$object->updated_at = intval($row['updated_at'] ?? 0);
+			$object->version = intval($row['version'] ?? 0);
 			$object->workflow_kata = $row['workflow_kata'] ?? '';
 			$objects[$object->id] = $object;
 		}
@@ -320,6 +326,7 @@ class DAO_Workflow extends Cerb_ORMHelper {
 			"workflow.description as %s, ".
 			"workflow.created_at as %s, ".
 			"workflow.updated_at as %s, ".
+			"workflow.version as %s, ".
 			"workflow.workflow_kata as %s, ".
 			"workflow.config_kata as %s, ".
 			"workflow.resources_kata as %s ",
@@ -328,6 +335,7 @@ class DAO_Workflow extends Cerb_ORMHelper {
 			SearchFields_Workflow::DESCRIPTION,
 			SearchFields_Workflow::CREATED_AT,
 			SearchFields_Workflow::UPDATED_AT,
+			SearchFields_Workflow::VERSION,
 			SearchFields_Workflow::WORKFLOW_KATA,
 			SearchFields_Workflow::CONFIG_KATA,
 			SearchFields_Workflow::RESOURCES_KATA
@@ -384,14 +392,15 @@ class DAO_Workflow extends Cerb_ORMHelper {
 };
 
 class SearchFields_Workflow extends DevblocksSearchFields {
+	const CONFIG_KATA = 'a_config_kata';
+	const CREATED_AT = 'a_created_at';
+	const DESCRIPTION = 'a_description';
 	const ID = 'a_id';
 	const NAME = 'a_name';
-	const DESCRIPTION = 'a_description';
-	const CREATED_AT = 'a_created_at';
-	const UPDATED_AT = 'a_updated_at';
-	const WORKFLOW_KATA = 'a_workflow_kata';
-	const CONFIG_KATA = 'a_config_kata';
 	const RESOURCES_KATA = 'a_resources_kata';
+	const UPDATED_AT = 'a_updated_at';
+	const VERSION = 'a_version';
+	const WORKFLOW_KATA = 'a_workflow_kata';
 	
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
@@ -463,14 +472,15 @@ class SearchFields_Workflow extends DevblocksSearchFields {
 		$translate = DevblocksPlatform::getTranslationService();
 		
 		$columns = [
+			self::CONFIG_KATA => new DevblocksSearchField(self::CONFIG_KATA, 'workflow', 'config_kata', $translate->_('common.configuration'), null, true),
+			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'workflow', 'created_at', $translate->_('common.created'), null, true),
+			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'workflow', 'description', $translate->_('common.description'), null, true),
 			self::ID => new DevblocksSearchField(self::ID, 'workflow', 'id', $translate->_('common.id'), null, true),
 			self::NAME => new DevblocksSearchField(self::NAME, 'workflow', 'name', $translate->_('common.name'), null, true),
-			self::DESCRIPTION => new DevblocksSearchField(self::DESCRIPTION, 'workflow', 'description', $translate->_('common.description'), null, true),
-			self::CREATED_AT => new DevblocksSearchField(self::CREATED_AT, 'workflow', 'created_at', $translate->_('common.created'), null, true),
-			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'workflow', 'updated_at', $translate->_('common.updated'), null, true),
-			self::WORKFLOW_KATA => new DevblocksSearchField(self::WORKFLOW_KATA, 'workflow', 'workflow_kata', $translate->_('common.template'), null, true),
-			self::CONFIG_KATA => new DevblocksSearchField(self::CONFIG_KATA, 'workflow', 'config_kata', $translate->_('common.configuration'), null, true),
 			self::RESOURCES_KATA => new DevblocksSearchField(self::RESOURCES_KATA, 'workflow', 'resources_config', $translate->_('common.resources'), null, true),
+			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'workflow', 'updated_at', $translate->_('common.updated'), null, true),
+			self::VERSION => new DevblocksSearchField(self::VERSION, 'workflow', 'version', $translate->_('common.version'), null, true),
+			self::WORKFLOW_KATA => new DevblocksSearchField(self::WORKFLOW_KATA, 'workflow', 'workflow_kata', $translate->_('common.template'), null, true),
 			
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
@@ -499,11 +509,18 @@ class Model_Workflow extends DevblocksRecordModel {
 	public string $name = '';
 	public string $resources_kata = '';
 	public int $updated_at = 0;
+	public int $version = 0;
 	public string $workflow_kata = '';
 	
 	const HAS_ACTIVITIES = 1;
 	const HAS_PERMISSIONS = 2;
 	const HAS_TRANSLATIONS = 4;
+	
+	public static function compareVersion(int|string $was_version, int|string $new_version) : int {
+		if(!is_numeric($was_version)) $was_version = intval(strtotime(strval($was_version)));
+		if(!is_numeric($new_version)) $new_version = intval(strtotime(strval($new_version)));
+		return $was_version <=> $new_version;
+	}
 	
 	public function getKata(?string &$error=null) : array|false {
 		$kata = DevblocksPlatform::services()->kata();
@@ -1272,6 +1289,13 @@ class Model_Workflow extends DevblocksRecordModel {
 		
 		return true;
 	}
+	
+	public function getMetadataFromTemplate(?string &$error=null) : array|false {
+		if(false === ($template = $this->getParsedTemplate($error)))
+			return false;
+		
+		return $template['workflow'] ?? [];
+	}
 };
 
 class View_Workflow extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {
@@ -1287,6 +1311,7 @@ class View_Workflow extends C4_AbstractView implements IAbstractView_Subtotals, 
 		$this->view_columns = [
 			SearchFields_Workflow::NAME,
 			SearchFields_Workflow::DESCRIPTION,
+			SearchFields_Workflow::VERSION,
 			SearchFields_Workflow::UPDATED_AT,
 		];
 		
@@ -1447,6 +1472,11 @@ class View_Workflow extends C4_AbstractView implements IAbstractView_Subtotals, 
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => ['param_key' => SearchFields_Workflow::UPDATED_AT],
 				],
+			'version' =>
+				[
+					'type' => DevblocksSearchCriteria::TYPE_DATE,
+					'options' => ['param_key' => SearchFields_Workflow::VERSION],
+				],
 			'watchers' =>
 				[
 					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
@@ -1558,6 +1588,7 @@ class View_Workflow extends C4_AbstractView implements IAbstractView_Subtotals, 
 			
 			case SearchFields_Workflow::CREATED_AT:
 			case SearchFields_Workflow::UPDATED_AT:
+			case SearchFields_Workflow::VERSION:
 				$criteria = $this->_doSetCriteriaDate($field, $oper);
 				break;
 			
@@ -1655,6 +1686,12 @@ class Context_Workflow extends Extension_DevblocksContext implements IDevblocksC
 			'value' => $model->updated_at,
 		];
 		
+		$properties['version'] = [
+			'label' => DevblocksPlatform::translateCapitalized('common.version'),
+			'type' => Model_CustomField::TYPE_DATE,
+			'value' => $model->version,
+		];
+		
 		$properties['id'] = [
 			'label' => DevblocksPlatform::translate('common.id'),
 			'type' => Model_CustomField::TYPE_NUMBER,
@@ -1720,18 +1757,32 @@ function getContextIdFromAlias($alias) {
 		// Token labels
 		$token_labels = [
 			'_label' => $prefix,
+			//'config_kata' => $prefix.$translate->_('common.config_kata'),
+			'created_at' => $prefix.$translate->_('common.created'),
+			'description' => $prefix.$translate->_('common.description'),
+			'has_extensions' => $prefix.$translate->_('dao.workflow.has_extensions'),
 			'id' => $prefix.$translate->_('common.id'),
 			'name' => $prefix.$translate->_('common.name'),
+			'resources_kata' => $prefix.$translate->_('dao.workflow.resources_kata'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
+			'version' => $prefix.$translate->_('common.version'),
+			'workflow_kata' => $prefix.$translate->_('dao.workflow.workflow_kata'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		];
 		
 		// Token types
 		$token_types = [
 			'_label' => 'context_url',
+			//'config_kata' => Model_CustomField::TYPE_MULTI_LINE,
+			'created_at' => Model_CustomField::TYPE_DATE,
+			'description' => Model_CustomField::TYPE_SINGLE_LINE,
+			'has_extensions' => Model_CustomField::TYPE_NUMBER,
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
+			'resources_kata' => Model_CustomField::TYPE_MULTI_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
+			'version' => Model_CustomField::TYPE_DATE,
+			'workflow_kata' => Model_CustomField::TYPE_MULTI_LINE,
 			'record_url' => Model_CustomField::TYPE_URL,
 		];
 		
@@ -1753,9 +1804,16 @@ function getContextIdFromAlias($alias) {
 		if($workflow) {
 			$token_values['_loaded'] = true;
 			$token_values['_label'] = $workflow->name;
+			//$token_values['config_kata'] = $workflow->config_kata;
+			$token_values['created_at'] = $workflow->created_at;
+			$token_values['description'] = $workflow->description;
+			$token_values['has_extensions'] = $workflow->has_extensions;
 			$token_values['id'] = $workflow->id;
 			$token_values['name'] = $workflow->name;
+			$token_values['resources_kata'] = $workflow->resources_kata;
 			$token_values['updated_at'] = $workflow->updated_at;
+			$token_values['version'] = $workflow->version;
+			$token_values['workflow_kata'] = $workflow->workflow_kata;
 			
 			// Custom fields
 			$token_values = $this->_importModelCustomFieldsAsValues($workflow, $token_values);
@@ -1778,6 +1836,7 @@ function getContextIdFromAlias($alias) {
 			'name' => DAO_Workflow::NAME,
 			'resources_kata' => DAO_Workflow::RESOURCES_KATA,
 			'updated_at' => DAO_Workflow::UPDATED_AT,
+			'version' => DAO_Workflow::VERSION,
 			'workflow_kata' => DAO_Workflow::WORKFLOW_KATA,
 		];
 	}
