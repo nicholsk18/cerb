@@ -1432,7 +1432,6 @@ class View_Workflow extends C4_AbstractView implements IAbstractView_Subtotals, 
 	}
 	
 	function getQuickSearchFields() {
-		// [TODO] Implement quick search fields
 		$search_fields = SearchFields_Workflow::getFields();
 		
 		$fields = [
@@ -1445,6 +1444,11 @@ class View_Workflow extends C4_AbstractView implements IAbstractView_Subtotals, 
 				[
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
 					'options' => ['param_key' => SearchFields_Workflow::CREATED_AT],
+				],
+			'description' =>
+				[
+					'type' => DevblocksSearchCriteria::TYPE_TEXT,
+					'options' => ['param_key' => SearchFields_Workflow::DESCRIPTION, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL],
 				],
 			'fieldset' =>
 				[
