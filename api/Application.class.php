@@ -632,6 +632,31 @@ class CerberusApplication extends DevblocksApplication {
 				unset($resource_data);
 			}
 		}
+		
+		// Workflows
+		
+		$bundled_workflows = [
+			'cerb.demo.data',
+			'cerb.quickstart',
+			'cerb.tutorial',
+		];
+		
+		foreach($bundled_workflows as $bundled_workflow) {
+			if(($was_workflow = DAO_Workflow::getByName($bundled_workflow))) {
+				$error = null;
+				$new_workflow = new Model_Workflow();
+				$new_workflow->config_kata = $was_workflow->config_kata;
+				$new_workflow->resources_kata = $was_workflow->resources_kata;
+				$new_workflow->workflow_kata = file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/' . $bundled_workflow . '.kata');
+				
+				if(false === ($new_props = $new_workflow->getMetadataFromTemplate()))
+					$new_props = [];
+				
+				if(0 !== Model_Workflow::compareVersion($was_workflow->version, $new_props['version'] ?? '')) {
+					DevblocksPlatform::services()->workflow()->import($new_workflow, null, $error);
+				}
+			}
+		}
 	}
 	
 	static function sendEmailTemplate($email, $template_id, $values) : bool {

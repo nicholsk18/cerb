@@ -1,5 +1,6 @@
 workflow:
   name: cerb.tutorial
+  version: 2024-10-05T21:59:39Z
   description: A workspace with detailed descriptions and examples of Cerb functionality
   requirements:
     cerb_version: >=10.5 <11.0
@@ -2417,6 +2418,7 @@ records:
           t_status_id
           t_importance
           t_owner_id
+          t_created_at
   workspace_tab/tab_reminders:
     fields:
       name: Reminders
@@ -3789,12 +3791,63 @@ records:
         xaxis_format: text
         yaxis_format: number
         height@text:
+  workspace_widget/widget_charts_hourofday:
+    fields:
+      label: Categories KATA: Tickets vs tasks by hour of day with zero fill and x-axis reordering
+      tab_id: {{records.tab_charts.id}}
+      extension_id: cerb.workspace.widget.chart.kata
+      pos@int: 7
+      width_units@int: 4
+      zone: content
+      params:
+        datasets_kata@raw:
+          manual/baseline:
+            data:
+              label@csv: {{range(0,23)|map((d)=>"%02d:00"|format(d))|join(',')}}
+          dataQuery/tickets:
+            query@text:
+              type:worklist.subtotals
+              of:ticket
+              by.count:[created@hourofday]
+              query:(
+                created:"-1 month"
+              )
+              format:categories
+          dataQuery/tasks:
+            query@text:
+              type:worklist.subtotals
+              of:task
+              by.count:[created@hourofday]
+              query:(
+                created:"-1 month"
+              )
+              format:categories
+        placeholder_simulator_kata@text:
+        chart_kata@raw:
+          data:
+            type: bar
+            series:
+              baseline:
+                x_key: label
+              tickets:
+                name: Tickets by hour of day
+                x_key: label
+              tasks:
+                name: Tasks by hour of day
+                x_key: label
+            stacks:
+              0@csv: tickets,tasks
+
+          axis:
+            x:
+              type: category
+              categories@csv: {{range(0,23)|map((d)=>"%02d:00"|format(d))|join(',')}}
   workspace_widget/widget_donut_open_tickets_by_group:
     fields:
       label: Donut: Open Tickets by Group
       tab_id: {{records.tab_charts.id}}
       extension_id: cerb.workspace.widget.chart.kata
-      pos@int: 7
+      pos@int: 8
       width_units@int: 4
       zone: content
       params:
@@ -3821,7 +3874,7 @@ records:
       label: Scatterplot: SLA Importance vs. Response Time
       tab_id: {{records.tab_charts.id}}
       extension_id: cerb.workspace.widget.chart.scatterplot
-      pos@int: 8
+      pos@int: 9
       width_units@int: 4
       zone: content
       params:
@@ -5921,15 +5974,22 @@ records:
                   Here's a simple workflow KATA template that creates a new task using a configurable name and owner.
 
                   ```kata
-                  config:
-                    text/taskName:
-                      label: Task name:
-                      default: New task from a workflow
-                    chooser/taskOwner:
-                      label: Task owner:
-                      multiple@bool: no
-                      record_type: worker
-                      record_query: isDisabled:n
+                  workflow:
+                    name: example.newTask
+                    version@date: 2025-12-31T00:00:00Z
+                    description: This example workflow manages a task record
+                    requirements:
+                      cerb_version: >=10.5 <11.0
+                      cerb_plugins: cerberusweb.core,
+                    config:
+                      text/taskName:
+                        label: Task name:
+                        default: New task from a workflow
+                      chooser/taskOwner:
+                        label: Task owner:
+                        multiple@bool: no
+                        record_type: worker
+                        record_query: isDisabled:n
 
                   records:
                     task/newTask:
@@ -6001,6 +6061,7 @@ records:
         columns@list:
           a_name
           a_description
+          a_version
           a_updated_at
   workspace_tab/tab_packages:
     fields:

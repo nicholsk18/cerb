@@ -104,7 +104,6 @@ class _DevblocksWorkflowService {
 			$was_workflow_id = DAO_Workflow::create([
 				DAO_Workflow::NAME => $changed_workflow->name,
 				DAO_Workflow::DESCRIPTION => $changed_workflow->description,
-				DAO_Workflow::VERSION => $changed_workflow->version,
 			]);
 			
 			$changed_workflow->id = $was_workflow_id;

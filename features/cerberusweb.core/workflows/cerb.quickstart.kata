@@ -1,5 +1,6 @@
 workflow:
   name: cerb.quickstart
+  version: 2024-10-04T00:00:00Z
   description: A workspace with a quickstart checklist for initial configuration of Cerb
   requirements:
     cerb_version: >=10.5 <11.0

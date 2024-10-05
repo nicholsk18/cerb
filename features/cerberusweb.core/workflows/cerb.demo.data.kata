@@ -1,5 +1,6 @@
 workflow:
   name: cerb.demo.data
+  version: 2024-10-04T00:00:00Z
   description: Realistic sample data for demonstration, testing, and development
   requirements:
     cerb_version: >=10.5 <11.0
