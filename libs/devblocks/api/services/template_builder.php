@@ -272,6 +272,7 @@ class _DevblocksTemplateBuilder {
 				'cerb_record_readable',
 				'cerb_record_writeable',
 				'cerb_workflow_config',
+				'cerb_workflow_resources',
 				'cerb_url',
 				'clamp_float',
 				'clamp_int',
@@ -1199,6 +1200,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFunction('cerb_record_readable', [$this, 'function_cerb_record_readable']),
 			new \Twig\TwigFunction('cerb_record_writeable', [$this, 'function_cerb_record_writeable']),
 			new \Twig\TwigFunction('cerb_workflow_config', [$this, 'function_cerb_workflow_config']),
+			new \Twig\TwigFunction('cerb_workflow_resources', [$this, 'function_cerb_workflow_resources']),
 			new \Twig\TwigFunction('cerb_url', [$this, 'function_cerb_url']),
 			new \Twig\TwigFunction('clamp_float', [$this, 'function_clamp_float']),
 			new \Twig\TwigFunction('clamp_int', [$this, 'function_clamp_int']),
@@ -1523,6 +1525,29 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			return $config[$key] ?? $default;
 		
 		return $config;
+	}
+	
+	function function_cerb_workflow_resources($name_or_id) {
+		$cache = DevblocksPlatform::services()->cache();
+		$cache_key = sprintf("scripting:workflow:%s:resources", $name_or_id);
+		
+		if(null === ($resources = $cache->load($cache_key, local_only: true))) {
+			$workflow = null;
+			$resources = [];
+			
+			if (is_numeric($name_or_id)) {
+				$workflow = DAO_Workflow::get($name_or_id);
+			} elseif (is_string($name_or_id)) {
+				$workflow = DAO_Workflow::getByName($name_or_id);
+			}
+			
+			if($workflow)
+				$resources = $workflow->getResources();
+			
+			$cache->save($resources, $cache_key, local_only: true);
+		}
+		
+		return $resources;
 	}
 	
 	function function_cerb_url($url, $full=true, $proxy=true) {

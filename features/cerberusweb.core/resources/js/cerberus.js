@@ -1415,6 +1415,8 @@ let twigAutocompleteSuggestions = {
 		{ value: "cerb_record_writeable(record_context,record_id,actor_context,actor_id)", meta: "function" },
 		{ value: "cerb_workflow_config('example.workflow')", meta: "function" },
 		{ value: "cerb_workflow_config('example.workflow','key_name')", meta: "function" },
+		{ value: "cerb_workflow_resources('example.workflow')", meta: "function" },
+		{ value: "cerb_workflow_resources('example.workflow','resource_name')", meta: "function" },
 		{ value: "cerb_url('c=controller&a=action&p=param')", meta: "function" },
 		{ value: "cycle(position)", meta: "function" },
 		{ value: "date(date,timezone)", meta: "function" },
