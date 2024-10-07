@@ -1500,22 +1500,26 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	}
 	
 	function function_cerb_workflow_config($name_or_id, $key=null, $default=null) {
-		if(is_numeric($name_or_id)) {
-			if(!($workflow = DAO_Workflow::get($name_or_id)))
-				return $default;
+		$cache = DevblocksPlatform::services()->cache();
+		$cache_key = sprintf("scripting:workflow:%s:config", $name_or_id);
+		
+		if(null === ($config = $cache->load($cache_key, local_only: true))) {
+			$workflow = null;
+			$config = [];
+
+			if (is_numeric($name_or_id)) {
+				$workflow = DAO_Workflow::get($name_or_id);
+			} elseif (is_string($name_or_id)) {
+				$workflow = DAO_Workflow::getByName($name_or_id);
+			}
 			
-		} elseif(is_string($name_or_id)) {
-			if(!($workflow = DAO_Workflow::getByName($name_or_id)))
-				return $default;
+			if($workflow)
+				$config = $workflow->getConfig();
 			
-		} else {
-			return $default;
+			$cache->save($config, $cache_key, local_only: true);
 		}
 		
-		if(!($config = $workflow->getConfig()))
-			return $default;
-		
-		if($key)
+		if ($key)
 			return $config[$key] ?? $default;
 		
 		return $config;
