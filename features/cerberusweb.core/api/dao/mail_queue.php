@@ -172,11 +172,6 @@ class DAO_MailQueue extends Cerb_ORMHelper {
 			return false;
 		
 		if(array_key_exists(self::TYPE, $fields) && in_array($fields[self::TYPE], ['mail.compose','ticket.reply','ticket.forward'])) {
-			if(!$id && !array_key_exists(self::WORKER_ID, $fields)) {
-					$error = "A 'worker_id' is required.";
-					return false;
-			}
-			
 			if(array_key_exists(self::WORKER_ID, $fields)) {
 				$worker_id = $fields[self::WORKER_ID] ?? null;
 				

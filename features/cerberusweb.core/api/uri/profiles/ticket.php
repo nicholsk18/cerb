@@ -605,7 +605,10 @@ class PageSection_ProfilesTicket extends Extension_PageSection {
 		if(!Context_Draft::isWriteableByActor($draft, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		if($draft->worker_id != $active_worker->id)
+		if($draft->worker_id && $draft->worker_id != $active_worker->id)
+			DevblocksPlatform::dieWithHttpError(null, 403);
+		
+		if(!$draft->worker_id && !$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
 		// Load records

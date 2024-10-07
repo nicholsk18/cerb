@@ -91,6 +91,10 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 		if(!($draft = DAO_MailQueue::get($draft_id)))
 			DevblocksPlatform::dieWithHttpError(null,404);
 		
+		// If the draft has no worker and we're an admin, assign it
+		if(!$draft->worker_id && $active_worker->is_superuser)
+			$draft->worker_id = $active_worker->id;
+		
 		if(!Context_Draft::isReadableByActor($draft, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null,403);
 		
@@ -482,8 +486,14 @@ class PageSection_ProfilesDraft extends Extension_PageSection {
 			if(!($draft = DAO_MailQueue::get($draft_id)))
 				return false;
 			
+			// If the draft has no worker, assume it
+			if(!$draft->worker_id) {
+				$fields[DAO_MailQueue::WORKER_ID] = $active_worker->id;
+				$draft->worker_id = $active_worker->id;
+			}
+			
 			// If the draft isn't owned by this worker, save a new one
-			if(!in_array($draft->worker_id, $valid_worker_ids))
+			if($draft->worker_id && !in_array($draft->worker_id, $valid_worker_ids))
 				$draft_id = null;
 		}
 		
