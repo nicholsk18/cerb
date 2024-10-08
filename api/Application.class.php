@@ -7356,6 +7356,9 @@ class _CerbApplication_KataSchemas {
                           deletionPolicy:
                             types:
                               string:
+                          updatePolicy:
+                            types:
+                              string:
                           fields:
                             types:
                               list:

@@ -900,6 +900,22 @@ class Model_Workflow extends DevblocksRecordModel {
 						unset($was_records[$record_key]);
 						
 					} else {
+						// If we have an update policy, only update the fields it lists
+						if(array_key_exists('updatePolicy', $new_record ?? [])) {
+							$update_policy = $new_record['updatePolicy'] ?? '';
+							
+							if(is_string($update_policy))
+								$update_policy = DevblocksPlatform::parseCsvString($update_policy);
+						
+							if(is_array($update_policy)) {
+								// Prune the update list to allowed fields
+								$delta['fields'] = array_intersect_key(
+									$delta['fields'] ?? [],
+									array_fill_keys($update_policy, true)
+								);
+							}
+						}
+						
 						foreach($delta['fields'] ?? [] as $field_key => $field)
 							$delta['fields'][$field_key] = $new_record['fields'][$field_key];
 						

@@ -8,6 +8,7 @@ workflow:
 
 records:
   snippet/snippet_autoresponder:
+    updatePolicy@csv:
     fields:
       title: Ticket Auto-Response
       context: cerberusweb.contexts.ticket

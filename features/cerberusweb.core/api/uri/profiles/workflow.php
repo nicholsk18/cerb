@@ -341,6 +341,8 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 				$autocomplete_suggestions[$key][] = 'fields:';
 				$autocomplete_suggestions[$key][] = 'deletionPolicy:';
 				$autocomplete_suggestions[$key . 'deletionPolicy:'] = ['delete', 'retain'];
+				$autocomplete_suggestions[$key][] = 'updatePolicy:';
+				$autocomplete_suggestions[$key . 'updatePolicy:'] = ['field_name, other_field_name'];
 				
 				// [TODO] Is this cached for autocompletion already?
 
