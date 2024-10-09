@@ -1203,6 +1203,7 @@ class Context_ProfileWidget extends Extension_DevblocksContext implements IDevbl
 			'extension_id' => DAO_ProfileWidget::EXTENSION_ID,
 			'links' => '_links',
 			'name' => DAO_ProfileWidget::NAME,
+			'options_kata' => DAO_ProfileWidget::OPTIONS_KATA,
 			'pos' => DAO_ProfileWidget::POS,
 			'profile_tab_id' => DAO_ProfileWidget::PROFILE_TAB_ID,
 			'updated_at' => DAO_ProfileWidget::UPDATED_AT,

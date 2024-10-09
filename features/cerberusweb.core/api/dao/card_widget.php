@@ -1126,6 +1126,7 @@ class Context_CardWidget extends Extension_DevblocksContext implements IDevblock
 			'id' => DAO_CardWidget::ID,
 			'links' => '_links',
 			'name' => DAO_CardWidget::NAME,
+			'options_kata' => DAO_CardWidget::OPTIONS_KATA,
 			'pos' => DAO_CardWidget::POS,
 			'record_type' => DAO_CardWidget::RECORD_TYPE,
 			'updated_at' => DAO_CardWidget::UPDATED_AT,
