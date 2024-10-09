@@ -785,6 +785,8 @@ class Model_Workflow extends DevblocksRecordModel {
 		
 		$initial_state = [
 			//'__simulate' => 1,
+			'workflow__context' => CerberusContexts::CONTEXT_WORKFLOW,
+			'workflow_id' => $this->id,
 			'config' => DevblocksDictionaryDelegate::instance($config_values),
 			'records' => [],
 		];
