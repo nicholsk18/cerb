@@ -359,7 +359,7 @@ class CerberusParserModel {
 				// Only consider the watcher auth header to be a reply if it validates
 				if($senderWorker instanceof Model_Worker
 					&& @preg_match('#\<(.*?)\@cerb\d{0,1}\>#', $ref)
-					&& false != ($relay_message_id = $this->isValidAuthHeader($ref, $senderWorker))) {
+					&& ($relay_message_id = $this->isValidAuthHeader($ref, $senderWorker))) {
 					
 					if(null != ($ticket = DAO_Ticket::getTicketByMessageId($relay_message_id))) {
 						$this->_ticket_id = $ticket->id;

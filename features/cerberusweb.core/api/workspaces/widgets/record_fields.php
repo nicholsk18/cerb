@@ -35,8 +35,11 @@ class WorkspaceWidget_RecordFields extends Extension_WorkspaceWidget {
 		$context = $target_context;
 		$context_id = intval($tpl_builder->build($target_context_id, $record_dict));
 		
-		if(!($context_ext = Extension_DevblocksContext::get($context)))
+		if(!($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
 			return;
+		
+		// Normalize the context
+		$context = $context_ext->id;
 		
 		$dao_class = $context_ext->getDaoClass();
 		
@@ -188,7 +191,13 @@ class WorkspaceWidget_RecordFields extends Extension_WorkspaceWidget {
 		$context = $widget->params['context'] ?? null;
 		
 		if($context) {
-			$context_ext = Extension_DevblocksContext::get($context);
+			if(!($context_ext = Extension_DevblocksContext::getByAlias($context, true))) {
+				echo '(ERROR: Missing record type: ' . DevblocksPlatform::strEscapeHtml($context) . ')';
+				return;
+			}
+
+			// Normalize
+			$context = $context_ext->id;
 			
 			$tpl->assign('context_ext', $context_ext);
 			
@@ -207,7 +216,7 @@ class WorkspaceWidget_RecordFields extends Extension_WorkspaceWidget {
 				
 				// Sort properties by the configured order
 				
-				@$properties_enabled = array_flip($widget->params['properties'][0] ?: []);
+				$properties_enabled = array_fill_keys($widget->params['properties'][0] ?? [], true);
 				
 				uksort($properties, function ($a, $b) use ($properties_enabled, $properties) {
 					$a_pos = array_key_exists($a, $properties_enabled) ? $properties_enabled[$a] : 1000;
@@ -283,10 +292,10 @@ class WorkspaceWidget_RecordFields extends Extension_WorkspaceWidget {
 			
 			if(is_array($search_buttons))
 			foreach($search_buttons as $search_button) {
-				if(false == ($search_button_context = Extension_DevblocksContext::get($search_button['context'], true)))
+				if(!($search_button_context = Extension_DevblocksContext::getByAlias($search_button['context'], true)))
 					continue;
 				
-				if(false == ($view = $search_button_context->getTempView()))
+				if(!($view = $search_button_context->getTempView()))
 					continue;
 				
 				$label_aliases = Extension_DevblocksContext::getAliasesForContext($search_button_context->manifest);

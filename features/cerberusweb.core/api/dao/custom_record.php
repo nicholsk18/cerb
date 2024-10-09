@@ -881,7 +881,7 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 	static function isWriteableByActor($models, $actor) {
 		// Only admins can modify
 		
-		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+		if(!($actor = CerberusContexts::polymorphActorToDictionary($actor)))
 			return CerberusContexts::denyEverything($models);
 		
 		// Admins can do whatever they want

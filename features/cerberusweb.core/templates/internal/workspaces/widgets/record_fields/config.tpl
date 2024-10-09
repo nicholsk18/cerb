@@ -8,7 +8,7 @@
 			<select name="params[context]">
 				<option value=""></option>
 				{foreach from=$context_mfts item=context_mft}
-				<option value="{$context_mft->id}" {if $widget->params.context == $context_mft->id}selected="selected"{/if}>{$context_mft->name}</option>
+				<option value="{$context_mft->id}" {if CerberusContexts::isSameContext($widget->params.context, $context_mft->id)}selected="selected"{/if}>{$context_mft->name}</option>
 				{/foreach}
 			</select>
 		</div>

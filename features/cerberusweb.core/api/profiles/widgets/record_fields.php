@@ -37,11 +37,14 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 			$context_id = intval($tpl_builder->build($target_context_id, $record_dict));
 		}
 		
-		if(!($context_ext = Extension_DevblocksContext::get($context)))
+		if(!($context_ext = Extension_DevblocksContext::getByAlias($context, true)))
 			return;
 		
 		if(!($context_ext instanceof IDevblocksContextProfile))
 			return;
+		
+		// Normalize the context
+		$context = $context_ext->id;
 		
 		if(!($record = $context_ext->getModelObject($context_id))) {
 			$tpl->assign('context_ext', $context_ext);
@@ -182,10 +185,13 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 		$context = $model->extension_params['context'] ?? null;
 		
 		if($context) {
-			if(false == ($context_ext = Extension_DevblocksContext::get($context))) {
+			if(!($context_ext = Extension_DevblocksContext::getByAlias($context, true))) {
 				echo '(ERROR: Missing record type: ' . DevblocksPlatform::strEscapeHtml($context) . ')';
 				return;
 			}
+			
+			// Normalize
+			$context = $context_ext->id;
 			
 			$tpl->assign('context_ext', $context_ext);
 			
@@ -204,7 +210,7 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 				
 				// Sort properties by the configured order
 				
-				$properties_enabled = array_flip($model->extension_params['properties'][0] ?? []);
+				$properties_enabled = array_fill_keys($model->extension_params['properties'][0] ?? [], true);
 				
 				uksort($properties, function($a, $b) use ($properties_enabled, $properties) {
 					$a_pos = array_key_exists($a, $properties_enabled) ? $properties_enabled[$a] : 1000;
@@ -270,7 +276,7 @@ class ProfileWidget_Fields extends Extension_ProfileWidget {
 			
 			if(is_array($search_buttons))
 			foreach($search_buttons as $search_button) {
-				if(!($search_button_context = Extension_DevblocksContext::get($search_button['context'], true)))
+				if(!($search_button_context = Extension_DevblocksContext::getByAlias($search_button['context'], true)))
 					continue;
 				
 				if(!($view = $search_button_context->getTempView()))

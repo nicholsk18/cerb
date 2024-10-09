@@ -68,9 +68,9 @@
 			<td data-column="icon" rowspan="4" align="center">
 				<div style="margin:0px 5px 5px 5px;position:relative;">
 					{if !empty($plugin) && isset($plugin->manifest_cache.plugin_image) && !empty($plugin->manifest_cache.plugin_image)}
-						<img src="{devblocks_url}c=resource&p={$plugin->id}&f={$plugin->manifest_cache.plugin_image}{/devblocks_url}" width="100" height="100" style="border:1px solid var(--cerb-color-background-contrast-200);">
+						<img src="{devblocks_url}c=resource&p={$plugin->id}&f={$plugin->manifest_cache.plugin_image}{/devblocks_url}?v={$cerb_app_build}" width="100" height="100" style="border:1px solid var(--cerb-color-background-contrast-200);">
 					{else}
-						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/plugin_code_gray.gif{/devblocks_url}" width="100" height="100" style="border:1px solid var(--cerb-color-background-contrast-200);">
+						<img src="{devblocks_url}c=resource&p=cerberusweb.core&f=images/wgm/plugin_code_gray.gif{/devblocks_url}?v={$cerb_app_build}" width="100" height="100" style="border:1px solid var(--cerb-color-background-contrast-200);">
 					{/if}
 					{if !$result.c_enabled}
 						<span class="plugin_icon_overlay_disabled"></span>

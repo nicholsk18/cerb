@@ -76,7 +76,7 @@
 		{implode(', ', $v.value)}
 	{/if}
 {elseif $v.type == Model_CustomField::TYPE_LINK}
-	{$link_context_ext = Extension_DevblocksContext::get($v.params.context|default:'')}
+	{$link_context_ext = Extension_DevblocksContext::getByAlias($v.params.context|default:'', true)}
 	{if is_a($link_context_ext, 'Extension_DevblocksContext')}
 		{$link_meta = $link_context_ext->getMeta($v.value)}
 		{if $link_meta && ($link_context_ext->id == CerberusContexts::CONTEXT_APPLICATION || $v.value)}
@@ -116,7 +116,7 @@
 		{/if}
 	{/foreach}
 {elseif $v.type == 'context'}
-	{$display_ctx = Extension_DevblocksContext::get($v.value|default:'')}
+	{$display_ctx = Extension_DevblocksContext::getByAlias($v.value|default:'', true)}
 	{if is_a($display_ext, 'Extension_DevblocksContext')}
 		{$display_ctx->manifest->name}
 	{else}

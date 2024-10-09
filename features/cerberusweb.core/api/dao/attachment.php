@@ -1930,7 +1930,7 @@ class Context_Attachment extends Extension_DevblocksContext implements IDevblock
 			// It's what we want already.
 		} elseif(is_array($attachment)) {
 			$attachment = Cerb_ORMHelper::recastArrayToModel($attachment, 'Model_Attachment');
-		} elseif(strlen($attachment) == 40) { // SHA-1 HASH
+		} elseif(strlen(strval($attachment)) == 40) { // SHA-1 HASH
 			$attachment = DAO_Attachment::get(intval(DAO_Attachment::getBySha1Hash($attachment)));
 		} else {
 			$attachment = null;

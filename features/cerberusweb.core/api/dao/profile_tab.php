@@ -1020,6 +1020,7 @@ class Context_ProfileTab extends Extension_DevblocksContext implements IDevblock
 			'id' => DAO_ProfileTab::ID,
 			'links' => '_links',
 			'name' => DAO_ProfileTab::NAME,
+			'pos' => DAO_ProfileTab::POS,
 			'updated_at' => DAO_ProfileTab::UPDATED_AT,
 		];
 	}

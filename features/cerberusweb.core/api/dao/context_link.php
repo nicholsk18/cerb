@@ -248,6 +248,12 @@ class DAO_ContextLink extends Cerb_ORMHelper {
 			$context_ids = [$context_ids];
 		}
 		
+		// Normalize the context ID
+		if(!($context_mft = Extension_DevblocksContext::getByAlias($context, false)))
+			return [];
+		
+		$context = $context_mft->id;
+		
 		$context_ids = DevblocksPlatform::sanitizeArray($context_ids, 'int');
 		
 		$sql = sprintf("SELECT count(to_context_id) AS hits, to_context as context, from_context_id ".

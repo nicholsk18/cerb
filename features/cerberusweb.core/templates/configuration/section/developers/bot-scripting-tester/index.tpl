@@ -9,8 +9,8 @@
 
 <fieldset>
 	<legend>
-		Run this bot script:
-		{include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/bots/scripting/"}
+		Run this script:
+		{include file="devblocks:cerberusweb.core::help/docs_button.tpl" url="https://cerb.ai/docs/scripting/"}
 	</legend>
 	
 	<textarea name="bot_script" data-editor-mode="ace/mode/twig" rows="5" cols="45" class="placeholders"></textarea>
