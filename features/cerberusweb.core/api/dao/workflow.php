@@ -2056,6 +2056,11 @@ function getContextIdFromAlias($alias) {
 						'name' => 'Auto Dispatcher',
 						'description' => 'Automatically assign tickets to workers based on priority',
 					],
+					'cerb.login.terms_of_use' => [
+						'id' => 'cerb.login.terms_of_use',
+						'name' => 'Worker Login Terms of Use',
+						'description' => "Require consent to 'Terms of Use' when workers login in",
+					],
 					'cerb.surveys.csat' => [
 						'id' => 'cerb.surveys.csat',
 						'name' => 'Customer Satisfaction Surveys',
