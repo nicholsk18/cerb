@@ -4086,6 +4086,16 @@
 		</extension>
 
 		<extension point = "cerb.automation.api_command">
+			<id>cerb.commands.email.relay.sign</id>
+			<name>cerb.commands.email.relay.sign</name>
+			<class>
+				<file>api/automations/api_commands/cerb.email.relay.sign.php</file>
+				<name>ApiCommand_CerbEmailRelaySign</name>
+			</class>
+			<params />
+		</extension>
+
+		<extension point = "cerb.automation.api_command">
 			<id>cerb.commands.email.spam.train</id>
 			<name>cerb.commands.email.spam.train</name>
 			<class>
