@@ -128,6 +128,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 							'cerb.auto_dispatcher',
 							'cerb.auto_responder',
 							'cerb.login.terms_of_use',
+							'cerb.email.dmarc_reports',
 							'cerb.quickstart',
 							'cerb.surveys.csat',
 							'cerb.tutorial',
@@ -170,6 +171,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 							$new_workflow->workflow_kata = match($name) {
 								'cerb.auto_dispatcher' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.auto_dispatcher.kata'),
 								'cerb.auto_responder' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.auto_responder.kata'),
+								'cerb.email.dmarc_reports' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.email.dmarc_reports.kata'),
 								'cerb.login.terms_of_use' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.login.terms_of_use.kata'),
 								'cerb.quickstart' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.quickstart.kata'),
 								'cerb.surveys.csat' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.surveys.csat.kata'),

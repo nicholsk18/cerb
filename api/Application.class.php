@@ -639,6 +639,7 @@ class CerberusApplication extends DevblocksApplication {
 			'cerb.auto_dispatcher',
 			'cerb.auto_responder',
 			'cerb.demo.data',
+			'cerb.email.dmarc_reports',
 			'cerb.login.terms_of_use',
 			'cerb.quickstart',
 			'cerb.surveys.csat',

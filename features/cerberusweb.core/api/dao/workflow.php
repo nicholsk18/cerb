@@ -2058,6 +2058,11 @@ function getContextIdFromAlias($alias) {
 						'name' => 'Auto Dispatcher',
 						'description' => 'Automatically assign tickets to workers based on priority',
 					],
+					'cerb.email.dmarc_reports' => [
+						'id' => 'cerb.email.dmarc_reports',
+						'name' => 'DMARC Reports',
+						'description' => 'Parse DMARC report attachments in email',
+					],
 					'cerb.login.terms_of_use' => [
 						'id' => 'cerb.login.terms_of_use',
 						'name' => 'Worker Login Terms of Use',
