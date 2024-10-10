@@ -2096,6 +2096,11 @@ function getContextIdFromAlias($alias) {
 						'name' => 'Customer Satisfaction Surveys',
 						'description' => 'Gather and monitor customer satisfaction metrics like NPS, CSAT, and CES.',
 					],
+					'cerb.capture_feedback' => [
+						'id' => 'cerb.capture_feedback',
+						'name' => 'Capture Feedback',
+						'description' => 'Capture user feedback while reading email messages',
+					],
 					'cerb.quickstart' => [
 						'id' => 'cerb.quickstart',
 						'name' => 'Quickstart Checklist',
