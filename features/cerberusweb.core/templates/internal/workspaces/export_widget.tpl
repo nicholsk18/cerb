@@ -1,9 +1,15 @@
 <form action="#" method="post" id="frmWorkspaceWidgetExport">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
 
-<div>
-	<textarea style="width:100%;height:250px;white-space:pre;word-wrap:normal;" rows="10" cols="45" spellcheck="false">{$json}</textarea>
-</div>
+<fieldset class="peek">
+	<legend>JSON</legend>
+	<textarea data-editor-mode="ace/mode/json" data-editor-readonly="true">{$export_json}</textarea>
+</fieldset>
+
+<fieldset class="peek">
+	<legend>{{'common.workflow'|devblocks_translate|capitalize}}</legend>
+	<textarea data-editor-mode="ace/mode/cerb_kata" data-editor-readonly="true">{$export_workflow}</textarea>
+</fieldset>
 
 <div style="padding:5px;">
 	<button class="submit" type="button"><span class="glyphicons glyphicons-circle-ok"></span> {'common.close'|devblocks_translate|capitalize}</button>
@@ -24,7 +30,10 @@ $(function() {
 		let title = "Export Widget: " + {$widget->label|json_encode nofilter};
 		$this.dialog('option','title', title);
 
+		$popup.find('textarea[data-editor-mode]').cerbCodeEditor();
+
 		$frm.find('button.submit').click(function(e) {
+			e.stopPropagation();
 			let $popup = genericAjaxPopupFind($(this));
 			$popup.dialog('close');
 		});

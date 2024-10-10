@@ -565,6 +565,7 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 	private function _profileAction_exportWidget() {
 		$active_worker = CerberusApplication::getActiveWorker();
 		$tpl = DevblocksPlatform::services()->template();
+		$kata = DevblocksPlatform::services()->kata();
 		
 		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'int', 0);
 		
@@ -580,11 +581,31 @@ class PageSection_ProfilesWorkspaceWidget extends Extension_PageSection {
 		if(!Context_WorkspacePage::isWriteableByActor($page, $active_worker))
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
+		// JSON
+		
 		$json = $extension->export($widget);
+		$tpl->assign('export_json', DevblocksPlatform::strFormatJson($json));
+		
+		// Workflow
+		
+		$workflow_data = [
+			'records' => [
+				'workspace_widget/' . uniqid() => [
+					'fields' => [
+						'label' => $widget->label ?? '',
+						'extension_id' => $widget->extension_id ?? '',
+						'pos' => $widget->pos ?? '100',
+						'width_units' => $widget->width_units ?? '4',
+						'zone' => $widget->zone ?? 'content',
+						'options_kata' => new DevblocksKataRawString($fields['options_kata'] ?? ''),
+						'params' => $kata->wrapArrayPlaceholdersInRaw($widget->params ?? []),
+					]
+				]
+			]
+		];
+		$tpl->assign('export_workflow', $kata->emit($workflow_data));
 		
 		$tpl->assign('widget', $widget);
-		$tpl->assign('json', DevblocksPlatform::strFormatJson($json));
-		
 		$tpl->display('devblocks:cerberusweb.core::internal/workspaces/export_widget.tpl');
 	}
 	
