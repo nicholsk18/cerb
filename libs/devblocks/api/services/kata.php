@@ -988,4 +988,20 @@ class _DevblocksKataService {
 		// If the trees are of the same type and equal, there are no differences
 		return '___DIFF-SAME___';
 	}
+	
+	public function wrapArrayPlaceholdersInRaw(array $array) : array {
+		return $this->_wrapPlaceholdersInRaw($array);
+	}
+	
+	private function _wrapPlaceholdersInRaw(array $array) : array {
+		foreach($array as $key => $value) {
+			if(is_string($value) && str_contains($value, '{{')) {
+				$array[$key] = new DevblocksKataRawString($value);
+			} else if(is_array($value)) {
+				$this->_wrapPlaceholdersInRaw($value);
+			}
+		}
+		
+		return $array;
+	}
 }
