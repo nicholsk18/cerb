@@ -635,10 +635,7 @@ class Model_ProfileWidget extends DevblocksRecordModel {
 		return DAO_ProfileTab::get($this->profile_tab_id);
 	}
 	
-	/**
-	 * @return DevblocksExtensionManifest|null
-	 */
-	function getExtension() {
+	function getExtension() : ?Extension_ProfileWidget {
 		return Extension_ProfileWidget::get($this->extension_id);
 	}
 };
