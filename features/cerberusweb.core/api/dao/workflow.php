@@ -411,6 +411,7 @@ class SearchFields_Workflow extends DevblocksSearchFields {
 	const VERSION = 'a_version';
 	const WORKFLOW_KATA = 'a_workflow_kata';
 	
+	const VIRTUAL_ATTACHMENTS_SEARCH = '*_attachments_search';
 	const VIRTUAL_CONTEXT_LINK = '*_context_link';
 	const VIRTUAL_HAS_FIELDSET = '*_has_fieldset';
 	const VIRTUAL_WATCHERS = '*_workers';
@@ -429,6 +430,9 @@ class SearchFields_Workflow extends DevblocksSearchFields {
 	
 	static function getWhereSQL(DevblocksSearchCriteria $param) {
 		switch($param->field) {
+			case self::VIRTUAL_ATTACHMENTS_SEARCH:
+				return self::_getWhereSQLFromAttachmentsField($param, CerberusContexts::CONTEXT_WORKFLOW, self::getPrimaryKey());
+			
 			case self::VIRTUAL_CONTEXT_LINK:
 				return self::_getWhereSQLFromContextLinksField($param, CerberusContexts::CONTEXT_WORKFLOW, self::getPrimaryKey());
 			
@@ -491,6 +495,7 @@ class SearchFields_Workflow extends DevblocksSearchFields {
 			self::VERSION => new DevblocksSearchField(self::VERSION, 'workflow', 'version', $translate->_('common.version'), null, true),
 			self::WORKFLOW_KATA => new DevblocksSearchField(self::WORKFLOW_KATA, 'workflow', 'workflow_kata', $translate->_('common.template'), null, true),
 			
+			self::VIRTUAL_ATTACHMENTS_SEARCH => new DevblocksSearchField(self::VIRTUAL_ATTACHMENTS_SEARCH, '*', 'attachments_search', null, null, false),
 			self::VIRTUAL_CONTEXT_LINK => new DevblocksSearchField(self::VIRTUAL_CONTEXT_LINK, '*', 'context_link', $translate->_('common.links'), null, false),
 			self::VIRTUAL_HAS_FIELDSET => new DevblocksSearchField(self::VIRTUAL_HAS_FIELDSET, '*', 'has_fieldset', $translate->_('common.fieldset'), null, false),
 			self::VIRTUAL_WATCHERS => new DevblocksSearchField(self::VIRTUAL_WATCHERS, '*', 'workers', $translate->_('common.watchers'), 'WS', false),
@@ -1346,6 +1351,7 @@ class View_Workflow extends C4_AbstractView implements IAbstractView_Subtotals, 
 			SearchFields_Workflow::WORKFLOW_KATA,
 			SearchFields_Workflow::CONFIG_KATA,
 			SearchFields_Workflow::RESOURCES_KATA,
+			SearchFields_Workflow::VIRTUAL_ATTACHMENTS_SEARCH,
 			SearchFields_Workflow::VIRTUAL_CONTEXT_LINK,
 			SearchFields_Workflow::VIRTUAL_HAS_FIELDSET,
 			SearchFields_Workflow::VIRTUAL_WATCHERS,
@@ -1467,6 +1473,14 @@ class View_Workflow extends C4_AbstractView implements IAbstractView_Subtotals, 
 					'type' => DevblocksSearchCriteria::TYPE_TEXT,
 					'options' => ['param_key' => SearchFields_Workflow::NAME, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL],
 				],
+			'attachments' =>
+				[
+					'type' => DevblocksSearchCriteria::TYPE_VIRTUAL,
+					'options' => [],
+					'examples' => [
+						['type' => 'search', 'context' => CerberusContexts::CONTEXT_ATTACHMENT, 'q' => ''],
+					]
+				],
 			'created' =>
 				[
 					'type' => DevblocksSearchCriteria::TYPE_DATE,
@@ -1536,9 +1550,11 @@ class View_Workflow extends C4_AbstractView implements IAbstractView_Subtotals, 
 		return $fields;
 	}
 	
-	// [TODO] Implement quick search fields
 	function getParamFromQuickSearchFieldTokens($field, $tokens) {
 		switch($field) {
+			case 'attachments':
+				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, SearchFields_Comment::VIRTUAL_ATTACHMENTS_SEARCH);
+				
 			case 'fieldset':
 				return DevblocksSearchCriteria::getVirtualQuickSearchParamFromTokens($field, $tokens, '*_has_fieldset');
 			
@@ -1583,6 +1599,13 @@ class View_Workflow extends C4_AbstractView implements IAbstractView_Subtotals, 
 		$key = $param->field;
 		
 		switch($key) {
+			case SearchFields_Workflow::VIRTUAL_ATTACHMENTS_SEARCH:
+				echo sprintf("%s matches <b>%s</b>",
+					DevblocksPlatform::strEscapeHtml(DevblocksPlatform::translateCapitalized('common.attachments')),
+					DevblocksPlatform::strEscapeHtml($param->value)
+				);
+				break;
+				
 			case SearchFields_Workflow::VIRTUAL_CONTEXT_LINK:
 				$this->_renderVirtualContextLinks($param);
 				break;
