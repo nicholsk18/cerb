@@ -319,23 +319,45 @@ class PageSection_ProfilesCardWidget extends Extension_PageSection {
 	private function _profileAction_exportWidget() {
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
+		$kata = DevblocksPlatform::services()->kata();
 		
 		$id = DevblocksPlatform::importGPC($_REQUEST['id'] ?? null, 'int', 0);
 		
 		if(!$active_worker->is_superuser)
 			DevblocksPlatform::dieWithHttpError(null, 403);
 		
-		if(false == ($widget = DAO_CardWidget::get($id)))
+		if(!($widget = DAO_CardWidget::get($id)))
 			DevblocksPlatform::dieWithHttpError(null, 404);
 		
-		if(false == ($extension = $widget->getExtension()))
+		if(!($extension = $widget->getExtension()))
 			DevblocksPlatform::dieWithHttpError(null, 404);
+		
+		// JSON
 		
 		$json = $extension->export($widget);
+		$tpl->assign('export_json', DevblocksPlatform::strFormatJson($json));
+		
+		// Workflow
+		
+		$workflow_data = [
+			'records' => [
+				'card_widget/' . uniqid() => [
+					'fields' => [
+						'name' => $widget->name ?? '',
+						'record_type' => $widget->record_type ?? '',
+						'extension_id' => $widget->extension_id ?? '',
+						'pos' => $widget->pos ?? '100',
+						'width_units' => $widget->width_units ?? '4',
+						'zone' => $widget->zone ?? 'content',
+						'options_kata' => new DevblocksKataRawString($fields['options_kata'] ?? ''),
+						'extension_params' => $kata->wrapArrayPlaceholdersInRaw($widget->extension_params ?? []),
+					]
+				]
+			]
+		];
+		$tpl->assign('export_workflow', $kata->emit($workflow_data));
 		
 		$tpl->assign('widget', $widget);
-		$tpl->assign('json', DevblocksPlatform::strFormatJson($json));
-		
 		$tpl->display('devblocks:cerberusweb.core::internal/cards/widgets/export_widget.tpl');
 	}
 	
