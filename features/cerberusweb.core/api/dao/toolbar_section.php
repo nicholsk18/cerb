@@ -835,7 +835,7 @@ class View_ToolbarSection extends C4_AbstractView implements IAbstractView_Subto
 	}
 };
 
-class Context_ToolbarSection extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+class Context_ToolbarSection extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextWorkflow {
 	const ID = 'cerb.contexts.toolbar.section';
 	const URI = 'toolbar_section';
 	
@@ -1227,5 +1227,32 @@ class Context_ToolbarSection extends Extension_DevblocksContext implements IDevb
 		} else {
 			Page_Profiles::renderCard($context, $context_id, $model);
 		}
+	}
+	
+	function workflowExport(array $ids, DevblocksWorkflowExportModel $export_model, bool $include_children = false): array {
+		$workflow_kata = [
+			'records' => [],
+		];
+		
+		$record_uri = CerberusContexts::getContextName($this->id, 'uri');
+		
+		$models = DAO_ToolbarSection::getIds($ids);
+		
+		foreach($models as $model) {
+			$model_key = $export_model->getLabelMapFor(sprintf('%s_%d', $record_uri, $model->id));
+			$record_key = sprintf('%s/%s', $record_uri, $model_key);
+			
+			$workflow_kata['records'][$record_key] = [
+				'fields' => [
+					'name' => $model->name,
+					'toolbar_name' => $model->toolbar_name,
+					'priority' => $model->priority,
+					'is_disabled' => $model->is_disabled ? '1' : '0',
+					'toolbar_kata' => new DevblocksKataRawString($model->toolbar_kata),
+				],
+			];
+		}
+		
+		return $workflow_kata;
 	}
 };

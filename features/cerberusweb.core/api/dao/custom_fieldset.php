@@ -1354,7 +1354,7 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 		}
 	}
 	
-	function workflowExport(array $ids, bool $with_children = false) : array {
+	function workflowExport(array $ids, DevblocksWorkflowExportModel $export_model, bool $include_children = false) : array {
 		$workflow_kata = [
 			'records' => [],
 		];
@@ -1366,7 +1366,8 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 		$context_custom_field = Extension_DevblocksContext::getByAlias('custom_field', true);
 		
 		foreach($models as $model) {
-			$record_key = sprintf('%s/%s', $record_uri, uniqid());
+			$model_key = $export_model->getLabelMapFor(sprintf('%s_%d', $record_uri, $model->id));
+			$record_key = sprintf('%s/%s', $record_uri, $model_key);
 			
 			$workflow_kata['records'][$record_key] = [
 				'fields' => [
@@ -1377,9 +1378,9 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 				],
 			];
 			
-			if($with_children) {
+			if($include_children) {
 				$custom_fields = $model->getCustomFields();
-				$custom_field_kata = $context_custom_field->workflowExport(array_keys($custom_fields));
+				$custom_field_kata = $context_custom_field->workflowExport(array_keys($custom_fields), $export_model, false);
 				
 				$workflow_kata['records'] = array_merge($workflow_kata['records'], $custom_field_kata['records']);
 			}

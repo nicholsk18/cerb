@@ -869,7 +869,7 @@ class View_CustomRecord extends C4_AbstractView implements IAbstractView_Subtota
 	}
 };
 
-class Context_CustomRecord extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
+class Context_CustomRecord extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextWorkflow { // IDevblocksContextImport
 	const ID = CerberusContexts::CONTEXT_CUSTOM_RECORD;
 	const URI = 'custom_record';
 	
@@ -1270,5 +1270,42 @@ class Context_CustomRecord extends Extension_DevblocksContext implements IDevblo
 		} else {
 			Page_Profiles::renderCard($context, $context_id, $model);
 		}
+	}
+	
+	function workflowExport(array $ids, DevblocksWorkflowExportModel $export_model, bool $include_children = false) : array {
+		$workflow_kata = [
+			'records' => [],
+		];
+		
+		$record_uri = CerberusContexts::getContextName($this->id, 'uri');
+		
+		$models = DAO_CustomRecord::getIds($ids);
+		
+		$context_custom_field = Extension_DevblocksContext::getByAlias('custom_field', true);
+		
+		foreach($models as $model) {
+			$model_key = $export_model->getLabelMapFor(sprintf('%s_%d', $record_uri, $model->id));
+			$record_key = sprintf('%s/%s', $record_uri, $model_key);
+			
+			$workflow_kata['records'][$record_key] = [
+				'fields' => [
+					'name' => $model->name,
+					'name_plural' => $model->name_plural,
+					'uri' => $model->uri,
+				],
+			];
+			
+			if($model->params)
+				$workflow_kata['records'][$record_key]['fields']['params'] = $model->params;
+			
+			if($include_children) {
+				$custom_fields = DAO_CustomField::getByContext(sprintf('contexts.custom_record.%d', $model->id));
+				$custom_field_kata = $context_custom_field->workflowExport(array_keys($custom_fields), $export_model, false);
+				
+				$workflow_kata['records'] = array_merge($workflow_kata['records'], $custom_field_kata['records']);
+			}
+		}
+		
+		return $workflow_kata;
 	}
 };

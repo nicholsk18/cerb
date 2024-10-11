@@ -1138,7 +1138,7 @@ class View_WorkspaceTab extends C4_AbstractView implements IAbstractView_Subtota
 	}
 };
 
-class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile {
+class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblocksContextPeek, IDevblocksContextProfile, IDevblocksContextWorkflow {
 	const ID = CerberusContexts::CONTEXT_WORKSPACE_TAB;
 	const URI = 'workspace_tab';
 	
@@ -1623,5 +1623,54 @@ class Context_WorkspaceTab extends Extension_DevblocksContext implements IDevblo
 		} else {
 			Page_Profiles::renderCard($context, $context_id, $model);
 		}
+	}
+	
+	function workflowExport(array $ids, DevblocksWorkflowExportModel $export_model, bool $include_children = false): array {
+		$workflow_kata = [
+			'records' => [],
+		];
+		
+		$record_uri = CerberusContexts::getContextName($this->id, 'uri');
+		
+		$context_workspace_widget = Extension_DevblocksContext::getByAlias('workspace_widget', true);
+		$context_workspace_list = Extension_DevblocksContext::getByAlias('workspace_list', true);
+		
+		$models = DAO_WorkspaceTab::getIds($ids);
+		
+		foreach($models as $model) {
+			$model_key = $export_model->getLabelMapFor(sprintf('%s_%d', $record_uri, $model->id));
+			$record_key = sprintf('%s/%s', $record_uri, $model_key);
+			
+			$workflow_kata['records'][$record_key] = [
+				'fields' => [
+					'name' => $model->name,
+					'page_id' => sprintf("{{records.%s.id}}",
+						$export_model->getLabelMapFor('workspace_page_' . $model->workspace_page_id)
+					),
+					'extension_id' => $model->extension_id,
+					'pos' => $model->pos,
+				],
+			];
+			
+			if($model->params)
+				$workflow_kata['records'][$record_key]['fields']['params'] = DevblocksPlatform::services()->kata()->wrapArrayPlaceholdersInRaw($model->params);
+			
+			if($model->options_kata)
+				$workflow_kata['records'][$record_key]['fields']['options_kata'] = new DevblocksKataRawString($model->options_kata);
+			
+			if($include_children) {
+				if(($workspace_widgets = DAO_WorkspaceWidget::getByTab($model->id))) {
+					$workspace_widget_kata = $context_workspace_widget->workflowExport(array_keys($workspace_widgets), $export_model, $include_children);
+					$workflow_kata['records'] = array_merge($workflow_kata['records'], $workspace_widget_kata['records']);
+				}
+				
+				if(($workspace_lists = $model->getWorklists())) {
+					$workspace_list_kata = $context_workspace_list->workflowExport(array_keys($workspace_lists), $export_model, $include_children);
+					$workflow_kata['records'] = array_merge($workflow_kata['records'], $workspace_list_kata['records']);
+				}
+			}
+		}
+		
+		return $workflow_kata;
 	}
 };

@@ -829,7 +829,7 @@ class View_AutomationEventListener extends C4_AbstractView implements IAbstractV
 	}
 };
 
-class Context_AutomationEventListener extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+class Context_AutomationEventListener extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextWorkflow {
 	const ID = CerberusContexts::CONTEXT_AUTOMATION_EVENT_LISTENER;
 	const URI = 'automation_event_listener';
 	
@@ -1228,5 +1228,32 @@ class Context_AutomationEventListener extends Extension_DevblocksContext impleme
 		} else {
 			Page_Profiles::renderCard($context, $context_id, $model);
 		}
-	}	
+	}
+	
+	function workflowExport(array $ids, DevblocksWorkflowExportModel $export_model, bool $include_children = false): array {
+		$workflow_kata = [
+			'records' => [],
+		];
+		
+		$record_uri = CerberusContexts::getContextName($this->id, 'uri');
+		
+		$models = DAO_AutomationEventListener::getIds($ids);
+		
+		foreach($models as $model) {
+			$model_key = $export_model->getLabelMapFor(sprintf('%s_%d', $record_uri, $model->id));
+			$record_key = sprintf('%s/%s', $record_uri, $model_key);
+			
+			$workflow_kata['records'][$record_key] = [
+				'fields' => [
+					'name' => $model->name,
+					'event_name' => $model->event_name,
+					'priority' => $model->priority,
+					'is_disabled' => $model->is_disabled ? '1' : '0',
+					'event_kata' => new DevblocksKataRawString($model->event_kata),
+				],
+			];
+		}
+		
+		return $workflow_kata;
+	}
 };

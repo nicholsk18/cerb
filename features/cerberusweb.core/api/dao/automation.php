@@ -1551,7 +1551,7 @@ class View_Automation extends C4_AbstractView implements IAbstractView_Subtotals
 	}
 };
 
-class Context_Automation extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete, IDevblocksContextUri {
+class Context_Automation extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete, IDevblocksContextUri, IDevblocksContextWorkflow {
 	const ID = CerberusContexts::CONTEXT_AUTOMATION;
 	const URI = 'automation';
 	
@@ -1994,5 +1994,32 @@ class Context_Automation extends Extension_DevblocksContext implements IDevblock
 		} else {
 			Page_Profiles::renderCard($context, $context_id, $model);
 		}
+	}
+	
+	function workflowExport(array $ids, DevblocksWorkflowExportModel $export_model, bool $include_children = false) : array {
+		$workflow_kata = [
+			'records' => [],
+		];
+		
+		$record_uri = CerberusContexts::getContextName($this->id, 'uri');
+		
+		$models = DAO_Automation::getIds($ids);
+		
+		foreach($models as $model) {
+			$model_key = $export_model->getLabelMapFor(sprintf('%s_%d', $record_uri, $model->id));
+			$record_key = sprintf('%s/%s', $record_uri, $model_key);
+			
+			$workflow_kata['records'][$record_key] = [
+				'fields' => [
+					'name' => $model->name,
+					'extension_id' => $model->extension_id,
+					'description' => $model->description,
+					'script' => new DevblocksKataRawString($model->script),
+					'policy_kata' => new DevblocksKataRawString($model->policy_kata),
+				],
+			];
+		}
+		
+		return $workflow_kata;
 	}
 };
