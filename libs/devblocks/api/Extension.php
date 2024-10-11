@@ -185,6 +185,10 @@ interface IDevblocksContextUri {
 	function autocompleteUri($term, $uri_params=null) : array;
 }
 
+interface IDevblocksContextWorkflow {
+	function workflowExport(array $ids, DevblocksWorkflowExportModel $export_model, bool $include_children =false) : array;
+}
+
 class DevblocksMenuItemPlaceholder {
 	var $label = null;
 	var $key = null;

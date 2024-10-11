@@ -9,6 +9,93 @@ class CerbWorkflowResults {
 	public string $error = '';
 }
 
+class DevblocksWorkflowExportModel {
+	private $_export_kata = [];
+	
+	function __construct(string $export_kata) {
+		$kata = DevblocksPlatform::services()->kata();
+		
+		$error = null;
+		
+		if(false === ($export_kata = $kata->parse($export_kata, $error))) {
+			DevblocksPlatform::logError($error, true);
+			return;
+		}
+		
+		if(false === ($export_kata = $kata->formatTree($export_kata, null, $error))) {
+			DevblocksPlatform::logError($error, true);
+			return;
+		}
+		
+		$this->_export_kata = $export_kata;
+	}
+	
+	function getLabelMap() : array {
+		if(!is_array($this->_export_kata['export']['label_map']))
+			return [];
+		
+		return $this->_export_kata['export']['label_map'];
+	}
+	
+	function getRecordsToExport() : array {
+		if(!($this->_export_kata['export']['records'] ?? null))
+			return [];
+		
+		$results = [];
+		
+		foreach($this->_export_kata['export']['records'] as $record_type => $record_data) {
+			$record_type = DevblocksPlatform::services()->string()->strBefore($record_type, '/');
+			
+			if(!($record_ext = Extension_DevblocksContext::getByAlias($record_type, true)))
+				continue;
+			
+			if(!($record_ext instanceof IDevblocksContextWorkflow))
+				continue;
+			
+			if(!($view = $record_ext->getTempView()))
+				continue;
+			
+			if(!($record_data['query'] ?? null))
+				continue;
+			
+			$view->addParamsWithQuickSearch($record_data['query']);
+			$view->renderLimit = 2_500;
+			list($rows,)  = $view->getData();
+			
+			$record_data['extension'] = $record_ext;
+			$record_data['ids'] = array_keys($rows);
+			
+			$results[$record_ext->id] = $record_data;
+		}
+		
+		return $results;
+	}
+	
+	public function getLabelMapFor($before_key) : string {
+		return $this->_export_kata['export']['label_map'][$before_key] ?? $before_key;
+	}
+	
+	public function createWorkflowKata($as_string=false) : array|string {
+		$workflow_kata = [
+			'workflow' => $this->_export_kata['export']['workflow'] ?? [],
+			'records' => [],
+		];
+		
+		// Update the workflow version
+		$workflow_kata['workflow']['version'] = gmdate('Y-m-d\TH:i:s\Z');
+		
+		foreach($this->getRecordsToExport() as $record) {
+			$new_kata = $record['extension']->workflowExport($record['ids'] ?? [], $this, $record['include_children'] ?? false);
+			$workflow_kata['records'] = array_merge($workflow_kata['records'], $new_kata['records']);
+		}
+		
+		return $as_string
+			? DevblocksPlatform::services()->kata()->emit($workflow_kata)
+			: $workflow_kata
+		;
+	}
+}
+
 class _DevblocksWorkflowService {
 	private static ?_DevblocksWorkflowService $_instance = null;
 	

@@ -318,6 +318,7 @@ class _DevblocksClassLoadManager {
 		));
 		$this->registerClasses(DEVBLOCKS_PATH . 'api/services/workflow.php', [
 			'CerbWorkflowResults',
+			'DevblocksWorkflowExportModel',
 			'_DevblocksWorkflowService',
 		]);
 		

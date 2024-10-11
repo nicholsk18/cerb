@@ -987,7 +987,7 @@ class View_CustomFieldset extends C4_AbstractView implements IAbstractView_Subto
 	}
 };
 
-class Context_CustomFieldset extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+class Context_CustomFieldset extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextWorkflow {
 	const ID = 'cerberusweb.contexts.custom_fieldset';
 	const URI = 'custom_fieldset';
 	
@@ -1352,5 +1352,39 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 		} else {
 			Page_Profiles::renderCard($context, $context_id, $model);
 		}
+	}
+	
+	function workflowExport(array $ids, bool $with_children = false) : array {
+		$workflow_kata = [
+			'records' => [],
+		];
+		
+		$record_uri = CerberusContexts::getContextName($this->id, 'uri');
+		
+		$models = DAO_CustomFieldset::getIds($ids); /* @var $models Model_CustomFieldset[] */
+		
+		$context_custom_field = Extension_DevblocksContext::getByAlias('custom_field', true);
+		
+		foreach($models as $model) {
+			$record_key = sprintf('%s/%s', $record_uri, uniqid());
+			
+			$workflow_kata['records'][$record_key] = [
+				'fields' => [
+					'name' => $model->name,
+					'context' => CerberusContexts::getContextName($model->context, 'uri'),
+					'owner_context' => CerberusContexts::getContextName($model->owner_context, 'uri'),
+					'owner_context_id' => $model->owner_context_id,
+				],
+			];
+			
+			if($with_children) {
+				$custom_fields = $model->getCustomFields();
+				$custom_field_kata = $context_custom_field->workflowExport(array_keys($custom_fields));
+				
+				$workflow_kata['records'] = array_merge($workflow_kata['records'], $custom_field_kata['records']);
+			}
+		}
+		
+		return $workflow_kata;
 	}
 };
