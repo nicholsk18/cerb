@@ -2795,6 +2795,28 @@ class CerberusContexts {
 			CerberusContexts::logActivity('record.deleted', null, null, $entry);
 		}
 	}
+	
+	public static function getContextName(mixed $string, mixed $type) : string {
+		if(!is_string($string))
+			return '';
+		
+		if(!($ctx_manifest = Extension_DevblocksContext::getByAlias($string, false)))
+			return '';
+		
+		if('id' == $type)
+			return $ctx_manifest->id;
+		
+		if('uri' == $type)
+			return $ctx_manifest->params['alias'];
+		
+		if(!($aliases = Extension_DevblocksContext::getAliasesForContext($ctx_manifest)))
+			return '';
+		
+		if(isset($aliases[$type]))
+			return $aliases[$type];
+		
+		return '';
+	}
 };
 
 class DAO_Application extends Cerb_ORMHelper {

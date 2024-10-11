@@ -1993,25 +1993,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 		if($string instanceof Twig\Markup)
 			$string = strval($string);
 		
-		if(!is_string($string))
-			return '';
-		
-		if(false == ($ctx_manifest = Extension_DevblocksContext::getByAlias($string, false)))
-			return '';
-		
-		if('id' == $type)
-			return $ctx_manifest->id;
-		
-		if('uri' == $type)
-			return $ctx_manifest->params['alias'];
-		
-		if(false == ($aliases = Extension_DevblocksContext::getAliasesForContext($ctx_manifest)))
-			return '';
-		
-		if(isset($aliases[$type]))
-			return $aliases[$type];
-		
-		return '';
+		return CerberusContexts::getContextName($string, $type);
 	}
 	
 	function filter_csv($array) {
