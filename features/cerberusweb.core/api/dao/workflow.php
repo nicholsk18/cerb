@@ -2086,6 +2086,11 @@ function getContextIdFromAlias($alias) {
 						'name' => 'DMARC Reports',
 						'description' => 'Parse DMARC report attachments in email',
 					],
+					'cerb.email.pgp_inline' => [
+						'id' => 'cerb.email.pgp_inline',
+						'name' => 'PGP Inline Encryption',
+						'description' => 'Encrypt messages with PGP and paste them inline in outgoing email',
+					],
 					'cerb.login.terms_of_use' => [
 						'id' => 'cerb.login.terms_of_use',
 						'name' => 'Worker Login Terms of Use',
