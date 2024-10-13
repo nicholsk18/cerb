@@ -1,18 +1,17 @@
 workflow:
   name: cerb.tutorial
-  version: 2024-10-05T21:59:39Z
+  version: 2024-10-13T04:45:00Z
   description: A workspace with detailed descriptions and examples of Cerb functionality
   requirements:
     cerb_version: >=10.5 <11.0
     cerb_plugins: cerberusweb.core,
-
 records:
   workspace_page/page_tutorial:
     fields:
       name: Tutorial
       extension_id: core.workspace.page.workspace
-      owner__context: cerberusweb.contexts.app
-      owner_id@int: 0
+      owner__context: workflow
+      owner_id: {{workflow_id}}
   workspace_tab/tab_welcome:
     fields:
       name: Welcome
@@ -2550,6 +2549,7 @@ records:
       zone: content
       params:
         calendar_id@raw: {{current_worker_calendar_id}}
+      options_kata@raw: hidden@bool: {{not current_worker_calendar_id}}
   workspace_tab/tab_data_queries:
     fields:
       name: Data Queries
@@ -2647,7 +2647,7 @@ records:
                   interaction/run:
                     label: Run Query
                     icon: play
-                    uri: cerb:automation:ai.cerb.tutorial.dataQueries
+                    uri: cerb:automation:cerb.tutorial.dataQueries
         toolbar_kata@text:
   workspace_widget/widget_list_of_data_query_types:
     fields:
@@ -4724,9 +4724,11 @@ records:
               params:
                 text_size@raw: 120%
                 value@text:
-                  [**Interactions**](https://cerb.ai/docs/interactions/) are interactive [automations](https://cerb.ai/docs/automations/) that use [continuations](https://cerb.ai/docs/automations/#continuations) to pause and resume a multi-step workflow.
+                  [**Interactions**](https://cerb.ai/docs/interactions/) are [automated](https://cerb.ai/docs/automations/), conversational processes that can [pause](https://cerb.ai/docs/automations/#continuations) between steps to collect additional input, such as web-based forms or other external events.
 
-                  Each time an interaction exits in the `await:` state, it pauses to collect more data before resuming from the same point. The most common source is a web-based `form:`.
+                  An interaction continues to the next step once additional input is received.
+
+                  The most common source of additional input is a web-based form with multiple fields.
 
                   ```kata
                   start:
@@ -4824,7 +4826,7 @@ records:
           columns:
             interaction/name:
               params:
-                uri: cerb:automation:ai.cerb.tutorial.interactions.formElements
+                uri: cerb:automation:cerb.tutorial.interactions.formElements
                 inputs:
                   element@raw: {{name}}
                 text_template@raw: {{name}}:
@@ -4882,7 +4884,7 @@ records:
           columns:
             interaction/name:
               params:
-                uri: cerb:automation:ai.cerb.tutorial.interactions.return
+                uri: cerb:automation:cerb.tutorial.interactions.return
                 inputs:
                   command@raw: {{name}}
                 text_template@raw: {{name}}:
@@ -5164,11 +5166,11 @@ records:
           interaction/encrypt:
             label: Encrypt
             icon: lock
-            uri: cerb:automation:ai.cerb.tutorial.pgp
+            uri: cerb:automation:cerb.tutorial.pgp
           interaction/decrypt:
             label: Decrypt
             icon: unlock
-            uri: cerb:automation:ai.cerb.tutorial.pgp
+            uri: cerb:automation:cerb.tutorial.pgp
             inputs:
               mode: decrypt
         is_popup: 1
@@ -5957,7 +5959,7 @@ records:
           format:dictionaries
         cache_secs@text:
         placeholder_simulator_kata@text:
-        sheet_kata@text:
+        sheet_kata@raw:
           layout:
             style: fieldsets
             headings@bool: no
@@ -5995,8 +5997,8 @@ records:
                     task/newTask:
                       deletionPolicy: retain
                       fields:
-                        owner_id: $${"$${config.taskOwner_id|default(0)}"}
-                        title: $${"$${config.taskName}"}
+                        owner_id: {{config.taskOwner_id|default(0)}}
+                        title: {{config.taskName}}
                   ```
 
                   When you make a changes to a workflow template, any records that were previously created by the workflow are automatically updated to match. The workflow manages the mapping between template "keys" and local record IDs.
@@ -6031,17 +6033,19 @@ records:
               params:
                 text_size@raw: 120%
                 value@raw:
-                  To avoid conflicts with the usual `{{placeholder}}` syntax found in records like automations and snippets, Workflow KATA uses a special syntax for its own placeholders.
+                  To avoid conflicts with the usual `{{placeholder}}` syntax found in records like automations and snippets, Workflow KATA provides two special scripting functions.
 
                   From any feature that supports automation scripting (e.g. automations, workflows, snippets) you can use `{{cerb_workflow_config('workflow_name')}}` to dynamically read workflow configuration values at runtime. For instance, you can create a workflow just for sharing values (e.g. API keys) between multiple workflows.
 
-                  You can read a single key with a default value using: `{{cerb_workflow_config('workflow_name','hashSecret','default')}}`
+                  Read a single key with a default value using: `{{cerb_workflow_config('workflow_name','hashSecret','default')}}`
 
-                  You can also statically replace configuration values in the template with: `$${"$${config.keyName}"}`
+                  The `{{cerb_workflow_resources('workflow_name')}}` function performs runtime lookups and returns a map of workflow resources and their local record IDs. This is useful from automations, event listeners, and toolbars.
 
-                  If the configuration value is a `chooser:`, you can expand its dictionary keys like: `$${"$${config.keyName__label}"}`
+                  Dynamically replace placeholder values in the template with: `{{records.name.id}}` or `{{config.keyName}}`
 
-                  Workflow placeholders also support automation scripting [filters](https://cerb.ai/docs/scripting/filters/), such as: `$${"$${config.keyName|lower|sha1}"}`
+                  If the configuration value is a `chooser:`, you can expand its dictionary keys like: `{{config.keyName__label}}`
+
+                  Workflow placeholders also support automation scripting [filters](https://cerb.ai/docs/scripting/filters/), such as: `{{config.keyName|lower|sha1}}`
 
         toolbar_kata@text:
   workspace_widget/widget_list_of_workflows:
@@ -6056,7 +6060,7 @@ records:
         context: cerb.contexts.workflow
         query_required@text:
         query: sort:name
-        render_limit: 10
+        render_limit: 25
         header_color: #6a87db
         columns@list:
           a_name
@@ -6334,105 +6338,11 @@ records:
           o_client_id
           o_access_token_ttl
           o_refresh_token_ttl
-  automation/tutorial_pgp:
-    fields:
-      name: ai.cerb.tutorial.pgp
-      extension_id: cerb.trigger.interaction.internal
-      description@text:
-      script@raw:
-        inputs:
-          text/mode:
-            type: freeform
-
-        start:
-          decision/mode:
-            outcome/decrypt:
-              if@bool: {{'decrypt' == inputs.mode}}
-              then:
-                await:
-                  form:
-                    title: Decrypt message
-                    elements:
-                      textarea/prompt_message:
-                        label: Encrypted message:
-                        required@bool: yes
-
-                decrypt.pgp:
-                  output: decrypted_message
-                  inputs:
-                    message@key: prompt_message
-
-                await/output:
-                  form:
-                    elements:
-                      say:
-                        content@text:
-                          ~~~
-                          {{decrypted_message.data}}
-                          ~~~
-
-            outcome/encrypt:
-              then:
-                await:
-                  form:
-                    title: Encrypt message
-                    elements:
-                      textarea/prompt_message:
-                        label: Message:
-                        required@bool: yes
-                      sheet/prompt_recipient_keys:
-                        label: Recipient public keys:
-                        required@bool: yes
-                        data:
-                          automation:
-                            uri: cerb:automation:cerb.data.records
-                            inputs:
-                              record_type: gpg_public_key
-                              #query_required@text:
-                        limit: 10
-                        schema:
-                          layout:
-                            headings@bool: no
-                            paging@bool: yes
-                            filtering@bool: yes
-                          columns:
-                            selection/id:
-                              params:
-                                mode: multiple
-                            card/_label:
-                              params:
-                                bold@bool: yes
-                                #image@bool: yes
-
-                encrypt.pgp:
-                  output: encrypted_message
-                  inputs:
-                    message@key: prompt_message
-                    public_keys:
-                      ids@key: prompt_recipient_keys
-
-                await/output:
-                  form:
-                    elements:
-                      say:
-                        content@text:
-                          ~~~
-                          {{encrypted_message}}
-                          ~~~
-
-                return:
-                  snippet@key: encrypted_message
-      policy_kata@raw:
-        commands:
-          decrypt.pgp:
-            allow@bool: yes
-          encrypt.pgp:
-            allow@bool: yes
   automation/tutorial_interaction:
     fields:
-      name: ai.cerb.tutorial.interactions.formElements
-      description: Demonstration of all interaction.worker form element types for the tutorial
+      name: cerb.tutorial.interactions.formElements
       extension_id: cerb.trigger.interaction.internal
+      description: Demonstration of all interaction.worker form element types for the tutorial
       script@raw:
         inputs:
           text/element:
@@ -6502,7 +6412,6 @@ records:
                                 format:
                                   date:
                                     pattern: %b %Y
-                                fit@bool: no
                                 multiline@bool: no
                                 rotate: -90
                       editor/code:
@@ -6540,7 +6449,6 @@ records:
                                             format:
                                               date:
                                                 pattern: %b %Y
-                                            fit@bool: no
                                             multiline@bool: no
                                             rotate: -90
             outcome/chooser:
@@ -7162,7 +7070,7 @@ records:
             allow@bool: yes
   automation/tutorial_interaction_return:
     fields:
-      name: ai.cerb.tutorial.interactions.return
+      name: cerb.tutorial.interactions.return
       extension_id: cerb.trigger.interaction.internal
       description: Demonstration of all interaction.worker return commands for the tutorial
       script@raw:
@@ -7330,9 +7238,10 @@ records:
       policy_kata@raw:
         commands:
           # [TODO] Specify a command policy here (use Ctrl+Space for autocompletion)
+
   automation/tutorial_dataqueries:
     fields:
-      name: ai.cerb.tutorial.dataQueries
+      name: cerb.tutorial.dataQueries
       extension_id: cerb.trigger.interaction.internal
       description@text:
       script@raw:
@@ -7387,6 +7296,7 @@ records:
                       x:
                         type: timeseries
                         tick:
+                          fit@bool: no
                           multiline@bool: no
                           rotate: -60
                           format:
@@ -7397,3 +7307,397 @@ records:
           data.query:
             deny/type@bool: {{query.type != 'worklist.subtotals'}}
             allow@bool: yes
+  automation/tutorial_pgp:
+    fields:
+      name: cerb.tutorial.pgp
+      extension_id: cerb.trigger.interaction.worker
+      description@text:
+      script@raw:
+        inputs:
+          text/mode:
+            type: freeform
+            type_options:
+              max_length@int: 65536
+
+        start:
+          decision/mode:
+            outcome/decrypt:
+              if@bool: {{'decrypt' == inputs.mode}}
+              then:
+                await:
+                  form:
+                    title: Decrypt message
+                    elements:
+                      textarea/prompt_message:
+                        label: Encrypted message:
+                        required@bool: yes
+
+                decrypt.pgp:
+                  output: decrypted_message
+                  inputs:
+                    message@key: prompt_message
+
+                await/output:
+                  form:
+                    elements:
+                      say:
+                        content@text:
+                          ~~~
+                          {{decrypted_message.data}}
+                          ~~~
+
+            outcome/encrypt:
+              then:
+                await:
+                  form:
+                    title: Encrypt message
+                    elements:
+                      textarea/prompt_message:
+                        label: Message:
+                        required@bool: yes
+                      sheet/prompt_recipient_keys:
+                        label: Recipient public keys:
+                        required@bool: yes
+                        data:
+                          automation:
+                            uri: cerb:automation:cerb.data.records
+                            inputs:
+                              record_type: gpg_public_key
+                              #query_required@text:
+                        limit: 10
+                        schema:
+                          layout:
+                            headings@bool: no
+                            paging@bool: yes
+                            filtering@bool: yes
+                          columns:
+                            selection/id:
+                              params:
+                                mode: multiple
+                            card/_label:
+                              params:
+                                bold@bool: yes
+                                #image@bool: yes
+
+                encrypt.pgp:
+                  output: encrypted_message
+                  inputs:
+                    message@key: prompt_message
+                    public_keys:
+                      ids@key: prompt_recipient_keys
+
+                await/output:
+                  form:
+                    elements:
+                      say:
+                        content@text:
+                          ~~~
+                          {{encrypted_message}}
+                          ~~~
+
+                return:
+                  snippet@key: encrypted_message
+      policy_kata@raw:
+        commands:
+          decrypt.pgp:
+            allow@bool: yes
+          encrypt.pgp:
+            allow@bool: yes
+  automation/tutorial_interactions_demo:
+    fields:
+      name: cerb.tutorial.interactions.worker.demo
+      extension_id: cerb.trigger.interaction.worker
+      description: A demonstration of worker interaction functionality
+      script@raw:
+        start:
+          await/intro:
+            form:
+              title: Interactions Demo
+              elements:
+                say/intro:
+                  content@text:
+                    ## Interactions
+                    **Interactions** are automated, conversational processes that can pause between steps to collect additional input, such as web-based forms or other external events.
+
+                    An interaction continues to the next step once additional input is received. For instance, a troubleshooter interaction can ask a series of increasingly specific questions to help narrow down the potential cause of a problem. A verification interaction can send a code to a new email address and ask the user to verify it.
+
+                    There are different kinds of interactions. This popup is a **worker** interaction -- a personalized conversation between Cerb and a specific worker (in this case, you). Inside of an interaction, Cerb can use logic and perform a wide array of automated actions: searching, creating or editing records, sending email, reading email attachments, connecting to third-party APIs, rendering data and visualizations, and much more.
+
+                    You can build your own worker interactions and add them to toolbars found throughout Cerb on widgets, cards, profiles, sheets, worklists, email messages, and more.
+          await/ask:
+            form:
+              elements:
+                say/instructions:
+                  content@text:
+                    ## Forms
+                    In worker interactions, the most common source of additional input is a web-based form with multiple fields. Unlike a typical chat interface, forms can prompt for multiple inputs at once and validate them.
+
+                    This interaction has paused and is waiting for you to fill out the following form.
+                text/prompt_name:
+                  label: Name:
+                  required@bool: yes
+                  type: freeform
+                  default: {{worker__label}}
+                text/prompt_email:
+                  label: Email:
+                  required@bool: yes
+                  type: email
+                  default: {{worker_address_email}}
+                chooser/prompt_tickets:
+                  label: Choose a few tickets:
+                  record_type: ticket
+                  query@text: status:o
+                  multiple@bool: yes
+                  default@key: prompt_tickets
+                sheet/prompt_options:
+                  label: Options:
+                  data:
+                    option1:
+                      key: option1
+                      name: Option 1
+                      description: This is a description of option one
+                    option2:
+                      key: option2
+                      name: Option 2
+                      description: This is a description of option two
+                    option3:
+                      key: option3
+                      name: Option 3
+                      description: This is a description of option three
+                  limit: 5
+                  default@key: prompt_options
+                  schema:
+                    layout:
+                      headings@bool: no
+                      paging@bool: no
+                      filtering@bool: no
+                      style: grid
+                    columns:
+                      selection/key:
+                        params:
+                          mode: multiple
+                      text/name:
+                        params:
+                          bold@bool: yes
+                      text/description:
+                textarea/prompt_comment:
+                  label: Comment:
+                  max_length@int: 1024
+                  default: This is very interesting...
+          await/respond:
+            form:
+              elements:
+                say/instructions:
+                  content@text:
+                    ## Memory
+                    No matter how long an interaction waits between steps, its memory includes all previously collected inputs.
+
+                    Your responses are now part of the interaction's memor and it can use them in its logic.
+                sheet/response:
+                  #label: Label:
+                  #required@bool: yes
+                  data:
+                    name:
+                      key: prompt_name
+                      value: {{prompt_name}}
+                    email:
+                      key: prompt_email
+                      value: {{prompt_email}}
+                    comment:
+                      key: prompt_comment
+                      value: {{prompt_comment}}
+                    tickets:
+                      key: prompt_tickets
+                      value: {{prompt_tickets|join(', ')}}
+                    options:
+                      key: prompt_options
+                      value: {{prompt_options|join(', ')}}
+                  limit: 5
+                  schema:
+                    layout:
+                      headings@bool: no
+                      paging@bool: no
+                      style: table
+                    columns:
+                      text/key:
+                        params:
+                          value_template@raw: {{key}}:
+                          bold@bool: yes
+                      text/value:
+          await/charts:
+            form:
+              elements:
+                say/charts:
+                  content@text:
+                    ## Charts
+                    Forms can also be used to render complex responses like charts. You can click on a bar to view the underlying records in a search popup. Click on the legend to toggle series on and off.
+                chart/prompt_chart:
+                  datasets:
+                    dataQuery/tickets:
+                      query@text:
+                        type:worklist.subtotals
+                        of:ticket
+                        by:[created@day,group]
+                        query:(created:"-1 week to now")
+                        timezone:UTC
+                        format:timeseries
+                  schema:
+                    data:
+                      type: bar
+                      series:
+                        tickets:
+                          x_key: ts
+                      stacks:
+                        0@csv: tickets
+                    axis:
+                      x:
+                        type: timeseries
+                        tick:
+                          format:
+                            date:
+                              pattern: %Y-%m-%d
+                          multiline@bool: no
+                          rotate: -90
+          await/maps:
+            form:
+              elements:
+                say/maps:
+                  content@text:
+                    ## Maps
+                    Interactions can render maps with your own data as colored regions and points of interest. For instance, IP address geolocation of new clients, or charting usage by country.
+                map/prompt_map:
+                  label: Map of Europe:
+                  projection:
+                    type: mercator
+                    center:
+                      latitude: 52.6551
+                      longitude: 15.4655
+                    scale: 350
+                  points:
+                    size:
+                      default: 5
+                    data:
+                      point/berlin:
+                        latitude: 52.549636074382285
+                        longitude: 13.403320312499998
+                        properties:
+                          name: Berlin
+                          country: Germany
+                          continent: Europe
+          await/editors:
+            form:
+              elements:
+                say/editors:
+                  content@text:
+                    ## Editors
+                    Interactions can provide a complex code editor for formats like KATA, JSON, XML, or HTML. You can even add interactions to the editor's toolbar.
+                editor/prompt_editor:
+                  label: Code editor:
+                  line_numbers@bool: yes
+                  readonly@bool: no
+                  syntax: json
+                  default@text: {{cerb_current_worker()|json_encode|json_pretty}}
+          set/init_queries:
+            prompt_query: status:o
+          while:
+            if@bool: {{not prompt_continue}}
+            do:
+              await/queries:
+                form:
+                  elements:
+                    say/queries:
+                      content@text:
+                        ## Queries
+                        Interactions can display a query builder for any record type. Type `Ctrl+Space` for for autocompletion menu. Press `<ENTER>` to see your results.
+                    query/prompt_query:
+                      label: Query:
+                      record_type: ticket
+                      default@text:
+                        status:o
+                    sheet/prompt_tickets:
+                      label: Results:
+                      required@bool: no
+                      data:
+                        automation:
+                          uri: cerb:automation:cerb.data.records
+                          inputs:
+                            record_type: ticket
+                            query: {{prompt_query}}
+                      limit: 10
+                      schema:
+                        layout:
+                          headings@bool: yes
+                          paging@bool: yes
+                          filtering@bool: no
+                          title_column: _label
+                        columns:
+                          card/_label:
+                            params:
+                              bold@bool: yes
+                              image@bool: yes
+                          card/owner__label:
+                            label: Owner
+                          card/group__label:
+                            label: Group
+                          text/status:
+                          date/updated:
+                    submit/prompt_continue:
+                      buttons:
+                        continue/update:
+                          label: Update results
+                          icon: repeat
+                          icon_at: start
+                          value: 0
+                        continue/yes:
+                          label: Continue
+                          icon: right-arrow
+                          icon_at: end
+                          style: secondary
+                          value: 1
+          await/website:
+            form:
+              elements:
+                say:
+                  content@text:
+                    ## Website Interactions
+                    **Website interactions** are another type of interaction. Rather than workers, these are conversations between Cerb and visitors on any external website.
+
+                    For instance, an interaction can gather survey responses, verify email addresses, generate quotes for product orders, display semantic search results based on natural language questions, and much more.
+          await/return:
+            form:
+              elements:
+                say:
+                  content@text:
+                    ## Return
+                    Interactions can optionally return output to a toolbar or other caller. For instance, in the email editor an interaction can send a prompt to a large language model (LLM) to generate and paste a response.
+
+                    There are common responses that all interactions may use to: display a confirmation message, copy text to the browser clipboard, open a link in a new tab, etc.
+                submit:
+                  buttons:
+                    continue/done:
+                      label: Done
+                      icon: circle-ok
+                      icon_at: start
+                      value: yes
+                    reset:
+                      label: Start over
+                      icon: repeat
+                      icon_at: start
+                      style: secondary
+          return:
+            alert: You finished the interactions demo!
+      policy_kata@raw:
+        commands:
+          # [TODO] Specify a command policy here (use Ctrl+Space for autocompletion)
+
+  toolbar_section/toolbar_global_menu_tutorial:
+    fields:
+      name: Tutorial
+      toolbar_name: global.menu
+      priority@int: 255
+      is_disabled: 0
+      toolbar_kata@raw:
+        interaction/interactionsDemo:
+          label: Interactions Demo
+          uri: cerb:automation:cerb.tutorial.interactions.worker.demo
+          icon: conversation
