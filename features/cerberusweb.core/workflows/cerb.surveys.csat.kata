@@ -1,10 +1,10 @@
 workflow:
   name: cerb.surveys.csat
-  version@date: 2024-10-05T00:00:00Z
+  version@date: 2024-10-12T00:00:00Z
   description: Gather and monitor customer satisfaction metrics like NPS, CSAT, and CES.
   requirements:
     cerb_version: >=10.5 <11.0
-    cerb_plugins: cerberusweb.core,
+    cerb_plugins: cerberusweb.core, cerb.website.interactions
   config:
     text/portalTitle:
       default: Cerb - Customer Satisfaction
@@ -296,7 +296,7 @@ records:
                     layout:
                       style: table
                       filtering@bool: yes
-                      headings@bool: yes
+                      headings@bool: no
                       paging@bool: yes
                     columns:
                       selection/_sel:
