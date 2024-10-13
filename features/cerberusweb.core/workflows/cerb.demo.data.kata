@@ -1,6 +1,6 @@
 workflow:
   name: cerb.demo.data
-  version: 2024-10-04T00:00:00Z
+  version: 2024-10-12T00:00:00Z
   description: Realistic sample data for demonstration, testing, and development
   requirements:
     cerb_version: >=10.5 <11.0
@@ -941,7 +941,7 @@ records:
         To: demo@cerb.example
         From: a.costa@fiaflux.example
         Subject: What is Cerb?
-        Date: $${'-490184 seconds'|date('r')}
+        Date: {{'-490184 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo1.msg1@cerb.example>
 
@@ -963,7 +963,7 @@ records:
         To: a.costa@fiaflux.example
         From: demo@cerb.example
         Subject: Re: What is Cerb?
-        Date: $${'-484808 seconds'|date('r')}
+        Date: {{'-484808 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo1.msg2@cerb.example>
 
@@ -1005,7 +1005,7 @@ records:
         To: demo@cerb.example
         From: i.lacroix@baston.example
         Subject: What kinds of workflows does Cerb automate?
-        Date: $${'-489401 seconds'|date('r')}
+        Date: {{'-489401 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo2.msg1@cerb.example>
 
@@ -1025,7 +1025,7 @@ records:
         To: i.lacroix@baston.example
         From: demo@cerb.example
         Subject: Re: What kinds of workflows does Cerb automate?
-        Date: $${'-487643 seconds'|date('r')}
+        Date: {{'-487643 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo2.msg2@cerb.example>
 
@@ -1079,7 +1079,7 @@ records:
         To: demo@cerb.example
         From: s.adams@dobbus.example
         Subject: What are seats?
-        Date: $${'-487224 seconds'|date('r')}
+        Date: {{'-487224 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo3.msg1@cerb.example>
 
@@ -1099,7 +1099,7 @@ records:
         To: s.adams@dobbus.example
         From: demo@cerb.example
         Subject: Re: What are seats?
-        Date: $${'-486169 seconds'|date('r')}
+        Date: {{'-486169 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo3.msg2@cerb.example>
 
@@ -1141,7 +1141,7 @@ records:
         To: demo@cerb.example
         From: j.moore@dobbus.example
         Subject: Cerb Cloud vs Self-hosted?
-        Date: $${'-472488 seconds'|date('r')}
+        Date: {{'-472488 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo4.msg1@cerb.example>
 
@@ -1161,7 +1161,7 @@ records:
         To: j.moore@dobbus.example
         From: demo@cerb.example
         Subject: Re: Cerb Cloud vs Self-hosted?
-        Date: $${'-470571 seconds'|date('r')}
+        Date: {{'-470571 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo4.msg2@cerb.example>
 
@@ -1205,7 +1205,7 @@ records:
         To: demo@cerb.example
         From: a.boiko@heroy.example
         Subject: Does Cerb support single sign on (SSO)?
-        Date: $${'-465644 seconds'|date('r')}
+        Date: {{'-465644 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo5.msg1@cerb.example>
 
@@ -1225,7 +1225,7 @@ records:
         To: a.boiko@heroy.example
         From: demo@cerb.example
         Subject: Re: Does Cerb support single sign on (SSO)?
-        Date: $${'-460527 seconds'|date('r')}
+        Date: {{'-460527 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo5.msg2@cerb.example>
 
@@ -1267,7 +1267,7 @@ records:
         To: demo@cerb.example
         From: g.rossi@fiaflux.example
         Subject: What is a ticket?
-        Date: $${'-451320 seconds'|date('r')}
+        Date: {{'-451320 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo6.msg1@cerb.example>
 
@@ -1287,7 +1287,7 @@ records:
         To: g.rossi@fiaflux.example
         From: demo@cerb.example
         Subject: Re: What is a ticket?
-        Date: $${'-449107 seconds'|date('r')}
+        Date: {{'-449107 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo6.msg2@cerb.example>
 
@@ -1327,7 +1327,7 @@ records:
         To: demo@cerb.example
         From: e.de.graaf@helderster.example
         Subject: What are groups?
-        Date: $${'-450000 seconds'|date('r')}
+        Date: {{'-450000 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo7.msg1@cerb.example>
 
@@ -1347,7 +1347,7 @@ records:
         To: e.de.graaf@helderster.example
         From: demo@cerb.example
         Subject: Re: What are groups?
-        Date: $${'-443036 seconds'|date('r')}
+        Date: {{'-443036 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo7.msg2@cerb.example>
 
@@ -1387,7 +1387,7 @@ records:
         To: demo@cerb.example
         From: a.costa@fiaflux.example
         Subject: How do I prevent multiple workers from replying to the same ticket?
-        Date: $${'-446907 seconds'|date('r')}
+        Date: {{'-446907 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo8.msg1@cerb.example>
 
@@ -1407,7 +1407,7 @@ records:
         To: a.costa@fiaflux.example
         From: demo@cerb.example
         Subject: Re: How do I prevent multiple workers from replying to the same ticket?
-        Date: $${'-441721 seconds'|date('r')}
+        Date: {{'-441721 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo8.msg2@cerb.example>
 
@@ -1447,7 +1447,7 @@ records:
         To: demo@cerb.example
         From: x.li@zhang.example
         Subject: Combine duplicate tickets
-        Date: $${'-446431 seconds'|date('r')}
+        Date: {{'-446431 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo9.msg1@cerb.example>
 
@@ -1467,7 +1467,7 @@ records:
         To: x.li@zhang.example
         From: demo@cerb.example
         Subject: Re: Combine duplicate tickets
-        Date: $${'-440367 seconds'|date('r')}
+        Date: {{'-440367 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo9.msg2@cerb.example>
 
@@ -1507,7 +1507,7 @@ records:
         To: demo@cerb.example
         From: d.moretti@fiaflux.example
         Subject: Routing new messages to groups
-        Date: $${'-436760 seconds'|date('r')}
+        Date: {{'-436760 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo10.msg1@cerb.example>
 
@@ -1527,7 +1527,7 @@ records:
         To: d.moretti@fiaflux.example
         From: demo@cerb.example
         Subject: Re: Routing new messages to groups
-        Date: $${'-431460 seconds'|date('r')}
+        Date: {{'-431460 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo10.msg2@cerb.example>
 
@@ -1567,7 +1567,7 @@ records:
         To: demo@cerb.example
         From: k.mulder@helderster.example
         Subject: What determines a worker's permissions?
-        Date: $${'-433166 seconds'|date('r')}
+        Date: {{'-433166 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo11.msg1@cerb.example>
 
@@ -1587,7 +1587,7 @@ records:
         To: k.mulder@helderster.example
         From: demo@cerb.example
         Subject: Re: What determines a worker's permissions?
-        Date: $${'-427516 seconds'|date('r')}
+        Date: {{'-427516 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo11.msg2@cerb.example>
 
@@ -1633,7 +1633,7 @@ records:
         To: demo@cerb.example
         From: e.khan@ghoux.example
         Subject: Verify my Cerb installation is secure
-        Date: $${'-424672 seconds'|date('r')}
+        Date: {{'-424672 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo12.msg1@cerb.example>
 
@@ -1653,7 +1653,7 @@ records:
         To: e.khan@ghoux.example
         From: demo@cerb.example
         Subject: Re: Verify my Cerb installation is secure
-        Date: $${'-421442 seconds'|date('r')}
+        Date: {{'-421442 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo12.msg2@cerb.example>
 
@@ -1695,7 +1695,7 @@ records:
         To: demo@cerb.example
         From: h.wilson@franchir.example
         Subject: Do I need my own mail server with Cerb Cloud
-        Date: $${'-418893 seconds'|date('r')}
+        Date: {{'-418893 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo13.msg1@cerb.example>
 
@@ -1715,7 +1715,7 @@ records:
         To: h.wilson@franchir.example
         From: demo@cerb.example
         Subject: Re: Do I need my own mail server with Cerb Cloud
-        Date: $${'-417678 seconds'|date('r')}
+        Date: {{'-417678 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo13.msg2@cerb.example>
 
@@ -1757,7 +1757,7 @@ records:
         To: demo@cerb.example
         From: a.costa@fiaflux.example
         Subject: Removing index.php from URLs
-        Date: $${'-408699 seconds'|date('r')}
+        Date: {{'-408699 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo14.msg1@cerb.example>
 
@@ -1777,7 +1777,7 @@ records:
         To: a.costa@fiaflux.example
         From: demo@cerb.example
         Subject: Re: Removing index.php from URLs
-        Date: $${'-403758 seconds'|date('r')}
+        Date: {{'-403758 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo14.msg2@cerb.example>
 
@@ -1816,7 +1816,7 @@ records:
         To: demo@cerb.example
         From: j.theron@ghoux.example
         Subject: Best practices for backups
-        Date: $${'-397673 seconds'|date('r')}
+        Date: {{'-397673 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo15.msg1@cerb.example>
 
@@ -1836,7 +1836,7 @@ records:
         To: j.theron@ghoux.example
         From: demo@cerb.example
         Subject: Re: Best practices for backups
-        Date: $${'-392810 seconds'|date('r')}
+        Date: {{'-392810 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo15.msg2@cerb.example>
 
@@ -1876,7 +1876,7 @@ records:
         To: demo@cerb.example
         From: j.nelson@dobbus.example
         Subject: Tracking team response times for performance reports
-        Date: $${'-395274 seconds'|date('r')}
+        Date: {{'-395274 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo16.msg1@cerb.example>
 
@@ -1896,7 +1896,7 @@ records:
         To: j.nelson@dobbus.example
         From: demo@cerb.example
         Subject: Re: Tracking team response times for performance reports
-        Date: $${'-390055 seconds'|date('r')}
+        Date: {{'-390055 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo16.msg2@cerb.example>
 
@@ -1936,7 +1936,7 @@ records:
         To: demo@cerb.example
         From: m.janssen@helderster.example
         Subject: Importing contacts from Excel
-        Date: $${'-391884 seconds'|date('r')}
+        Date: {{'-391884 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo17.msg1@cerb.example>
 
@@ -1956,7 +1956,7 @@ records:
         To: m.janssen@helderster.example
         From: demo@cerb.example
         Subject: Re: Importing contacts from Excel
-        Date: $${'-386670 seconds'|date('r')}
+        Date: {{'-386670 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo17.msg2@cerb.example>
 
@@ -1994,7 +1994,7 @@ records:
         To: demo@cerb.example
         From: c.bailey@twinton.example
         Subject: Need help upgrading to the latest Cerb version
-        Date: $${'-377998 seconds'|date('r')}
+        Date: {{'-377998 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo18.msg1@cerb.example>
 
@@ -2014,7 +2014,7 @@ records:
         To: c.bailey@twinton.example
         From: demo@cerb.example
         Subject: Re: Need help upgrading to the latest Cerb version
-        Date: $${'-376719 seconds'|date('r')}
+        Date: {{'-376719 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo18.msg2@cerb.example>
 
@@ -2055,7 +2055,7 @@ records:
         To: demo@cerb.example
         From: p.thomas@dobbus.example
         Subject: Why do I just see #signature when I reply?
-        Date: $${'-356778 seconds'|date('r')}
+        Date: {{'-356778 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo19.msg1@cerb.example>
 
@@ -2075,7 +2075,7 @@ records:
         To: p.thomas@dobbus.example
         From: demo@cerb.example
         Subject: Re: Why do I just see #signature when I reply?
-        Date: $${'-350483 seconds'|date('r')}
+        Date: {{'-350483 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo19.msg2@cerb.example>
 
@@ -2119,7 +2119,7 @@ records:
         To: demo@cerb.example
         From: f.levy@baston.example
         Subject: Can each team member have their own pages?
-        Date: $${'-355093 seconds'|date('r')}
+        Date: {{'-355093 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo20.msg1@cerb.example>
 
@@ -2139,7 +2139,7 @@ records:
         To: f.levy@baston.example
         From: demo@cerb.example
         Subject: Re: Can each team member have their own pages?
-        Date: $${'-354052 seconds'|date('r')}
+        Date: {{'-354052 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo20.msg2@cerb.example>
 
@@ -2181,7 +2181,7 @@ records:
         To: demo@cerb.example
         From: h.zhong@zhang.example
         Subject: Dealing with spam
-        Date: $${'-341598 seconds'|date('r')}
+        Date: {{'-341598 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo21.msg1@cerb.example>
 
@@ -2201,7 +2201,7 @@ records:
         To: h.zhong@zhang.example
         From: demo@cerb.example
         Subject: Re: Dealing with spam
-        Date: $${'-341162 seconds'|date('r')}
+        Date: {{'-341162 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo21.msg2@cerb.example>
 
@@ -2243,7 +2243,7 @@ records:
         To: demo@cerb.example
         From: r.brown@franchir.example
         Subject: Exporting a worklist to Excel for reporting
-        Date: $${'-335169 seconds'|date('r')}
+        Date: {{'-335169 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo22.msg1@cerb.example>
 
@@ -2263,7 +2263,7 @@ records:
         To: r.brown@franchir.example
         From: demo@cerb.example
         Subject: Re: Exporting a worklist to Excel for reporting
-        Date: $${'-330723 seconds'|date('r')}
+        Date: {{'-330723 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo22.msg2@cerb.example>
 
@@ -2303,7 +2303,7 @@ records:
         To: demo@cerb.example
         From: w.moore@dobbus.example
         Subject: Can I hide a bucket from some workers?
-        Date: $${'-325264 seconds'|date('r')}
+        Date: {{'-325264 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo23.msg1@cerb.example>
 
@@ -2323,7 +2323,7 @@ records:
         To: w.moore@dobbus.example
         From: demo@cerb.example
         Subject: Re: Can I hide a bucket from some workers?
-        Date: $${'-320789 seconds'|date('r')}
+        Date: {{'-320789 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo23.msg2@cerb.example>
 
@@ -2365,7 +2365,7 @@ records:
         To: demo@cerb.example
         From: m.valentyn@heroy.example
         Subject: What are snippets?
-        Date: $${'-295642 seconds'|date('r')}
+        Date: {{'-295642 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo24.msg1@cerb.example>
 
@@ -2385,7 +2385,7 @@ records:
         To: m.valentyn@heroy.example
         From: demo@cerb.example
         Subject: Re: What are snippets?
-        Date: $${'-292631 seconds'|date('r')}
+        Date: {{'-292631 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo24.msg2@cerb.example>
 
@@ -2425,7 +2425,7 @@ records:
         To: demo@cerb.example
         From: f.moreno@baston.example
         Subject: How can I notify a co-worker about a ticket?
-        Date: $${'-284448 seconds'|date('r')}
+        Date: {{'-284448 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo25.msg1@cerb.example>
 
@@ -2445,7 +2445,7 @@ records:
         To: f.moreno@baston.example
         From: demo@cerb.example
         Subject: Re: How can I notify a co-worker about a ticket?
-        Date: $${'-280628 seconds'|date('r')}
+        Date: {{'-280628 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo25.msg2@cerb.example>
 
@@ -2487,7 +2487,7 @@ records:
         To: demo@cerb.example
         From: s.gallo@fiaflux.example
         Subject: How do I permanently filter a worklist?
-        Date: $${'-280519 seconds'|date('r')}
+        Date: {{'-280519 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo26.msg1@cerb.example>
 
@@ -2507,7 +2507,7 @@ records:
         To: s.gallo@fiaflux.example
         From: demo@cerb.example
         Subject: Re: How do I permanently filter a worklist?
-        Date: $${'-276105 seconds'|date('r')}
+        Date: {{'-276105 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo26.msg2@cerb.example>
 
@@ -2548,7 +2548,7 @@ records:
         To: demo@cerb.example
         From: e.anderson@franchir.example
         Subject: How do search queries work?
-        Date: $${'-278700 seconds'|date('r')}
+        Date: {{'-278700 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo27.msg1@cerb.example>
 
@@ -2568,7 +2568,7 @@ records:
         To: e.anderson@franchir.example
         From: demo@cerb.example
         Subject: Re: How do search queries work?
-        Date: $${'-278044 seconds'|date('r')}
+        Date: {{'-278044 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo27.msg2@cerb.example>
 
@@ -2612,7 +2612,7 @@ records:
         To: demo@cerb.example
         From: v.zelinski@heroy.example
         Subject: What is a deep search?
-        Date: $${'-274535 seconds'|date('r')}
+        Date: {{'-274535 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo28.msg1@cerb.example>
 
@@ -2632,7 +2632,7 @@ records:
         To: v.zelinski@heroy.example
         From: demo@cerb.example
         Subject: Re: What is a deep search?
-        Date: $${'-270403 seconds'|date('r')}
+        Date: {{'-270403 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo28.msg2@cerb.example>
 
@@ -2674,7 +2674,7 @@ records:
         To: demo@cerb.example
         From: j.li@zhang.example
         Subject: Adding a new record for orders
-        Date: $${'-267188 seconds'|date('r')}
+        Date: {{'-267188 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo29.msg1@cerb.example>
 
@@ -2694,7 +2694,7 @@ records:
         To: j.li@zhang.example
         From: demo@cerb.example
         Subject: Re: Adding a new record for orders
-        Date: $${'-266781 seconds'|date('r')}
+        Date: {{'-266781 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo29.msg2@cerb.example>
 
@@ -2734,7 +2734,7 @@ records:
         To: demo@cerb.example
         From: b.gray@twinton.example
         Subject: What is a watcher?
-        Date: $${'-261374 seconds'|date('r')}
+        Date: {{'-261374 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo30.msg1@cerb.example>
 
@@ -2754,7 +2754,7 @@ records:
         To: b.gray@twinton.example
         From: demo@cerb.example
         Subject: Re: What is a watcher?
-        Date: $${'-260323 seconds'|date('r')}
+        Date: {{'-260323 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo30.msg2@cerb.example>
 
@@ -2794,7 +2794,7 @@ records:
         To: demo@cerb.example
         From: j.allen@twinton.example
         Subject: Linking related records together
-        Date: $${'-258673 seconds'|date('r')}
+        Date: {{'-258673 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo31.msg1@cerb.example>
 
@@ -2814,7 +2814,7 @@ records:
         To: j.allen@twinton.example
         From: demo@cerb.example
         Subject: Re: Linking related records together
-        Date: $${'-257238 seconds'|date('r')}
+        Date: {{'-257238 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo31.msg2@cerb.example>
 
@@ -2857,7 +2857,7 @@ records:
         To: demo@cerb.example
         From: a.costa@fiaflux.example
         Subject: Task reminders
-        Date: $${'-254132 seconds'|date('r')}
+        Date: {{'-254132 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo32.msg1@cerb.example>
 
@@ -2877,7 +2877,7 @@ records:
         To: a.costa@fiaflux.example
         From: demo@cerb.example
         Subject: Re: Task reminders
-        Date: $${'-248685 seconds'|date('r')}
+        Date: {{'-248685 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo32.msg2@cerb.example>
 
@@ -2919,7 +2919,7 @@ records:
         To: demo@cerb.example
         From: w.zhang@zhang.example
         Subject: How do bots work?
-        Date: $${'-243285 seconds'|date('r')}
+        Date: {{'-243285 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo33.msg1@cerb.example>
 
@@ -2939,7 +2939,7 @@ records:
         To: w.zhang@zhang.example
         From: demo@cerb.example
         Subject: Re: How do bots work?
-        Date: $${'-240781 seconds'|date('r')}
+        Date: {{'-240781 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo33.msg2@cerb.example>
 
@@ -2979,7 +2979,7 @@ records:
         To: demo@cerb.example
         From: n.lisko@heroy.example
         Subject: Close waiting tickets older than 30 days
-        Date: $${'-242079 seconds'|date('r')}
+        Date: {{'-242079 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo34.msg1@cerb.example>
 
@@ -2999,7 +2999,7 @@ records:
         To: n.lisko@heroy.example
         From: demo@cerb.example
         Subject: Re: Close waiting tickets older than 30 days
-        Date: $${'-238624 seconds'|date('r')}
+        Date: {{'-238624 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo34.msg2@cerb.example>
 
@@ -3038,7 +3038,7 @@ records:
         To: demo@cerb.example
         From: a.costa@fiaflux.example
         Subject: Sorting by more than one column
-        Date: $${'-240458 seconds'|date('r')}
+        Date: {{'-240458 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo35.msg1@cerb.example>
 
@@ -3058,7 +3058,7 @@ records:
         To: a.costa@fiaflux.example
         From: demo@cerb.example
         Subject: Re: Sorting by more than one column
-        Date: $${'-235748 seconds'|date('r')}
+        Date: {{'-235748 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo35.msg2@cerb.example>
 
@@ -3098,7 +3098,7 @@ records:
         To: demo@cerb.example
         From: l.dubois@donter.example
         Subject: Format for entering dates
-        Date: $${'-231477 seconds'|date('r')}
+        Date: {{'-231477 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo36.msg1@cerb.example>
 
@@ -3118,7 +3118,7 @@ records:
         To: l.dubois@donter.example
         From: demo@cerb.example
         Subject: Re: Format for entering dates
-        Date: $${'-225347 seconds'|date('r')}
+        Date: {{'-225347 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo36.msg2@cerb.example>
 
@@ -3164,7 +3164,7 @@ records:
         To: demo@cerb.example
         From: a.stevens@donter.example
         Subject: Opening tickets in multiple tabs
-        Date: $${'-225293 seconds'|date('r')}
+        Date: {{'-225293 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo37.msg1@cerb.example>
 
@@ -3184,7 +3184,7 @@ records:
         To: a.stevens@donter.example
         From: demo@cerb.example
         Subject: Re: Opening tickets in multiple tabs
-        Date: $${'-222993 seconds'|date('r')}
+        Date: {{'-222993 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo37.msg2@cerb.example>
 
@@ -3226,7 +3226,7 @@ records:
         To: demo@cerb.example
         From: g.chen@franchir.example
         Subject: List of tickets that are assigned to me or nobody
-        Date: $${'-221760 seconds'|date('r')}
+        Date: {{'-221760 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo38.msg1@cerb.example>
 
@@ -3246,7 +3246,7 @@ records:
         To: g.chen@franchir.example
         From: demo@cerb.example
         Subject: Re: List of tickets that are assigned to me or nobody
-        Date: $${'-216376 seconds'|date('r')}
+        Date: {{'-216376 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo38.msg2@cerb.example>
 
@@ -3290,7 +3290,7 @@ records:
         To: demo@cerb.example
         From: x.guan@zhang.example
         Subject: Reporting
-        Date: $${'-220135 seconds'|date('r')}
+        Date: {{'-220135 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo39.msg1@cerb.example>
 
@@ -3310,7 +3310,7 @@ records:
         To: x.guan@zhang.example
         From: demo@cerb.example
         Subject: Re: Reporting
-        Date: $${'-215032 seconds'|date('r')}
+        Date: {{'-215032 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo39.msg2@cerb.example>
 
@@ -3358,7 +3358,7 @@ records:
         To: demo@cerb.example
         From: k.engelbrecht@ghoux.example
         Subject: What is a data query?
-        Date: $${'-214430 seconds'|date('r')}
+        Date: {{'-214430 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo40.msg1@cerb.example>
 
@@ -3378,7 +3378,7 @@ records:
         To: k.engelbrecht@ghoux.example
         From: demo@cerb.example
         Subject: Re: What is a data query?
-        Date: $${'-207964 seconds'|date('r')}
+        Date: {{'-207964 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo40.msg2@cerb.example>
 
@@ -3420,7 +3420,7 @@ records:
         To: demo@cerb.example
         From: y.joubert@ghoux.example
         Subject: How to prevent replies to closed tickets
-        Date: $${'-197675 seconds'|date('r')}
+        Date: {{'-197675 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo41.msg1@cerb.example>
 
@@ -3440,7 +3440,7 @@ records:
         To: y.joubert@ghoux.example
         From: demo@cerb.example
         Subject: Re: How to prevent replies to closed tickets
-        Date: $${'-192431 seconds'|date('r')}
+        Date: {{'-192431 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo41.msg2@cerb.example>
 
@@ -3480,7 +3480,7 @@ records:
         To: demo@cerb.example
         From: z.de.vos@donter.example
         Subject: Automatic replies for new messages
-        Date: $${'-186029 seconds'|date('r')}
+        Date: {{'-186029 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo42.msg1@cerb.example>
 
@@ -3500,7 +3500,7 @@ records:
         To: z.de.vos@donter.example
         From: demo@cerb.example
         Subject: Re: Automatic replies for new messages
-        Date: $${'-184727 seconds'|date('r')}
+        Date: {{'-184727 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo42.msg2@cerb.example>
 
@@ -3540,7 +3540,7 @@ records:
         To: demo@cerb.example
         From: k.gogol@heroy.example
         Subject: Triggering a webhook
-        Date: $${'-176017 seconds'|date('r')}
+        Date: {{'-176017 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo43.msg1@cerb.example>
 
@@ -3560,7 +3560,7 @@ records:
         To: k.gogol@heroy.example
         From: demo@cerb.example
         Subject: Re: Triggering a webhook
-        Date: $${'-172852 seconds'|date('r')}
+        Date: {{'-172852 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo43.msg2@cerb.example>
 
@@ -3600,7 +3600,7 @@ records:
         To: demo@cerb.example
         From: e.jacobs@donter.example
         Subject: Receiving webhooks from another service
-        Date: $${'-170404 seconds'|date('r')}
+        Date: {{'-170404 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo44.msg1@cerb.example>
 
@@ -3620,7 +3620,7 @@ records:
         To: e.jacobs@donter.example
         From: demo@cerb.example
         Subject: Re: Receiving webhooks from another service
-        Date: $${'-168212 seconds'|date('r')}
+        Date: {{'-168212 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo44.msg2@cerb.example>
 
@@ -3660,7 +3660,7 @@ records:
         To: demo@cerb.example
         From: i.taylor@franchir.example
         Subject: Using a third-party API from a bot
-        Date: $${'-168056 seconds'|date('r')}
+        Date: {{'-168056 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo45.msg1@cerb.example>
 
@@ -3680,7 +3680,7 @@ records:
         To: i.taylor@franchir.example
         From: demo@cerb.example
         Subject: Re: Using a third-party API from a bot
-        Date: $${'-161009 seconds'|date('r')}
+        Date: {{'-161009 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo45.msg2@cerb.example>
 
@@ -3722,7 +3722,7 @@ records:
         To: demo@cerb.example
         From: j.kruger@ghoux.example
         Subject: Need a list of bots using each event
-        Date: $${'-158551 seconds'|date('r')}
+        Date: {{'-158551 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo46.msg1@cerb.example>
 
@@ -3742,7 +3742,7 @@ records:
         To: j.kruger@ghoux.example
         From: demo@cerb.example
         Subject: Re: Need a list of bots using each event
-        Date: $${'-156829 seconds'|date('r')}
+        Date: {{'-156829 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo46.msg2@cerb.example>
 
@@ -3788,7 +3788,7 @@ records:
         To: demo@cerb.example
         From: t.vos@helderster.example
         Subject: I need to test a bot behavior
-        Date: $${'-138658 seconds'|date('r')}
+        Date: {{'-138658 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo47.msg1@cerb.example>
 
@@ -3808,7 +3808,7 @@ records:
         To: t.vos@helderster.example
         From: demo@cerb.example
         Subject: Re: I need to test a bot behavior
-        Date: $${'-137470 seconds'|date('r')}
+        Date: {{'-137470 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo47.msg2@cerb.example>
 
@@ -3850,7 +3850,7 @@ records:
         To: demo@cerb.example
         From: m.dumont@donter.example
         Subject: Tracking time spent on issues
-        Date: $${'-138027 seconds'|date('r')}
+        Date: {{'-138027 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo48.msg1@cerb.example>
 
@@ -3870,7 +3870,7 @@ records:
         To: m.dumont@donter.example
         From: demo@cerb.example
         Subject: Re: Tracking time spent on issues
-        Date: $${'-136789 seconds'|date('r')}
+        Date: {{'-136789 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo48.msg2@cerb.example>
 
@@ -3912,7 +3912,7 @@ records:
         To: demo@cerb.example
         From: c.bruno@fiaflux.example
         Subject: What are bot interactions?
-        Date: $${'-113238 seconds'|date('r')}
+        Date: {{'-113238 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo49.msg1@cerb.example>
 
@@ -3932,7 +3932,7 @@ records:
         To: c.bruno@fiaflux.example
         From: demo@cerb.example
         Subject: Re: What are bot interactions?
-        Date: $${'-111570 seconds'|date('r')}
+        Date: {{'-111570 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo49.msg2@cerb.example>
 
@@ -3972,7 +3972,7 @@ records:
         To: demo@cerb.example
         From: c.bertin@baston.example
         Subject: Starting a chat from a bot
-        Date: $${'-111861 seconds'|date('r')}
+        Date: {{'-111861 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo50.msg1@cerb.example>
 
@@ -3992,7 +3992,7 @@ records:
         To: c.bertin@baston.example
         From: demo@cerb.example
         Subject: Re: Starting a chat from a bot
-        Date: $${'-107186 seconds'|date('r')}
+        Date: {{'-107186 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo50.msg2@cerb.example>
 
@@ -4030,7 +4030,7 @@ records:
         To: demo@cerb.example
         From: b.gibson@twinton.example
         Subject: Figuring out what a user wants to do in a chat bot
-        Date: $${'-101566 seconds'|date('r')}
+        Date: {{'-101566 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo51.msg1@cerb.example>
 
@@ -4050,7 +4050,7 @@ records:
         To: b.gibson@twinton.example
         From: demo@cerb.example
         Subject: Re: Figuring out what a user wants to do in a chat bot
-        Date: $${'-100630 seconds'|date('r')}
+        Date: {{'-100630 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo51.msg2@cerb.example>
 
@@ -4096,7 +4096,7 @@ records:
         To: demo@cerb.example
         From: c.cooper@twinton.example
         Subject: Putting a chat bot on our website
-        Date: $${'-73117 seconds'|date('r')}
+        Date: {{'-73117 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo52.msg1@cerb.example>
 
@@ -4116,7 +4116,7 @@ records:
         To: c.cooper@twinton.example
         From: demo@cerb.example
         Subject: Re: Putting a chat bot on our website
-        Date: $${'-68775 seconds'|date('r')}
+        Date: {{'-68775 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo52.msg2@cerb.example>
 
@@ -4156,7 +4156,7 @@ records:
         To: demo@cerb.example
         From: l.brouwer@helderster.example
         Subject: What is a community portal?
-        Date: $${'-58529 seconds'|date('r')}
+        Date: {{'-58529 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo53.msg1@cerb.example>
 
@@ -4176,7 +4176,7 @@ records:
         To: l.brouwer@helderster.example
         From: demo@cerb.example
         Subject: Re: What is a community portal?
-        Date: $${'-56564 seconds'|date('r')}
+        Date: {{'-56564 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo53.msg2@cerb.example>
 
@@ -4222,7 +4222,7 @@ records:
         To: demo@cerb.example
         From: m.reynaud@baston.example
         Subject: How do I use the API?
-        Date: $${'-47269 seconds'|date('r')}
+        Date: {{'-47269 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo54.msg1@cerb.example>
 
@@ -4242,7 +4242,7 @@ records:
         To: m.reynaud@baston.example
         From: demo@cerb.example
         Subject: Re: How do I use the API?
-        Date: $${'-41954 seconds'|date('r')}
+        Date: {{'-41954 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo54.msg2@cerb.example>
 
@@ -4284,7 +4284,7 @@ records:
         To: demo@cerb.example
         From: p.thomas@dobbus.example
         Subject: What are packages?
-        Date: $${'-30942 seconds'|date('r')}
+        Date: {{'-30942 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo55.msg1@cerb.example>
 
@@ -4304,7 +4304,7 @@ records:
         To: p.thomas@dobbus.example
         From: demo@cerb.example
         Subject: Re: What are packages?
-        Date: $${'-24730 seconds'|date('r')}
+        Date: {{'-24730 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo55.msg2@cerb.example>
 
@@ -4344,7 +4344,7 @@ records:
         To: demo@cerb.example
         From: z.de.vos@donter.example
         Subject: Creating a new plugin
-        Date: $${'-20247 seconds'|date('r')}
+        Date: {{'-20247 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo56.msg1@cerb.example>
 
@@ -4364,7 +4364,7 @@ records:
         To: z.de.vos@donter.example
         From: demo@cerb.example
         Subject: Re: Creating a new plugin
-        Date: $${'-19776 seconds'|date('r')}
+        Date: {{'-19776 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo56.msg2@cerb.example>
 
@@ -4404,7 +4404,7 @@ records:
         To: demo@cerb.example
         From: x.li@zhang.example
         Subject: Using Cerb in multiple languages
-        Date: $${'-14139 seconds'|date('r')}
+        Date: {{'-14139 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo57.msg1@cerb.example>
 
@@ -4424,7 +4424,7 @@ records:
         To: x.li@zhang.example
         From: demo@cerb.example
         Subject: Re: Using Cerb in multiple languages
-        Date: $${'-10505 seconds'|date('r')}
+        Date: {{'-10505 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo57.msg2@cerb.example>
 
@@ -4468,7 +4468,7 @@ records:
         To: demo@cerb.example
         From: b.gray@twinton.example
         Subject: Organizing tasks by stage
-        Date: $${'-12910 seconds'|date('r')}
+        Date: {{'-12910 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo58.msg1@cerb.example>
 
@@ -4488,7 +4488,7 @@ records:
         To: b.gray@twinton.example
         From: demo@cerb.example
         Subject: Re: Organizing tasks by stage
-        Date: $${'-9091 seconds'|date('r')}
+        Date: {{'-9091 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo58.msg2@cerb.example>
 
@@ -4530,7 +4530,7 @@ records:
         To: demo@cerb.example
         From: t.vos@helderster.example
         Subject: Adding GPS coordinates to records
-        Date: $${'-5438 seconds'|date('r')}
+        Date: {{'-5438 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo59.msg1@cerb.example>
 
@@ -4550,7 +4550,7 @@ records:
         To: t.vos@helderster.example
         From: demo@cerb.example
         Subject: Re: Adding GPS coordinates to records
-        Date: $${'-4662 seconds'|date('r')}
+        Date: {{'-4662 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo59.msg2@cerb.example>
 
@@ -4592,7 +4592,7 @@ records:
         To: demo@cerb.example
         From: n.lisko@heroy.example
         Subject: HTML messages
-        Date: $${'-5418 seconds'|date('r')}
+        Date: {{'-5418 seconds'|date('r')}}
         Content-Type: text/plain; charset=utf-8
         Message-Id: <demo60.msg1@cerb.example>
 
