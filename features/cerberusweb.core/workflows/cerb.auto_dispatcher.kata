@@ -1,6 +1,6 @@
 workflow:
   name: cerb.auto_dispatcher
-  version@date: 2024-10-06T00:00:00Z
+  version@date: 2024-10-12T00:00:00Z
   description: Automatically assign tickets to workers based on priority
   requirements:
     cerb_version: >=10.5 <11.0
@@ -49,7 +49,7 @@ records:
       type: D
       pos: 3
       params:
-        options@list: $${config.rejectReasons}
+        options@list: {{config.rejectReasons}}
   custom_field/asrej_expires:
     fields:
       name: Expires At
@@ -178,6 +178,8 @@ records:
             record_type: ticket
 
         start:
+          set/config:
+            config@json: {{cerb_workflow_config('cerb.auto_dispatcher')|json_encode}}
           decision:
             # If the ticket is still open, it needs to be formally rejected to skip
             outcome/isOpen:
@@ -217,7 +219,7 @@ records:
                       sheet/prompt_reason:
                         label: Reason:
                         required@bool: yes
-                        data@json: $${config.rejectReasons|split_crlf|default([])|map((v)=>{'name':v})|json_encode}
+                        data@json: {{config.rejectReasons|split_crlf|default([])|map((v)=>{'name':v})|json_encode}}
                         limit: 10
                         schema:
                           layout:
