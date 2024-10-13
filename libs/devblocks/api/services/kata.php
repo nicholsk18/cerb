@@ -343,14 +343,14 @@ class _DevblocksKataService {
 						if(DevblocksPlatform::arrayIsIndexed($v)) {
 							// If we have a nested array, encode as JSON instead
 							if(array_filter($v, fn($line_item) => is_array($line_item))) {
-								$output .= str_repeat('  ', $indent) . strval($k) . "@json:\n";
+								$output .= str_repeat('  ', $indent) . $k . "@json:\n";
 								$output .= str_repeat('  ', $indent+1) . json_encode($v) . "\n";
 								
 							} else {
-								$output .= str_repeat('  ', $indent) . strval($k) . "@list:\n";
+								$output .= str_repeat('  ', $indent) . $k . "@list:\n";
 								
 								foreach($v as $list_item) {
-									$output .= str_repeat('  ', $indent+1) . strval($list_item) . "\n";
+									$output .= str_repeat('  ', $indent+1) . $list_item . "\n";
 								}
 							}
 							
@@ -361,7 +361,7 @@ class _DevblocksKataService {
 						}
 						
 					} else if (is_string($k) && DevblocksPlatform::strStartsWith($k, '#comment_')) {
-						$output .= str_repeat('  ', $indent) . strval($v) . "\n";
+						$output .= str_repeat('  ', $indent) . $v . "\n";
 						
 					} else {
 						if(($is_raw = $v instanceof DevblocksKataRawString))
@@ -369,23 +369,32 @@ class _DevblocksKataService {
 						
 						$lines = DevblocksPlatform::parseCrlfString($v, true, false);
 						
+						$k_annotations = DevblocksPlatform::services()->string()->strAfter($k, '@');
+						$k = DevblocksPlatform::services()->string()->strBefore($k, '@');
+						
+						if($k_annotations) {
+							$k_annotations = ($is_raw ? 'raw,' : '') . $k_annotations;
+						} else {
+							$k_annotations = $is_raw ? 'raw' : (count($lines) > 1 ? 'text' : '');
+						}
+						
 						if(count($lines) > 1) {
-							$output .= str_repeat('  ', $indent) . strval($k) . ($is_raw ? "@raw:" : "@text:") . "\n";
+							$output .= str_repeat('  ', $indent) . $k . '@' . $k_annotations . ":\n";
 							
 							foreach($lines as $line)
-								$output .= str_repeat('  ', $indent+1) . strval($line) . "\n";
+								$output .= str_repeat('  ', $indent+1) . $line . "\n";
 							
 						} else if(is_string($v) && 0 == strlen($v)) {
 							$output .= str_repeat('  ', $indent) . $k . "@text:" . "\n";
 							
 						} else if(is_bool($v)) {
-							$output .= str_repeat('  ', $indent) . strval($k) . "@bool: " . ($v ? 'yes' : 'no') . "\n";
+							$output .= str_repeat('  ', $indent) . $k . "@bool: " . ($v ? 'yes' : 'no') . "\n";
 							
 						} else if(is_integer($v)) {
-							$output .= str_repeat('  ', $indent) . strval($k) . "@int: " . intval($v) . "\n";
+							$output .= str_repeat('  ', $indent) . $k . "@int: " . $v . "\n";
 							
 						} else {
-							$output .= str_repeat('  ', $indent) . strval($k) . ($is_raw ? "@raw" : "") . ": " . strval($v) . "\n";
+							$output .= str_repeat('  ', $indent) . $k . ($k_annotations ? ('@' . $k_annotations) : '') . ': ' . $v . "\n";
 						}
 					}
 				}
