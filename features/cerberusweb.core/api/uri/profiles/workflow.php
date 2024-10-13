@@ -599,15 +599,13 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 			
 			$resource_keys = [];
 			
-			
-			$changes_automation = $was_workflow->getChangesAutomation($new_workflow, $resource_keys);
+			$sheets = DevblocksPlatform::services()->sheet()->withDefaultTypes();
 			
 			// [TODO] Display that no changes will be made and disable 'next'
 			
 			// Summarize the changes that will be completed as a sheet
 			
-			// [TODO] Use the full sheet width on 'changes'; titleColumn action+record
-			$sheet_kata = <<< EOD
+			$records_sheet_kata = <<< EOD
               layout:
                 headings@bool: yes
                 paging@bool: no
@@ -617,74 +615,90 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
                   label: Action
                 text/key:
                   label: Key
-                markdown/changes:
-                  label: Changes
+                text/old_value:
+                  label: Old Value
+                  params:
+                    preformatted@bool: yes
+                text/new_value:
+                  label: New Value
+                  params:
+                    preformatted@bool: yes
               EOD;
 			
-			$sheets = DevblocksPlatform::services()->sheet()->withDefaultTypes();
-			
-			if(!($sheet = $sheets->parse($sheet_kata, $error)))
+			if(!($records_sheet = $sheets->parse($records_sheet_kata, $error)))
 				throw new Exception_DevblocksAjaxValidationError('Sheet Parse Error: ' . $error);
 			
-			if(false === ($changes_kata = $kata->parse($changes_automation->script, $error)))
-				throw new Exception_DevblocksAjaxValidationError('KATA Parse Error: ' . $error);
+			$was_workflow->getChangesAutomation($new_workflow, $resource_keys);
 			
-			if(false === ($changes_kata = $kata->formatTree($changes_kata, null, $error, true)))
-				throw new Exception_DevblocksAjaxValidationError('KATA Format Error: ' . $error);
+			// Include configuration changes
 			
-			$record_dicts = array_values(array_map(
-				function($rk) use ($resource_keys, $changes_kata, $kata) {
-					$action = $resource_keys['records'][$rk]['action'];
-					$resource_name = DevblocksPlatform::services()->string()->strAfter($rk, '/');
-					$changes = '';
+			$change_dicts = [];
+			
+			foreach(array_keys($resource_keys['records'] ?? []) as $rk) {
+				$action = $resource_keys['records'][$rk]['action'];
+				
+				$was = '';
+				$new = '';
+				
+				// [TODO] Draw a diff?
+				// [TODO] Max height on code output in Markdown column
+				if('update' == $action) {
+					$was_fields = array_intersect_key(
+						$resource_keys['templates']['was']['records'][$rk]['fields'] ?? [],
+						array_fill_keys($resource_keys['records'][$rk]['fields'] ?? [], true)
+					);
 					
-					if('update' == $action) {
-						$changes = "```\n";
-						$changes .= $kata->emit($changes_kata['start']['record.update/'.$resource_name]['inputs']['fields'] ?? []);
-						$changes .= "\n```";
-					}
+					$was .= $kata->emit($was_fields);
 					
-					return DevblocksDictionaryDelegate::instance([
-						'key' => $rk,
-						'action' => $action,
-						'changes' => $changes,
-					]);
-				},
-				array_keys($resource_keys['records'] ?? []),
-			));
+					// [TODO] Convert placeholders?
+					
+					$new_fields = array_intersect_key(
+						$resource_keys['templates']['new']['records'][$rk]['fields'] ?? [],
+						array_fill_keys($resource_keys['records'][$rk]['fields'] ?? [], true)
+					);
+					
+					$new .= $kata->emit($new_fields);
+				}
+				
+				$change_dicts[] = DevblocksDictionaryDelegate::instance([
+					'key' => $rk,
+					'action' => $action,
+					'old_value' => $was,
+					'new_value' => $new,
+				]);
+			}
 			
 			// Include `extensions` changes
 			$extension_dicts = array_values(array_map(
-				function($rk) use ($resource_keys, $changes_kata, $kata) {
+				function($rk) use ($resource_keys, $kata) {
 					$action = $resource_keys['extensions'][$rk]['action'];
 					$changes = '';
 					
 					if('update' == $action && ($resource_keys['extensions'][$rk]['delta'] ?? null)) {
-						$changes = "```\n";
 						$changes .= $kata->emit($resource_keys['extensions'][$rk]['delta']);
-						$changes .= "\n```";
 					}
 					
 					return DevblocksDictionaryDelegate::instance([
 						'key' => $rk,
 						'action' => $action,
-						'changes' => $changes,
+						'old_value' => '',
+						'new_value' => $changes,
 					]);
 				},
 				array_keys($resource_keys['extensions'] ?? []),
 			));
 			
-			$dicts = array_merge($record_dicts, $extension_dicts);
+			$dicts = array_merge($change_dicts, $extension_dicts);
 			
-			$layout = $sheets->getLayout($sheet);
-			$columns = $sheets->getColumns($sheet);
-			$rows = $sheets->getRows($sheet, $dicts);
+			$record_layout = $sheets->getLayout($records_sheet);
+			$record_columns = $sheets->getColumns($records_sheet);
+			$record_rows = $sheets->getRows($records_sheet, $dicts);
 			
 			$tpl->assign('model', $new_workflow);
 			
-			$tpl->assign('layout', $layout);
-			$tpl->assign('columns', $columns);
-			$tpl->assign('rows', $rows);
+			$tpl->assign('layout', $record_layout);
+			$tpl->assign('columns', $record_columns);
+			$tpl->assign('rows', $record_rows);
 			
 			$html = $tpl->fetch('devblocks:cerberusweb.core::records/types/workflow/update_template/changes.tpl');
 			

@@ -816,37 +816,13 @@ class Model_Workflow extends DevblocksRecordModel {
 		
 		$error = null;
 		
-		$lexer = [
-			'tag_comment'   => ['$$#', '#'],
-			'tag_block'     => ['$$%', '%'],
-			'tag_variable'  => ['$${', '}'],
-			'interpolation' => ['#$${', '}'],
-		];
-		
-		$initial_state = [];
-
-		$funcPlaceholders = function(&$v) use ($tpl_builder, &$initial_state, &$lexer) {
-			if(is_array($v))
-				return;
-			
-			if(str_contains((string)$v, '$${')) {
-				if(is_string($v)) {
-					$v = $tpl_builder->build($v, $initial_state, $lexer);
-				} elseif ($v instanceof DevblocksKataRawString) {
-					$v->setString($tpl_builder->build($v, $initial_state, $lexer));
-				}
-			}
-		};
-		
 		// Existing Template
 		
 		if(false === ($was_template = $kata->parse($this->workflow_kata, $error)))
 			$was_template = [];
 		
-		if(false === ($initial_state = $this->getChangesAutomationInitialState($error)))
+		if(false === ($was_initial_state = $this->getChangesAutomationInitialState($error)))
 			return false;
-		
-		array_walk_recursive($was_template, $funcPlaceholders);
 		
 		if(false === ($was_template = $kata->formatTree($was_template, null, $error, true)))
 			$was_template = [];
@@ -859,10 +835,11 @@ class Model_Workflow extends DevblocksRecordModel {
 		if(false === ($initial_state = $new->getChangesAutomationInitialState($error)))
 			return false;
 		
-		array_walk_recursive($new_template, $funcPlaceholders);
-		
 		if(false === ($new_template = $kata->formatTree($new_template, null, $error, true)))
 			$new_template = [];
+		
+		$resource_keys['templates']['was'] = $was_template;
+		$resource_keys['templates']['new'] = $new_template;
 		
 		if(false === ($workflow_resources = $this->getResources($error)))
 			return false;
@@ -888,12 +865,24 @@ class Model_Workflow extends DevblocksRecordModel {
 		$was_records = $was_template['records'] ?? [];
 		$new_records = $new_template['records'] ?? [];
 		
+		// Evaluate placeholders when comparing nodes
+		$config_comparator = function($a, $b) use ($was_initial_state, $initial_state, $tpl_builder) {
+			// If it doesn't have placeholders, abort early
+			if(!(str_contains($b, '{{'))) //  || str_contains($b, '$${')
+				return 0;
+			
+			$a_parsed = $tpl_builder->build($a, $was_initial_state);
+			$b_parsed = $tpl_builder->build($b, $initial_state);
+			
+			return $a_parsed <=> $b_parsed;
+		};
+		
 		foreach($new_records as $record_key => $new_record) {
 			$record_type = DevblocksPlatform::services()->string()->strBefore($record_key, '/');
 			$record_name = DevblocksPlatform::services()->string()->strAfter($record_key, '/') ?: $record_type;
 			
 			if(array_key_exists($record_key, $was_records)) {
-				$delta = $kata->treeDiff($was_records[$record_key], $new_record, '');
+				$delta = $kata->treeDiff($was_records[$record_key], $new_record, comparator: $config_comparator);
 				
 				// Update
 				if($delta) {
@@ -940,7 +929,7 @@ class Model_Workflow extends DevblocksRecordModel {
 								'action' => 'update',
 								'record_type' => $record_type,
 								'record_id' => $was_record_id,
-								'fields' => $delta['fields'] ?? [],
+								'fields' => array_keys($delta['fields'] ?? []),
 							];
 							$script['start']['record.update/' . $record_name] = $action;
 							continue;
@@ -970,7 +959,7 @@ class Model_Workflow extends DevblocksRecordModel {
 							'action' => 'update',
 							'record_type' => $record_type,
 							'record_id' => $was_record_id,
-							'fields' => $new_record['fields'] ?? [],
+							'fields' => array_keys($new_record['fields'] ?? []),
 						];
 						$script['start']['record.update/' . $record_name] = $action;
 					}
@@ -997,7 +986,7 @@ class Model_Workflow extends DevblocksRecordModel {
 						$resource_keys['records'][$record_key] = [
 							'action' => 'create',
 							'record_type' => $record_type,
-							'fields' => $new_record['fields'] ?? [],
+							'fields' => array_keys($new_record['fields'] ?? []),
 						];
 						$script['start']['record.create/' . $record_name] = $action;
 					}
