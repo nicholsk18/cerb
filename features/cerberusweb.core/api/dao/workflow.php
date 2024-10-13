@@ -844,6 +844,17 @@ class Model_Workflow extends DevblocksRecordModel {
 		if(false === ($workflow_resources = $this->getResources($error)))
 			return false;
 		
+		// Display changed config values
+		$config_diff = $kata->treeDiff($this->getConfig(), $new->getConfig());
+		
+		foreach(array_keys($config_diff) as $config_key) {
+			$resource_keys['config'][$config_key] = [
+				'action' => 'update',
+				'old_value' => $this->getConfig()[$config_key],
+				'new_value' => $new->getConfig()[$config_key],
+			];
+		}
+		
 		// Verify the record ID we have actually still exists
 		$workflow_resource_dicts = $this->getResourceRecordDictionaries($error);
 		

@@ -634,6 +634,37 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 			
 			$change_dicts = [];
 			
+			foreach(array_keys($resource_keys['config'] ?? []) as $config_key) {
+				$old_value = $resource_keys['config'][$config_key]['old_value'] ?? '';
+				$new_value = $resource_keys['config'][$config_key]['new_value'] ?? '';
+				
+				$old_config_options = $was_workflow->getConfigOptions([$config_key => $old_value]);
+				$new_config_options = $was_workflow->getConfigOptions([$config_key => $new_value]);
+				
+				if('chooser' == $old_config_options[$config_key]['type']) {
+					if(array_key_exists('record_label', $old_config_options[$config_key]['params'])) {
+						$old_value = $old_config_options[$config_key]['params']['record_label'];
+					} elseif(array_key_exists('record_labels', $old_config_options[$config_key]['params'])) {
+						$old_value = implode(', ', $old_config_options[$config_key]['params']['record_labels']);
+					}
+				}
+				
+				if('chooser' == $new_config_options[$config_key]['type']) {
+					if(array_key_exists('record_label', $new_config_options[$config_key]['params'])) {
+						$new_value = $new_config_options[$config_key]['params']['record_label'];
+					} elseif(array_key_exists('record_labels', $new_config_options[$config_key]['params'])) {
+						$new_value = implode(', ', $new_config_options[$config_key]['params']['record_labels']);
+					}
+				}
+				
+				$change_dicts[] = DevblocksDictionaryDelegate::instance([
+					'key' => 'config/' . $config_key,
+					'action' => $resource_keys['config'][$config_key]['action'] ?? '',
+					'old_value' => $old_value,
+					'new_value' => $new_value,
+				]);
+			}
+			
 			foreach(array_keys($resource_keys['records'] ?? []) as $rk) {
 				$action = $resource_keys['records'][$rk]['action'];
 				
