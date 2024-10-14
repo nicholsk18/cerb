@@ -726,6 +726,10 @@ var cerbAutocompleteSuggestions = {
 				snippet: 'card/${1:key}:\n  label: ${2:Label}\n  params:\n    #image@bool: yes\n    #bold@bool: yes\n    #underline: false\n'
 			},
 			{
+				caption: 'code:',
+				snippet: 'code/${1:key}:\n  label: ${2:Label}\n  params:\n    syntax: diff\n    #value: literal text\n    #value_key: some_key\n    #value_template@raw: "{{code}}\n'
+			},
+			{
 				caption: 'date:',
 				snippet: 'date/${1:key}:\n  label: ${2:Label}\n  params:\n    #format: d-M-Y H:i:s T # See: https://php.net/date\n    #format: r\n    #value: 1577836800\n    #value_key: updated\n'
 			},
@@ -863,6 +867,22 @@ var cerbAutocompleteSuggestions = {
 		'columns:card:params:underline:': [
 			'yes',
 			'no'
+		],
+		
+		// Code
+		'columns:code:': [
+			'label:',
+			'params:'
+		],
+		'columns:code:params:': [
+			'syntax:',
+			'value:',
+			'value_key:',
+			'value_template@raw:',
+		],
+		'columns:code:syntax:': [
+			'diff',
+			'plaintext',
 		],
 		
 		// Dates

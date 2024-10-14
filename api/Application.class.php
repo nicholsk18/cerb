@@ -6634,6 +6634,29 @@ class _CerbApplication_KataSchemas {
                                   types:
                                     bool:
                 
+                code:
+                  multiple@bool: yes
+                  types:
+                    object:
+                      attributes:
+                        label@ref: columnLabel
+                        params:
+                          types:
+                            object:
+                              attributes:
+                                syntax:
+                                  types:
+                                    string:
+                                value_key:
+                                  types:
+                                    string:
+                                value_template:
+                                  types:
+                                    string:
+                                value:
+                                  types:
+                                    string:
+                
                 date:
                   multiple@bool: yes
                   types:

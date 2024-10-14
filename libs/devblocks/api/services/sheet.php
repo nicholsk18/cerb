@@ -399,6 +399,7 @@ class _DevblocksSheetService {
 	
 	public function withDefaultTypes() {
 		$this->addType('card', $this->types()->card());
+		$this->addType('code', $this->types()->code());
 		$this->addType('date', $this->types()->date());
 		$this->addType('icon', $this->types()->icon());
 		$this->addType('link', $this->types()->link());
@@ -589,6 +590,49 @@ class _DevblocksSheetServiceTypes {
 			}
 			
 			return $value;
+		};
+	}
+	
+	function code() : callable {
+		return function($column, DevblocksDictionaryDelegate $sheet_dict, array $environment=[]) {
+			$tpl_builder = DevblocksPlatform::services()->templateBuilder()::newInstance('html');
+			$filter = new Cerb_HTMLPurifier_URIFilter_Email(true);
+			
+			$column_params = ($column['params'] ?? null) ?: [];
+			$syntax = $column['params']['syntax'] ?? '';
+			
+			if(array_key_exists('value', $column_params)) {
+				$text = $column_params['value'];
+			} else if(array_key_exists('value_key', $column_params)) {
+				$text = $sheet_dict->get($column_params['value_key']);
+			} else if(array_key_exists('value_template', $column_params)) {
+				$text = $tpl_builder->build($column_params['value_template'], $sheet_dict);
+			} else {
+				$text = $sheet_dict->get($column['key']);
+			}
+			
+			$value = '<div style="white-space:pre;font-family: monospace;max-width:100%;overflow:auto;padding:0.5em;">';
+			
+			if('diff' == $syntax) {
+				$lines = DevblocksPlatform::parseCrlfString($text, true, false);
+				
+				foreach($lines as $line) {
+					if(str_starts_with($line, '+')) {
+						$value .= '<div style="background-color:rgb(3,58,22);color:rgb(175,245,180);">' . $line . '</div>';
+					} elseif(str_starts_with($line, '-')) {
+						$value .= '<div style="background-color:rgb(103,6,12);color:rgb(255,220,215);">' . $line . '</div>';
+					} else {
+						$value .= '<div>' . $line . '</div>';
+					}
+				}
+				
+			} else {
+				$value .= $text;
+			}
+
+			$value .= '</div>';
+			
+			return DevblocksPlatform::purifyHTML($value, false, true, [$filter]);
 		};
 	}
 	
