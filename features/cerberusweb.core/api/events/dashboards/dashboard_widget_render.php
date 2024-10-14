@@ -72,7 +72,7 @@ class Event_DashboardWidgetRender extends Extension_DevblocksEvent {
 		
 		$merge_labels = [];
 		$merge_values = [];
-		CerberusContexts::getContext($widget_record_type, @$widget->id ?: 0, $merge_labels, $merge_values, null, true);
+		CerberusContexts::getContext($widget_record_type, ($widget->id ?? null) ?: 0, $merge_labels, $merge_values, null, true);
 
 			// Merge
 			CerberusContexts::merge(

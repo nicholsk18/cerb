@@ -34,6 +34,10 @@ TABLE.cerb-widget-data-table {
 		font-weight: bold;
 		color: var(--cerb-color-table-row-subject);
 		padding:0 0 0 5px;
+
+		div, img, svg {
+			vertical-align: top;
+		}
 	}
 }
 

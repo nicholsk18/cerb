@@ -982,7 +982,7 @@ class Cerb_Packages {
 					if(preg_match('#\{\{[\#\%\{]#', $key))
 						$key = $tpl_builder->build($key, $placeholders, $lexer);
 						
-					if(preg_match('#\{\{[\#\%\{]#', $val))
+					if(is_string($val) && preg_match('#\{\{[\#\%\{]#', $val))
 						$val = $tpl_builder->build($val, $placeholders, $lexer);
 						
 					$result[$key] = $val;

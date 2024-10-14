@@ -651,14 +651,24 @@ class _DevblocksSheetServiceTypes {
 				];
 			}
 			
-			if(array_key_exists('svg', $column_params) && is_string($column_params['svg']['data'] ?? null)) {
+			if(array_key_exists('svg', $column_params)) {
 				$sanitizer = new Sanitizer();
 				$sanitizer->removeRemoteReferences(true);
 				
-				if(!($img = $sanitizer->sanitize($column_params['svg']['data'])))
+				if(array_key_exists('data', $column_params['svg']) && is_string($column_params['svg']['data'])) {
+					$svg_data = $column_params['svg']['data'];
+				} else if(array_key_exists('data_key', $column_params['svg'])  && is_string($column_params['svg']['data_key'])) {
+					$svg_data = $sheet_dict->get($column_params['svg']['data_key']);
+				} else if(array_key_exists('data_template', $column_params['svg']) && is_string($column_params['svg']['data_template'])) {
+					$svg_data = $tpl_builder->build($column_params['svg']['data_template'], $sheet_dict);
+				} else {
+					$svg_data = '';
+				}
+				
+				if(!($img = $sanitizer->sanitize($svg_data)))
 					return '';
 				
-				echo $img;
+				return $img;
 			
 			} else if(
 				array_key_exists('record_uri', $column_params)

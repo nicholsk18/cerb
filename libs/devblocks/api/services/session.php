@@ -6,7 +6,7 @@
  * @ingroup services
  */
 class _DevblocksSessionManager {
-	var $visit = null;
+	public $visit = null;
 	private $_handler_class = null;
 	
 	/**

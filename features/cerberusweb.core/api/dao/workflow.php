@@ -868,8 +868,8 @@ class Model_Workflow extends DevblocksRecordModel {
 		foreach(array_keys($config_diff) as $config_key) {
 			$resource_keys['config'][$config_key] = [
 				'action' => 'update',
-				'old_value' => $this->getConfig()[$config_key],
-				'new_value' => $new->getConfig()[$config_key],
+				'old_value' => $this->getConfig()[$config_key] ?? '',
+				'new_value' => $new->getConfig()[$config_key] ?? '',
 			];
 		}
 		
@@ -1965,7 +1965,7 @@ function getContextIdFromAlias($alias) {
 					'cerb.login.terms_of_use' => [
 						'id' => 'cerb.login.terms_of_use',
 						'name' => 'Worker Login Terms of Use',
-						'description' => "Require consent to 'Terms of Use' when workers login in",
+						'description' => "Require acceptance of 'Terms of Use' before a worker can login in",
 					],
 					'cerb.notifications.mention_emailer' => [
 						'id' => 'cerb.notifications.mention_emailer',

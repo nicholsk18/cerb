@@ -1555,14 +1555,14 @@ class CerberusContexts {
 	}
 
 	public static function isReadableByDelegateOwner($actor, $context, $models, $owner_key_prefix='owner_', $ignore_admins=false, $allow_unassigned=false) {
-		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+		if(!($actor = CerberusContexts::polymorphActorToDictionary($actor)))
 			return CerberusContexts::denyEverything($models);
 
 		// Admins can do whatever they want
 		if(!$ignore_admins && CerberusContexts::isActorAnAdmin($actor))
 			return CerberusContexts::allowEverything($models);
 
-		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, $context)))
+		if(!($dicts = CerberusContexts::polymorphModelsToDictionaries($models, $context)))
 			return CerberusContexts::denyEverything($models);
 
 		$results = [];
@@ -1643,14 +1643,14 @@ class CerberusContexts {
 
 	public static function isWriteableByDelegateOwner($actor, $context, $models, $owner_key_prefix='owner_', $ignore_admins=false, $allow_unassigned=false) {
 		if(!($actor instanceof DevblocksDictionaryDelegate))
-			if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor)))
+			if(!($actor = CerberusContexts::polymorphActorToDictionary($actor)))
 				return CerberusContexts::denyEverything($models);
 
 		// Admins can do whatever they want
 		if(!$ignore_admins && CerberusContexts::isActorAnAdmin($actor))
 			return CerberusContexts::allowEverything($models);
 		
-		if(false == ($dicts = CerberusContexts::polymorphModelsToDictionaries($models, $context)))
+		if(!($dicts = CerberusContexts::polymorphModelsToDictionaries($models, $context)))
 			return CerberusContexts::denyEverything($models);
 
 		DevblocksDictionaryDelegate::bulkLazyLoad($dicts, $owner_key_prefix);
@@ -3845,7 +3845,7 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 	/**
 	 *
 	 * @param array $ids
-	 * @return Model_Attachment[]
+	 * @return DevblocksRecordModel[]
 	 */
 	static function getIds(array $ids) : array {
 		if(empty($ids))
@@ -6604,6 +6604,12 @@ class _CerbApplication_KataSchemas {
                                                 data:
                                                   types:
                                                     string:
+                                                data_key:
+                                                  types:
+                                                    string:
+                                                data_template:
+                                                  types:
+                                                    string:
                                 id_key:
                                   types:
                                     string:
@@ -6731,6 +6737,12 @@ class _CerbApplication_KataSchemas {
                                         data:
                                           types:
                                             string:
+                                        data_key:
+                                          types:
+                                            string:
+                                        data_template:
+                                          types:
+                                            string:
                                 text_align:
                                   types:
                                     string:
@@ -6781,6 +6793,13 @@ class _CerbApplication_KataSchemas {
                                                 data:
                                                   types:
                                                     string:
+                                                data_key:
+                                                  types:
+                                                    string:
+                                                data_template:
+                                                  types:
+                                                    string:
+                                                    
                                 inputs:
                                   types:
                                     list:
@@ -6867,6 +6886,13 @@ class _CerbApplication_KataSchemas {
                                                 data:
                                                   types:
                                                     string:
+                                                data_key:
+                                                  types:
+                                                    string:
+                                                data_template:
+                                                  types:
+                                                    string:
+                                                    
                                 text_key:
                                   types:
                                     string:
@@ -7008,6 +7034,13 @@ class _CerbApplication_KataSchemas {
                                                 data:
                                                   types:
                                                     string:
+                                                data_key:
+                                                  types:
+                                                    string:
+                                                data_template:
+                                                  types:
+                                                    string:
+                                                    
                                 label_key:
                                   types:
                                     string:
@@ -7155,6 +7188,13 @@ class _CerbApplication_KataSchemas {
                                                 data:
                                                   types:
                                                     string:
+                                                data_key:
+                                                  types:
+                                                    string:
+                                                data_template:
+                                                  types:
+                                                    string:
+                                                    
                                 text_align:
                                   types:
                                     string:

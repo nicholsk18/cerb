@@ -27,10 +27,10 @@ class _DevblocksDataProviderCalendarAvailability extends _DevblocksDataProvider 
 			],
 		];
 		
-		if(false == ($context_ext = Extension_DevblocksContext::getByAlias('calendar', true)))
+		if(!($context_ext = Extension_DevblocksContext::getByAlias('calendar', true)))
 			return [];
 		
-		if(false == ($view = $context_ext->getTempView()))
+		if(!($view = $context_ext->getTempView()))
 			return [];
 		
 		$of_schema = $view->getQueryAutocompleteSuggestions();

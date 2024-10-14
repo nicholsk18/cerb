@@ -34,7 +34,7 @@
 		
 		{if $model->params.context}
 			<input type="hidden" name="params[context]" value="{$model->params.context}">
-			{$context = $contexts.{$model->params.context}}
+			{$context = Extension_DevblocksContext::getByAlias($model->params.context, false)}
 			{if $context->name}
 				{$context->name}
 			{/if}

@@ -935,6 +935,11 @@ var cerbAutocompleteSuggestions = {
 		'columns:icon:params:image:': {
 			'type': 'icon'
 		},
+		'columns:icon:params:image:svg:': [
+			'data:',
+			'data_key:',
+			'data_template@raw:',
+		],
 		
 		// Interaction
 		'columns:interaction:': [

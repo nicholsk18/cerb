@@ -842,6 +842,9 @@ UL.navmenu > LI.selected A {
   font-weight: bold;
   font-size: 125%;
 }
+.cerb-data-sheet .cerb-data-sheet--fieldset .cerb-data-sheet--field-title div, .cerb-data-sheet .cerb-data-sheet--fieldset .cerb-data-sheet--field-title img, .cerb-data-sheet .cerb-data-sheet--fieldset .cerb-data-sheet--field-title svg {
+  vertical-align: top;
+}
 .cerb-data-sheet .cerb-data-sheet--fieldset .cerb-data-sheet--field TD {
   padding: 2px 5px;
 }
@@ -2950,6 +2953,9 @@ TABLE.cerb-widget-data-table .cerb-sheet--row-title {
   font-weight: bold;
   color: var(--cerb-color-table-row-subject);
   padding: 0 0 0 5px;
+}
+TABLE.cerb-widget-data-table .cerb-sheet--row-title div, TABLE.cerb-widget-data-table .cerb-sheet--row-title img, TABLE.cerb-widget-data-table .cerb-sheet--row-title svg {
+  vertical-align: top;
 }
 
 .cerb-widget-drag-placeholder {

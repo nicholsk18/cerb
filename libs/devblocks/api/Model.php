@@ -1435,7 +1435,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 			return 0;
 		
 		// Return a soft failure when a filtered custom field has been deleted (i.e. ignore)
-		if(false == ($field = DAO_CustomField::get($field_id)))
+		if(!($field = DAO_CustomField::get($field_id)))
 			return '';
 
 		$field_table = sprintf("cf_%d", $field_id);
@@ -1518,7 +1518,7 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 				
 			default:
 				if(null != ($field_ext = $field->getTypeExtension())) {
-					if(false != ($where_sql = $field_ext->getWhereSQLFromParam($field, $param))) {
+					if(($where_sql = $field_ext->getWhereSQLFromParam($field, $param))) {
 						return $where_sql;
 					}
 				}
@@ -2703,7 +2703,7 @@ class DevblocksSearchCriteria {
 		}
 		
 		// This should be handled by SearchFields_*::getWhereSQL()
-		if('*_' == substr($this->field,0,2)) {
+		if(str_starts_with($this->field, '*_')) {
 			return '';
 		}
 		
@@ -2956,7 +2956,7 @@ class DevblocksSearchCriteria {
 			 */
 			case DevblocksSearchCriteria::OPER_BETWEEN: // 'between'
 			case DevblocksSearchCriteria::OPER_NOT_BETWEEN: // 'not between'
-				$not = $this->operator == DevblocksSearchCriteria::OPER_NOT_BETWEEN ? true : false;
+				$not = $this->operator == DevblocksSearchCriteria::OPER_NOT_BETWEEN;
 				
 				if(!is_array($this->value) || 2 != count($this->value)) {
 					return 0;
@@ -2966,7 +2966,7 @@ class DevblocksSearchCriteria {
 				$to_date = $this->value[1];
 				
 				if(!is_numeric($from_date) || !is_numeric($to_date)) {
-					if(false == ($dates = DevblocksPlatform::services()->date()->parseDateRange($this->value))) {
+					if(!($dates = DevblocksPlatform::services()->date()->parseDateRange($this->value))) {
 						return 0;
 					}
 					

@@ -190,10 +190,10 @@ interface IDevblocksContextWorkflow {
 }
 
 class DevblocksMenuItemPlaceholder {
-	var $label = null;
-	var $key = null;
-	var $l = null;
-	var $children = [];
+	public $label = null;
+	public $key = null;
+	public $l = null;
+	public $children = [];
 }
 
 interface IDevblocksContextExtension {
@@ -1153,7 +1153,7 @@ abstract class Extension_DevblocksContext extends DevblocksExtension implements 
 		if(!($defaults = C4_AbstractViewModel::loadFromClass($this->getViewClass())))
 			return NULL;
 		
-		$defaults->id = $view_id ?: uniqid();
+		$defaults->id = $view_id ?: uniqid('tmp_');
 		$defaults->is_ephemeral = true;
 		$defaults->options = [];
 		

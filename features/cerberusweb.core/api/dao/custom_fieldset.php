@@ -200,7 +200,7 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 	static function getUsableByActorByContext($actor, $context, $with_admins=true) {
 		$fieldsets = self::getByContext($context);
 		
-		if(false == ($actor = CerberusContexts::polymorphActorToDictionary($actor, false)))
+		if(!($actor = CerberusContexts::polymorphActorToDictionary($actor, false)))
 			return [];
 		
 		$fieldsets = array_filter($fieldsets, function($fieldset) use ($actor) { /* @var $fieldset Model_CustomFieldset */
@@ -208,7 +208,6 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 				case CerberusContexts::CONTEXT_APPLICATION:
 					// Everyone can use global custom fields
 					return true;
-					break;
 					
 				case CerberusContexts::CONTEXT_BOT:
 					// Same bot
@@ -222,12 +221,10 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 				case CerberusContexts::CONTEXT_GROUP:
 					// Member of the group
 					return CerberusContexts::isReadableByActor($fieldset->owner_context, $fieldset->owner_context_id, $actor);
-					break;
 				
 				case CerberusContexts::CONTEXT_ROLE:
 					// Member of the role
 					return CerberusContexts::isReadableByActor($fieldset->owner_context, $fieldset->owner_context_id, $actor);
-					break;
 					
 				case CerberusContexts::CONTEXT_WORKER:
 					// Is the same worker

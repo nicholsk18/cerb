@@ -636,7 +636,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
                   #label: Diff
                   params:
                     value_template@raw:
-                      ##### {{action}}: {{key}}
+                      ##### [{{action}}] {{key}}
                 code/diff:
                   #label: Diff
                   params:
@@ -657,10 +657,10 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 				$old_value = $resource_keys['config'][$config_key]['old_value'] ?? '';
 				$new_value = $resource_keys['config'][$config_key]['new_value'] ?? '';
 				
-				$old_config_options = $was_workflow->getConfigOptions([$config_key => $old_value]);
-				$new_config_options = $was_workflow->getConfigOptions([$config_key => $new_value]);
+				$old_config_options = $was_workflow->getConfigOptions([$config_key => $old_value]) ?: [];
+				$new_config_options = $was_workflow->getConfigOptions([$config_key => $new_value]) ?: [];
 				
-				if('chooser' == $old_config_options[$config_key]['type']) {
+				if('chooser' == ($old_config_options[$config_key]['type'] ?? null)) {
 					if(array_key_exists('record_label', $old_config_options[$config_key]['params'])) {
 						$old_value = $old_config_options[$config_key]['params']['record_label'];
 					} elseif(array_key_exists('record_labels', $old_config_options[$config_key]['params'])) {
@@ -668,7 +668,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 					}
 				}
 				
-				if('chooser' == $new_config_options[$config_key]['type']) {
+				if('chooser' == ($new_config_options[$config_key]['type'] ?? null)) {
 					if(array_key_exists('record_label', $new_config_options[$config_key]['params'])) {
 						$new_value = $new_config_options[$config_key]['params']['record_label'];
 					} elseif(array_key_exists('record_labels', $new_config_options[$config_key]['params'])) {

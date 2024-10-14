@@ -1874,7 +1874,7 @@ abstract class C4_AbstractView {
 					break;
 					
 				default:
-					if(false != ($field_ext = $cfield->getTypeExtension())) {
+					if(($field_ext = $cfield->getTypeExtension())) {
 						$field_ext->populateQuickSearchMeta($cfield, $search_field_meta);
 					}
 					break;

@@ -1265,8 +1265,8 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 		
 		$ft_examples = [];
 		
-		if(false != ($schema = Extension_DevblocksSearchSchema::get(Search_Org::ID))) {
-			if(false != ($engine = $schema->getEngine())) {
+		if(($schema = Extension_DevblocksSearchSchema::get(Search_Org::ID))) {
+			if(($engine = $schema->getEngine())) {
 				$ft_examples = $engine->getQuickSearchExamples($schema);
 			}
 		}
@@ -1320,7 +1320,7 @@ class View_ContactOrg extends C4_AbstractView implements IAbstractView_Subtotals
 				$oper = null;
 				$value = null;
 				
-				if(false == CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $value))
+				if(!CerbQuickSearchLexer::getOperArrayFromTokens($tokens, $oper, $value))
 					return false;
 				
 				$value = DevblocksPlatform::sanitizeArray($value, 'int');

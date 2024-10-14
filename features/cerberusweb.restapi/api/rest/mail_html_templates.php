@@ -87,7 +87,7 @@ class ChRest_MailHtmlTemplates extends Extension_RestController implements IExte
 				'name' => DAO_MailHtmlTemplate::NAME,
 				'owner_context' => DAO_MailHtmlTemplate::OWNER_CONTEXT,
 				'owner_context_id' => DAO_MailHtmlTemplate::OWNER_CONTEXT_ID,
-				'signature' => DAO_MailHtmlTemplate::SIGNATURE,
+				'signature_id' => DAO_MailHtmlTemplate::SIGNATURE_ID,
 				'updated_at' => DAO_MailHtmlTemplate::UPDATED_AT,
 			);
 			
@@ -109,7 +109,7 @@ class ChRest_MailHtmlTemplates extends Extension_RestController implements IExte
 				'name' => SearchFields_MailHtmlTemplate::NAME,
 				'owner_context' => SearchFields_MailHtmlTemplate::OWNER_CONTEXT,
 				'owner_context_id' => SearchFields_MailHtmlTemplate::OWNER_CONTEXT_ID,
-				'signature' => SearchFields_MailHtmlTemplate::SIGNATURE,
+				'signature_id' => SearchFields_MailHtmlTemplate::SIGNATURE_ID,
 				'updated_at' => SearchFields_MailHtmlTemplate::UPDATED_AT,
 			);
 		}

@@ -1351,15 +1351,15 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	}
 	
 	function function_cerb_calendar_time_elapsed($calendar, $date_from, $date_to) {
-		if(!is_numeric($calendar) || false == ($calendar = DAO_Calendar::get($calendar)))
+		if(!is_numeric($calendar) || !($calendar = DAO_Calendar::get($calendar)))
 			return false;
 		
 		/** @var $calendar Model_Calendar */
 		
-		if(empty($date_from) || (!is_numeric($date_from) && false == (@$date_from = strtotime($date_from))))
+		if(empty($date_from) || (!is_numeric($date_from) && !(@$date_from = strtotime($date_from))))
 			$date_from = 0;
 		
-		if(empty($date_to) || (!is_numeric($date_to) && false == (@$date_to = strtotime($date_to))))
+		if(empty($date_to) || (!is_numeric($date_to) && !(@$date_to = strtotime($date_to))))
 			$date_to = 0;
 		
 		$calendar_events = $calendar->getEvents($date_from, $date_to);

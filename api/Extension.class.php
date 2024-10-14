@@ -177,7 +177,7 @@ abstract class Extension_PageSection extends DevblocksExtension {
 		// Check custom records
 		switch($page_id) {
 			case 'core.page.profiles':
-				if(false == ($custom_record = DAO_CustomRecord::getByUri($uri)))
+				if(!($custom_record = DAO_CustomRecord::getByUri($uri)))
 					break;
 					
 				// Return a synthetic subpage extension

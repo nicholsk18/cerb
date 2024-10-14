@@ -522,6 +522,10 @@ UL {
 		.cerb-data-sheet--field-title {
 			font-weight: bold;
 			font-size: 125%;
+
+			div, img, svg {
+				vertical-align: top;
+			}
 		}
 		
 		.cerb-data-sheet--field {
