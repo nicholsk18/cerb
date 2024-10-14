@@ -4,14 +4,14 @@
 	<name>Project Boards</name>
 	<description>Bot-powered project management using Kanban-style boards</description>
 	<author>Webgroup Media, LLC.</author>
-	<version>10.5.0</version>
+	<version>11.0.0</version>
 	<link>https://cerb.ai/</link>
 	<image>plugin.png</image>
 
 	<!-- Requirements -->
 
 	<requires>
-		<app_version min="10.5" max="10.5.99" />
+		<app_version min="11.0" max="11.0.99" />
 	</requires>
 
 	<!-- Plugin Dependencies -->
@@ -26,7 +26,7 @@
 		<patch version="8.0.0" revision="2" file="patches/8.0.0.php" />
 		<patch version="9.0.0" revision="4" file="patches/9.0.0.php" />
 		<patch version="10.0.0" revision="8" file="patches/10.0.0.php" />
-		<patch version="10.5.0" revision="10" file="patches/10.5.0.php" />
+		<patch version="11.0.0" revision="10" file="patches/11.0.0.php" />
 	</patches>
 
 	<!-- Classloader -->

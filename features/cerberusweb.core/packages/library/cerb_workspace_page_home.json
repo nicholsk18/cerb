@@ -3,7 +3,7 @@
     "name": "Page Wizard: Home Overview",
     "revision": 2,
     "requires": {
-      "cerb_version": "10.5.0",
+      "cerb_version": "11.0.0",
       "plugins": [
 
       ]

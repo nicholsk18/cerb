@@ -3,7 +3,7 @@
 		"name": "Installer Base Package",
 		"revision": 1,
 		"requires": {
-			"cerb_version": "10.5.0"
+			"cerb_version": "11.0.0"
 		},
 		"configure": {
 			"prompts": [

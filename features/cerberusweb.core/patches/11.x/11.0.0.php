@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection SqlResolve */
 $db = DevblocksPlatform::services()->database();
 $logger = DevblocksPlatform::services()->log();
 $tables = $db->metaTables();

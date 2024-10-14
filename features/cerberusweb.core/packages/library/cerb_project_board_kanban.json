@@ -3,7 +3,7 @@
     "name": "Project Board: Kanban Template",
     "revision": 2024090601,
     "requires": {
-      "cerb_version": "10.5.0",
+      "cerb_version": "11.0.0",
       "plugins": [
 
       ]

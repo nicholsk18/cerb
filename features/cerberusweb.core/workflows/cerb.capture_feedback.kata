@@ -1,9 +1,9 @@
 workflow:
   name: cerb.capture_feedback
-  version: 2024-10-09T00:00:00Z
+  version: 2024-10-14T00:00:00Z
   description: Capture user feedback while reading email messages
   requirements:
-    cerb_version: >=10.5 <11.0
+    cerb_version: >=11.0 <11.1
     cerb_plugins: cerberusweb.core
 
 records:

@@ -733,7 +733,7 @@ abstract class DevblocksORMHelper {
 	}
 	
 	static protected function _deleteAbstractBefore($context, $ids) : void {
-		// Temporary kill-switch (remove in 10.5)
+		// Temporary kill-switch (remove in 11.0)
 		if(defined('APP_OPT_RECORD_CHANGED_NO_DELETE') && APP_OPT_RECORD_CHANGED_NO_DELETE)
 			return;
 		

@@ -161,7 +161,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 						if('workflow.empty' == $name) {
 							$name = uniqid('new_workflow.');
 							$fields[DAO_Workflow::NAME] = $name;
-							$fields[DAO_Workflow::WORKFLOW_KATA] = sprintf("workflow:\n  name: %s\n  version: %s\n  description: A description of the workflow\n  requirements:\n    cerb_version: >=10.5 <11.0\n    cerb_plugins: cerberusweb.core, \n\nrecords:\n", $name, gmdate('Y-m-d\T00:00:00\Z'));
+							$fields[DAO_Workflow::WORKFLOW_KATA] = sprintf("workflow:\n  name: %s\n  version: %s\n  description: A description of the workflow\n  requirements:\n    cerb_version: >=11.0 <11.1\n    cerb_plugins: cerberusweb.core, \n\nrecords:\n", $name, gmdate('Y-m-d\T00:00:00\Z'));
 							
 							if (!DAO_Workflow::validate($fields, $error))
 								throw new Exception_DevblocksAjaxValidationError($error);
@@ -328,7 +328,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 					'multiple@bool: yes',
 				],
 				'workflow:requirements:' => [
-					'cerb_version: >=10.5 <11.0',
+					'cerb_version: >=11.0 <11.1',
 					'cerb_plugins: cerberusweb.core, ',
 				],
 				'workflow:version:' => [

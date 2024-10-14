@@ -1,9 +1,9 @@
 workflow:
   name: cerb.tutorial
-  version: 2024-10-13T04:45:00Z
+  version: 2024-10-14T00:00:00Z
   description: A workspace with detailed descriptions and examples of Cerb functionality
   requirements:
-    cerb_version: >=10.5 <11.0
+    cerb_version: >=11.0 <11.1
     cerb_plugins: cerberusweb.core,
 records:
   workspace_page/page_tutorial:
@@ -5981,7 +5981,7 @@ records:
                     version@date: 2025-12-31T00:00:00Z
                     description: This example workflow manages a task record
                     requirements:
-                      cerb_version: >=10.5 <11.0
+                      cerb_version: >=11.0 <11.1
                       cerb_plugins: cerberusweb.core,
                     config:
                       text/taskName:
