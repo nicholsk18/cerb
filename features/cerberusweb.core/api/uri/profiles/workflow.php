@@ -1,4 +1,8 @@
 <?php
+
+use SebastianBergmann\Diff\Differ;
+use SebastianBergmann\Diff\Output\UnifiedDiffOutputBuilder;
+
 /***********************************************************************
 | Cerb(tm) developed by Webgroup Media, LLC.
 |-----------------------------------------------------------------------
@@ -579,6 +583,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$kata = DevblocksPlatform::services()->kata();
+		$differ = new Differ(new UnifiedDiffOutputBuilder('', true));
 		
 		try {
 			if(!($active_worker = CerberusApplication::getActiveWorker()))
@@ -607,22 +612,21 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 			
 			$records_sheet_kata = <<< EOD
               layout:
-                headings@bool: yes
+                headings@bool: no
                 paging@bool: no
+                style: fieldsets
               limit: 1000
               columns:
-                text/action:
-                  label: Action
-                text/key:
-                  label: Key
-                text/old_value:
-                  label: Old Value
+                markdown/label:
+                  #label: Diff
                   params:
-                    preformatted@bool: yes
-                text/new_value:
-                  label: New Value
+                    value_template@raw:
+                      ##### {{action}}: {{key}}
+                code/diff:
+                  #label: Diff
                   params:
-                    preformatted@bool: yes
+                    syntax: diff
+                    value_template@raw: {{diff}}
               EOD;
 			
 			if(!($records_sheet = $sheets->parse($records_sheet_kata, $error)))
@@ -660,8 +664,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 				$change_dicts[] = DevblocksDictionaryDelegate::instance([
 					'key' => 'config/' . $config_key,
 					'action' => $resource_keys['config'][$config_key]['action'] ?? '',
-					'old_value' => $old_value,
-					'new_value' => $new_value,
+					'diff' => $differ->diff($old_value, $new_value),
 				]);
 			}
 			
@@ -671,31 +674,26 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 				$was = '';
 				$new = '';
 				
-				// [TODO] Draw a diff?
-				// [TODO] Max height on code output in Markdown column
 				if('update' == $action) {
 					$was_fields = array_intersect_key(
 						$resource_keys['templates']['was']['records'][$rk]['fields'] ?? [],
 						array_fill_keys($resource_keys['records'][$rk]['fields'] ?? [], true)
 					);
 					
-					$was .= $kata->emit($was_fields);
-					
-					// [TODO] Convert placeholders?
+					$was = $kata->emit($was_fields);
 					
 					$new_fields = array_intersect_key(
 						$resource_keys['templates']['new']['records'][$rk]['fields'] ?? [],
 						array_fill_keys($resource_keys['records'][$rk]['fields'] ?? [], true)
 					);
 					
-					$new .= $kata->emit($new_fields);
+					$new = $kata->emit($new_fields);
 				}
 				
 				$change_dicts[] = DevblocksDictionaryDelegate::instance([
 					'key' => $rk,
 					'action' => $action,
-					'old_value' => $was,
-					'new_value' => $new,
+					'diff' => $differ->diff($was, $new),
 				]);
 			}
 			
@@ -712,8 +710,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 					return DevblocksDictionaryDelegate::instance([
 						'key' => $rk,
 						'action' => $action,
-						'old_value' => '',
-						'new_value' => $changes,
+						'diff' => $changes,
 					]);
 				},
 				array_keys($resource_keys['extensions'] ?? []),
