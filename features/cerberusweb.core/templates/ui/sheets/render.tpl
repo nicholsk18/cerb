@@ -1,7 +1,7 @@
 {$is_selection_enabled = false}
 
 <div style="margin-top:5px;">
-	<table cellpadding="0" cellspacing="0" style="width:100%;" class="cerb-sheet cerb-widget-data-table">
+	<table cellpadding="0" cellspacing="0" style="width:100%;{if $layout.params.column_widths}table-layout:fixed;{/if}" class="cerb-sheet cerb-widget-data-table">
 	{if $rows}
 		{if $layout.headings}
 		<thead>
@@ -15,7 +15,7 @@
 						{/if}
 					</th>
 				{else}
-				<th data-column-key="{$column.key}" data-column-type="{$column._type}">{$column.label}</th>
+				<th data-column-key="{$column.key}" data-column-type="{$column._type}" {if $layout.params.column_widths[$column.key]}style="width:{$layout.params.column_widths[$column.key]|round}%;"{/if}>{$column.label}</th>
 				{/if}
 				{/foreach}
 			</tr>
