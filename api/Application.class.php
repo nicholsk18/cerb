@@ -644,7 +644,7 @@ class CerberusApplication extends DevblocksApplication {
 			'cerb.email.pgp_inline',
 			'cerb.login.terms_of_use',
 			'cerb.quickstart',
-			'cerb.surveys.csat',
+			'cerb.satisfaction.surveys',
 			'cerb.tutorial',
 		];
 		

@@ -1962,8 +1962,8 @@ function getContextIdFromAlias($alias) {
 						'name' => 'Worker Login Terms of Use',
 						'description' => "Require consent to 'Terms of Use' when workers login in",
 					],
-					'cerb.surveys.csat' => [
-						'id' => 'cerb.surveys.csat',
+					'cerb.satisfaction.surveys' => [
+						'id' => 'cerb.satisfaction.surveys',
 						'name' => 'Customer Satisfaction Surveys',
 						'description' => 'Gather and monitor customer satisfaction metrics like NPS, CSAT, and CES.',
 					],
