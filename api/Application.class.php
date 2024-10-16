@@ -7448,6 +7448,29 @@ class _CerbApplication_KataSchemas {
                                   multiple@bool: no
                                   types:
                                     string:
+                        picklist:
+                          multiple@bool: yes
+                          types:
+                            object:
+                              attributes:
+                                default:
+                                  multiple@bool: no
+                                  types:
+                                    list:
+                                    string:
+                                label:
+                                  multiple@bool: no
+                                  types:
+                                    string:
+                                multiple:
+                                  multiple@bool: no
+                                  types:
+                                    bit:
+                                    bool:
+                                options:
+                                  multiple@bool: no
+                                  types:
+                                    list:
                         text:
                           multiple@bool: yes
                           types:

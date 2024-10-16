@@ -313,6 +313,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 				],
 				'workflow:config:' => [
 					'chooser/key:',
+					'picklist/key:',
 					'text/key:',
 				],
 				'workflow:config:chooser:' => [
@@ -321,6 +322,12 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 					'record_query:',
 					'record_type:',
 					'multiple@bool: no',
+				],
+				'workflow:config:picklist:' => [
+					'default:',
+					'label:',
+					'multiple@bool: yes',
+					'options@csv: option1, option2, option3',
 				],
 				'workflow:config:text:' => [
 					'default:',

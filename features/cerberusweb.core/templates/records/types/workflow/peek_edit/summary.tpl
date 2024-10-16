@@ -31,6 +31,16 @@
                             {/if}
                         {/if}
                     </ul>
+                {elseif 'picklist' == $config_option.type}
+                    <ul class="bubbles" style="display:inline-block;">
+                    {if $config_option.params.multiple}
+                        {foreach from=$config_option.value item=value}
+                            <li>{$value}</li>
+                        {/foreach}
+                    {else}
+                        <li>{$config_option.value}</li>
+                    {/if}
+                    </ul>
                 {elseif 'text' == $config_option.type}
                     {if $config_option.params.multiple}
                         {$config_option.value|escape|nl2br nofilter}

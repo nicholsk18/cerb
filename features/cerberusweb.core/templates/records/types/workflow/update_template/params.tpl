@@ -26,6 +26,18 @@
                     {/if}
                 {/if}
             </ul>
+        {elseif 'picklist' == $config_option.type}
+            {if $config_option.params.multiple}
+                {foreach from=$config_option.params.options item=option}
+                <label><input type="checkbox" name="config_values[{$config_option.key}][]" value="{$option}" {if in_array($option, $config_option.value)}checked="checked"{/if}> {$option}</label>
+                {/foreach}
+            {else}
+                <select name="config_values[{$config_option.key}]">
+                {foreach from=$config_option.params.options item=option}
+                    <option value="{$option}" {if $config_option.value==$option}selected="selected"{/if}>{$option}</option>
+                {/foreach}
+                </select>
+            {/if}
         {elseif 'text' == $config_option.type}
             {if $config_option.params.multiple}
                 <textarea name="config_values[{$config_option.key}]" style="width:100%;height:5em;">{$config_option.value}</textarea>

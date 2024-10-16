@@ -578,6 +578,7 @@ class Model_Workflow extends DevblocksRecordModel {
 		
 		$possible_types = [
 			'chooser',
+			'picklist',
 			'text',
 		];
 		
@@ -630,6 +631,23 @@ class Model_Workflow extends DevblocksRecordModel {
 							$option_params['record_label'] = $record_dict->get('_label');
 						}
 					}
+				}
+				
+			} elseif('picklist' == $option_type) {
+				$possible_params = [
+					'label',
+					'default',
+					'multiple',
+					'options',
+				];
+				
+				// Schema validation
+				if($invalid_params = array_diff(array_keys($option_params), $possible_params)) {
+					$error = sprintf("Unknown params (%s). Must be one or more of: %s",
+						implode(', ', $invalid_params),
+						implode(',', $possible_params)
+					);
+					return false;
 				}
 			}
 			
