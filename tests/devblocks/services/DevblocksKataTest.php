@@ -559,8 +559,28 @@ EOD;
 		$actual = DevblocksPlatform::services()->kata()->emit($data);
 		
 		$expected = <<< EOD
+    properties:
+      0@list:
+        red
+        green
+        blue
+    EOD;
+		
+		$this->assertEquals($expected, $actual);
+	}
+	
+	function testKataEmitNestedJson() {
+		$data = [
+			'properties' => [
+				[ 'color 1' => 'red', 'color 2' => 'green', 'color 3' => 'blue' ]
+			]
+		];
+		
+		$actual = DevblocksPlatform::services()->kata()->emit($data);
+		
+		$expected = <<< EOD
     properties@json:
-      [["red","green","blue"]]
+      [{"color 1":"red","color 2":"green","color 3":"blue"}]
     EOD;
 		
 		$this->assertEquals($expected, $actual);

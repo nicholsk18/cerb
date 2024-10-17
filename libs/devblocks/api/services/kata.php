@@ -330,6 +330,36 @@ class _DevblocksKataService {
 		return $response;
 	}
 	
+	private function isEmittable(mixed $v) : bool {
+		if(is_scalar($v))
+			return true;
+		
+		if($v instanceof DevblocksKataRawString)
+			return true;
+		
+		if(is_resource($v) || is_object($v))
+			return false;
+		
+		if(is_array($v)) {
+			$funcKeysAreEmittable = function(array $array) use (&$funcKeysAreEmittable) : bool {
+				foreach ($array as $key => $value) {
+					if(strval($key) !== DevblocksPlatform::strAlphaNum(strval($key), '-_.'))
+						return false;
+					
+					if (is_array($value)) {
+						if(!$funcKeysAreEmittable($value))
+							return false;
+					}
+				}
+				return true;
+			};
+			
+			return $funcKeysAreEmittable($v);
+		}
+		
+		return false;
+	}
+	
 	function emit(array $input) : string {
 		$output = '';
 		
@@ -343,8 +373,15 @@ class _DevblocksKataService {
 						if(DevblocksPlatform::arrayIsIndexed($v)) {
 							// If we have a nested array, encode as JSON instead
 							if(array_filter($v, fn($line_item) => is_array($line_item))) {
-								$output .= str_repeat('  ', $indent) . $k . "@json:\n";
-								$output .= str_repeat('  ', $indent+1) . json_encode($v) . "\n";
+								// Is this something we can represent in KATA?
+								if(!$this->isEmittable($v)) {
+									$output .= str_repeat('  ', $indent) . $k . "@json:\n";
+									$output .= str_repeat('  ', $indent + 1) . json_encode($v) . "\n";
+								} else {
+									$nested_kata = $this->emit($v);
+									$output .= str_repeat('  ', $indent) . $k . ":\n";
+									$output .= DevblocksPlatform::services()->string()->indentWith($nested_kata, str_repeat('  ', $indent + 1)) . "\n";
+								}
 								
 							} else {
 								$output .= str_repeat('  ', $indent) . $k . "@list:\n";
