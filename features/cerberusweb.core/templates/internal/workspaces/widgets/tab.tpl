@@ -351,7 +351,7 @@ $(function() {
 			Devblocks.objectToFormData(refresh_options, formData);
 		}
 
-		genericAjaxPost(formData, '', '', function(html) {
+		let hookSuccess = function(html) {
 			if('string' !== typeof html || 0 === html.length) {
 				$widget.empty();
 
@@ -360,25 +360,25 @@ $(function() {
 					.css('margin-bottom', '25px')
 					.appendTo($widget)
 				;
-				
+
 				if(is_full) {
 					var $parent = $widget.closest('.cerb-workspace-widget');
 					var $clone = $parent.clone();
-					
+
 					addEvents($clone).insertBefore(
 						$widget.closest('.cerb-workspace-widget').hide()
 					);
 
 					$widget.closest('.cerb-workspace-widget').remove();
 				}
-				
+
 			} else {
 				try {
 					if(is_full) {
 						addEvents($(html)).insertBefore(
 							$widget.attr('id',null).closest('.cerb-workspace-widget').hide()
 						);
-						
+
 						$widget.closest('.cerb-workspace-widget').remove();
 					} else {
 						$widget.html(html);
@@ -391,6 +391,20 @@ $(function() {
 
 			$widget.fadeTo('fast', 1.0);
 			callback();
+		};
+
+		let hookError = function(err) {
+			$widget.empty();
+
+			if('object' == typeof err && err.hasOwnProperty('responseText')) {
+				$widget.text('Error: ' + err.responseText + ' (' + err.status + ')');
+			}
+
+			callback();
+		}
+
+		genericAjaxPost(formData, '', '', hookSuccess, {
+			'error': hookError
 		});
 	};
 	
