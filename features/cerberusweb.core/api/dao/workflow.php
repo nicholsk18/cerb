@@ -1972,6 +1972,11 @@ function getContextIdFromAlias($alias) {
 						'name' => 'Capture Feedback',
 						'description' => 'Capture user feedback while reading email messages',
 					],
+					'cerb.search.simple' => [
+						'id' => 'cerb.search.simple',
+						'name' => 'Simple Ticket Search',
+						'description' => 'Simplified point-and-click ticket search popup without using search queries',
+					],
 					'cerb.quickstart' => [
 						'id' => 'cerb.quickstart',
 						'name' => 'Quickstart Checklist',

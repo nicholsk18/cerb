@@ -137,6 +137,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 							'cerb.login.terms_of_use',
 							'cerb.quickstart',
 							'cerb.satisfaction.surveys',
+							'cerb.search.simple',
 							'cerb.tutorial',
 							'workflow.empty',
 						];
@@ -183,6 +184,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 								'cerb.login.terms_of_use' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.login.terms_of_use.kata'),
 								'cerb.quickstart' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.quickstart.kata'),
 								'cerb.satisfaction.surveys' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.satisfaction.surveys.kata'),
+								'cerb.search.simple' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.search.simple.kata'),
 								'cerb.tutorial' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.tutorial.kata'),
 							};
 							
