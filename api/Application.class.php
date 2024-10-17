@@ -643,6 +643,7 @@ class CerberusApplication extends DevblocksApplication {
 			'cerb.email.dmarc_reports',
 			'cerb.email.pgp_inline',
 			'cerb.login.terms_of_use',
+			'cerb.notifications.mention_emailer',
 			'cerb.quickstart',
 			'cerb.satisfaction.surveys',
 			'cerb.search.simple',

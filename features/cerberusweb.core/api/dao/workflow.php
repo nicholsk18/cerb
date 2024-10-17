@@ -1962,6 +1962,11 @@ function getContextIdFromAlias($alias) {
 						'name' => 'Worker Login Terms of Use',
 						'description' => "Require consent to 'Terms of Use' when workers login in",
 					],
+					'cerb.notifications.mention_emailer' => [
+						'id' => 'cerb.notifications.mention_emailer',
+						'name' => '@Mention Email Notifications',
+						'description' => "Email workers when they are @mentioned in a comment",
+					],
 					'cerb.satisfaction.surveys' => [
 						'id' => 'cerb.satisfaction.surveys',
 						'name' => 'Customer Satisfaction Surveys',
