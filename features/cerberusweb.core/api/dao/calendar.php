@@ -1355,7 +1355,7 @@ class View_Calendar extends C4_AbstractView implements IAbstractView_Subtotals, 
 	}
 };
 
-class Context_Calendar extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete {
+class Context_Calendar extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextWorkflow, IDevblocksContextAutocomplete {
 	const ID = 'cerberusweb.contexts.calendar';
 	const URI = 'calendar';
 	
@@ -1941,5 +1941,43 @@ class Context_Calendar extends Extension_DevblocksContext implements IDevblocksC
 		} else {
 			Page_Profiles::renderCard($context, $context_id, $calendar);
 		}
+	}
+	
+	function workflowExport(array $ids, DevblocksWorkflowExportModel $export_model, bool $include_children = false) : array {
+		$workflow_kata = [
+			'records' => [],
+		];
+		
+		$record_uri = CerberusContexts::getContextName($this->id, 'uri');
+		
+		$models = DAO_Calendar::getIds($ids); /* @var $models Model_Calendar[] */
+		
+		$context_recurring_event = Extension_DevblocksContext::getByAlias('calendar_recurring_event', true);
+		
+		foreach($models as $model) {
+			$model_key = $export_model->getLabelMapFor(sprintf('%s_%d', $record_uri, $model->id));
+			$record_key = sprintf('%s/%s', $record_uri, $model_key);
+			
+			$workflow_kata['records'][$record_key] = [
+				'fields' => [
+					'name' => $model->name,
+					'owner__context' => CerberusContexts::getContextName($model->owner_context, 'uri'),
+					'owner_context_id' => $model->owner_context_id,
+					'timezone' => $model->timezone,
+				],
+			];
+			
+			if($model->params)
+				$workflow_kata['records'][$record_key]['fields']['params'] = $model->params;
+			
+			if($include_children) {
+				$recurring_events = DAO_CalendarRecurringProfile::getByCalendar($model->id);
+				$recurring_events_kata = $context_recurring_event->workflowExport(array_keys($recurring_events), $export_model, false);
+				
+				$workflow_kata['records'] = array_merge($workflow_kata['records'], $recurring_events_kata['records']);
+			}
+		}
+		
+		return $workflow_kata;
 	}
 };

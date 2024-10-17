@@ -1373,8 +1373,8 @@ class Context_CustomFieldset extends Extension_DevblocksContext implements IDevb
 				'fields' => [
 					'name' => $model->name,
 					'context' => CerberusContexts::getContextName($model->context, 'uri'),
-					'owner_context' => CerberusContexts::getContextName($model->owner_context, 'uri'),
-					'owner_context_id' => $model->owner_context_id,
+					'owner__context' => CerberusContexts::getContextName($model->owner_context, 'uri'),
+					'owner_id' => $model->owner_context_id,
 				],
 			];
 			

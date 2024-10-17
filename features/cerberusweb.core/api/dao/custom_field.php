@@ -2635,6 +2635,7 @@ class Context_CustomField extends Extension_DevblocksContext implements IDevbloc
 					'context' => CerberusContexts::getContextName($model->context, 'uri'),
 					'uri' => $model->uri,
 					'type' => $model->type,
+					'pos' => $model->pos,
 				]
 			];
 			

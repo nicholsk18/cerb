@@ -1132,7 +1132,7 @@ class View_CalendarRecurringProfile extends C4_AbstractView implements IAbstract
 	}
 };
 
-class Context_CalendarRecurringProfile extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek { // IDevblocksContextImport
+class Context_CalendarRecurringProfile extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextWorkflow { // IDevblocksContextImport
 	const ID = 'cerberusweb.contexts.calendar_event.recurring';
 	const URI = 'calendar_event_recurring';
 	
@@ -1563,5 +1563,36 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 		} else {
 			Page_Profiles::renderCard($context, $context_id, $model);
 		}
+	}
+	
+	function workflowExport(array $ids, DevblocksWorkflowExportModel $export_model, bool $include_children = false) : array {
+		$workflow_kata = [
+			'records' => [],
+		];
+		
+		$record_uri = CerberusContexts::getContextName($this->id, 'uri');
+		
+		$models = DAO_CalendarRecurringProfile::getIds($ids); /* @var $models Model_CalendarRecurringProfile[] */
+		
+		foreach($models as $model) {
+			$model_key = $export_model->getLabelMapFor(sprintf('%s_%d', $record_uri, $model->id));
+			$record_key = sprintf('%s/%s', $record_uri, $model_key);
+			
+			$workflow_kata['records'][$record_key] = [
+				'fields' => [
+					'name' => $model->event_name,
+					'calendar_id' => $model->calendar_id,
+					'is_available' => $model->is_available ? 1 : 0,
+					'tz' => $model->tz,
+					'event_start' => $model->event_start,
+					'event_end' => $model->event_end,
+					'recur_start' => $model->recur_start,
+					'recur_end' => $model->recur_end,
+					'patterns' => $model->patterns,
+				],
+			];
+		}
+		
+		return $workflow_kata;
 	}
 };
