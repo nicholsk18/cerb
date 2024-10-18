@@ -52,7 +52,7 @@
             ;
 
             var title = function(i) {
-                return formatTitle(X[i]) + "\n" + Y[i] + " minutes available";
+                return formatTitle(X[i]) + "\n" + Y[i] + ""; // [TODO] Custom suffix
             }
 
             var days = d3v7.groups(I, function(i) { return formatYearMonthDay(X[i]); });

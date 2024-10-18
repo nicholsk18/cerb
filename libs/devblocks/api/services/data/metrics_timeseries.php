@@ -1,5 +1,35 @@
 <?php
 class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
+	private array $_allowed_functions = [
+		'average' => 'average',
+		'avg' => 'average',
+		'count' => 'count',
+		'distinct' => 'distinct',
+		'faceted_avg' => 'faceted_average',
+		'faceted_average' => 'faceted_average',
+		'faceted_max' => 'faceted_max',
+		'faceted_min' => 'faceted_min',
+		'max' => 'max',
+		'min' => 'min',
+		'samples' => 'count',
+		'sum' => 'sum',
+	];
+	
+	private array $_allowed_periods = [
+		'minute' => 300,
+		'hour' => 3600,
+		'day' => 86400,
+		'week' => 86400,
+		'week-sun' => 86400,
+		'month' => 86400,
+		'year' => 86400,
+	];
+	
+	private array $_allowed_formats = [
+		'timeblocks',
+		'timeseries',
+	];
+	
 	public function getSuggestions($type, array $params = []) {
 		$metrics = DAO_Metric::getAll();
 		$metric_names = array_column($metrics, 'name');
@@ -40,9 +70,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 				'20000'
 			],
 			'timezone:' => DevblocksPlatform::services()->date()->getTimezones(),
-			'format:' => [
-				'timeseries',
-			],
+			'format:' => $this->_allowed_formats,
 			'series.*:' => [
 				'' => [
 					[
@@ -89,20 +117,6 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 			'timeout' => 20000,
 		];
 		
-		$allowed_periods = [
-			'minute' => 300,
-			'hour' => 3600,
-			'day' => 86400,
-			'week' => 86400,
-			'week-sun' => 86400,
-			'month' => 86400,
-			'year' => 86400,
-		];
-		
-		$allowed_formats = [
-			'timeseries',
-		];
-		
 		foreach($chart_fields as $field) {
 			$oper = $value = null;
 			
@@ -121,25 +135,25 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$period = DevblocksPlatform::strLower($value);
 				
-				if(!array_key_exists($period, $allowed_periods)) {
+				if(!array_key_exists($period, $this->_allowed_periods)) {
 					$error = sprintf("Unknown `period:` (%s). Must be one of: %s",
 						$period,
-						implode(', ', array_keys($allowed_periods))
+						implode(', ', array_keys($this->_allowed_periods))
 					);
 					return false;
 				}
 				
 				$chart_model['period'] = $period;
-				$chart_model['period_unit'] = $allowed_periods[$period];
+				$chart_model['period_unit'] = $this->_allowed_periods[$period];
 				
 			} else if($field->key == 'format') {
 				CerbQuickSearchLexer::getOperStringFromTokens($field->tokens, $oper, $value);
 				$format = DevblocksPlatform::strLower($value);
 				
-				if(false === array_search($format, $allowed_formats)) {
+				if(false === array_search($format, $this->_allowed_formats)) {
 					$error = sprintf("Unknown `format:` (%s). Must be one of: %s",
 						$format,
-						implode(', ', $allowed_formats)
+						implode(', ', $this->_allowed_formats)
 					);
 					return false;
 				}
@@ -172,30 +186,15 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
 						$function = DevblocksPlatform::strLower($value);
 						
-						$allowed_functions = [
-							'average' => 'average',
-							'avg' => 'average',
-							'count' => 'count',
-							'distinct' => 'distinct',
-							'faceted_avg' => 'faceted_average',
-							'faceted_average' => 'faceted_average',
-							'faceted_max' => 'faceted_max',
-							'faceted_min' => 'faceted_min',
-							'max' => 'max',
-							'min' => 'min',
-							'samples' => 'count',
-							'sum' => 'sum',
-						];
-						
-						if(!array_key_exists($function, $allowed_functions)) {
+						if(!array_key_exists($function, $this->_allowed_functions)) {
 							$error = sprintf("Unknown value for `function:` (%s). Must be one of: %s",
 								$function,
-								implode(', ', array_keys($allowed_functions))
+								implode(', ', array_keys($this->_allowed_functions))
 							);
 							return false;
 						}
 						
-						$series_model['function'] = $allowed_functions[$value];
+						$series_model['function'] = $this->_allowed_functions[$value];
 						
 					} else if($series_field->key == 'missing') {
 						CerbQuickSearchLexer::getOperStringFromTokens($series_field->tokens, $oper, $value);
@@ -506,16 +505,58 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 			$results = $results + $series_data;
 		}
 		
-		// [TODO] handle multiple formats
+		$format = ($chart_model['format'] ?? null) ?: 'timeseries';
 		
+		switch($format) {
+			case 'timeblocks':
+				return $this->_formatDataAsTimeBlocks($results, $chart_model);
+				
+			case 'timeseries':
+				return $this->_formatDataAsTimeSeries($results, $chart_model);
+			
+			default:
+				$error = sprintf("`format:%s` is not valid for `type:%s`. Must be one of: %s",
+					$format,
+					$chart_model['type'],
+					implode(', ', $this->_allowed_formats)
+				);
+				return false;
+		}
+	}
+	
+	private function _formatDataAsTimeSeries(array $results, array $chart_model) {
 		return ['data' => $results, '_' => [
 			'type' => 'metrics.timeseries',
 			'groups' => $chart_model['groups'] ?? [],
 			'format' => 'timeseries',
 			'format_params' => [
 				'xaxis_key' => 'ts',
-				'xaxis_step' => $unit,
-				'xaxis_format' => $unit_format_js,
+				'xaxis_step' => $chart_model['unit'],
+				'xaxis_format' => $chart_model['unit_format_js'],
+			],
+		]];
+	}
+	
+	private function _formatDataAsTimeBlocks(array $results, array $chart_model) {
+		// Re-key the array [date=>value]
+		$results = array_combine(
+			$results['ts'],
+			array_values($results)[1] ?? array_fill_keys($results['ts'], 0)
+		);
+		
+		// Convert the array to dictionaries
+		$results = array_map(
+			fn($k) => ['date' => $k, 'value' => $results[$k]],
+			array_keys($results),
+		);
+		
+		return ['data' => $results, '_' => [
+			'type' => 'metrics.timeseries',
+			'format' => 'timeblocks',
+			'format_params' => [
+				'xaxis_key' => 'ts',
+				'xaxis_step' => $chart_model['unit'],
+				'xaxis_format' => $chart_model['unit_format_js'],
 			],
 		]];
 	}
