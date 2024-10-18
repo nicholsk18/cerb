@@ -26,6 +26,7 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 	];
 	
 	private array $_allowed_formats = [
+		'dictionaries',
 		'timeblocks',
 		'timeseries',
 	];
@@ -508,6 +509,9 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 		$format = ($chart_model['format'] ?? null) ?: 'timeseries';
 		
 		switch($format) {
+			case 'dictionaries':
+				return $this->_formatDataAsDictionaries($results, $chart_model);
+				
 			case 'timeblocks':
 				return $this->_formatDataAsTimeBlocks($results, $chart_model);
 				
@@ -522,6 +526,29 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 				);
 				return false;
 		}
+	}
+	
+	private function _formatDataAsDictionaries(array $results, array $chart_model) {
+		$ts = $results['ts'] ?? [];
+		unset($results['ts']);
+		
+		$data = [];
+		
+		foreach ($results as $series => $values) {
+			foreach($values as $i => $value) {
+				$data[] = ['series' => $series, 'ts' => $ts[$i], 'value' => $value];
+			}
+		}
+		
+		return ['data' => $data, '_' => [
+			'type' => 'metrics.timeseries',
+			'format' => 'dictionaries',
+			'format_params' => [
+				'xaxis_key' => 'ts',
+				'xaxis_step' => $chart_model['unit'],
+				'xaxis_format' => $chart_model['unit_format_js'],
+			],
+		]];
 	}
 	
 	private function _formatDataAsTimeSeries(array $results, array $chart_model) {
