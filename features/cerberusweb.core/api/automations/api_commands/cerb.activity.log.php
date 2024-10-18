@@ -7,9 +7,18 @@ class ApiCommand_CerbActivityLog extends Extension_AutomationApiCommand {
 		
 		$error = null;
 		
+		$actor_context = $params['actor_record_type'] ?? null;
+		
 		$validator->reset();
 		$validator->addField('actor_record_type')->context();
-		$validator->addField('actor_record_id')->id()->addValidator($validator->validators()->contextId($params['actor_record_type']));
+		
+		// We allow empty app owner_id
+		if(CerberusContexts::isSameContext($actor_context, CerberusContexts::CONTEXT_APPLICATION)) {
+			$validator->addField('actor_record_id')->id()->addValidator($validator->validators()->contextId($params['actor_record_type'], true));
+		} else {
+			$validator->addField('actor_record_id')->id()->addValidator($validator->validators()->contextId($params['actor_record_type']));
+		}
+		
 		$validator->addField('activity_point')->string()->setRequired(true)->addValidator(function($string, &$error=null) {
 			if(0 != strcmp($string, DevblocksPlatform::strAlphaNum($string, '.-_'))) {
 				$error = "may only contain letters, numbers, dashes, and dots";
