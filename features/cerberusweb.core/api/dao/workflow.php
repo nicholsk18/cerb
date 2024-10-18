@@ -1952,6 +1952,11 @@ function getContextIdFromAlias($alias) {
 						'name' => 'DMARC Reports',
 						'description' => 'Parse DMARC report attachments in email',
 					],
+					'cerb.email.org_by_hostname' => [
+						'id' => 'cerb.email.org_by_hostname',
+						'name' => 'Sender Org By Hostname',
+						'description' => 'Assign organizations to new senders based on their email @hostname',
+					],
 					'cerb.email.pgp_inline' => [
 						'id' => 'cerb.email.pgp_inline',
 						'name' => 'PGP Inline Encryption',
