@@ -833,7 +833,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 									$calendar_id = $params['calendar_id'] ?? null;
 									$rel_date = $params['calendar_reldate'] ?? null;
 			
-									$value = DevblocksEventHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date);
+									$value = DevblocksCalendarHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date);
 									
 									break;
 									
@@ -1111,7 +1111,7 @@ class Event_MailReceivedByApp extends Extension_DevblocksEvent {
 									$calendar_id = $params['calendar_id'] ?? null;
 									$rel_date = $params['calendar_reldate'] ?? null;
 			
-									$value = DevblocksEventHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date);
+									$value = DevblocksCalendarHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date);
 									break;
 									
 								default:

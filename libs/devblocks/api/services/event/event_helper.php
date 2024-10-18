@@ -68,33 +68,6 @@ class DevblocksEventHelper {
 		return $context_to_macros;
 	}
 	
-	public static function getRelativeDateUsingCalendar($calendar_id, $rel_date, $now=null) {
-		if(is_null($now))
-			$now = time();
-		
-		$today = strtotime('today', $now);
-		
-		if(empty($calendar_id) || false == ($calendar = DAO_Calendar::get($calendar_id))) {
-			// Fallback to plain 24-hour time
-			$value = strtotime($rel_date, $now);
-			
-		} else {
-			/*
-			 * [TODO] We should probably cache this, but we need an efficient way to invalidate
-			 * even when the datasource is a worklist, or multiple contexts.
-			 */
-			$calendar_events = $calendar->getEvents($today, strtotime('+2 weeks 23:59:59', $today));
-			$availability = $calendar->computeAvailability($today, strtotime('+2 weeks 23:59:59', $today), $calendar_events);
-			
-			// [TODO] Do we have enough available time to schedule this?
-			// 	We should be able to lazy append events + availability as we go
-			
-			$value = $availability->scheduleInRelativeTime($now, $rel_date);
-		}
-		
-		return $value;
-	}
-	
 	public static function getWorkerValues($trigger) {
 		$values = [
 			0 => ['name' => '(' . DevblocksPlatform::translate('common.nobody', DevblocksPlatform::TRANSLATE_LOWER) . ')'],
@@ -569,7 +542,7 @@ class DevblocksEventHelper {
 						$rel_date = $params['calendar_reldate'] ?? null;
 						
 						$rel_now = $dict->get('_current_time', time());
-						$value = DevblocksEventHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date, $rel_now);
+						$value = DevblocksCalendarHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date, $rel_now);
 						
 						if(false !== $value)
 							$dict->$token = $value;
@@ -725,7 +698,7 @@ class DevblocksEventHelper {
 						$rel_date = $params['calendar_reldate'] ?? null;
 						
 						$rel_now = $dict->get('_current_time', time());
-						$value = DevblocksEventHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date, $rel_now);
+						$value = DevblocksCalendarHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date, $rel_now);
 						
 						break;
 					
@@ -1127,7 +1100,7 @@ class DevblocksEventHelper {
 				$rel_date = $params['calendar_reldate'] ?? null;
 				
 				$rel_now = $dict->get('_current_time', time());
-				$value = DevblocksEventHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date, $rel_now);
+				$value = DevblocksCalendarHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date, $rel_now);
 				
 				if(false !== $value)
 					$dict->$token = $value;
@@ -1364,7 +1337,7 @@ class DevblocksEventHelper {
 						$rel_date = $params['calendar_reldate'] ?? null;
 						
 						$rel_now = $dict->get('_current_time', time());
-						$value = DevblocksEventHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date, $rel_now);
+						$value = DevblocksCalendarHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date, $rel_now);
 						
 						if(false !== $value)
 							$dict->$token = $value;

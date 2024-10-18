@@ -886,7 +886,7 @@ abstract class AbstractEvent_MailBeforeSent extends Extension_DevblocksEvent {
 						$calendar_id = $params['calendar_id'] ?? null;
 						
 						$rel_now = $dict->get('_current_time', time());
-						$value = DevblocksEventHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date, $rel_now);
+						$value = DevblocksCalendarHelper::getRelativeDateUsingCalendar($calendar_id, $rel_date, $rel_now);
 						
 						$dict->_properties['send_at'] = $value ? date('r', $value) : '';
 						break;
