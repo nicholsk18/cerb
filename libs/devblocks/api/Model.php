@@ -1494,6 +1494,10 @@ abstract class DevblocksSearchFields implements IDevblocksSearchFields {
 							$link_context = $field->params['context'] ?? null;
 						}
 						
+						$cfield_context = Extension_DevblocksContext::getByAlias($link_context);
+						
+						$link_context = $cfield_context->id ?? '';
+						
 						/** @noinspection SqlResolve */
 						$subquery_sql = sprintf("SELECT context_id FROM %s WHERE context = %s AND context_id = %s AND field_id = %d AND field_value IN (%s)",
 							$value_table,
