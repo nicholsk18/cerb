@@ -235,7 +235,10 @@ class DAO_CustomFieldset extends Cerb_ORMHelper {
 						return true;
 					
 					return false;
-					break;
+				
+				// Only admins can edit custom fieldsets owned by workflows (e.g. survey responses)
+				case CerberusContexts::CONTEXT_WORKFLOW:
+					return CerberusContexts::isActorAnAdmin($actor);
 			}
 		});
 		
