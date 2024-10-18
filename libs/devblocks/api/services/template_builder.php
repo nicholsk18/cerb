@@ -261,6 +261,7 @@ class _DevblocksTemplateBuilder {
 				'cerb_automation',
 				'cerb_avatar_image',
 				'cerb_avatar_url',
+				'cerb_calendar_get_relative_date',
 				'cerb_calendar_time_elapsed',
 				'cerb_current_worker',
 				'cerb_extract_mentions',
@@ -1189,6 +1190,7 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			new \Twig\TwigFunction('cerb_automation', [$this, 'function_cerb_automation']),
 			new \Twig\TwigFunction('cerb_avatar_image', [$this, 'function_cerb_avatar_image']),
 			new \Twig\TwigFunction('cerb_avatar_url', [$this, 'function_cerb_avatar_url']),
+			new \Twig\TwigFunction('cerb_calendar_get_relative_date', [$this, 'function_cerb_calendar_get_relative_date']),
 			new \Twig\TwigFunction('cerb_calendar_time_elapsed', [$this, 'function_cerb_calendar_time_elapsed']),
 			new \Twig\TwigFunction('cerb_current_worker', [$this, 'function_cerb_current_worker']),
 			new \Twig\TwigFunction('cerb_extract_uris', [$this, 'function_cerb_extract_uris']),
@@ -1342,6 +1344,10 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 			return;
 		
 		return array_values($arr);
+	}
+	
+	function function_cerb_calendar_get_relative_date($calendar, $rel_date, $now=null) {
+		return DevblocksCalendarHelper::getRelativeDateUsingCalendar($calendar, $rel_date, $now);
 	}
 	
 	function function_cerb_calendar_time_elapsed($calendar, $date_from, $date_to) {

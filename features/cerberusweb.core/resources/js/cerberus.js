@@ -1421,6 +1421,7 @@ let twigAutocompleteSuggestions = {
 		{ value: "cerb_automation(uri,inputs)", meta: "function" },
 		{ value: "cerb_avatar_image(context,id,updated)", meta: "function" },
 		{ value: "cerb_avatar_url(context,id,updated)", meta: "function" },
+		{ value: "cerb_calendar_get_relative_date(calendar,rel_date,now)", meta: "function" },
 		{ value: "cerb_calendar_time_elapsed(calendar,date_from,date_to)", meta: "function" },
 		{ value: "cerb_current_worker(expand=[])", meta: "function" },
 		{ value: "cerb_extract_mentions(text)", meta: "function" },
