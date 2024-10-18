@@ -1157,8 +1157,7 @@ class Context_CalendarRecurringProfile extends Extension_DevblocksContext implem
 			return '';
 	
 		$url_writer = DevblocksPlatform::services()->url();
-		$url = $url_writer->writeNoProxy('c=profiles&type=calendar_recurring_profile&id='.$context_id, true);
-		return $url;
+		return $url_writer->writeNoProxy('c=profiles&type=calendar_recurring_event&id='.$context_id, true);
 	}
 	
 	function profileGetFields($model=null) {

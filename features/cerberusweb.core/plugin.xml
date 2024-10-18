@@ -7484,7 +7484,7 @@
 				</class>
 				<params>
 					<param key="page_id" value="core.page.profiles" />
-					<param key="uri" value="calendar_recurring_profile" />
+					<param key="uri" value="calendar_recurring_event" />
 				</params>
 			</extension>
 

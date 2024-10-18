@@ -29,7 +29,7 @@
 <input type="hidden" name="context_id" value="{$view_context}">
 <input type="hidden" name="c" value="profiles">
 <input type="hidden" name="a" value="invoke">
-<input type="hidden" name="module" value="calendar_recurring_profile">
+<input type="hidden" name="module" value="calendar_recurring_event">
 <input type="hidden" name="action" value="">
 <input type="hidden" name="explore_from" value="0">
 <input type="hidden" name="_csrf_token" value="{$session.csrf_token}">
@@ -79,7 +79,7 @@
 			</td>
 			<td data-column="label" colspan="{$smarty.foreach.headers.total}">
 				<input type="checkbox" name="row_id[]" value="{$result.c_id}" style="display:none;">
-				<a href="{devblocks_url}c=profiles&type=calendar_recurring_profile&id={$result.c_id}-{$result.c_event_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.c_event_name}</a>
+				<a href="{devblocks_url}c=profiles&type=calendar_recurring_event&id={$result.c_id}-{$result.c_event_name|devblocks_permalink}{/devblocks_url}" class="subject">{$result.c_event_name}</a>
 				<button type="button" class="peek cerb-peek-trigger" data-context="{CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING}" data-context-id="{$result.c_id}"><span class="glyphicons glyphicons-new-window-alt"></span></button>
 			</td>
 		</tr>

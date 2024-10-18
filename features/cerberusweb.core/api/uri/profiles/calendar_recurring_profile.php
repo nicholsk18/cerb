@@ -20,7 +20,7 @@ class PageSection_ProfilesCalendarRecurringProfile extends Extension_PageSection
 		$response = DevblocksPlatform::getHttpResponse();
 		$stack = $response->path;
 		@array_shift($stack); // profiles
-		@array_shift($stack); // calendar_recurring_profile
+		@array_shift($stack); // calendar_recurring_event
 		@$context_id = intval(array_shift($stack)); // 123
 
 		$context = CerberusContexts::CONTEXT_CALENDAR_EVENT_RECURRING;
