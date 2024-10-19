@@ -648,6 +648,7 @@ class CerberusApplication extends DevblocksApplication {
 			'cerb.quickstart',
 			'cerb.satisfaction.surveys',
 			'cerb.search.simple',
+			'cerb.sla',
 			'cerb.tutorial',
 		];
 		

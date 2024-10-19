@@ -1987,6 +1987,11 @@ function getContextIdFromAlias($alias) {
 						'name' => 'Simple Ticket Search',
 						'description' => 'Simplified point-and-click ticket search popup without using search queries',
 					],
+					'cerb.sla' => [
+						'id' => 'cerb.sla',
+						'name' => 'Service Level Agreemenets',
+						'description' => 'Enforce Service Level Agreements (SLA) for tickets from organizations',
+					],
 					'cerb.quickstart' => [
 						'id' => 'cerb.quickstart',
 						'name' => 'Quickstart Checklist',
