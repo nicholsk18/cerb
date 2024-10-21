@@ -165,7 +165,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 						if('workflow.empty' == $name) {
 							$name = uniqid('new_workflow.');
 							$fields[DAO_Workflow::NAME] = $name;
-							$fields[DAO_Workflow::WORKFLOW_KATA] = sprintf("workflow:\n  name: %s\n  version: %s\n  description: A description of the workflow\n  requirements:\n    cerb_version: >=11.0 <11.1\n    cerb_plugins: cerberusweb.core, \n\nrecords:\n", $name, gmdate('Y-m-d\T00:00:00\Z'));
+							$fields[DAO_Workflow::WORKFLOW_KATA] = sprintf("workflow:\n  name: %s\n  version: %s\n  description: A description of the workflow\n  website: https://cerb.ai/resources/workflows/\n  requirements:\n    cerb_version: >=11.0 <11.1\n    cerb_plugins: cerberusweb.core, \n\nrecords:\n", $name, gmdate('Y-m-d\T00:00:00\Z'));
 							
 							if (!DAO_Workflow::validate($fields, $error))
 								throw new Exception_DevblocksAjaxValidationError($error);
@@ -318,6 +318,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 					'name: example.workflow.id',
 					'requirements:',
 					'version: ' . gmdate('Y-m-d\T00:00:00\Z'),
+					'website: https://cerb.ai/resources/workflows/',
 				],
 				'workflow:config:' => [
 					'chooser/key:',
@@ -348,6 +349,9 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 				],
 				'workflow:version:' => [
 					'2025-12-31T00:00:00Z',
+				],
+				'workflow:website:' => [
+					'https://cerb.ai/resources/workflows/',
 				]
 			];
 			
@@ -545,6 +549,11 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 			if(($new_template['workflow']['description'] ?? null) && $new_template['workflow']['description'] != $workflow->description) {
 				$workflow->description = $new_template['workflow']['description'] ?? '';
 				$update_fields[DAO_Workflow::DESCRIPTION] = $workflow->description;
+			}
+			
+			if(($new_template['workflow']['website'] ?? null) && $new_template['workflow']['website'] != $workflow->website) {
+				$workflow->website = $new_template['workflow']['website'] ?? '';
+				$update_fields[DAO_Workflow::WEBSITE] = $workflow->website;
 			}
 			
 			if($workflow->id && $update_fields) {
