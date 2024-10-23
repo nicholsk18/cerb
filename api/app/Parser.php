@@ -1977,10 +1977,8 @@ class CerberusParser {
 						$rule_id,
 						DevblocksPlatform::strToPermalink(DAO_MailRoutingRule::get($rule_id)->name ?? '')
 					),
-					'__return' => [
-						$route_actions
-					],
 					'__handler_duration_ms' => (microtime(true) - $routing_kata_started_ms) * 1000,
+					'__return' => $route_actions,
 				]);
 				$model->logEventResults('mail.routing.kata', [$event_results]);
 				
