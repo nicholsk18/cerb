@@ -132,17 +132,7 @@ class SheetAwait extends AbstractAwait {
 		$tpl->assign('default', $default);
 		$tpl->assign('label', $label);
 		
-		$sheets->addType('card', $sheets->types()->card());
-		$sheets->addType('date', $sheets->types()->date());
-		$sheets->addType('icon', $sheets->types()->icon());
-		$sheets->addType('interaction', $sheets->types()->interaction());
-		$sheets->addType('link', $sheets->types()->link());
-		$sheets->addType('markdown', $sheets->types()->markdown());
-		$sheets->addType('selection', $sheets->types()->selection());
-		$sheets->addType('slider', $sheets->types()->slider());
-		$sheets->addType('text', $sheets->types()->text());
-		$sheets->addType('time_elapsed', $sheets->types()->timeElapsed());
-		$sheets->setDefaultType('text');
+		$sheets = $sheets->withDefaultTypes();
 		
 		$layout = $sheets->getLayout($sheet_schema);
 		$tpl->assign('layout', $layout);

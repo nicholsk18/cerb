@@ -402,6 +402,7 @@ class _DevblocksSheetService {
 		$this->addType('code', $this->types()->code());
 		$this->addType('date', $this->types()->date());
 		$this->addType('icon', $this->types()->icon());
+		$this->addType('interaction', $this->types()->interaction());
 		$this->addType('link', $this->types()->link());
 		$this->addType('markdown', $this->types()->markdown());
 		$this->addType('search', $this->types()->search());
@@ -410,6 +411,7 @@ class _DevblocksSheetService {
 		$this->addType('slider', $this->types()->slider());
 		$this->addType('text', $this->types()->text());
 		$this->addType('time_elapsed', $this->types()->timeElapsed());
+		$this->addType('toolbar', $this->types()->toolbar());
 		$this->setDefaultType('text');
 		return $this;
 	}

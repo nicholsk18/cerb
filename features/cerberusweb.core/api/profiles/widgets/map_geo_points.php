@@ -129,16 +129,7 @@ class ProfileWidget_MapGeoPoints extends Extension_ProfileWidget {
 			
 			$sheet = $sheets->parse(DevblocksPlatform::services()->kata()->emit($sheet_schema));
 			
-			$sheets->addType('card', $sheets->types()->card());
-			$sheets->addType('date', $sheets->types()->date());
-			$sheets->addType('icon', $sheets->types()->icon());
-			$sheets->addType('link', $sheets->types()->link());
-			$sheets->addType('markdown', $sheets->types()->markdown());
-			$sheets->addType('search', $sheets->types()->search());
-			$sheets->addType('slider', $sheets->types()->slider());
-			$sheets->addType('text', $sheets->types()->text());
-			$sheets->addType('time_elapsed', $sheets->types()->timeElapsed());
-			$sheets->setDefaultType('text');
+			$sheets = $sheets->withDefaultTypes();
 			
 			$layout = $sheets->getLayout($sheet);
 			$columns = $sheets->getColumns($sheet);

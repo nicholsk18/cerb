@@ -83,20 +83,7 @@ class CardWidget_Sheet extends Extension_CardWidget {
 				$sheet_kata = DevblocksPlatform::importGPC($model->extension_params['sheet_kata'] ?? null, 'string', null);
 				$sheet = $sheets->parse($sheet_kata, $error);
 				
-				$sheets->addType('card', $sheets->types()->card());
-				$sheets->addType('date', $sheets->types()->date());
-				$sheets->addType('icon', $sheets->types()->icon());
-				$sheets->addType('interaction', $sheets->types()->interaction());
-				$sheets->addType('link', $sheets->types()->link());
-				$sheets->addType('markdown', $sheets->types()->markdown());
-				$sheets->addType('search', $sheets->types()->search());
-				$sheets->addType('search_button', $sheets->types()->searchButton());
-				$sheets->addType('selection', $sheets->types()->selection());
-				$sheets->addType('slider', $sheets->types()->slider());
-				$sheets->addType('text', $sheets->types()->text());
-				$sheets->addType('time_elapsed', $sheets->types()->timeElapsed());
-				$sheets->addType('toolbar', $sheets->types()->toolbar());
-				$sheets->setDefaultType('text');
+				$sheets = $sheets->withDefaultTypes();
 				
 				$sheet_dicts = $results['data'];
 				
