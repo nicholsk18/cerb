@@ -1,6 +1,6 @@
 workflow:
   name: cerb.tutorial
-  version: 2024-10-14T00:00:00Z
+  version: 2024-10-24T23:56:06Z
   description: A workspace with detailed descriptions and examples of Cerb functionality
   requirements:
     cerb_version: >=11.0 <11.1
@@ -2628,19 +2628,23 @@ records:
             headings@bool: no
             paging@bool: no
             filtering@bool: no
+            colors:
+              code_dark@csv: #000000, #FFFFFF
+              code@csv: #F3EFEC, #333333
 
           columns:
-            markdown/text:
+            code/text:
               params:
+                color: code:0
+                text_color: code:1
                 text_size@raw: 120%
+                syntax: cerb
                 value@text:
-                  ```cerb
                   type:worklist.subtotals
                   of:ticket
                   by:[created@day,group~20]
                   query:(created:"-2 weeks")
                   format:timeseries
-                  ```
             toolbar/actions:
               params:
                 kata:
@@ -3063,8 +3067,22 @@ records:
       params:
         context: cerberusweb.contexts.worker
         context_id@raw: {{current_worker_id}}
-        properties@json:
-          [["name","email","location","title","gender","is_mfa_required","is_superuser","mention_name","mobile","phone","language","timezone","calendar_id","id"]]
+        properties:
+          0@list:
+            name
+            email
+            location
+            title
+            gender
+            is_mfa_required
+            is_superuser
+            mention_name
+            mobile
+            phone
+            language
+            timezone
+            calendar_id
+            id
         toolbar_kata@text:
   workspace_widget/widget_sheet_active_workers:
     fields:
@@ -3209,6 +3227,8 @@ records:
             filtering@bool: no
             colors:
               rainbow6@csv: #6e40aa, #ee4395, #ff8c38, #aff05b, #28ea8d, #2f96e0
+              code_dark@csv: #000000, #FFFFFF
+              code@csv: #F3EFEC, #333333
 
           columns:
             card/worker_id:
@@ -3219,6 +3239,20 @@ records:
                 label_template@raw: {{worker__label}}
                 image@bool: yes
                 underline: false
+
+            code/code:
+              label: Code
+              params:
+                syntax: kata
+                color: code:0
+                text_color: code:1
+                value@text:
+                  start:
+                    set:
+                      a: 4
+                      b: 5
+                    return:
+                      output: {{a * b}}
 
             date/date:
               label: Date
@@ -4718,6 +4752,9 @@ records:
             headings@bool: no
             paging@bool: no
             filtering@bool: no
+            colors:
+              code_dark@csv: #000000, #FFFFFF
+              code@csv: #F3EFEC, #333333
 
           columns:
             markdown/instructions:
@@ -4730,7 +4767,12 @@ records:
 
                   The most common source of additional input is a web-based form with multiple fields.
 
-                  ```kata
+            code/example:
+              params:
+                syntax: kata
+                color: code:0
+                text_color: code:1
+                value@text:
                   start:
                     await/request:
                       form:
@@ -4746,18 +4788,24 @@ records:
                           say/hello:
                             content@text:
                               Hello, {{prompt_name}}!
-                  ```
-
+            markdown/state:
+              params:
+                text_size@raw: 120%
+                value@text:
                   When an interaction concludes in the `return` state, it returns any number of key/value pairs to the caller. Keys may be nested to return dictionaries.
 
                   Each **caller** has a set of expected return keys to control its behavior.
 
-                  ```cerb
+            code/return:
+              params:
+                color: code:0
+                text_color: code:1
+                syntax: kata
+                value@text:
                   return:
                     key1: value1
                     key2: value2
                     ...
-                  ```
 
         toolbar_kata@text:
   workspace_widget/widget_await_form_elements:
@@ -4972,6 +5020,9 @@ records:
             headings@bool: no
             paging@bool: no
             filtering@bool: no
+            colors:
+              code_dark@csv: #000000, #FFFFFF
+              code@csv: #F3EFEC, #333333
 
           columns:
             markdown/instructions:
@@ -4984,7 +5035,12 @@ records:
 
                   Add new **toolbar sections** to extend the built-in toolbars throughout Cerb. You can also create your own custom toolbars using dashboard widgets.
 
-                  ```
+            code/example:
+              params:
+                syntax: kata
+                color: code:0
+                text_color: code:1
+                value@text:
                   interaction/example:
                     label: Interaction
                     icon: play-button
@@ -4994,7 +5050,6 @@ records:
                         alert: You clicked the interaction.
                     after:
                       refresh_widgets@bool: no
-                  ```
         toolbar_kata@text:
   workspace_widget/widget_list_of_toolbars:
     fields:
@@ -5676,6 +5731,9 @@ records:
             headings@bool: no
             paging@bool: no
             filtering@bool: no
+            colors:
+              code_dark@csv: #000000, #FFFFFF
+              code@csv: #F3EFEC, #333333
 
           columns:
             markdown/instructions:
@@ -5688,7 +5746,12 @@ records:
 
                   In a common use case, an auto-responder message will use placeholders in a snippet like:
 
-                  ```twig
+            code/example1:
+              params:
+                syntax: twig
+                color: code:0
+                text_color: code:1
+                value@text:
                   Hi **{{first_name}}**,
 
                   Thanks for contacting us!
@@ -5699,11 +5762,17 @@ records:
                   Subject: **{{subject}}**
 
                   We'll be in contact shortly.
-                  ```
-
+            markdown/para2:
+              params:
+                text_size@raw: 120%
+                value@text:
                   The above snippet results in the following text when used by an [automation](https://cerb.ai/docs/automations/) on a new ticket:
 
-                  ```text
+            markdown/example2:
+              params:
+                color: code:0
+                text_color: code:1
+                value@text:
                   Hi **Charlotte**,
 
                   Thanks for contacting us!
@@ -5714,7 +5783,6 @@ records:
                   Subject: **Do you accept purchase orders?**
 
                   We'll be in contact shortly.
-                  ```
 
         toolbar_kata@text:
   workspace_widget/widget_snippets_prompts:
@@ -5738,6 +5806,9 @@ records:
             headings@bool: no
             paging@bool: no
             filtering@bool: no
+            colors:
+              code_dark@csv: #000000, #FFFFFF
+              code@csv: #F3EFEC, #333333
 
           columns:
             markdown/text:
@@ -5754,7 +5825,12 @@ records:
 
                   Prompts are defined using **KATA**:
 
-                  ```cerb
+            code/example:
+              params:
+                syntax: kata
+                color: code:0
+                text_color: code:1
+                value@text:
                   checkbox/prompt_checkbox:
                     label: Checkbox:
                     default@bool: yes
@@ -5773,7 +5849,6 @@ records:
                     default: text
                     params:
                       multiple@bool: no
-                  ```
         toolbar_kata@text:
   workspace_widget/widget_list_of_snippets:
     fields:
@@ -5796,12 +5871,319 @@ records:
           suh_my_uses
           s_total_uses
           s_updated_at
+  workspace_tab/tab_workflows:
+    fields:
+      name: Workflows
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 26
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_widget/widget_workflows:
+    fields:
+      label: Workflows
+      tab_id: {{records.tab_workflows.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 1
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(example:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@raw:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+            colors:
+              code_dark@csv: #000000, #FFFFFF
+              code@csv: #F3EFEC, #333333
+
+          columns:
+            markdown/instructions:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  [**Workflows**](https://cerb.ai/docs/workflows/) are templates with versioned updates that keep a related set of records in sync between multiple environments (e.g. dev, staging, production).
+
+                  Here's a simple workflow KATA template that creates a new task using a configurable name and owner.
+
+            code/example:
+              params:
+                syntax: kata
+                color: code:0
+                text_color: code:1
+                value@raw:
+                  workflow:
+                    name: example.newTask
+                    version@date: 2025-12-31T00:00:00Z
+                    description: This example workflow manages a task record
+                    requirements:
+                      cerb_version: >=11.0 <11.1
+                      cerb_plugins: cerberusweb.core,
+                    config:
+                      text/taskName:
+                        label: Task name:
+                        default: New task from a workflow
+                      chooser/taskOwner:
+                        label: Task owner:
+                        multiple@bool: no
+                        record_type: worker
+                        record_query: isDisabled:n
+
+                  records:
+                    task/newTask:
+                      deletionPolicy: retain
+                      fields:
+                        owner_id: {{config.taskOwner_id|default(0)}}
+                        title: {{config.taskName}}
+
+            markdown/outro:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  When you make a changes to a workflow template, any records that were previously created by the workflow are automatically updated to match. The workflow manages the mapping between template "keys" and local record IDs.
+
+                  See:
+                  * [Workflow Library](https://cerb.ai/resources/workflows/)
+        toolbar_kata@text:
+  workspace_widget/widget_placeholders:
+    fields:
+      label: Placeholders
+      tab_id: {{records.tab_workflows.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 2
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(example:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@raw:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+
+          columns:
+            markdown/instructions:
+              params:
+                text_size@raw: 120%
+                value@raw:
+                  To avoid conflicts with the usual `{{placeholder}}` syntax found in records like automations and snippets, Workflow KATA provides two special scripting functions.
+
+                  From any feature that supports automation scripting (e.g. automations, workflows, snippets) you can use `{{cerb_workflow_config('workflow_name')}}` to dynamically read workflow configuration values at runtime. For instance, you can create a workflow just for sharing values (e.g. API keys) between multiple workflows.
+
+                  Read a single key with a default value using: `{{cerb_workflow_config('workflow_name','hashSecret','default')}}`
+
+                  The `{{cerb_workflow_resources('workflow_name')}}` function performs runtime lookups and returns a map of workflow resources and their local record IDs. This is useful from automations, event listeners, and toolbars.
+
+                  Dynamically replace placeholder values in the template with: `{{records.name.id}}` or `{{config.keyName}}`
+
+                  If the configuration value is a `chooser:`, you can expand its dictionary keys like: `{{config.keyName__label}}`
+
+                  Workflow placeholders also support automation scripting [filters](https://cerb.ai/docs/scripting/filters/), such as: `{{config.keyName|lower|sha1}}`
+
+        toolbar_kata@text:
+  workspace_widget/widget_list_of_workflows:
+    fields:
+      label: List of Workflows
+      tab_id: {{records.tab_workflows.id}}
+      extension_id: core.workspace.widget.worklist
+      pos@int: 3
+      width_units@int: 4
+      zone: content
+      params:
+        context: cerb.contexts.workflow
+        query_required@text:
+        query@text:
+        render_limit: 25
+        header_color: #6a87db
+        columns@list:
+          a_name
+          a_description
+          a_version
+          a_updated_at
+  workspace_tab/tab_packages:
+    fields:
+      name: Packages
+      page_id: {{records.page_tutorial.id}}
+      extension_id: core.workspace.tab.dashboard
+      pos@int: 27
+      params:
+        layout@text:
+        prompts_kata@text:
+      options_kata@raw: locked@bool: yes
+  workspace_widget/widget_packages:
+    fields:
+      label: Packages
+      tab_id: {{records.tab_packages.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 1
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(example:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@raw:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+            colors:
+              code_dark@csv: #000000, #FFFFFF
+              code@csv: #F3EFEC, #333333
+
+          columns:
+            markdown/instructions:
+              params:
+                text_size@raw: 120%
+                value@text:
+                  [**Packages**](https://cerb.ai/docs/packages/) are a blueprint for importing a related set of pre-configured **records** into Cerb.
+
+                  A single package can contain any number of workspaces, dashboards, bots, project boards, custom records, custom fieldsets, tasks, tickets, contacts, etc.
+
+                  Packages use the JSON file format. This is something you can easily create from any text editor, and read/write in nearly any programming language.
+
+            code/example:
+              params:
+                color: code:0
+                text_color: code:1
+                syntax: json
+                value@raw:
+                  {
+                    "package": {
+                      "name": "Example Package",
+                      "configure": {
+                        "placeholders": [
+                          {
+                            "type": "random",
+                            "key": "random_code",
+                            "params": {
+                              "length": "8"
+                            }
+                          }
+                        ]
+                      }
+                    },
+                    "records": [
+                      {
+                        "uid": "task_001",
+                        "_context": "task",
+                        "title": "Random task #{{{random_code}}}"
+                      }
+                    ]
+                  }
+            markdown/seeAlso:
+              params:
+                text_size@raw: 120%
+                value@text:
+                  See:
+                  * [Building packages](https://cerb.ai/guides/packages/building/)
+                  * [Create a reusable set of related records in a single package](https://cerb.ai/guides/packages/create-records/)
+                  * [Importing packages](https://cerb.ai/guides/packages/importing/)
+        toolbar_kata@text:
+  workspace_widget/widget_packages_library:
+    fields:
+      label: Library
+      tab_id: {{records.tab_packages.id}}
+      extension_id: core.workspace.widget.sheet
+      pos@int: 2
+      width_units@int: 2
+      zone: content
+      params:
+        data_query@text:
+          type:sample.records
+          records:(help:())
+          format:dictionaries
+        cache_secs@text:
+        placeholder_simulator_kata@text:
+        sheet_kata@text:
+          layout:
+            style: fieldsets
+            headings@bool: no
+            paging@bool: no
+            filtering@bool: no
+            colors:
+              code_dark@csv: #000000, #FFFFFF
+              code@csv: #F3EFEC, #333333
+
+          columns:
+            markdown/text:
+              params:
+                text_size@raw: 120%
+                value@text:
+                  Pre-approved packages can be added to the **library** as templates for use by workers when creating new records.
+
+                  The `package.library` key uses the following structure:
+
+            code/example:
+              params:
+                syntax: json
+                color: code:0
+                text_color: code:1
+                value@text:
+                  {
+                    "package": {
+                      "library": {
+                        "name": "Package Name",
+                        "uri": "a_unique_package_identifier",
+                        "description": "A description of your package",
+                        "instructions": "Instructions with **Markdown** formatting.",
+                        "point": "an_extension_point",
+                        "image": "data:image/png;base64,..."
+                      }
+                    }
+                  }
+
+            markdown/seeAlso:
+              params:
+                text_size@raw: 120%
+                value@text:
+                  See:
+                  * [Adding packages to the library](https://cerb.ai/guides/packages/building/#package-library)
+        toolbar_kata@text:
+  workspace_widget/widget_list_of_packages_library:
+    fields:
+      label: List of Library Packages
+      tab_id: {{records.tab_packages.id}}
+      extension_id: core.workspace.widget.worklist
+      pos@int: 3
+      width_units@int: 4
+      zone: content
+      params:
+        context: cerberusweb.contexts.package.library
+        query_required@text:
+        query: sort:name
+        render_limit: 10
+        header_color: #6a87db
+        columns@list:
+          p_name
+          p_description
+          p_point
+          p_updated_at
   workspace_tab/tab_webhooks:
     fields:
       name: Webhooks
       page_id: {{records.page_tutorial.id}}
       extension_id: core.workspace.tab.dashboard
-      pos@int: 26
+      pos@int: 28
       params:
         layout@text:
         prompts_kata@text:
@@ -5934,281 +6316,6 @@ records:
           w_name
           w_guid
           w_updated_at
-  workspace_tab/tab_workflows:
-    fields:
-      name: Workflows
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 27
-      params:
-        layout@text:
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
-  workspace_widget/widget_workflows:
-    fields:
-      label: Workflows
-      tab_id: {{records.tab_workflows.id}}
-      extension_id: core.workspace.widget.sheet
-      pos@int: 1
-      width_units@int: 2
-      zone: content
-      params:
-        data_query@text:
-          type:sample.records
-          records:(example:())
-          format:dictionaries
-        cache_secs@text:
-        placeholder_simulator_kata@text:
-        sheet_kata@raw:
-          layout:
-            style: fieldsets
-            headings@bool: no
-            paging@bool: no
-            filtering@bool: no
-
-          columns:
-            markdown/instructions:
-              params:
-                text_size@raw: 120%
-                value@raw:
-                  [**Workflows**](https://cerb.ai/docs/workflows/) are templates with versioned updates that keep a related set of records in sync between multiple environments (e.g. dev, staging, production).
-
-                  Here's a simple workflow KATA template that creates a new task using a configurable name and owner.
-
-                  ```kata
-                  workflow:
-                    name: example.newTask
-                    version@date: 2025-12-31T00:00:00Z
-                    description: This example workflow manages a task record
-                    requirements:
-                      cerb_version: >=11.0 <11.1
-                      cerb_plugins: cerberusweb.core,
-                    config:
-                      text/taskName:
-                        label: Task name:
-                        default: New task from a workflow
-                      chooser/taskOwner:
-                        label: Task owner:
-                        multiple@bool: no
-                        record_type: worker
-                        record_query: isDisabled:n
-
-                  records:
-                    task/newTask:
-                      deletionPolicy: retain
-                      fields:
-                        owner_id: {{config.taskOwner_id|default(0)}}
-                        title: {{config.taskName}}
-                  ```
-
-                  When you make a changes to a workflow template, any records that were previously created by the workflow are automatically updated to match. The workflow manages the mapping between template "keys" and local record IDs.
-
-                  See:
-                  * [Workflow Library](https://cerb.ai/resources/workflows/)
-        toolbar_kata@text:
-  workspace_widget/widget_placeholders:
-    fields:
-      label: Placeholders
-      tab_id: {{records.tab_workflows.id}}
-      extension_id: core.workspace.widget.sheet
-      pos@int: 2
-      width_units@int: 2
-      zone: content
-      params:
-        data_query@text:
-          type:sample.records
-          records:(example:())
-          format:dictionaries
-        cache_secs@text:
-        placeholder_simulator_kata@text:
-        sheet_kata@raw:
-          layout:
-            style: fieldsets
-            headings@bool: no
-            paging@bool: no
-            filtering@bool: no
-
-          columns:
-            markdown/instructions:
-              params:
-                text_size@raw: 120%
-                value@raw:
-                  To avoid conflicts with the usual `{{placeholder}}` syntax found in records like automations and snippets, Workflow KATA provides two special scripting functions.
-
-                  From any feature that supports automation scripting (e.g. automations, workflows, snippets) you can use `{{cerb_workflow_config('workflow_name')}}` to dynamically read workflow configuration values at runtime. For instance, you can create a workflow just for sharing values (e.g. API keys) between multiple workflows.
-
-                  Read a single key with a default value using: `{{cerb_workflow_config('workflow_name','hashSecret','default')}}`
-
-                  The `{{cerb_workflow_resources('workflow_name')}}` function performs runtime lookups and returns a map of workflow resources and their local record IDs. This is useful from automations, event listeners, and toolbars.
-
-                  Dynamically replace placeholder values in the template with: `{{records.name.id}}` or `{{config.keyName}}`
-
-                  If the configuration value is a `chooser:`, you can expand its dictionary keys like: `{{config.keyName__label}}`
-
-                  Workflow placeholders also support automation scripting [filters](https://cerb.ai/docs/scripting/filters/), such as: `{{config.keyName|lower|sha1}}`
-
-        toolbar_kata@text:
-  workspace_widget/widget_list_of_workflows:
-    fields:
-      label: List of Workflows
-      tab_id: {{records.tab_workflows.id}}
-      extension_id: core.workspace.widget.worklist
-      pos@int: 3
-      width_units@int: 4
-      zone: content
-      params:
-        context: cerb.contexts.workflow
-        query_required@text:
-        query: sort:name
-        render_limit: 25
-        header_color: #6a87db
-        columns@list:
-          a_name
-          a_description
-          a_version
-          a_updated_at
-  workspace_tab/tab_packages:
-    fields:
-      name: Packages
-      page_id: {{records.page_tutorial.id}}
-      extension_id: core.workspace.tab.dashboard
-      pos@int: 28
-      params:
-        layout@text:
-        prompts_kata@text:
-      options_kata@raw: locked@bool: yes
-  workspace_widget/widget_packages:
-    fields:
-      label: Packages
-      tab_id: {{records.tab_packages.id}}
-      extension_id: core.workspace.widget.sheet
-      pos@int: 1
-      width_units@int: 2
-      zone: content
-      params:
-        data_query@text:
-          type:sample.records
-          records:(example:())
-          format:dictionaries
-        cache_secs@text:
-        placeholder_simulator_kata@text:
-        sheet_kata@raw:
-          layout:
-            style: fieldsets
-            headings@bool: no
-            paging@bool: no
-            filtering@bool: no
-
-          columns:
-            markdown/instructions:
-              params:
-                text_size@raw: 120%
-                value@text:
-                  [**Packages**](https://cerb.ai/docs/packages/) are a blueprint for importing a related set of pre-configured **records** into Cerb.
-
-                  A single package can contain any number of workspaces, dashboards, bots, project boards, custom records, custom fieldsets, tasks, tickets, contacts, etc.
-
-                  Packages use the JSON file format. This is something you can easily create from any text editor, and read/write in nearly any programming language.
-
-                  ```json
-                  {
-                    "package": {
-                      "name": "Example Package",
-                      "configure": {
-                        "placeholders": [
-                          {
-                            "type": "random",
-                            "key": "random_code",
-                            "params": {
-                              "length": "8"
-                            }
-                          }
-                        ]
-                      }
-                    },
-                    "records": [
-                      {
-                        "uid": "task_001",
-                        "_context": "task",
-                        "title": "Random task #{{{random_code}}}"
-                      }
-                    ]
-                  }
-                  ```
-
-                  See:
-                  * [Building packages](https://cerb.ai/guides/packages/building/)
-                  * [Create a reusable set of related records in a single package](https://cerb.ai/guides/packages/create-records/)
-                  * [Importing packages](https://cerb.ai/guides/packages/importing/)
-        toolbar_kata@text:
-  workspace_widget/widget_packages_library:
-    fields:
-      label: Library
-      tab_id: {{records.tab_packages.id}}
-      extension_id: core.workspace.widget.sheet
-      pos@int: 2
-      width_units@int: 2
-      zone: content
-      params:
-        data_query@text:
-          type:sample.records
-          records:(help:())
-          format:dictionaries
-        cache_secs@text:
-        placeholder_simulator_kata@text:
-        sheet_kata@text:
-          layout:
-            style: fieldsets
-            headings@bool: no
-            paging@bool: no
-            filtering@bool: no
-
-          columns:
-            markdown/text:
-              params:
-                text_size@raw: 120%
-                value@text:
-                  Pre-approved packages can be added to the **library** as templates for use by workers when creating new records.
-
-                  The `package.library` key uses the following structure:
-
-                  ```json
-                  {
-                    "package": {
-                      "library": {
-                        "name": "Package Name",
-                        "uri": "a_unique_package_identifier",
-                        "description": "A description of your package",
-                        "instructions": "Instructions with **Markdown** formatting.",
-                        "point": "an_extension_point",
-                        "image": "data:image/png;base64,..."
-                      }
-                    }
-                  }
-                  ```
-
-                  See:
-                  * [Adding packages to the library](https://cerb.ai/guides/packages/building/#package-library)
-        toolbar_kata@text:
-  workspace_widget/widget_list_of_packages_library:
-    fields:
-      label: List of Library Packages
-      tab_id: {{records.tab_packages.id}}
-      extension_id: core.workspace.widget.worklist
-      pos@int: 3
-      width_units@int: 4
-      zone: content
-      params:
-        context: cerberusweb.contexts.package.library
-        query_required@text:
-        query: sort:name
-        render_limit: 10
-        header_color: #6a87db
-        columns@list:
-          p_name
-          p_description
-          p_point
-          p_updated_at
   workspace_tab/tab_api:
     fields:
       name: API
@@ -6240,6 +6347,9 @@ records:
             headings@bool: no
             paging@bool: no
             filtering@bool: no
+            colors:
+              code_dark@csv: #000000, #FFFFFF
+              code@csv: #F3EFEC, #333333
 
           columns:
             markdown/instructions:
@@ -6249,7 +6359,12 @@ records:
                 value_template@raw:
                   The [**API**](https://cerb.ai/docs/api/) is a REST-based web endpoint that allows external applications to interact with Cerb for automation, synchronization, and integration. Through the API, you can perform tasks like creating tickets, searching records, managing notifications, and running automations. It supports data formats such as JSON or XML, and uses OAuth 2.0 for authentication.
 
-                  ```python
+            code/example:
+              params:
+                syntax: python
+                color: code:0
+                text_color: code:1
+                value_template@raw:
                   import requests
 
                   # Define the API endpoint and ticket ID
@@ -6275,7 +6390,6 @@ records:
                   else:
                       print(f"Failed to retrieve ticket. Status code: {response.status_code}")
                       print("Response:", response.text)
-                  ```
         toolbar_kata@text:
   workspace_widget/widget_oauth_apps:
     fields:
