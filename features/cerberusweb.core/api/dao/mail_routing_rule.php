@@ -845,7 +845,7 @@ class View_MailRoutingRule extends C4_AbstractView implements IAbstractView_Subt
 	}
 };
 
-class Context_MailRoutingRule extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+class Context_MailRoutingRule extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextWorkflow {
 	const ID = 'cerb.contexts.mail.routing.rule';
 	const URI = 'mail_routing_rule';
 	
@@ -1211,5 +1211,32 @@ class Context_MailRoutingRule extends Extension_DevblocksContext implements IDev
 		} else {
 			Page_Profiles::renderCard($context, $context_id, $model);
 		}
+	}
+	
+	function workflowExport(array $ids, DevblocksWorkflowExportModel $export_model, bool $include_children = false): array {
+		$workflow_kata = [
+			'records' => [],
+		];
+		
+		$record_uri = CerberusContexts::getContextName($this->id, 'uri');
+		
+		$models = DAO_MailRoutingRule::getIds($ids);
+		
+		foreach($models as $model) {
+			$model_key = $export_model->getLabelMapFor(sprintf('%s_%d', $record_uri, $model->id));
+			$record_key = sprintf('%s/%s', $record_uri, $model_key);
+			
+			$workflow_kata['records'][$record_key] = [
+				'fields' => [
+					'name' => $model->name,
+					'is_disabled' => $model->is_disabled,
+					'priority' => $model->priority,
+					'routing_kata' => $model->routing_kata,
+					'workflow_id' => '{{workflow_id}}',
+				],
+			];
+		}
+		
+		return $workflow_kata;
 	}
 };
