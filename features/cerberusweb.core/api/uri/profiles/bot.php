@@ -990,6 +990,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 						$sheet['layout'] = [];
 					
 					$sheets->addType('card', $sheets->types()->card());
+					$sheets->addType('code', $sheets->types()->code());
 					$sheets->addType('date', $sheets->types()->date());
 					$sheets->addType('icon', $sheets->types()->icon());
 					$sheets->addType('link', $sheets->types()->link());
@@ -1057,6 +1058,7 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 						break;
 					
 					$sheets->addType('card', $sheets->types()->card());
+					$sheets->addType('code', $sheets->types()->code());
 					$sheets->addType('date', $sheets->types()->date());
 					$sheets->addType('icon', $sheets->types()->icon());
 					$sheets->addType('link', $sheets->types()->link());

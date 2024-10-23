@@ -275,6 +275,7 @@ $(function() {
 			formData.set('data_query', json.response);
 			formData.set('sheet_kata', yaml_editor.getValue());
 			formData.append('types[]', 'card');
+			formData.append('types[]', 'code');
 			formData.append('types[]', 'date');
 			formData.append('types[]', 'icon');
 			formData.append('types[]', 'interaction');
