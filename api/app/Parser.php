@@ -1963,6 +1963,8 @@ class CerberusParser {
 			DevblocksPlatform::logError('[Parser/Group Routing] ' . $error);
 		}
 		
+		$routing_kata_started_ms = microtime(true);
+		
 		if($routing && ($route_actions = $mail->runRoutingKata($routing, $routing_dict, $routing_match))) {
 			$rule_id = $routing_keys_to_ids[$routing_match[0]]['id'];
 			$rule_key = $routing_keys_to_ids[$routing_match[0]]['key'];
@@ -1978,6 +1980,7 @@ class CerberusParser {
 					'__return' => [
 						$route_actions
 					],
+					'__handler_duration_ms' => (microtime(true) - $routing_kata_started_ms) * 1000,
 				]);
 				$model->logEventResults('mail.routing.kata', [$event_results]);
 				
