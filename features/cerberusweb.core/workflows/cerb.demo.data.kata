@@ -1,6 +1,6 @@
 workflow:
   name: cerb.demo.data
-  version: 2024-10-14T00:00:00Z
+  version: 2024-10-22T00:00:00Z
   description: Realistic sample data for demonstration, testing, and development
   requirements:
     cerb_version: >=11.0 <11.1
@@ -914,6 +914,18 @@ records:
     fields:
       name: Receipts
       group_id: {{records.group_demo.id}}
+  mail_routing_rule/routing_demo:
+    fields:
+      name: Demo
+      is_disabled@int: 0
+      priority@int: 100
+      routing_kata@raw:
+        rule/demo:
+          if:
+            recipients: demo@
+          then:
+            group: Demo
+      workflow_id: {{workflow_id}}
   ticket/ticket_demo_001:
     fields:
       group_id: {{records.group_demo.id}}
