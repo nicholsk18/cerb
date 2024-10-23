@@ -1161,9 +1161,13 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 			if($model) {
 				if(!Context_EmailSignature::isWriteableByActor($model, $active_worker))
 					DevblocksPlatform::dieWithHttpError(null, 403);
-				
-				$tpl->assign('model', $model);
+			} else {
+				$model = new Model_EmailSignature();
+				$model->signature = "-- \n{{full_name}}{% if title %}, {{title}}{% endif %}";
+				$model->signature_html = "-- \n**{{full_name}}**{% if title %}, {{title}}{% endif %}";
 			}
+			
+			$tpl->assign('model', $model);
 			
 			// Custom fields
 			$custom_fields = DAO_CustomField::getByContext($context, false);
