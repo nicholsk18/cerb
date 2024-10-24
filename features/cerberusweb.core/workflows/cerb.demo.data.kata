@@ -5,6 +5,12 @@ workflow:
   requirements:
     cerb_version: >=11.0 <11.1
     cerb_plugins: cerberusweb.core,
+  config:
+    picklist/isDefaultGroup:
+      label: Is Default Group
+      multiple@bool: no
+      options@csv: yes, no
+      default: no
 
 records:
   mail_transport/transport_null:
@@ -833,6 +839,7 @@ records:
       reply_address_id: {{records.address_demo_at_cerb_dot_example.id}}
       reply_signature_id: {{records.signature_demo.id}}
       reply_html_template_id: {{records.html_template_demo.id}}
+      is_default: {{config.isDefaultGroup == 'yes'}}
       members:
         manager: {{records.worker_admin.id}},{{records.worker_kina.id}}
         member: {{records.worker_milo.id}},{{records.worker_janey.id}},{{records.worker_ned.id}},{{records.worker_mara.id}},{{records.worker_karl.id}}
