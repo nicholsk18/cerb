@@ -62,13 +62,12 @@ define('STEP_LICENSE', 2);
 define('STEP_DATABASE', 3);
 define('STEP_SAVE_CONFIG_FILE', 4);
 define('STEP_INIT_DB', 5);
-define('STEP_OUTGOING_MAIL', 6);
-define('STEP_DEFAULTS', 7);
-define('STEP_PACKAGES', 8);
-define('STEP_REGISTER', 9);
-define('STEP_UPGRADE', 10);
+define('STEP_DEFAULTS', 6);
+define('STEP_PACKAGES', 7);
+define('STEP_REGISTER', 8);
+define('STEP_UPGRADE', 9);
 
-define('TOTAL_STEPS', 11);
+define('TOTAL_STEPS', 10);
 
 // Import GPC variables to determine our scope/step.
 $step = DevblocksPlatform::importGPC($_REQUEST['step'] ?? null, 'integer',0) ?: STEP_ENVIRONMENT;
@@ -650,7 +649,7 @@ switch($step) {
 				CerberusApplication::initBundledResources(force: true);
 				
 				// Success
-				$tpl->assign('step', STEP_OUTGOING_MAIL);
+				$tpl->assign('step', STEP_DEFAULTS);
 				$tpl->display('steps/redirect.tpl');
 				exit;
 				
@@ -672,124 +671,16 @@ switch($step) {
 		}
 			
 		break;
-		
-	// Set up and test the outgoing SMTP
-	case STEP_OUTGOING_MAIL:
+
+	// Set up the default objects
+	case STEP_DEFAULTS:
 		$settings = DevblocksPlatform::services()->pluginSettings();
+		
+		$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'] ?? null, 'integer');
 		
 		$default_reply_from = DevblocksPlatform::importGPC($_POST['default_reply_from'] ?? null, 'string','noreply@cerb.example');
 		$default_reply_personal = DevblocksPlatform::importGPC($_POST['default_reply_personal'] ?? null, 'string','');
 		
-		$extension_id = DevblocksPlatform::importGPC($_POST['extension_id'] ?? null, 'string');
-		$smtp_host = DevblocksPlatform::importGPC($_POST['smtp_host'] ?? null, 'string');
-		$smtp_port = DevblocksPlatform::importGPC($_POST['smtp_port'] ?? null, 'integer');
-		$smtp_enc = DevblocksPlatform::importGPC($_POST['smtp_enc'] ?? null, 'string');
-		$smtp_auth_user = DevblocksPlatform::importGPC($_POST['smtp_auth_user'] ?? null, 'string');
-		$smtp_auth_pass = DevblocksPlatform::importGPC($_POST['smtp_auth_pass'] ?? null, 'string');
-		
-		$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'] ?? null, 'integer');
-		$passed = DevblocksPlatform::importGPC($_POST['passed'] ?? null, 'integer');
-		
-		if(!empty($form_submit)) {
-			if(!$default_reply_from)
-				throw new Exception_CerbInstaller("The default sender is required.");
-				
-			if(false == ($validate = CerberusMail::parseRfcAddress($default_reply_from)))
-				throw new Exception_CerbInstaller("The default sender is invalid.");
-
-			if(false == ($address = DAO_Address::lookupAddress($validate['email'], true)))
-				throw new Exception_CerbInstaller("The default sender is invalid.");
-				
-			DevblocksPlatform::setPluginSetting('cerberusweb.core', CerberusSettings::MAIL_DEFAULT_FROM_ID, $address->id);
-			
-			if(!empty($default_reply_personal)) {
-				DevblocksPlatform::setPluginSetting('cerberusweb.core', 'mail_default_from_personal', $default_reply_personal);
-			}
-			
-			// Test the given mail transport details
-			try {
-				if(false == ($mail_transport = Extension_MailTransport::get($extension_id)))
-					throw new Exception_CerbInstaller("Invalid mail transport extension.");
-				
-				$error = null;
-				
-				if($mail_transport->id == CerbMailTransport_Smtp::ID) {
-					$options = array(
-						'host' => $smtp_host,
-						'port' => $smtp_port,
-						'auth_user' => $smtp_auth_user,
-						'auth_pass' => $smtp_auth_pass,
-						'enc' => $smtp_enc,
-					);
-				
-					if(false == ($mail_transport->testConfig($options, $error)))
-						throw new Exception_CerbInstaller($error);
-					
-					$fields = array(
-						DAO_MailTransport::NAME => $smtp_host . ' SMTP',
-						DAO_MailTransport::EXTENSION_ID => CerbMailTransport_Smtp::ID,
-						DAO_MailTransport::PARAMS_JSON => json_encode($options),
-					);
-					$transport_id = DAO_MailTransport::create($fields);
-					
-				} elseif($mail_transport->id == CerbMailTransport_Null::ID) {
-					// This is always valid
-					$fields = array(
-						DAO_MailTransport::NAME => 'Null Mailer',
-						DAO_MailTransport::EXTENSION_ID => CerbMailTransport_Null::ID,
-						DAO_MailTransport::PARAMS_JSON => json_encode(array()),
-					);
-					$transport_id = DAO_MailTransport::create($fields);
-					
-				}
-				
-				if($transport_id) {
-					$mail_default_from_id = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::MAIL_DEFAULT_FROM_ID, 0);
-					
-					// Set it as the transport on the default reply-to
-					if($mail_default_from_id && false != ($from_addy = DAO_Address::get($mail_default_from_id))) {
-						DAO_Address::update($from_addy->id, [
-							DAO_Address::MAIL_TRANSPORT_ID => $transport_id,
-						]);
-					}
-				}
-				
-				// If we made it this far then we succeeded
-				
-				$tpl->assign('step', STEP_DEFAULTS);
-				$tpl->display('steps/redirect.tpl');
-				exit;
-				
-			} catch (Exception_CerbInstaller $e) {
-				$error = $e->getMessage();
-				
-				$tpl->assign('default_reply_from', $default_reply_from);
-				$tpl->assign('default_reply_personal', $default_reply_personal);
-				
-				$tpl->assign('extension_id', $extension_id);
-				$tpl->assign('smtp_host', $smtp_host);
-				$tpl->assign('smtp_port', $smtp_port);
-				$tpl->assign('smtp_auth_user', $smtp_auth_user);
-				$tpl->assign('smtp_auth_pass', $smtp_auth_pass);
-				$tpl->assign('smtp_enc', $smtp_enc);
-				$tpl->assign('form_submit', true);
-				
-				$tpl->assign('error_display', 'SMTP Connection Failed! ' . $error);
-				$tpl->assign('template', 'steps/step_outgoing_mail.tpl');
-			}
-			
-		} else {
-			$tpl->assign('default_reply_from', $default_reply_from);
-			$tpl->assign('default_reply_personal', $default_reply_personal);
-			
-			$tpl->assign('template', 'steps/step_outgoing_mail.tpl');
-		}
-		
-		break;
-
-	// Set up the default objects
-	case STEP_DEFAULTS:
-		$form_submit = DevblocksPlatform::importGPC($_POST['form_submit'] ?? null, 'integer');
 		$org_name = DevblocksPlatform::importGPC($_POST['org_name'] ?? null, 'string');
 		$worker_email = DevblocksPlatform::importGPC($_POST['worker_email'] ?? null, 'string');
 		$worker_firstname = DevblocksPlatform::importGPC($_POST['worker_firstname'] ?? null, 'string');
@@ -805,6 +696,8 @@ switch($step) {
 		
 		if(!empty($form_submit)) {
 			// Persist form scope
+			$tpl->assign('default_reply_from', $default_reply_from);
+			$tpl->assign('default_reply_personal', $default_reply_personal);
 			$tpl->assign('org_name', $org_name);
 			$tpl->assign('worker_firstname', $worker_firstname);
 			$tpl->assign('worker_lastname', $worker_lastname);
@@ -812,6 +705,29 @@ switch($step) {
 			$tpl->assign('worker_pass', $worker_pass);
 			$tpl->assign('worker_pass2', $worker_pass2);
 			$tpl->assign('timezone', $timezone);
+			
+			try {
+				if (!$default_reply_from)
+					throw new Exception_CerbInstaller("The default sender is required.");
+				
+				if (!($validate = CerberusMail::parseRfcAddress($default_reply_from)))
+					throw new Exception_CerbInstaller("The default sender is invalid.");
+				
+				if (!($address = DAO_Address::lookupAddress($validate['email'], true)))
+					throw new Exception_CerbInstaller("The default sender is invalid.");
+				
+				DevblocksPlatform::setPluginSetting('cerberusweb.core', CerberusSettings::MAIL_DEFAULT_FROM_ID, $address->id);
+				
+				if(!empty($default_reply_personal)) {
+					DevblocksPlatform::setPluginSetting('cerberusweb.core', 'mail_default_from_personal', $default_reply_personal);
+				}
+				
+			} catch (Exception_CerbInstaller $e) {
+				$error = $e->getMessage();
+				$tpl->assign('error_display', 'Error: ' . $error);
+				$tpl->assign('template', 'steps/step_defaults.tpl');
+				break;
+			}
 			
 			// Sanity/Error checking
 			if(!empty($worker_email) && !empty($worker_pass) && $worker_pass == $worker_pass2 && strlen($worker_pass) >= 8) {
@@ -841,6 +757,24 @@ switch($step) {
 						'samesite' => 'Lax',
 					]
 				);
+				
+				// This is always valid
+				$fields = [
+					DAO_MailTransport::NAME => 'Null Mailer',
+					DAO_MailTransport::EXTENSION_ID => CerbMailTransport_Null::ID,
+					DAO_MailTransport::PARAMS_JSON => json_encode(array()),
+				];
+				
+				if($transport_id = DAO_MailTransport::create($fields)) {
+					$mail_default_from_id = DevblocksPlatform::getPluginSetting('cerberusweb.core', CerberusSettings::MAIL_DEFAULT_FROM_ID, 0);
+					
+					// Set it as the transport on the default reply-to
+					if($mail_default_from_id && ($from_addy = DAO_Address::get($mail_default_from_id))) {
+						DAO_Address::update($from_addy->id, [
+							DAO_Address::MAIL_TRANSPORT_ID => $transport_id,
+						]);
+					}
+				}
 				
 				$tpl->assign('step', STEP_PACKAGES);
 				$tpl->display('steps/redirect.tpl');
