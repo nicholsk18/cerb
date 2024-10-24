@@ -270,7 +270,7 @@ class DAO_Worker extends Cerb_ORMHelper {
 		
 		// Add default pages
 		if(($default_pages = DevblocksPlatform::getPluginSetting('cerberusweb.core', 'new_worker_default_page_ids', ''))) {
-			$menu_json = json_encode(explode(',', $default_pages));
+			$menu_json = explode(',', $default_pages);
 			DAO_WorkerPref::setAsJson($id, 'menu_json', $menu_json);
 		}
 		

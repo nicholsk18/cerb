@@ -545,8 +545,8 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 			'format' => 'dictionaries',
 			'format_params' => [
 				'xaxis_key' => 'ts',
-				'xaxis_step' => $chart_model['unit'],
-				'xaxis_format' => $chart_model['unit_format_js'],
+				'xaxis_step' => $chart_model['unit'] ?? '',
+				'xaxis_format' => $chart_model['unit_format_js'] ?? '',
 			],
 		]];
 	}
@@ -558,8 +558,8 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 			'format' => 'timeseries',
 			'format_params' => [
 				'xaxis_key' => 'ts',
-				'xaxis_step' => $chart_model['unit'],
-				'xaxis_format' => $chart_model['unit_format_js'],
+				'xaxis_step' => $chart_model['unit'] ?? '',
+				'xaxis_format' => $chart_model['unit_format_js'] ?? '',
 			],
 		]];
 	}
@@ -582,8 +582,8 @@ class _DevblocksDataProviderMetricsTimeseries extends _DevblocksDataProvider {
 			'format' => 'timeblocks',
 			'format_params' => [
 				'xaxis_key' => 'ts',
-				'xaxis_step' => $chart_model['unit'],
-				'xaxis_format' => $chart_model['unit_format_js'],
+				'xaxis_step' => $chart_model['unit'] ?? '',
+				'xaxis_format' => $chart_model['unit_format_js'] ?? '',
 			],
 		]];
 	}

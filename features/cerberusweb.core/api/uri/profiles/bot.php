@@ -1051,10 +1051,10 @@ class PageSection_ProfilesBot extends Extension_PageSection {
 					$sheets = DevblocksPlatform::services()->sheet()->newInstance();
 					$error = null;
 					
-					if(false == ($results = DevblocksPlatform::services()->data()->executeQuery($params['data_query'], [], $error)))
+					if(!($results = DevblocksPlatform::services()->data()->executeQuery($params['data_query'], [], $error)))
 						break;
 					
-					if(false == ($sheet = $sheets->parse($params['sheet_kata'], $error)))
+					if(!($sheet = $sheets->parse($params['sheet_kata'], $error)))
 						break;
 					
 					$sheets->addType('card', $sheets->types()->card());

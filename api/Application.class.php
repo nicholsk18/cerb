@@ -635,6 +635,10 @@ class CerberusApplication extends DevblocksApplication {
 		
 		// Workflows
 		
+		DevblocksPlatform::registerClasses(APP_PATH . '/api/app/Mail.php', [
+			'CerberusMail',
+		]);
+		
 		$bundled_workflows = [
 			'cerb.auto_dispatcher',
 			'cerb.auto_responder',
@@ -6654,7 +6658,16 @@ class _CerbApplication_KataSchemas {
                           types:
                             object:
                               attributes:
+                                color:
+                                  types:
+                                    string:
                                 syntax:
+                                  types:
+                                    string:
+                                text_color:
+                                  types:
+                                    string:
+                                text_size:
                                   types:
                                     string:
                                 value_key:

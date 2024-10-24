@@ -875,12 +875,15 @@ var cerbAutocompleteSuggestions = {
 			'params:'
 		],
 		'columns:code:params:': [
+			'color@raw:',
 			'syntax:',
+			'text_color@raw:',
+			'text_size@raw: 150%',
 			'value:',
 			'value_key:',
 			'value_template@raw:',
 		],
-		'columns:code:syntax:': [
+		'columns:code:params:syntax:': [
 			'diff',
 			'plaintext',
 		],

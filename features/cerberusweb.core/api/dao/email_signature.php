@@ -1153,7 +1153,7 @@ class Context_EmailSignature extends Extension_DevblocksContext implements IDevb
 		$model = null;
 		
 		if($context_id) {
-			if(false == ($model = DAO_EmailSignature::get($context_id)))
+			if(!($model = DAO_EmailSignature::get($context_id)))
 				DevblocksPlatform::dieWithHttpError(null, 404);
 		}
 		
