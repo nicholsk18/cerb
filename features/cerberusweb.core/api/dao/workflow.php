@@ -1221,7 +1221,6 @@ class View_Workflow extends C4_AbstractView implements IAbstractView_Subtotals, 
 			SearchFields_Workflow::NAME,
 			SearchFields_Workflow::DESCRIPTION,
 			SearchFields_Workflow::VERSION,
-			SearchFields_Workflow::WEBSITE,
 			SearchFields_Workflow::UPDATED_AT,
 		];
 		
