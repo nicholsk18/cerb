@@ -42,6 +42,9 @@
 
         {if $model->id}
         <div class="cerb-code-editor-toolbar" style="margin:0.5em 0;">
+            {if $model->config_kata}
+            <button type="button" data-cerb-button-config-update data-cerb-template-section="config"><span class="glyphicons glyphicons-adjust-alt"></span> Edit Configuration</button>
+            {/if}
             <button type="button" data-cerb-button-template-update><span class="glyphicons glyphicons-file-import"></span> Update Template</button>
         </div>
         {else}
@@ -116,6 +119,9 @@
                 e.preventDefault();
                 e.stopPropagation();
 
+                let $button = $(this);
+                let section = $button.attr('data-cerb-template-section');
+
                 let model_id = $frm.find('input[name=id]').val();
                 if(!model_id) return;
 
@@ -125,6 +131,9 @@
                 formData.set('module', 'workflow');
                 formData.set('action', 'showTemplateUpdatePopup');
                 formData.set('id', model_id);
+
+                if(section)
+                    formData.set('section', section);
 
                 let $update_popup = genericAjaxPopup('workflowTemplate', formData, '', '', '80%');
 
@@ -145,6 +154,7 @@
                 });
             };
 
+            $tab_builder.find('button[data-cerb-button-config-update').on('click', onButtonTemplateUpdate);
             $tab_builder.find('button[data-cerb-button-template-update').on('click', onButtonTemplateUpdate);
 
             {if $model->id}

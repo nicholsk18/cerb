@@ -238,6 +238,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 	
 	private function _profileAction_showTemplateUpdatePopup() {
 		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
+		$section = DevblocksPlatform::importGPC($_POST['section'] ?? null, 'string', '');
 		
 		$tpl = DevblocksPlatform::services()->template();
 		$active_worker = CerberusApplication::getActiveWorker();
@@ -385,6 +386,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 				};
 			}
 			
+			$tpl->assign('section', $section);
 			$tpl->assign('model', $workflow);
 			$tpl->display('devblocks:cerberusweb.core::records/types/workflow/update_template/popup.tpl');
 			

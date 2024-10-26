@@ -209,6 +209,12 @@ $(function() {
                 }
             });
         });
+
+        {if 'config' == $section}
+        setTimeout(function() {
+            $tab_template.find('[data-cerb-button-continue]').click();
+        }, 0);
+        {/if}
     });
 });
 </script>
