@@ -160,52 +160,23 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 							DAO_Workflow::NAME => $name,
 							DAO_Workflow::CREATED_AT => time(),
 							DAO_Workflow::UPDATED_AT => time(),
+							DAO_Workflow::CONFIG_KATA => '',
+							DAO_Workflow::WORKFLOW_KATA => '',
+							DAO_Workflow::RESOURCES_KATA => '',
 						];
 						
 						if('workflow.empty' == $name) {
 							$name = uniqid('new_workflow.');
 							$fields[DAO_Workflow::NAME] = $name;
-							$fields[DAO_Workflow::WORKFLOW_KATA] = sprintf("workflow:\n  name: %s\n  version: %s\n  description: A description of the workflow\n  website: https://cerb.ai/resources/workflows/\n  requirements:\n    cerb_version: >=11.0 <11.1\n    cerb_plugins: cerberusweb.core, \n\nrecords:\n", $name, gmdate('Y-m-d\T00:00:00\Z'));
-							
-							if (!DAO_Workflow::validate($fields, $error))
-								throw new Exception_DevblocksAjaxValidationError($error);
-							
-							if (!DAO_Workflow::onBeforeUpdateByActor($active_worker, $fields, null, $error))
-								throw new Exception_DevblocksAjaxValidationError($error);
-							
-							$id = DAO_Workflow::create($fields);
-							
-						} else {
-							$new_workflow = new Model_Workflow();
-							$new_workflow->name = $name;
-							$new_workflow->workflow_kata = match($name) {
-								'cerb.auto_dispatcher' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.auto_dispatcher.kata'),
-								'cerb.auto_responder' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.auto_responder.kata'),
-								'cerb.capture_feedback' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.capture_feedback.kata'),
-								'cerb.email.dmarc_reports' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.email.dmarc_reports.kata'),
-								'cerb.email.org_by_hostname' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.email.org_by_hostname.kata'),
-								'cerb.email.pgp_inline' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.email.pgp_inline.kata'),
-								'cerb.login.terms_of_use' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.login.terms_of_use.kata'),
-								'cerb.notifications.mention_emailer' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.notifications.mention_emailer.kata'),
-								'cerb.quickstart' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.quickstart.kata'),
-								'cerb.satisfaction.surveys' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.satisfaction.surveys.kata'),
-								'cerb.search.simple' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.search.simple.kata'),
-								'cerb.sla' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.sla.kata'),
-								'cerb.tutorial' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.tutorial.kata'),
-							};
-							
-							// Use the default config values until an admin configures it
-							if(($config_options = $new_workflow->getConfigOptions()) && is_array($config_options)) {
-								$new_workflow->setConfigValues(array_column($config_options, 'value', 'key'));
-							}
-							
-							if(false === ($new_workflow = DevblocksPlatform::services()->workflow()->import($new_workflow, null, $error)))
-								throw new Exception_DevblocksAjaxValidationError($error);
-							
-							$id = $new_workflow->id;
 						}
 						
-						DAO_Workflow::onUpdateByActor($active_worker, $fields, $id);
+						if (!DAO_Workflow::validate($fields, $error))
+							throw new Exception_DevblocksAjaxValidationError($error);
+						
+						if (!DAO_Workflow::onBeforeUpdateByActor($active_worker, $fields, null, $error))
+							throw new Exception_DevblocksAjaxValidationError($error);
+						
+						$id = DAO_Workflow::create($fields);
 						
 						if (!empty($view_id) && !empty($id))
 							C4_AbstractView::setMarqueeContextCreated($view_id, CerberusContexts::CONTEXT_WORKFLOW, $id);
@@ -393,6 +364,26 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 			}
 			
 			$tpl->assign('autocomplete_suggestions', $autocomplete_suggestions);
+			
+			// Default the template content when empty and we recognize the name
+			if($workflow->id && empty($workflow->workflow_kata)) {
+				$workflow->workflow_kata = match($workflow->name) {
+					'cerb.auto_dispatcher' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.auto_dispatcher.kata'),
+					'cerb.auto_responder' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.auto_responder.kata'),
+					'cerb.capture_feedback' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.capture_feedback.kata'),
+					'cerb.email.dmarc_reports' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.email.dmarc_reports.kata'),
+					'cerb.email.org_by_hostname' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.email.org_by_hostname.kata'),
+					'cerb.email.pgp_inline' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.email.pgp_inline.kata'),
+					'cerb.login.terms_of_use' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.login.terms_of_use.kata'),
+					'cerb.notifications.mention_emailer' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.notifications.mention_emailer.kata'),
+					'cerb.quickstart' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.quickstart.kata'),
+					'cerb.satisfaction.surveys' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.satisfaction.surveys.kata'),
+					'cerb.search.simple' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.search.simple.kata'),
+					'cerb.sla' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.sla.kata'),
+					'cerb.tutorial' => file_get_contents(APP_PATH . '/features/cerberusweb.core/workflows/cerb.tutorial.kata'),
+					default => sprintf("workflow:\n  name: %s\n  version: %s\n  description: A description of the workflow\n  website: https://cerb.ai/resources/workflows/\n  requirements:\n    cerb_version: >=11.0 <11.1\n    cerb_plugins: cerberusweb.core, \n\nrecords:\n", $workflow->name, gmdate('Y-m-d\T00:00:00\Z')),
+				};
+			}
 			
 			$tpl->assign('model', $workflow);
 			$tpl->display('devblocks:cerberusweb.core::records/types/workflow/update_template/popup.tpl');

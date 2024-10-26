@@ -69,7 +69,7 @@
                 {if $active_worker->hasPriv("contexts.{$peek_context}.delete")}<button type="button" class="delete-prompt"><span class="glyphicons glyphicons-circle-remove"></span> {'common.delete'|devblocks_translate|capitalize}</button>{/if}
             {else}
                 <button type="button" class="create-library" style="display:none;"><span class="glyphicons glyphicons-circle-plus"></span> {'common.create'|devblocks_translate|capitalize}</button>
-                <button type="button" class="create-continue"><span class="glyphicons glyphicons-circle-arrow-right"></span> {'common.create_and_continue'|devblocks_translate|capitalize}</button>
+                <button type="button" class="create"><span class="glyphicons glyphicons-circle-arrow-right"></span> {'common.create_and_continue'|devblocks_translate|capitalize}</button>
             {/if}
         </div>
     </div>
@@ -89,10 +89,28 @@
 
             let $tab_builder = $popup.find('#workflow-builder');
 
+            let funcAfter = function(e) {
+                let popup_url = 'c=internal&a=invoke&module=records&action=showPeekPopup' +
+                    '&context=' + encodeURIComponent(e.context) +
+                    '&context_id=' + encodeURIComponent(e.id) +
+                    '&view_id=' + encodeURIComponent(e.view_id) +
+                    '&edit=true'
+                ;
+
+                let $new_popup = genericAjaxPopup('editor' + Devblocks.uniqueId(), popup_url, null, null, '50%');
+
+                $new_popup.one('popup_open', function(evt) {
+                    evt.stopPropagation();
+                    setTimeout(function() {
+                        $new_popup.find('button[data-cerb-button-template-update]').click();
+                    }, 50);
+                });
+            };
+
             // Buttons
             $tab_builder.find('button.save').click(Devblocks.callbackPeekEditSave);
             $tab_builder.find('button.save-continue').click({ mode: 'continue' }, Devblocks.callbackPeekEditSave);
-            $tab_builder.find('button.create-continue').click({ mode: 'create_continue' }, Devblocks.callbackPeekEditSave);
+            $tab_builder.find('button.create').click({ mode: 'create', after: funcAfter }, Devblocks.callbackPeekEditSave);
 
             let onButtonTemplateUpdate = function(e) {
                 e.preventDefault();
