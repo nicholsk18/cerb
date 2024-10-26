@@ -145,6 +145,11 @@ class ServiceProvider_Aws extends Extension_ConnectedServiceProvider {
 			$region = 'us-east-1';
 		}
 		
+		$service = match($service) {
+			'bedrock-runtime' => 'bedrock',
+			default => $service,
+		};
+		
 		if(empty($region) || empty($service))
 			return false;
 		
