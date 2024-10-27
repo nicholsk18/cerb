@@ -288,6 +288,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 					'config:',
 					'description: A description of the workflow',
 					'name: example.workflow.id',
+					'instructions@text:',
 					'requirements:',
 					'version: ' . gmdate('Y-m-d\T00:00:00\Z'),
 					'website: https://cerb.ai/resources/workflows/',
@@ -550,6 +551,13 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 				}
 				
 				DAO_Workflow::update($workflow->id, $update_fields);
+			}
+			
+			// Instructions
+			if(($workflow_instructions = ($new_template['workflow']['instructions'] ?? $new_template['workflow']['website'] ?? null))) {
+				$workflow_instructions = DevblocksPlatform::parseMarkdown($workflow_instructions, true);
+				$workflow_instructions = DevblocksPlatform::purifyHTML($workflow_instructions, true, true);
+				$tpl->assign('workflow_instructions', $workflow_instructions);
 			}
 
 			// Load config options

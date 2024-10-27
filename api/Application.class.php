@@ -7546,6 +7546,10 @@ class _CerbApplication_KataSchemas {
                                   types:
                                     bit:
                                     bool:
+                instructions:
+                  multiple@bool: no
+                  types:
+                    string:
                 name:
                   multiple@bool: no
                   types:
