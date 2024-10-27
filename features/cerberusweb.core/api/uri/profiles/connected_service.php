@@ -64,7 +64,7 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 				if(!$active_worker->hasPriv(sprintf("contexts.%s.delete", CerberusContexts::CONTEXT_CONNECTED_SERVICE)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.no_acl.delete'));
 				
-				if(false == ($model = DAO_ConnectedService::get($id)))
+				if(!($model = DAO_ConnectedService::get($id)))
 					throw new Exception_DevblocksAjaxValidationError(DevblocksPlatform::translate('error.core.record.not_found'));
 				
 				if(!Context_ConnectedService::isDeletableByActor($model, $active_worker))
@@ -96,7 +96,7 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 						if(empty($package_uri))
 							throw new Exception_DevblocksAjaxValidationError("You must select a package from the library.");
 						
-						if(false == ($package = DAO_PackageLibrary::getByUri($package_uri)))
+						if(!($package = DAO_PackageLibrary::getByUri($package_uri)))
 							throw new Exception_DevblocksAjaxValidationError("You selected an invalid package.");
 						
 						if($package->point != 'connected_service')
@@ -111,7 +111,7 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 						} catch(Exception_DevblocksValidationError $e) {
 							throw new Exception_DevblocksAjaxValidationError($e->getMessage());
 							
-						} catch (Exception $e) {
+						} catch (Throwable) {
 							throw new Exception_DevblocksAjaxValidationError("An unexpected error occurred.");
 						}
 						

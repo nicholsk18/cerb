@@ -1518,7 +1518,7 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 			$model = null;
 			
 			if(!is_numeric($context_id))
-				if(false != ($model = DAO_ConnectedAccount::getByUri($context_id)))
+				if(($model = DAO_ConnectedAccount::getByUri($context_id)))
 					$context_id = $model->id;
 			
 			if(!$model)
@@ -1565,7 +1565,7 @@ class Context_ConnectedAccount extends Extension_DevblocksContext implements IDe
 				$services = array_filter(
 					DAO_ConnectedService::getAll(),
 					function($service) use ($service_manifests) {
-						if(false == (@$service_manifest = $service_manifests[$service->extension_id]))
+						if(!($service_manifest = $service_manifests[$service->extension_id] ?? null))
 							return false;
 						
 						return $service_manifest->hasOption('accounts');
