@@ -1046,6 +1046,14 @@ class Model_Workflow extends DevblocksRecordModel {
 				
 				// If retaining, skip deletion
 				if('retain' == $deletion_policy) {
+					if($was_record_id) {
+						$script['start']['var.unset/' . $record_name] = [
+							'inputs' => [
+								'key' => 'records:' . $record_name,
+							],
+						];
+					}
+					
 					$resource_keys['records'][$record_key] = [
 						'action' => 'retain',
 						'was_record_id' => $was_record_id,
