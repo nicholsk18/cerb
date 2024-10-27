@@ -9,7 +9,6 @@ class DAO_Workflow extends Cerb_ORMHelper {
 	const RESOURCES_KATA = 'resources_kata';
 	const UPDATED_AT = 'updated_at';
 	const VERSION = 'version';
-	const WEBSITE = 'website';
 	const WORKFLOW_KATA = 'workflow_kata';
 	
 	const _CACHE_ALL = 'workflows_all';
@@ -62,10 +61,6 @@ class DAO_Workflow extends Cerb_ORMHelper {
 		$validation
 			->addField(self::VERSION)
 			->uint(8)
-		;
-		$validation
-			->addField(self::WEBSITE)
-			->url()
 		;
 		$validation
 			->addField(self::WORKFLOW_KATA)
@@ -176,7 +171,7 @@ class DAO_Workflow extends Cerb_ORMHelper {
 		list($where_sql, $sort_sql, $limit_sql) = self::_getWhereSQL($where, $sortBy, $sortAsc, $limit);
 		
 		// SQL
-		$sql = "SELECT id, name, description, created_at, updated_at, version, website, workflow_kata, config_kata, resources_kata, has_extensions ".
+		$sql = "SELECT id, name, description, created_at, updated_at, version, workflow_kata, config_kata, resources_kata, has_extensions ".
 			"FROM workflow ".
 			$where_sql.
 			$sort_sql.
@@ -281,7 +276,6 @@ class DAO_Workflow extends Cerb_ORMHelper {
 			$object->resources_kata = $row['resources_kata'] ?? '';
 			$object->updated_at = intval($row['updated_at'] ?? 0);
 			$object->version = intval($row['version'] ?? 0);
-			$object->website = $row['website'] ?? '';
 			$object->workflow_kata = $row['workflow_kata'] ?? '';
 			$objects[$object->id] = $object;
 		}
@@ -333,7 +327,6 @@ class DAO_Workflow extends Cerb_ORMHelper {
 			"workflow.created_at as %s, ".
 			"workflow.updated_at as %s, ".
 			"workflow.version as %s, ".
-			"workflow.website as %s, ".
 			"workflow.workflow_kata as %s, ".
 			"workflow.config_kata as %s, ".
 			"workflow.resources_kata as %s ",
@@ -343,7 +336,6 @@ class DAO_Workflow extends Cerb_ORMHelper {
 			SearchFields_Workflow::CREATED_AT,
 			SearchFields_Workflow::UPDATED_AT,
 			SearchFields_Workflow::VERSION,
-			SearchFields_Workflow::WEBSITE,
 			SearchFields_Workflow::WORKFLOW_KATA,
 			SearchFields_Workflow::CONFIG_KATA,
 			SearchFields_Workflow::RESOURCES_KATA
@@ -417,7 +409,6 @@ class SearchFields_Workflow extends DevblocksSearchFields {
 	const RESOURCES_KATA = 'a_resources_kata';
 	const UPDATED_AT = 'a_updated_at';
 	const VERSION = 'a_version';
-	const WEBSITE = 'a_website';
 	const WORKFLOW_KATA = 'a_workflow_kata';
 	
 	const VIRTUAL_ATTACHMENTS_SEARCH = '*_attachments_search';
@@ -502,7 +493,6 @@ class SearchFields_Workflow extends DevblocksSearchFields {
 			self::RESOURCES_KATA => new DevblocksSearchField(self::RESOURCES_KATA, 'workflow', 'resources_config', $translate->_('common.resources'), null, true),
 			self::UPDATED_AT => new DevblocksSearchField(self::UPDATED_AT, 'workflow', 'updated_at', $translate->_('common.updated'), null, true),
 			self::VERSION => new DevblocksSearchField(self::VERSION, 'workflow', 'version', $translate->_('common.version'), null, true),
-			self::WEBSITE => new DevblocksSearchField(self::WEBSITE, 'workflow', 'website', $translate->_('common.website'), null, true),
 			self::WORKFLOW_KATA => new DevblocksSearchField(self::WORKFLOW_KATA, 'workflow', 'workflow_kata', $translate->_('common.template'), null, true),
 			
 			self::VIRTUAL_ATTACHMENTS_SEARCH => new DevblocksSearchField(self::VIRTUAL_ATTACHMENTS_SEARCH, '*', 'attachments_search', null, null, false),
@@ -534,7 +524,6 @@ class Model_Workflow extends DevblocksRecordModel {
 	public string $resources_kata = '';
 	public int $updated_at = 0;
 	public int $version = 0;
-	public string $website = '';
 	public string $workflow_kata = '';
 	
 	const HAS_ACTIVITIES = 1;
@@ -1433,11 +1422,6 @@ class View_Workflow extends C4_AbstractView implements IAbstractView_Subtotals, 
 						['type' => 'search', 'context' => CerberusContexts::CONTEXT_WORKER, 'q' => ''],
 					],
 				],
-			'website' =>
-				[
-					'type' => DevblocksSearchCriteria::TYPE_TEXT,
-					'options' => ['param_key' => SearchFields_Workflow::WEBSITE, 'match' => DevblocksSearchCriteria::OPTION_TEXT_PARTIAL],
-				],
 		];
 		
 		// Add quick search links
@@ -1541,7 +1525,6 @@ class View_Workflow extends C4_AbstractView implements IAbstractView_Subtotals, 
 			case SearchFields_Workflow::DESCRIPTION:
 			case SearchFields_Workflow::NAME:
 			case SearchFields_Workflow::RESOURCES_KATA:
-			case SearchFields_Workflow::WEBSITE:
 				$criteria = $this->_doSetCriteriaString($field, $oper, $value);
 				break;
 			
@@ -1729,7 +1712,6 @@ function getContextIdFromAlias($alias) {
 			'resources_kata' => $prefix.$translate->_('dao.workflow.resources_kata'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'version' => $prefix.$translate->_('common.version'),
-			'website' => $prefix.$translate->_('common.website'),
 			'workflow_kata' => $prefix.$translate->_('dao.workflow.workflow_kata'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		];
@@ -1746,7 +1728,6 @@ function getContextIdFromAlias($alias) {
 			'resources_kata' => Model_CustomField::TYPE_MULTI_LINE,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'version' => Model_CustomField::TYPE_DATE,
-			'website' => Model_CustomField::TYPE_URL,
 			'workflow_kata' => Model_CustomField::TYPE_MULTI_LINE,
 			'record_url' => Model_CustomField::TYPE_URL,
 		];
@@ -1778,7 +1759,6 @@ function getContextIdFromAlias($alias) {
 			$token_values['resources_kata'] = $workflow->resources_kata;
 			$token_values['updated_at'] = $workflow->updated_at;
 			$token_values['version'] = $workflow->version;
-			$token_values['website'] = $workflow->website;
 			$token_values['workflow_kata'] = $workflow->workflow_kata;
 			
 			// Custom fields
@@ -1803,7 +1783,6 @@ function getContextIdFromAlias($alias) {
 			'resources_kata' => DAO_Workflow::RESOURCES_KATA,
 			'updated_at' => DAO_Workflow::UPDATED_AT,
 			'version' => DAO_Workflow::VERSION,
-			'website' => DAO_Workflow::WEBSITE,
 			'workflow_kata' => DAO_Workflow::WORKFLOW_KATA,
 		];
 	}

@@ -544,11 +544,6 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 				$update_fields[DAO_Workflow::DESCRIPTION] = $workflow->description;
 			}
 			
-			if(($new_template['workflow']['website'] ?? null) && $new_template['workflow']['website'] != $workflow->website) {
-				$workflow->website = $new_template['workflow']['website'] ?? '';
-				$update_fields[DAO_Workflow::WEBSITE] = $workflow->website;
-			}
-			
 			if($workflow->id && $update_fields) {
 				if(!DAO_Workflow::validate($update_fields, $error, $workflow->id)) {
 					throw new Exception_DevblocksValidationError($error);
