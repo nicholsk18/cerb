@@ -1205,6 +1205,24 @@ class Model_Workflow extends DevblocksRecordModel {
 		
 		return $template['workflow'] ?? [];
 	}
+	
+	public function importResources(mixed $import_kata) {
+		$kata = DevblocksPlatform::services()->kata();
+		
+		// Do we have imported keys?
+		if($import_kata) {
+			$was_resources = $this->getResources();
+			$import_kata = $kata->parse($import_kata);
+			
+			if(is_array($import_kata) && ($import_kata = $kata->formatTree($import_kata))) {
+				foreach (($import_kata['records'] ?? []) as $record_key => $record_id) {
+					$was_resources['records'][$record_key] = $record_id;
+				}
+				
+				$this->resources_kata = $kata->emit($was_resources);
+			}
+		}
+	}
 };
 
 class View_Workflow extends C4_AbstractView implements IAbstractView_Subtotals, IAbstractView_QuickSearch {

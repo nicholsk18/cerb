@@ -594,6 +594,7 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 	private function _profileAction_saveConfigJson() {
 		$id = DevblocksPlatform::importGPC($_POST['id'] ?? null, 'integer', 0);
 		$workflow_kata = DevblocksPlatform::importGPC($_POST['template']['kata'] ?? null, 'string', '');
+		$import_kata = DevblocksPlatform::importGPC($_POST['template']['import_resources'] ?? null, 'string', '');
 		$config_values = DevblocksPlatform::importGPC($_POST['config_values'] ?? [], 'array', []);
 
 		DevblocksPlatform::services()->http()->setHeader('Content-Type', 'application/json; charset=utf-8');
@@ -648,6 +649,9 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 			
 			if(!($records_sheet = $sheets->parse($records_sheet_kata, $error)))
 				throw new Exception_DevblocksAjaxValidationError('Sheet Parse Error: ' . $error);
+			
+			if($import_kata)
+				$was_workflow->importResources($import_kata);
 			
 			$was_workflow->getChangesAutomation($new_workflow, $resource_keys);
 			
@@ -782,16 +786,25 @@ class PageSection_ProfilesWorkflow extends Extension_PageSection {
 			
 			if($delete) {
 				$workflow_kata = '';
+				$import_kata = '';
 				$config_values = [];
 			} else {
 				$workflow_kata = DevblocksPlatform::importGPC($_POST['template']['kata'] ?? null, 'string', '');
+				$import_kata = DevblocksPlatform::importGPC($_POST['template']['import_resources'] ?? null, 'string', '');
 				$config_values = DevblocksPlatform::importGPC($_POST['config_values'] ?? [], 'array', []);
 			}
 			
 			$new_workflow = clone $was_workflow;
 			$new_workflow->workflow_kata = $workflow_kata;
 			$new_workflow->setConfigValues($config_values);
-		
+
+			if($import_kata) {
+				$was_workflow->importResources($import_kata);
+				DAO_Workflow::update($was_workflow->id, [
+					DAO_Workflow::RESOURCES_KATA => $was_workflow->resources_kata,
+				]);
+			}
+			
 			if($delete) {
 				CerberusContexts::logActivityRecordDelete(CerberusContexts::CONTEXT_WORKFLOW, $id, $was_workflow->name);
 				
