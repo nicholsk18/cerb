@@ -1927,8 +1927,10 @@ function getContextIdFromAlias($alias) {
 						'params' => [
 							'width' => 300,
 						],
-						'paging' => 'false',
-						'titleColumn' => 'name',
+						'paging' => true,
+						'headings' => false,
+						'filtering' => true,
+						'title_column' => 'name',
 					],
 					'columns' => [
 						'selection/id' => [
@@ -1939,7 +1941,7 @@ function getContextIdFromAlias($alias) {
 						'text/name' => [
 							'params' => [
 								'bold' =>  true,
-								'text_size' => '150%',
+								'text_size' => '130%',
 							],
 						],
 						'text/description' => [],
@@ -1958,10 +1960,10 @@ function getContextIdFromAlias($alias) {
 						'name' => '(Empty)',
 						'description' => 'Build a new workflow',
 					],
-					'cerb.tutorial' => [
-						'id' => 'cerb.tutorial',
-						'name' => 'Tutorial',
-						'description' => 'A workspace with detailed descriptions and examples of Cerb functionality',
+					'cerb.notifications.mention_emailer' => [
+						'id' => 'cerb.notifications.mention_emailer',
+						'name' => '@Mention Email Notifications',
+						'description' => "Email workers when they are @mentioned in a comment",
 					],
 					'cerb.auto_responder' => [
 						'id' => 'cerb.auto_responder',
@@ -1973,45 +1975,40 @@ function getContextIdFromAlias($alias) {
 						'name' => 'Auto Dispatcher',
 						'description' => 'Automatically assign tickets to workers based on priority',
 					],
-					'cerb.email.dmarc_reports' => [
-						'id' => 'cerb.email.dmarc_reports',
-						'name' => 'DMARC Reports',
-						'description' => 'Parse DMARC report attachments in email',
-					],
-					'cerb.email.org_by_hostname' => [
-						'id' => 'cerb.email.org_by_hostname',
-						'name' => 'Sender Org By Hostname',
-						'description' => 'Assign organizations to new senders based on their email @hostname',
-					],
-					'cerb.email.pgp_inline' => [
-						'id' => 'cerb.email.pgp_inline',
-						'name' => 'PGP Inline Encryption',
-						'description' => 'Encrypt messages with PGP and paste them inline in outgoing email',
-					],
-					'cerb.integrations.aws_bedrock.profile_images' => [
-						'id' => 'cerb.integrations.aws_bedrock.profile_images',
-						'name' => 'Generate Profile Images (Amazon Bedrock)',
-						'description' => 'Generate profile images from a text prompt using Amazon Bedrock foundational models',
-					],
-					'cerb.login.terms_of_use' => [
-						'id' => 'cerb.login.terms_of_use',
-						'name' => 'Worker Login Terms of Use',
-						'description' => "Require acceptance of 'Terms of Use' before a worker can login in",
-					],
-					'cerb.notifications.mention_emailer' => [
-						'id' => 'cerb.notifications.mention_emailer',
-						'name' => '@Mention Email Notifications',
-						'description' => "Email workers when they are @mentioned in a comment",
+					'cerb.capture_feedback' => [
+						'id' => 'cerb.capture_feedback',
+						'name' => 'Capture Feedback',
+						'description' => 'Capture user feedback while reading email messages',
 					],
 					'cerb.satisfaction.surveys' => [
 						'id' => 'cerb.satisfaction.surveys',
 						'name' => 'Customer Satisfaction Surveys',
 						'description' => 'Gather and monitor customer satisfaction metrics like NPS, CSAT, and CES.',
 					],
-					'cerb.capture_feedback' => [
-						'id' => 'cerb.capture_feedback',
-						'name' => 'Capture Feedback',
-						'description' => 'Capture user feedback while reading email messages',
+					'cerb.email.dmarc_reports' => [
+						'id' => 'cerb.email.dmarc_reports',
+						'name' => 'DMARC Reports',
+						'description' => 'Parse DMARC report attachments in email',
+					],
+					'cerb.integrations.aws_bedrock.profile_images' => [
+						'id' => 'cerb.integrations.aws_bedrock.profile_images',
+						'name' => 'Generate Profile Images (Amazon Bedrock)',
+						'description' => 'Generate profile images from a text prompt using Amazon Bedrock foundational models',
+					],
+					'cerb.email.pgp_inline' => [
+						'id' => 'cerb.email.pgp_inline',
+						'name' => 'PGP Inline Encryption',
+						'description' => 'Encrypt messages with PGP and paste them inline in outgoing email',
+					],
+					'cerb.quickstart' => [
+						'id' => 'cerb.quickstart',
+						'name' => 'Quickstart Checklist',
+						'description' => 'A workspace with a quickstart checklist for initial configuration of Cerb',
+					],
+					'cerb.email.org_by_hostname' => [
+						'id' => 'cerb.email.org_by_hostname',
+						'name' => 'Sender Org By Hostname',
+						'description' => 'Assign organizations to new senders based on their email @hostname',
 					],
 					'cerb.search.simple' => [
 						'id' => 'cerb.search.simple',
@@ -2023,10 +2020,15 @@ function getContextIdFromAlias($alias) {
 						'name' => 'Service Level Agreemenets',
 						'description' => 'Enforce Service Level Agreements (SLA) for tickets from organizations',
 					],
-					'cerb.quickstart' => [
-						'id' => 'cerb.quickstart',
-						'name' => 'Quickstart Checklist',
-						'description' => 'A workspace with a quickstart checklist for initial configuration of Cerb',
+					'cerb.tutorial' => [
+						'id' => 'cerb.tutorial',
+						'name' => 'Tutorial',
+						'description' => 'A workspace with detailed descriptions and examples of Cerb functionality',
+					],
+					'cerb.login.terms_of_use' => [
+						'id' => 'cerb.login.terms_of_use',
+						'name' => 'Worker Login Terms of Use',
+						'description' => "Require acceptance of 'Terms of Use' before a worker can login in",
 					],
 				];
 				
