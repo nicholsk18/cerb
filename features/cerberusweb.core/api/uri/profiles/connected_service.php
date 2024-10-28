@@ -120,15 +120,24 @@ class PageSection_ProfilesConnectedService extends Extension_PageSection {
 						
 						$new_service = reset($records_created[Context_ConnectedService::ID]);
 						
-						if($view_id)
-							C4_AbstractView::setMarqueeContextCreated($view_id, Context_ConnectedService::ID, $new_service['id']);
-						
-						echo json_encode([
+						$json_response = [
 							'status' => true,
 							'id' => $new_service['id'],
 							'label' => $new_service['label'],
 							'view_id' => $view_id,
-						]);
+						];
+						
+						if(array_key_exists(Context_ConnectedAccount::ID, $records_created)) {
+							$new_account = reset($records_created[Context_ConnectedAccount::ID]);
+							
+							$json_response['account_id'] = $new_account['id'];
+							$json_response['account_label'] = $new_account['label'];
+						}
+						
+						if($view_id)
+							C4_AbstractView::setMarqueeContextCreated($view_id, Context_ConnectedService::ID, $new_service['id']);
+						
+						echo json_encode($json_response);
 						return;
 						
 					case 'build':
