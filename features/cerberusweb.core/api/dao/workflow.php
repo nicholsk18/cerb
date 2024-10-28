@@ -1988,6 +1988,11 @@ function getContextIdFromAlias($alias) {
 						'name' => 'PGP Inline Encryption',
 						'description' => 'Encrypt messages with PGP and paste them inline in outgoing email',
 					],
+					'cerb.integrations.aws_bedrock.profile_images' => [
+						'id' => 'cerb.integrations.aws_bedrock.profile_images',
+						'name' => 'Generate Profile Images (Amazon Bedrock)',
+						'description' => 'Generate profile images from a text prompt using Amazon Bedrock foundational models',
+					],
 					'cerb.login.terms_of_use' => [
 						'id' => 'cerb.login.terms_of_use',
 						'name' => 'Worker Login Terms of Use',
