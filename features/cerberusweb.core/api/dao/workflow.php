@@ -1995,6 +1995,11 @@ function getContextIdFromAlias($alias) {
 						'name' => 'Generate Profile Images (Amazon Bedrock)',
 						'description' => 'Generate profile images from a text prompt using Amazon Bedrock foundational models',
 					],
+					'cerb.integrations.ipstack' => [
+						'id' => 'cerb.integrations.ipstack',
+						'name' => 'Geolocate IPs (IPstack)',
+						'description' => 'Geolocate IPs and render locations on maps',
+					],
 					'cerb.email.pgp_inline' => [
 						'id' => 'cerb.email.pgp_inline',
 						'name' => 'PGP Inline Encryption',

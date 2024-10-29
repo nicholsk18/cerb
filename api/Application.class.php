@@ -648,6 +648,7 @@ class CerberusApplication extends DevblocksApplication {
 			'cerb.email.org_by_hostname',
 			'cerb.email.pgp_inline',
 			'cerb.integrations.aws_bedrock.profile_images',
+			'cerb.integrations.ipstack',
 			'cerb.login.terms_of_use',
 			'cerb.notifications.mention_emailer',
 			'cerb.quickstart',
