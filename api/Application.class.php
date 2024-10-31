@@ -6556,6 +6556,9 @@ class _CerbApplication_KataSchemas {
                 title_column:
                   types:
                     string:
+                params:
+                  types:
+                    list:
         
         columns:
           types:
