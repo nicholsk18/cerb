@@ -1263,17 +1263,7 @@ class Context_WorkerRole extends Extension_DevblocksContext implements IDevblock
 	}
 	
 	function getKeyMeta($with_dao_fields=true) {
-		$keys = parent::getKeyMeta($with_dao_fields);
-		
-		$keys['params'] = [
-			'key' => 'params',
-			'is_immutable' => false,
-			'is_required' => false,
-			'notes' => 'JSON-encoded key/value object',
-			'type' => 'object',
-		];
-		
-		return $keys;
+		return parent::getKeyMeta($with_dao_fields);
 	}
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
