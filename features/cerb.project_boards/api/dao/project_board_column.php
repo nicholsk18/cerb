@@ -518,7 +518,6 @@ class Model_ProjectBoardColumn extends DevblocksRecordModel {
 	public $functions_kata;
 	public $id;
 	public $name;
-	public $params;
 	public $pos;
 	public $toolbar_kata;
 	public $updated_at;
@@ -1245,14 +1244,6 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 			'type' => 'links',
 		];
 		
-		$keys['params'] = [
-			'key' => 'params',
-			'is_immutable' => false,
-			'is_required' => false,
-			'notes' => 'JSON-encoded key/value object',
-			'type' => 'object',
-		];
-		
 		$keys['board_id']['notes'] = "The [project board](/docs/records/types/project_board/) containing this column";
 		
 		return $keys;
@@ -1428,11 +1419,6 @@ class Context_ProjectBoardColumn extends Extension_DevblocksContext implements I
 			$tpl->assign('types', $types);
 			
 			$tpl->assign('model', $model);
-			
-			if(isset($model->params['behaviors'])) {
-				$behaviors = DAO_TriggerEvent::getIds(array_keys($model->params['behaviors']));
-				$tpl->assign('behaviors', $behaviors);
-			}
 			
 			$tpl->assign('trigger_card_action_ext', Extension_AutomationTrigger::get(AutomationTrigger_ProjectBoardCardAction::ID, true));
 			$tpl->assign('trigger_render_card_ext', Extension_AutomationTrigger::get(AutomationTrigger_ProjectBoardRenderCard::ID, true));

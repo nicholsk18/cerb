@@ -997,7 +997,6 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 			'id' => $prefix.$translate->_('common.id'),
 			'cards_kata' => $prefix.$translate->_('common.cards_kata'),
 			'name' => $prefix.$translate->_('common.name'),
-			'params' => $prefix.$translate->_('common.params'),
 			'updated_at' => $prefix.$translate->_('common.updated'),
 			'record_url' => $prefix.$translate->_('common.url.record'),
 		);
@@ -1008,7 +1007,6 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 			'id' => Model_CustomField::TYPE_NUMBER,
 			'cards_kata' => Model_CustomField::TYPE_MULTI_LINE,
 			'name' => Model_CustomField::TYPE_SINGLE_LINE,
-			'params' => null,
 			'updated_at' => Model_CustomField::TYPE_DATE,
 			'record_url' => Model_CustomField::TYPE_URL,
 		);
@@ -1060,17 +1058,7 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 	}
 	
 	function getKeyMeta($with_dao_fields=true) {
-		$keys = parent::getKeyMeta($with_dao_fields);
-		
-		$keys['params'] = [
-			'key' => 'params',
-			'is_immutable' => false,
-			'is_required' => false,
-			'notes' => 'JSON-encoded key/value object',
-			'type' => 'object',
-		];
-		
-		return $keys;
+		return parent::getKeyMeta($with_dao_fields);
 	}
 	
 	function getDaoFieldsFromKeyAndValue($key, $value, &$out_fields, $data, &$error) {
