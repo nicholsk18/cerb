@@ -2926,9 +2926,11 @@ div.cerb-board .cerb-board-column div.cerb-board-card > div {
 
 TABLE.cerb-widget-data-table th {
   font-weight: bold;
-  font-size: 1.25em;
+  font-size: 0.75em;
+  text-transform: uppercase;
   text-align: left;
   padding: 0 5px 5px 5px;
+  color: var(--cerb-color-background-contrast-100);
 }
 TABLE.cerb-widget-data-table td {
   padding: 5px;
