@@ -862,7 +862,7 @@ class View_ProjectBoard extends C4_AbstractView implements IAbstractView_Subtota
 	}
 };
 
-class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete { // IDevblocksContextImport
+class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextAutocomplete, IDevblocksContextWorkflow { // IDevblocksContextImport
 	const ID = 'cerberusweb.contexts.project.board';
 	const URI = 'project_board';
 	
@@ -1208,5 +1208,40 @@ class Context_ProjectBoard extends Extension_DevblocksContext implements IDevblo
 		} else {
 			Page_Profiles::renderCard($context, $context_id, $model);
 		}
+	}
+	
+	function workflowExport(array $ids, DevblocksWorkflowExportModel $export_model, bool $include_children = false): array {
+		$workflow_kata = [
+			'records' => [],
+		];
+		
+		$record_uri = CerberusContexts::getContextName($this->id, 'uri');
+		
+		$context_project_board_column = Extension_DevblocksContext::getByAlias('project_board_column', true);
+		
+		$models = DAO_ProjectBoard::getIds($ids);
+		
+		foreach($models as $model) {
+			$model_key = $export_model->getLabelMapFor(sprintf('%s_%d', $record_uri, $model->id));
+			$record_key = sprintf('%s/%s', $record_uri, $model_key);
+			
+			$workflow_kata['records'][$record_key] = [
+				'fields' => [
+					'name' => $model->name,
+					'owner__context' => 'app',
+					'owner_id' => 0,
+					'cards_kata' => new DevblocksKataRawString($model->cards_kata ?? ''),
+				],
+			];
+			
+			if($include_children) {
+				$columns = $model->getColumns();
+				$custom_field_kata = $context_project_board_column->workflowExport(array_keys($columns), $export_model, $include_children);
+				
+				$workflow_kata['records'] = array_merge($workflow_kata['records'], $custom_field_kata['records']);
+			}
+		}
+		
+		return $workflow_kata;
 	}
 };
