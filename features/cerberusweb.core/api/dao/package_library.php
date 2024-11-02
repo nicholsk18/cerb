@@ -878,7 +878,7 @@ class View_PackageLibrary extends C4_AbstractView implements IAbstractView_Subto
 	}
 };
 
-class Context_PackageLibrary extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek {
+class Context_PackageLibrary extends Extension_DevblocksContext implements IDevblocksContextProfile, IDevblocksContextPeek, IDevblocksContextWorkflow {
 	const ID = CerberusContexts::CONTEXT_PACKAGE;
 	const URI = 'package';
 	
@@ -1232,5 +1232,41 @@ class Context_PackageLibrary extends Extension_DevblocksContext implements IDevb
 		} else {
 			Page_Profiles::renderCard($context, $context_id, $model);
 		}
+	}
+	
+	function workflowExport(array $ids, DevblocksWorkflowExportModel $export_model, bool $include_children = false): array {
+		$workflow_kata = [
+			'records' => [],
+		];
+		
+		$record_uri = CerberusContexts::getContextName($this->id, 'uri');
+		
+		$models = DAO_PackageLibrary::getIds($ids);
+		
+		foreach($models as $model) {
+			$model_key = $export_model->getLabelMapFor(sprintf('%s_%d', $record_uri, $model->id));
+			$record_key = sprintf('%s/%s', $record_uri, $model_key);
+			
+			$workflow_kata['records'][$record_key] = [
+				'fields' => [
+					'name' => $model->name,
+					'description' => $model->description,
+					'point' => $model->point,
+					'uri' => $model->uri,
+					'package_json' => new DevblocksKataRawString($model->getPackageJson()),
+				],
+			];
+			
+			/*
+			if(($avatar = DAO_ContextAvatar::getByContext(CerberusContexts::CONTEXT_PACKAGE, $model->id))) {
+				if(($avatar_data = Storage_ContextAvatar::get($avatar))) {
+					$workflow_kata['records'][$record_key]['fields']['image'] = 'data:image/png;base64,'.base64_encode($avatar_data);
+					unset($avatar_data);
+				}
+			}
+			*/
+		}
+		
+		return $workflow_kata;
 	}
 };
