@@ -3851,7 +3851,7 @@ class Cerb_ORMHelper extends DevblocksORMHelper {
 	/**
 	 *
 	 * @param array $ids
-	 * @return DevblocksRecordModel[]
+	 * @return Model_Snippet[]
 	 */
 	static function getIds(array $ids) : array {
 		if(empty($ids))
