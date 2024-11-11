@@ -2003,15 +2003,20 @@ function getContextIdFromAlias($alias) {
 						'name' => 'Generate Profile Images (Amazon Bedrock)',
 						'description' => 'Generate profile images from a text prompt using Amazon Bedrock foundational models',
 					],
-					'cerb.integrations.ipstack' => [
-						'id' => 'cerb.integrations.ipstack',
-						'name' => 'Geolocate IPs (IPstack)',
-						'description' => 'Geolocate IPs and render locations on maps',
+					'cerb.integrations.deepl.translate' => [
+						'id' => 'cerb.integrations.deepl.translate',
+						'name' => 'Translate (DeepL)',
+						'description' => 'Translate inbound and outbound email messages using the DeepL API',
 					],
 					'cerb.integrations.gitlab.issues' => [
 						'id' => 'cerb.integrations.gitlab.issues',
 						'name' => 'Issue Tracking (GitLab)',
 						'description' => 'Search and link GitLab issues to tickets',
+					],
+					'cerb.integrations.ipstack' => [
+						'id' => 'cerb.integrations.ipstack',
+						'name' => 'Geolocate IPs (IPstack)',
+						'description' => 'Geolocate IPs and render locations on maps',
 					],
 					'cerb.email.pgp_inline' => [
 						'id' => 'cerb.email.pgp_inline',
