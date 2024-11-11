@@ -1993,6 +1993,11 @@ function getContextIdFromAlias($alias) {
 						'name' => 'Customer Satisfaction Surveys',
 						'description' => 'Gather and monitor customer satisfaction metrics like NPS, CSAT, and CES.',
 					],
+					'cerb.email.auto_watcher' => [
+						'id' => 'cerb.email.auto_watcher',
+						'name' => 'Auto Watcher',
+						'description' => 'Automatically add workers as a watcher when they reply to a ticket',
+					],
 					'cerb.email.dmarc_reports' => [
 						'id' => 'cerb.email.dmarc_reports',
 						'name' => 'DMARC Reports',

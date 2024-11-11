@@ -644,6 +644,7 @@ class CerberusApplication extends DevblocksApplication {
 			'cerb.auto_responder',
 			'cerb.capture_feedback',
 			'cerb.demo.data',
+			'cerb.email.auto_watcher',
 			'cerb.email.dmarc_reports',
 			'cerb.email.org_by_hostname',
 			'cerb.email.pgp_inline',
