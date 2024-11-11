@@ -2008,6 +2008,11 @@ function getContextIdFromAlias($alias) {
 						'name' => 'Geolocate IPs (IPstack)',
 						'description' => 'Geolocate IPs and render locations on maps',
 					],
+					'cerb.integrations.gitlab.issues' => [
+						'id' => 'cerb.integrations.gitlab.issues',
+						'name' => 'Issue Tracking (GitLab)',
+						'description' => 'Search and link GitLab issues to tickets',
+					],
 					'cerb.email.pgp_inline' => [
 						'id' => 'cerb.email.pgp_inline',
 						'name' => 'PGP Inline Encryption',
