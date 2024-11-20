@@ -1741,8 +1741,10 @@ class _DevblocksTwigExtensions extends \Twig\Extension\AbstractExtension {
 	function function_xml_decode($str, $namespaces=[], $mode=null) {
 		switch(DevblocksPlatform::strLower($mode)) {
 			case 'html':
+				$str = DevblocksPlatform::services()->string()->strip4ByteChars($str);
+				$str = '<?xml encoding="UTF-8">' . $str;
 				$doc = new DOMDocument();
-				$doc->loadHTML($str);
+				$doc->loadHTML($str, LIBXML_NOERROR);
 				$xml = simplexml_import_dom($doc);
 				break;
 				
