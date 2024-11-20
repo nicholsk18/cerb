@@ -652,6 +652,7 @@ class CerberusApplication extends DevblocksApplication {
 			'cerb.integrations.deepl.translate',
 			'cerb.integrations.gitlab.issues',
 			'cerb.integrations.ipstack',
+			'cerb.integrations.slack.notifications',
 			'cerb.login.terms_of_use',
 			'cerb.notifications.mention_emailer',
 			'cerb.quickstart',
