@@ -2040,7 +2040,7 @@ function getContextIdFromAlias($alias) {
 					],
 					'cerb.sla' => [
 						'id' => 'cerb.sla',
-						'name' => 'Service Level Agreemenets',
+						'name' => 'Service Level Agreements',
 						'description' => 'Enforce Service Level Agreements (SLA) for tickets from organizations',
 					],
 					'cerb.integrations.slack.notifications' => [
