@@ -74,6 +74,7 @@ class CerbPriorityQueueDesc extends SplPriorityQueue {
 
 enum CerbErrorReason {
 	case AccessDenied;
+	case AccessDeniedToken;
 	case DatabaseConnectionError;
 	case NoContent;
 	case NotFound;
@@ -85,6 +86,10 @@ enum CerbErrorReason {
 			self::AccessDenied => [
 				'code' => 403,
 				'template' => '403_access_denied',
+			],
+			self::AccessDeniedToken => [
+				'code' => 401,
+				'template' => '401_access_denied_token',
 			],
 			self::DatabaseConnectionError => [
 				'code' => 503,
