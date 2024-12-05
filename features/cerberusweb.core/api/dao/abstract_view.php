@@ -491,7 +491,7 @@ abstract class C4_AbstractView {
 					$params['req_'.$key] = $param;
 				}
 			} else {
-				self::marqueeFlush($this->id);
+				self::marqueeFlush();
 				self::marqueeAppend($this->id, '[Warning] Required query: ' . $error);
 			}
 		}
@@ -1124,15 +1124,16 @@ abstract class C4_AbstractView {
 			return false;
 		
 		$visit->append($view_id . '_marquee', $string);
+		return true;
 	}
 	
-	public function marqueeFlush() : void {
-		self::_marqueeFlush($this->id);
+	public function marqueeFlush() : ?array {
+		return self::_marqueeFlush($this->id);
 	}
 	
 	static function _marqueeFlush($view_id) {
 		if(null == ($visit = CerberusApplication::getVisit()))
-			return false;
+			return null;
 		
 		$mar_key = $view_id . '_marquee';
 		
