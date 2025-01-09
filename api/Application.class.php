@@ -1597,6 +1597,7 @@ class CerberusContexts {
 				
 				// Everyone can read app-owned records
 				case CerberusContexts::CONTEXT_APPLICATION:
+				case CerberusContexts::CONTEXT_WORKFLOW:
 					$is_readable = true;
 					break;
 
