@@ -106,6 +106,10 @@ class PageSection_InternalCalendars extends Extension_PageSection {
 			echo json_encode(false);
 			return;
 		}
+
+		// if date is in the past, reopen in a minute
+		if ($timestamp <= strtotime('now'))
+			$timestamp = strtotime('+1 minute');
 		
 		$results['timestamp'] = $timestamp;
 		$results['to_string'] = $date->formatTime(null, $timestamp);

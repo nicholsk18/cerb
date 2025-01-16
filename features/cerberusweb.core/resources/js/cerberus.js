@@ -1490,8 +1490,10 @@ $.fn.cerbDateInputHelper = function(options) {
 			dateFormat: 'D, d M yy',
 			defaultDate: 'D, d M yy',
 			numberOfMonths: 1,
+			minDate: 0,
 			onSelect: function(dateText, inst) {
 				inst.input.addClass('changed').focus();
+				$(this).trigger('send');
 			}
 		});
 		
